@@ -15,7 +15,12 @@
 #define RAM_AT 0x01C30000u          /* (tests/unpack_test.c gives its own) */
 #endif
 
-__attribute__((section(".stubc"), used)) int xip_unpack(const uint8_t *s, const uint8_t *end)
+#ifdef __MACH__                     /* (tests/unpack_test.c on a Mac: Mach-O names its sections segment,section) */
+#define STUBC __attribute__((used))
+#else
+#define STUBC __attribute__((section(".stubc"), used))
+#endif
+STUBC int xip_unpack(const uint8_t *s, const uint8_t *end)
 {
     uint32_t len = (uint32_t)s[0] | (uint32_t)s[1] << 8 | (uint32_t)s[2] << 16 | (uint32_t)s[3] << 24;
     uint32_t want = (uint32_t)s[4] | (uint32_t)s[5] << 8 | (uint32_t)s[6] << 16 | (uint32_t)s[7] << 24;

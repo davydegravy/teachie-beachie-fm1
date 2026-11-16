@@ -25,12 +25,24 @@ size_t strlen(const char *s);
 
 #define GB_INLINE static inline __attribute__((always_inline))
 #define GB_HOT                      /* (target: the section for code kept hot; empty on the PC) */
+/* GB_SECT(name): placed in a section of the FM-1's memory map (fw/ram.ld). On the PC that place means nothing, and
+ * a Mac (Mach-O) only takes a section named "segment,section": there it is left out (Boatswain: the PC side on a Mac) */
+#if defined(__MACH__)
+#define GB_SECT(name)
+#else
+#define GB_SECT(name) __attribute__((section(name)))
+#endif
 #if defined(__PI32V2__)
 #define GB_LOWRAM __attribute__((section(".lowbss")))   /* RAM below the firmware (fw/ram.ld): written before read */
 #define GB_BOOTRAM __attribute__((section(".bootbss")))  /* m-bootloader's RAM, ours once we run: written before read */
 #elif defined(HOST)
+#if defined(__MACH__)                                  /* (a Mac: the same section, by Mach-O's name for it) */
+#define GB_LOWRAM __attribute__((section("__DATA,twlow")))
+#define GB_BOOTRAM __attribute__((section("__DATA,twlow")))
+#else
 #define GB_LOWRAM __attribute__((section("twlow")))     /* (the PC twin: filled with garbage at its start, as the FM-1's RAM) */
 #define GB_BOOTRAM __attribute__((section("twlow")))
+#endif
 #else
 #define GB_LOWRAM
 #define GB_BOOTRAM

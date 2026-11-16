@@ -77,20 +77,20 @@
 #define VERSION "3.3.7"
 /* COLD: a function of the interface, run from the flash window (fw/ram.ld .xtext); never called while the window is
  * off (a save's flash work: fw/main.c's loop runs only the sound, the panel and the flash then) */
-#define COLD __attribute__((section(".xtext.main")))
+#define COLD GB_SECT(".xtext.main")
 /* RAMCONST: a table the audio block reads (main.o's other constants are in the window: fw/ram.ld) */
-#define RAMCONST __attribute__((section(".data.ramconst")))
+#define RAMCONST GB_SECT(".data.ramconst")
 #define HALF_FRAMES 256u
 #define NTRK 5
 
 static int16_t fxmem[GB_FX_MEM - GB_REV_LOW];   /* (the reverb's first lines: in pmem, low RAM) */
-static gb_sound S __attribute__((section(".lowbss")));   /* (snd_init clears it) */
+static gb_sound S GB_SECT(".lowbss");   /* (snd_init clears it) */
 /* (.bootbss: buffers written before they are read, each block; see fw/ram.ld) */
-static gb_bus busA __attribute__((section(".bootbss"))), busB __attribute__((section(".bootbss")));
-static int32_t abuf[2 * HALF_FRAMES * 2] __attribute__((aligned(32), section(".bootbss")));
-static seq_t Q __attribute__((section(".lowbss")));
-static seq_hist HIST __attribute__((section(".lowbss")));         /* (seq_init clears what is read) */
-static int16_t pmem[GB_PUNCH_MEM] __attribute__((section(".lowbss")));   /* the master bus's lines (master_init clears) */
+static gb_bus busA GB_SECT(".bootbss"), busB GB_SECT(".bootbss");
+static int32_t abuf[2 * HALF_FRAMES * 2] __attribute__((aligned(32))) GB_SECT(".bootbss");
+static seq_t Q GB_SECT(".lowbss");
+static seq_hist HIST GB_SECT(".lowbss");         /* (seq_init clears what is read) */
+static int16_t pmem[GB_PUNCH_MEM] GB_SECT(".lowbss");   /* the master bus's lines (master_init clears) */
 static float base[NTRK][GB_NPARAM];          /* each sound's own values (a step's locks change the live ones) */
 static int scope_one;                       /* SAVE + key: 0 every track, 1 the current track alone */
 static int sg_cur;                          /* SONG 2/2: the entry the knobs edit */
@@ -101,7 +101,7 @@ static int sg_cur;                          /* SONG 2/2: the entry the knobs edi
 static int rescue, safe_start, safe_hold;           /* safe_hold: a safe start with every place used: no save until one is opened */
 /* the quick chain: SAVE held and several pattern keys one after the other: they play in turn, each to its end */
 static uint8_t chain[SEQ_NPAT], chain_n, chain_pos, chain_on, chain_arm;   /* chain_arm: CHAIN (key 15) on */
-static uint8_t sbuf[STORE_MAX] __attribute__((aligned(4), section(".bootbss")));   /* the project as bytes */
+static uint8_t sbuf[STORE_MAX] __attribute__((aligned(4))) GB_SECT(".bootbss");   /* the project as bytes */
 COLD static int sbuf_held(void);     /* (3.1.1) the editor's transfer is in sbuf: nothing else may write it */
 COLD static void sbuf_used(void);    /* (3.1.1) sbuf rewritten: the editor's read of a file starts again */
 COLD static uint32_t proj_measure(uint32_t *crc);   /* (3.3.5) the project's length and CRC */
@@ -113,9 +113,9 @@ static const char *boot_msg;                 /* (what the first message says, if
  * in the loop, the punch-in running, how long it had played. A few stores a pass: nothing to hear */
 enum { W_NONE, W_MIDI, W_SEQ, W_VOICES, W_MIX, W_USB, W_SAVE, W_FLASH, W_SCREEN, W_N };
 #define CRUMB_MAGIC 0x43524D42u                                  /* "CRMB" */
-static volatile struct { uint32_t magic, where, fx, blocks; } crumb __attribute__((section(".noinit")));
+static volatile struct { uint32_t magic, where, fx, blocks; } crumb GB_SECT(".noinit");
 #define crumb_at(w) (crumb.where = (w))
-static char crash_msg[64] __attribute__((section(".lowbss")));   /* (.lowbss: not cleared; crumb_report sets it) */
+static char crash_msg[64] GB_SECT(".lowbss");   /* (.lowbss: not cleared; crumb_report sets it) */
 static uint32_t proj_used, saved_crc, saved_len;   /* proj_used: 1 when a saved copy of the project is in the flash (3.3.5: one project) */
 enum { HK_OPEN = 0, HK_NEW = 2, HK_SAVE = 4 };      /* (3.3.6) HOME held: the white keys of OPEN, NEW, SAVE (were 1, 8, 16): 1, 3, 5, a key between */
 static uint32_t proj_at, saving_len, save_retry, proj_pct, home_arm_t; static int home_arm;          /* (3.3.5) the saved copy's data in the flash; the length being saved; saves begun again */
@@ -278,7 +278,7 @@ COLD static const char *uk_name(int kit)
 }
 #define FB_GAIN 0.75f
 static uint32_t fm6_bank_at, fm6_bank_used;
-static char fb_nm[FM6_NBANK][11] __attribute__((section(".lowbss")));   /* (cleared at the start, before the first screen) */
+static char fb_nm[FM6_NBANK][11] GB_SECT(".lowbss");   /* (cleared at the start, before the first screen) */
 static uint8_t fb_scan;
 /* an FM6 track's PTCH, in the engine's own range (until 3.2 read on the 0..127 scale of the shared values: B1 was
  * taken for B23, its voice never the one the engine waited for, and every bank voice played as the INIT voice) */
@@ -413,7 +413,7 @@ COLD static int lock_own(int t, int k)                     /* a lock's starting 
 }
 static void base_of_track(int t) { mix_back(t); for (int i = 0; i < GB_NPARAM; i++) base[t][i] = S.trk[t].patch.p[i]; Q.t[t].lock_step = -1; }
 /* each pattern's own sound (app/psound.h): the live sound is the current pattern's; a pattern change swaps them */
-static psounds PS __attribute__((section(".lowbss")));          /* (ps_all fills it before it is read) */
+static psounds PS GB_SECT(".lowbss");          /* (ps_all fills it before it is read) */
 static int preset_of[NTRK];
 COLD static void ps_all(void) { for (int t = 0; t < NTRK; t++) ps_fill(&PS, t, Q.t[t].cur, &S.trk[t].patch, base[t], preset_of[t]); }
 static void ps_keep(int t) { ps_take(&PS, t, PS.cur[t], &S.trk[t].patch, base[t], preset_of[t]); }   /* live -> its pattern */
@@ -1559,7 +1559,7 @@ COLD static void fill_view(ui_view *v)
 #define TILE_W 120
 #define TILE_H 16
 #define NTILES ((GFX_W / TILE_W) * (GFX_H / TILE_H))
-static uint16_t tilebuf[TILE_W * TILE_H] __attribute__((aligned(4), section(".bootbss")));
+static uint16_t tilebuf[TILE_W * TILE_H] __attribute__((aligned(4))) GB_SECT(".bootbss");
 static uint32_t tile_hash[NTILES];
 static uint8_t tile_sent[NTILES];
 static int tile_i = -1;
@@ -1824,7 +1824,7 @@ static struct { uint8_t on; uint32_t next; } roll[27];      /* ARP + a key: it r
 /* the free take (REC on an empty project, then play freely): the notes as played, in microseconds from the first;
  * REC on the "1" after the last bar closes it: 1, 2 or 4 bars at the tempo nearest the one set (kept within 3 %) */
 #define FT_MAX 256
-static struct { uint32_t on, off; uint8_t note, vel, trk, open; } ft_ev[FT_MAX] __attribute__((section(".lowbss")));   /* (written before read) */
+static struct { uint32_t on, off; uint8_t note, vel, trk, open; } ft_ev[FT_MAX] GB_SECT(".lowbss");   /* (written before read) */
 static int ft_on, ft_n;
 static uint32_t ft_t0, ft_said;
 static uint32_t ft_us(void) { return (uint32_t)(time_ticks() - ft_t0) / lsb; }   /* since the take began (< 72 s) */

@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>                  /* (_exit: on Linux another header brings it, on a Mac not) */
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
@@ -258,6 +259,7 @@ static void sc_boot(void)                     /* a blank FM-1: it starts, it pla
     EXPECT(tw_audio_on, "no sound started");
     shot("boot");                                         /* (the start's logo, 3.1.6; 3.3: no popup with the version after it) */
     EXPECT(splash_on, "the start: no logo");
+    wait_ms(1700); if (splash_on) shot("boot-name");      /* (Boatswain: the name written in, before the logo goes) */
     for (int i = 0; i < 400 && splash_on; i++) wait_ms(10);
     wait_ms(100);
     EXPECT(!splash_on && !msg_live && !said_since(0, "SLOOP " VERSION), "a popup at the start (3.3: none, unless something is wrong)");
@@ -2110,7 +2112,11 @@ static void *tw_script(void *arg)
 }
 /* the RAM the FM-1 never clears (fw/ram.ld .lowbss, .bootbss: m-bootloader's and the loader's left-overs): garbage
  * at the start, as there; what reads it before writing it shows (TWIN_RAM=zero: cleared, as before) */
+#ifdef __MACH__                              /* (a Mac: the linker's names for a section's ends, Mach-O's way) */
+extern uint8_t __start_twlow[] __asm("section$start$__DATA$twlow"), __stop_twlow[] __asm("section$end$__DATA$twlow");
+#else
 extern uint8_t __start_twlow[], __stop_twlow[];
+#endif
 __attribute__((no_sanitize_address)) static void garble(void *p, size_t n)
 {
     volatile uint8_t *b = p; for (size_t i = 0; i < n; i++) b[i] = (uint8_t)(tw_rnd() >> 3);

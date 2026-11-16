@@ -1,5 +1,12 @@
 # The PC side: tests and the demo render (the FM-1 build comes with hal/fm1)
 CC ?= cc
+# the sanitizers of the twin and the fuzzer (Boatswain: on macOS 26, Apple clang 17's AddressSanitizer hangs as it
+# starts, before main: there the undefined-behaviour checks only; SAN=... to choose)
+ifeq ($(shell uname),Darwin)
+SAN ?= -fsanitize=undefined
+else
+SAN ?= -fsanitize=address,undefined
+endif
 CFLAGS ?= -O2 -std=c11 -Wall -Wextra -Wno-unused-parameter -ffp-contract=off
 ENGINE = engine/sound.c engine/fx.c engine/master.c engine/common.c engine/va.c engine/drum.c engine/drumkits.c engine/fm.c engine/lofi.c engine/pd.c engine/wheel.c engine/noise.c engine/voice.c engine/trio.c engine/phys.c engine/fm6.c engine/fm6_patches.c engine/sample.c engine/grain.c engine/slice.c engine/slice_scan.c engine/trackfx.c engine/texture.c engine/engines.c
 .PHONY: test demo clean levels fuzz twin denorm fonts
@@ -45,13 +52,13 @@ FUZZSRC = tests/fuzz.c app/project.c app/psound.c app/presets.c app/preset_data.
 fuzz: build/fuzz
 	ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 ./build/fuzz 3000
 build/fuzz: $(FUZZSRC)
-	mkdir -p build && gcc -O1 -g -std=c11 -Wall -Wextra -Wno-unused-parameter -ffp-contract=off -fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer -o $@ $(FUZZSRC) -lm
+	mkdir -p build && gcc -O1 -g -std=c11 -Wall -Wextra -Wno-unused-parameter -ffp-contract=off $(SAN) -fno-sanitize-recover=undefined -fno-omit-frame-pointer -o $@ $(FUZZSRC) -lm
 # the PC twin: fw/main.c itself on a simulated FM-1 (host/), its scenarios (host/twin.sh), under the sanitizers
 TWINSRC = host/twin.c host/hal.c app/project.c app/psound.c app/presets.c app/preset_data.c app/sloopimport.c app/sloop_kinds.c app/usersnd.c app/xbank.c app/edproto.c app/store.c app/ui.c app/gfx.c app/vis.c app/fonts.c app/harmony.c app/midi.c app/arp.c app/engdesc.c app/demo_song.c seq/seq.c $(ENGINE)
 twin: build/twin build/fw/fw.area
 	sh host/twin.sh 60 "1 2"
 build/twin: $(TWINSRC) fw/main.c host/twin.h
-	mkdir -p build && gcc -DHOST -O1 -g -std=gnu11 -w -ffp-contract=off -fsanitize=address,undefined -fno-omit-frame-pointer -pthread -o $@ $(TWINSRC) -lm
+	mkdir -p build && gcc -DHOST -O1 -g -std=gnu11 -w -ffp-contract=off $(SAN) -fno-omit-frame-pointer -pthread -o $@ $(TWINSRC) -lm
 demo: build/demo
 	./build/demo build/demo.wav
 build/demo: host/demo.c app/demo_song.c app/demo_song.h $(ENGINE) engine/engine.h core/gb.h

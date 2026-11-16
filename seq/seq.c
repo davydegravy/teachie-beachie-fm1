@@ -5,7 +5,7 @@
 
 /* (3.3.7) what only the interface calls (editing, never while a save has the flash window off): run from the window,
  * the RAM's room kept for what plays (tools/xipcheck.py checks the rule) */
-#define SEQ_COLD __attribute__((section(".xtext.seq")))
+#define SEQ_COLD GB_SECT(".xtext.seq")
 static float tick_per_frame(const seq_t *s) { return s->bpm * 4.0f * (float)SEQ_TPS / 60.0f / s->rate; }
 
 void seq_init(seq_t *s, float rate, float bpm, seq_hist *hist)

@@ -317,7 +317,7 @@ static void logo(const xf *T, float dial, float lit, uint16_t dim, float mast, c
 #undef SY
 }
 /* "sloop" (the long logo's strokes, its units); reveal 0..1 letter by letter */
-static void word(float ox, float oy, float s, float reveal, uint16_t col)
+__attribute__((unused)) static void word(float ox, float oy, float s, float reveal, uint16_t col)   /* (Boatswain: its name instead, below) */
 {
 #define P(v) (ox + (v) * s)
 #define Q(v) (oy + (v) * s)
@@ -352,7 +352,14 @@ void vis_splash_draw(void)
         float g = t - 1.6f - 0.07f * (float)k; if (g > 0.0f && g < 0.25f) bc[k] = gfx_mix(SPL_COL[k], LW, (unsigned)(20.0f * (1.0f - g * 4.0f))); }   /* (a glint across) */
     xf T = { 120.0f - 120.0f * 0.62f, 12.0f, 0.62f };
     logo(&T, ease(t / 0.7f), 1.0f, gfx_mix(0, LW, 6), ease((t - 0.25f) / 0.4f), reach, bc, ease((t - 1.05f) / 0.4f), ease((t - 0.15f) / 0.35f), 0.0f, 0.0f);
-    word(120.0f - 443.0f * 0.36f, 132.0f, 0.36f, (t - 1.0f) / 0.7f, LW);
+    {   /* Boatswain: its name written in letter by letter where SLOOP's word was, and SLOOP 3 credited under it */
+        static const char NAME[] = "BOATSWAIN"; char s[sizeof NAME]; float r = (t - 1.0f) / 0.7f;
+        int n = r <= 0.0f ? 0 : r >= 1.0f ? (int)sizeof NAME - 1 : (int)(r * (float)(sizeof NAME - 1)) + 1;
+        for (int i = 0; i < n; i++) s[i] = NAME[i];
+        s[n] = 0;
+        if (n) gfx_text(&font_l, 120 - gfx_text_w(&font_l, NAME) / 2, 160, s, LW);
+        if (t > 1.6f) gfx_text_c(&font_s, 120, 204, "WITH SLOOP 3", gfx_mix(0, RGB(150, 150, 160), (unsigned)(t > 2.0f ? 32.0f : (t - 1.6f) * 80.0f)));
+    }
     if (SPL_VER && t > 1.6f) gfx_text_c(&font_s, 120, 222, SPL_VER, gfx_mix(0, RGB(150, 150, 160), (unsigned)(t > 2.0f ? 32.0f : (t - 1.6f) * 80.0f)));
 }
 void vis_draw(void)

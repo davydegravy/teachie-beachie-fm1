@@ -7,6 +7,7 @@ export ASAN_OPTIONS=detect_leaks=0:handle_segv=0:allow_user_segv_handler=1:handl
 export UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1
 MS=${1:-120}; SEEDS=${2:-"1 2 3"}; CUTS=${CUTS:-"11 12 13 14 15 16 17 18"}
 fail=0
+command -v timeout > /dev/null 2>&1 || timeout() { perl -e 'alarm shift; exec @ARGV or die "no $ARGV[0]\n"' "$@"; }   # (a Mac has no timeout: perl's alarm)
 same() {  # the state a scenario saved, found again by the next start
   if diff -q $O/$1/end-state.txt $O/$2/boot-state.txt > /dev/null 2>&1; then printf '%-22s ok  the state saved came back\n' "$1 = $2"
   else printf '%-22s FAIL\n' "$1 = $2"; diff $O/$1/end-state.txt $O/$2/boot-state.txt | head -6; fail=1; fi

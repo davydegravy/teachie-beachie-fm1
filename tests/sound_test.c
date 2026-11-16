@@ -702,11 +702,11 @@ static double play_rms(int eng, int e0, int t, int note, int blocks)
 /* 3.3.6: a note's pitch, from the output's autocorrelation (the strongest lag past the first dip) */
 static double pitch_of(int eng, int e0, int note)
 {
-    static float o[64 * GB_BLOCK];
+    static float o[72 * GB_BLOCK];       /* (Boatswain: 72, not 64: the lags below read up to block 16 + 32 + 1199 samples) */
     reset(); sm_jump(&S.master, 1.0f); sm_jump(&S.trk[1].level, 1.0f);
     gb_patch *p = &S.trk[1].patch; gb_patch_default(p, eng); gb_patch_set(p, SP_E0, e0); gb_patch_set(p, SP_SUS, 127);
     snd_note_on(&S, GB_OWNER(OWN_KEY, 0), 1, note, 1.0f);
-    for (int b = 0; b < 64; b++) { snd_render(&S, out); for (int n = 0; n < GB_BLOCK; n++) o[b * GB_BLOCK + n] = snd_last_l[n]; }
+    for (int b = 0; b < 72; b++) { snd_render(&S, out); for (int n = 0; n < GB_BLOCK; n++) o[b * GB_BLOCK + n] = snd_last_l[n]; }
     const float *x = o + 16 * GB_BLOCK; int N = 32 * GB_BLOCK, best = 0; double bv = -1e9, r0 = 0;
     for (int i = 0; i < N; i++) r0 += (double)x[i] * x[i];
     static double R[1200]; int dipped = 0, d0 = 0;

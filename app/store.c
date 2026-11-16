@@ -3,7 +3,7 @@
 #include "store.h"
 #include "../core/gb.h"
 #if defined(__PI32V2__)
-#define XT __attribute__((section(".xtext.store")))      /* (3.3.5: what never runs while the flash works: from the window) */
+#define XT GB_SECT(".xtext.store")      /* (3.3.5: what never runs while the flash works: from the window) */
 #else
 #define XT
 #endif
