@@ -1581,6 +1581,118 @@ COLD static void vis_pass(void)
     in.beats256 = b256; in.style = vis_style; in.name = vis_named; if (vis_named) vis_named--;
     sbuf_used(); vis_frame(sbuf, &in);
 }
+/* TEACHIE PEACHIE: the guide (ED_GUIDE). A lesson on the computer shows a card (the screen white, its words in black), lights
+ * buttons and keys, takes some of them for itself (their presses reported, not acted on) and reads every press and
+ * turn. Nothing here acts by itself: with no lesson running, SLOOP 3 is as it was.
+ *   ED_GUIDE op ...  ->  op, the page (PG_*), the track, card shown, n, then n presses and turns: kind, which
+ *     0                    everything off
+ *     1 style words 0 left 0 right 0    a card: style bit 0 shown, bit 1 its words large and centred (a reply), bits
+ *                          2-3 a strip (1 at the top, 2 at the bottom: a band over the page, which stays live); the
+ *                          words (a name in [ ] is framed: a button's), the OCT- answer, the OCT+ answer
+ *     2 only (id how)...   the lights: only 1 puts SLOOP's own out; id 0..13 a button, 14..40 a key; how 1..4 a level,
+ *                          5 the double blink (the guide points)
+ *     3 keys(u32) buttons(u16) knobs(u8)   what the guide takes for itself
+ *     4                    nothing: the presses since the last answer
+ *   kinds: 1 a key down, 2 up, 3 a button down, 4 up, 5 a knob a click right, 6 left */
+/* (its look: white paper, black ink, nothing else; SLOOP's pages are dark, so a card is plainly not SLOOP's) */
+#define G_PAPER RGB(255, 255, 255)
+#define G_INK RGB(0, 0, 0)
+static struct {
+    uint8_t card, big, strip, only, gen, home;     /* home: the card of the start, until a lesson or JUST PLAY */           /* strip: 0 a whole card, 1 a band at the top, 2 at the bottom */
+    char text[176], left[16], right[16];
+    uint8_t ls[8], ll[8], nl;                       /* the words' lines: where each starts, how long */
+    uint8_t led[41];
+    uint32_t cap_keys, cap_btn, took_keys, took_btn; uint8_t cap_enc;
+    uint8_t ev[32][2], ev_r, ev_w;
+} G;
+static uint8_t g_drawn;
+COLD static void guide_ev(int kind, int id)
+{
+    G.ev[G.ev_w & 31][0] = (uint8_t)kind; G.ev[G.ev_w & 31][1] = (uint8_t)id; G.ev_w++;
+    if ((uint8_t)(G.ev_w - G.ev_r) > 32) G.ev_r = (uint8_t)(G.ev_w - 32);
+}
+/* the presses (pr) and releases (rel) of the n keys or buttons: all reported; those the guide takes, taken out (a
+ * release is taken only if its press was) */
+COLD static uint32_t guide_edges(int kind, uint32_t *pr, uint32_t *rel, int n, uint32_t cap, uint32_t *took)
+{
+    for (int i = 0; i < n; i++) { if (*pr & (1u << i)) guide_ev(kind, i); if (*rel & (1u << i)) guide_ev(kind + 1, i); }
+    uint32_t p = *pr & cap; *took |= p; *pr &= ~p;
+    uint32_t r = *rel & *took; *took &= ~r; *rel &= ~r;
+    return p;
+}
+COLD static int guide_w(const gfx_font *f, const char *s, int n) { char b[44]; if (n > 43) n = 43; for (int i = 0; i < n; i++) b[i] = s[i]; b[n] = 0; return gfx_text_w(f, b); }
+COLD static void guide_wrap(void)                   /* the words cut into lines: at '\n', and at a space before the edge */
+{
+    const gfx_font *f = G.big ? &font_l : &font_s; const char *t = G.text; int i = 0; G.nl = 0;
+    while (t[i] && G.nl < 8) {
+        int s = i, e = i, last = -1;
+        while (t[e] && t[e] != '\n') {
+            if (t[e] == ' ') last = e;
+            if (last > s && guide_w(f, t + s, e - s + 1) > GFX_W - 28) { e = last; break; }
+            e++;
+        }
+        G.ls[G.nl] = (uint8_t)s; G.ll[G.nl] = (uint8_t)(e - s); G.nl++;
+        i = e; if (t[i] == ' ' || t[i] == '\n') i++;
+    }
+}
+/* a line's words from x: a name in [ ] is drawn in a thin frame (a button's name). Where the line ends; draw 0: measured only */
+COLD static int guide_seg(const gfx_font *f, int x, int y, const char *s, int n, int draw)
+{
+    char b[44]; int i = 0;
+    while (i < n) {
+        int key = s[i] == '[', j = key ? i + 1 : i, k = 0;
+        while (j < n && s[j] != (key ? ']' : '[') && k < 43) b[k++] = s[j++];
+        b[k] = 0;
+        int w = gfx_text_w(f, b);
+        if (key) {
+            if (draw) { gfx_rframe(x, y - 4, w + 8, f->cap + 8, 3, 1, G_INK); gfx_text(f, x + 4, y, b, G_INK); }
+            x += w + 8; i = j < n ? j + 1 : j;
+        } else { if (draw) gfx_text(f, x, y, b, G_INK); x += w; i = j; }
+    }
+    return x;
+}
+COLD static void guide_line(const gfx_font *f, int x, int y, const char *s, int n, int centre)
+{
+    if (n && *s == '^') { s++; n--; }                 /* (a title's mark: drawn as the rest) */
+    if (centre) x -= guide_seg(f, 0, y, s, n, 0) / 2;
+    guide_seg(f, x, y, s, n, 1);
+}
+COLD static void guide_draw(void)                   /* the card, over whatever the page drew in this tile */
+{
+    if (!G.card || V.page == UI_SPLASH) return;      /* (the start's logo first) */
+    if (G.strip) {                                   /* a band: the page above or below it stays as it is */
+        int h = 12 + G.nl * 23, y0 = G.strip == 1 ? 0 : GFX_H - h;
+        gfx_fill(0, y0, GFX_W, h, G_PAPER);
+        for (int k = 0; k < G.nl; k++) guide_line(&font_s, 10, y0 + 8 + 23 * k, G.text + G.ls[k], G.ll[k], 0);
+        return;
+    }
+    gfx_fill(0, 0, GFX_W, GFX_H, G_PAPER);
+    const gfx_font *f = G.big ? &font_l : &font_s; int step = G.big ? 36 : 23;
+    int y = G.big ? (GFX_H - 30 - G.nl * step) / 2 + 6 : 18;
+    for (int k = 0; k < G.nl; k++, y += step) guide_line(f, G.big ? GFX_W / 2 : 12, y, G.text + G.ls[k], G.ll[k], G.big);
+    if (G.left[0]) { guide_line(&font_s, 12, 192, "[OCT-]", 6, 0); gfx_text(&font_s, 12, 216, G.left, G_INK); }
+    if (G.right[0]) {
+        guide_line(&font_s, GFX_W - 20 - gfx_text_w(&font_s, "OCT+"), 192, "[OCT+]", 6, 0);
+        gfx_text(&font_s, GFX_W - 12 - gfx_text_w(&font_s, G.right), 216, G.right, G_INK);
+    }
+}
+/* the start: Teachie Peachie's own card, not SLOOP's page, until a lesson shows its first card or OCT+ says JUST PLAY */
+COLD static void guide_home(void)
+{
+    static const char T[] = "^TEACHIE PEACHIE\nREADY FOR A LESSON.\nSTART ONE FROM THE COMPUTER.";
+    uint8_t *z = (uint8_t *)&G; uint8_t gen = G.gen; for (uint32_t i = 0; i < sizeof G; i++) z[i] = 0;
+    for (uint32_t i = 0; i < sizeof T; i++) G.text[i] = T[i];
+    static const char R[] = "JUST PLAY"; for (uint32_t i = 0; i < sizeof R; i++) G.right[i] = R[i];
+    G.card = 1; G.home = 1; G.cap_btn = 1u << BTN_OCT_UP; G.led[BTN_OCT_UP] = 5; guide_wrap(); G.gen = (uint8_t)(gen + 1);
+}
+COLD static void guide_home_off(void) { uint8_t *z = (uint8_t *)&G; uint8_t gen = G.gen; for (uint32_t i = 0; i < sizeof G; i++) z[i] = 0; G.gen = (uint8_t)(gen + 1); }
+COLD static void guide_leds(void)                   /* after SLOOP's own lights: the guide's, over them */
+{
+    uint32_t ph = (time_ticks() / (62500u * lsb)) & 7u;      /* sixteenths of a second: two short pulses, twice a second */
+    int on = ph == 0 || ph == 2;
+    if (G.only) { panel_glow_clear(); for (int i = 0; i < 41; i++) panel_level(i, 0); }
+    for (int i = 0; i < 41; i++) { int m = G.led[i]; if (m) panel_level(i, m == 5 ? (on ? 4 : 0) : m); }
+}
 /* one step of drawing: a few tiles drawn (a quarter of a millisecond at most), the first that changed sent (its
  * DMA runs on alone). A pass starts only when the view changed. 1 while a pass is under way */
 COLD static int ui_step(void)
@@ -1600,14 +1712,14 @@ COLD static int ui_step(void)
         } else {
             const uint8_t *a = (const uint8_t *)&W, *b = (const uint8_t *)&V;
             uint32_t i = 0; while (i < sizeof W && a[i] == b[i]) i++;
-            if (i == sizeof W && gen_drawn == msg_gen) return 0;      /* nothing new to show */
-            V = W; gen_drawn = msg_gen; tile_i = 0;
+            if (i == sizeof W && gen_drawn == msg_gen && g_drawn == G.gen) return 0;      /* nothing new to show */
+            V = W; gen_drawn = msg_gen; g_drawn = G.gen; tile_i = 0;
         }
     }
     for (int n = 0; n < 8 && tile_i < NTILES && (uint32_t)(time_ticks() - now) < 250u * lsb; n++) {
         int i = tile_i++, tx = (i % (GFX_W / TILE_W)) * TILE_W, ty = (i / (GFX_W / TILE_W)) * TILE_H;
         gfx_target(tilebuf, tx, ty, TILE_W, TILE_H);
-        ui_draw(&V);
+        ui_draw(&V); guide_draw();
         uint32_t h = gfx_finish(tilebuf, TILE_W * TILE_H);
         if (!tile_sent[i] || h != tile_hash[i]) { tile_hash[i] = h; tile_sent[i] = 1; lcd_tile_start(tx, ty, TILE_W, TILE_H, tilebuf); break; }
     }
@@ -2770,6 +2882,31 @@ COLD static void ed_request(void)
         r[0] = (uint8_t)op;
         ed_send(cmd, 1 + 45 + 22 * NTRK + 16); return;
     }
+    case ED_GUIDE: {                                          /* Teachie Peachie's guide (see G above) */
+        int op = n ? r[0] : 4;
+        if (op == 0) { uint8_t gen = G.gen, *z = (uint8_t *)&G; for (uint32_t i = 0; i < sizeof G; i++) z[i] = 0; G.gen = (uint8_t)(gen + 1); }
+        else if (op == 1 && n >= 2) {
+            if (G.home) guide_home_off();
+            G.card = r[1] & 1u; G.big = (r[1] >> 1) & 1u; G.strip = (r[1] >> 2) & 3u;
+            char *dst[3] = { G.text, G.left, G.right }; const uint32_t cap[3] = { sizeof G.text, sizeof G.left, sizeof G.right };
+            uint32_t i = 2;
+            for (int k = 0; k < 3; k++) { uint32_t j = 0; while (i < n && r[i]) { if (j + 1 < cap[k]) dst[k][j++] = (char)r[i]; i++; } dst[k][j] = 0; i++; }
+            guide_wrap(); G.gen++;
+        }
+        else if (op == 2) {
+            for (int i = 0; i < 41; i++) G.led[i] = 0;
+            G.only = n > 1 ? r[1] : 0;
+            for (uint32_t i = 2; i + 1 < n; i += 2) if (r[i] < 41 && r[i + 1] <= 5) G.led[r[i]] = r[i + 1];
+        }
+        else if (op == 3 && n >= 8) {
+            G.cap_keys = (uint32_t)r[1] | (uint32_t)r[2] << 8 | (uint32_t)r[3] << 16 | (uint32_t)r[4] << 24;
+            G.cap_btn = (uint32_t)r[5] | (uint32_t)r[6] << 8; G.cap_enc = r[7];
+        }
+        uint32_t k = 0;
+        while (G.ev_r != G.ev_w && k < 32) { r[5 + 2 * k] = G.ev[G.ev_r & 31][0]; r[6 + 2 * k] = G.ev[G.ev_r & 31][1]; G.ev_r++; k++; }
+        r[0] = (uint8_t)op; r[1] = (uint8_t)sticky; r[2] = (uint8_t)trk; r[3] = G.card; r[4] = (uint8_t)k;
+        ed_send(cmd, 5 + 2 * k); return;
+    }
     default: ed_err(ED_ERR_BAD); return;
     }
 }
@@ -2918,6 +3055,7 @@ COLD static void leds(void)
             if (hs[HS_KEYS] == 3 || (hs[HS_KEYS] == 2 && white) || (hs[HS_KEYS] == 1 && n == 0)) panel_glow(14 + k);
         }
     }
+    guide_leds();
 }
 static uint32_t taps[4]; static int ntaps;
 COLD static void tap_tempo(void)
@@ -2981,6 +3119,7 @@ COLD static void pat_tick(uint32_t rel)
 COLD static void keys(void)
 {
     uint32_t rel, pr = panel_key_edges(&rel);
+    guide_edges(1, &pr, &rel, 27, G.cap_keys, &G.took_keys);
     pr |= ek_pr; rel |= ek_rel; ek_pr = ek_rel = 0;
     pat_tick(rel);
     if (pr | rel) t_input = time_ticks();
@@ -3205,10 +3344,11 @@ COLD static void open_page(int b)
 COLD static void buttons(void)
 {
     uint32_t rel, pr = panel_button_edges(&rel);
+    if ((guide_edges(3, &pr, &rel, 14, G.cap_btn, &G.took_btn) & (1u << BTN_OCT_UP)) && G.home) guide_home_off();   /* JUST PLAY */
     pr |= rm_pr | eb_pr; rel |= rm_rel | eb_rel; rm_pr = rm_rel = eb_pr = eb_rel = 0;   /* (REMOTE: the buttons over MIDI; the editor's) */
     if (!m_rmch) rm_held = 0;
     if (pr | rel) t_input = time_ticks();
-    held_btn = panel_buttons() | rm_held | eb_held;
+    held_btn = (panel_buttons() & ~G.took_btn) | rm_held | eb_held;
     if (t_octup) {                                                   /* NOTES: OCT+ held, the sheet; let go soon, an octave */
         if (!notes_on()) t_octup = 0;
         else if (rel & (1u << BTN_OCT_UP)) { t_octup = 0; if (oct < 3) oct++; }
@@ -3544,7 +3684,9 @@ COLD static void set_param(int pi, int d)                 /* a sound value turne
 COLD static void encoders(void)
 {
     for (int e = 0; e < 7; e++) {
-        int d = panel_enc_take(e) + ee[e]; ee[e] = 0;
+        int d = panel_enc_take(e);
+        if (d) { for (int c = d < 0 ? -d : d; c > 0; c--) guide_ev(d < 0 ? 6 : 5, e); if (G.cap_enc & (1u << e)) d = 0; }
+        d += ee[e]; ee[e] = 0;
         if (!d) continue;
         /* the acceleration: a fast turn goes further (lists and names stay one a click) */
         static uint32_t t_enc[7];
@@ -4258,6 +4400,11 @@ COLD __attribute__((noinline)) static void start(uint32_t arg)
     splash_bad = (uint8_t)(!two || crash_msg[0]); splash_say = !two ? "CORE 2: SILENT" : crash_msg[0] ? crash_msg : safe_start ? "SAFE START: AN EMPTY PROJECT" : boot_msg;   /* (3.3: no popup with the name and version) */
     if ((panel_raw_buttons() & 3u) == 3u) { cal_start(); if (splash_bad) say_bad(splash_say); }   /* OCT- and OCT+ held: the calibration, as on SLOOP */
     else { splash_on = 1; splash_t0 = time_ticks(); }
+#ifdef HOST
+    extern char *getenv(const char *);
+    if (getenv("TP_HOME"))
+#endif
+    guide_home();
     BOOT_STEP(17);
     ui_flush();                                           /* the first screen, whole, before the sound */
     BOOT_STEP(18);

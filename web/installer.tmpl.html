@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Install BOATSWAIN · public beta · M-VAVE FM-1</title>
-<meta name="description" content="Install BOATSWAIN, a free firmware for the M-VAVE FM-1 built on SLOOP 3, from your browser in a few guided steps.">
+<title>Install SLOOP 3 · public beta · M-VAVE FM-1</title>
+<meta name="description" content="Install SLOOP 3, the free groovebox firmware for the M-VAVE FM-1, from your browser in a few guided steps.">
 <meta name="theme-color" content="#0f1014">
 <link rel="icon" href="data:image/png;base64,__MARK__">
 <style>
@@ -161,13 +161,13 @@ footer a{color:var(--ink2)}
 </style></head><body>
 
 <header class="top"><div class="wrap">
-<a class="brand" href="#top"><img src="data:image/png;base64,__MARK__" alt="">BOATSWAIN</a>
+<a class="brand" href="#top"><img src="data:image/png;base64,__MARK__" alt="">SLOOP 3</a>
 <span class="badge beta" data-t="beta">Public beta</span><span class="badge ver">v__VERSION__</span>
 <nav aria-label="Links">
 <a class="opt" href="https://github.com/isod89/sloop3-fm1/blob/main/docs/GUIDE.md" data-t="navGuide">Guide</a>
 <a class="opt" href="https://isod89.github.io/sloop3-fm1/editor.html" data-t="navEditor">Web editor</a>
 <a class="opt" href="#help" data-t="navHelp">Help</a>
-<a class="opt" href="https://github.com/davydegravy/boatswain-fm1/issues" data-t="navBug">Report a bug</a>
+<a class="opt" href="https://github.com/isod89/sloop3-fm1/issues/new/choose" data-t="navBug">Report a bug</a>
 <div class="lang" role="group" aria-label="Language"><button id="lang-en" aria-pressed="true">EN</button><button id="lang-fr" aria-pressed="false">FR</button></div>
 </nav>
 </div><div class="stripe"></div></header>
@@ -176,8 +176,8 @@ footer a{color:var(--ink2)}
 <section class="hero">
 <div>
 <span class="badge beta" data-t="heroBadge">Public beta · free</span>
-<h1 data-t="heroTitle">Install <span>BOATSWAIN</span> on your FM-1</h1>
-<p class="lead" data-t="heroLead">BOATSWAIN turns the M-VAVE FM-1 into a complete groovebox: drums, bass, chords, melodies and effects, with a sequencer that loops it all. This page installs it for you, step by step, right from your browser.</p>
+<h1 data-t="heroTitle">Install <span>SLOOP 3</span> on your FM-1</h1>
+<p class="lead" data-t="heroLead">SLOOP 3 turns the M-VAVE FM-1 into a complete groovebox: drums, bass, chords, melodies and effects, with a sequencer that loops it all. This page installs it for you, step by step, right from your browser.</p>
 <ul class="facts">
 <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-t="fact1">About 10 minutes the first time, 1 minute to update</span></li>
 <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg><span data-t="fact2">A full backup before anything is written</span></li>
@@ -186,7 +186,7 @@ footer a{color:var(--ink2)}
 <div class="checks" id="checks"></div>
 <div class="blocker hide" id="blocker"></div>
 </div>
-<figure class="shot" style="margin:0"><img src="data:image/webp;base64,__HERO__" alt="The M-VAVE FM-1 running BOATSWAIN" data-t-alt="heroAlt"><figcaption class="cap" data-t="heroCap">The FM-1 running BOATSWAIN (3D render)</figcaption></figure>
+<figure class="shot" style="margin:0"><img src="data:image/webp;base64,__HERO__" alt="The M-VAVE FM-1 running SLOOP 3" data-t-alt="heroAlt"><figcaption class="cap" data-t="heroCap">The FM-1 running SLOOP 3 (3D render)</figcaption></figure>
 </section>
 
 <div class="wizard" id="wizard">
@@ -209,9 +209,9 @@ footer a{color:var(--ink2)}
 <section class="pane" id="p1" aria-labelledby="h1">
 <div class="eyebrow" data-t="e1">Step 1 of 5</div>
 <h2 id="h1" data-t="h1">Before you start</h2>
-<p class="sub" data-t="s1">BOATSWAIN is new. Here is what to expect, and what you need.</p>
-<div class="note warn"><b data-t="betaT">BOATSWAIN runs SLOOP 3, a public beta</b><span data-t="betaB">It was rewritten from scratch: a new sound engine, a new sequencer, a new interface. It is being tested on real FM-1s right now, so you may meet bugs. Keep backups, and don't rely on it on stage yet. When something goes wrong, <a href="https://github.com/davydegravy/boatswain-fm1/issues">tell us</a>: every report makes it better.</span></div>
-<div class="note info"><b data-t="stableT">Prefer the tried and tested version?</b><span data-t="stableB">SLOOP 2.8 stays available on its own page: <a href="https://isod89.github.io/sloop-fm1/">isod89.github.io/sloop-fm1</a>. BOATSWAIN never changes SLOOP 2.8's data, so you can go back at any time with your backup.</span></div>
+<p class="sub" data-t="s1">SLOOP 3 is new. Here is what to expect, and what you need.</p>
+<div class="note warn"><b data-t="betaT">SLOOP 3 is a public beta</b><span data-t="betaB">It was rewritten from scratch: a new sound engine, a new sequencer, a new interface. It is being tested on real FM-1s right now, so you may meet bugs. Keep backups, and don't rely on it on stage yet. When something goes wrong, <a href="https://github.com/isod89/sloop3-fm1/issues/new/choose">tell us</a>: every report makes it better.</span></div>
+<div class="note info"><b data-t="stableT">Prefer the tried and tested version?</b><span data-t="stableB">SLOOP 2.8 stays available on its own page: <a href="https://isod89.github.io/sloop-fm1/">isod89.github.io/sloop-fm1</a>. SLOOP 3 never changes SLOOP 2.8's data, so you can go back at any time with your backup.</span></div>
 <h3 data-t="needT">You need</h3>
 <ul>
 <li data-t="need1">An <b>M-VAVE FM-1</b> and a <b>USB data cable</b> (a charge-only cable won't work), plugged straight into the computer.</li>
@@ -219,7 +219,7 @@ footer a{color:var(--ink2)}
 <li data-t="need3">The FM-1 powered by USB the whole time.</li>
 </ul>
 <div class="note"><b data-t="upT">Updating from SLOOP 3.0 to 3.3.4?</b><span data-t="upB">Since 3.3.5 the FM-1 keeps one project, with room for the fullest one. At the first start, the newest of your 8 projects is kept. <b>Before you install:</b> open the <a href="https://isod89.github.io/sloop3-fm1/editor.html">web editor</a>, Projects, <b>BACK UP EVERYTHING</b>. The editor puts any of them back later.</span></div>
-<label class="check"><input type="checkbox" id="ok1"><span data-t="ack">I understand that BOATSWAIN is a beta, that I install it at my own risk, and that I'll keep a backup of my FM-1.</span></label>
+<label class="check"><input type="checkbox" id="ok1"><span data-t="ack">I understand that SLOOP 3 is a beta, that I install it at my own risk, and that I'll keep a backup of my FM-1.</span></label>
 <div class="foot"><span class="dim small" data-t="time1">The whole install: about 10 minutes the first time.</span><div class="right"><button class="btn primary" id="n1" disabled data-t="cont">Continue</button></div></div>
 </section>
 
@@ -227,7 +227,7 @@ footer a{color:var(--ink2)}
 <section class="pane hide" id="p2" aria-labelledby="h2">
 <div class="eyebrow" data-t="e2">Step 2 of 5</div>
 <h2 id="h2" data-t="h2">The safety net: m-bootloader</h2>
-<p class="sub" data-t="s2">BOATSWAIN installs through m-bootloader, a small free program that sits under the firmware. If an install is ever interrupted, your FM-1 opens a recovery menu instead of getting stuck. You set it up once.</p>
+<p class="sub" data-t="s2">SLOOP 3 installs through m-bootloader, a small free program that sits under the firmware. If an install is ever interrupted, your FM-1 opens a recovery menu instead of getting stuck. You set it up once.</p>
 <div class="media">
 <img src="data:image/webp;base64,__PLAY__" alt="The PLAY button of the FM-1" data-t-alt="playAlt">
 <div>
@@ -262,7 +262,7 @@ footer a{color:var(--ink2)}
 <p data-t="w2a">Download <code>fm1-uboot.fwsc</code> from the <a href="https://github.com/jvitkauskas/m-bootloader/releases/latest" target="_blank" rel="noopener">latest m-bootloader release</a>, open it in M-UPGRADE (close other MIDI apps first) and start the upgrade. It writes only the bootloader. If in doubt, prefer M-Flasher, which also makes the full backup.</p>
 </div>
 </div>
-<div class="note warn"><b data-t="mbWarnT">Good to know</b><ul data-t="mbWarnB"><li>Keep the power on while the bootloader is written.</li><li>FM-1s sold since fall 2026 have another flash chip, the <b>UCUN UC25HQ80</b> (JEDEC <code>0xB36014</code>). m-bootloader has not been run on it yet, and one such unit did not start after it was installed. Use <b>M-Flasher 0.9.1 or newer</b>, which warns you, and make its backup first. BOATSWAIN accepts this chip, but it has not been tried on one yet either.</li><li>M-VAVE's official updates put their own bootloader back: after one, do this step again.</li></ul></div>
+<div class="note warn"><b data-t="mbWarnT">Good to know</b><ul data-t="mbWarnB"><li>Keep the power on while the bootloader is written.</li><li>FM-1s sold since fall 2026 have another flash chip, the <b>UCUN UC25HQ80</b> (JEDEC <code>0xB36014</code>). m-bootloader has not been run on it yet, and one such unit did not start after it was installed. Use <b>M-Flasher 0.9.1 or newer</b>, which warns you, and make its backup first. SLOOP 3 accepts this chip, but it has not been tried on one yet either.</li><li>M-VAVE's official updates put their own bootloader back: after one, do this step again.</li></ul></div>
 <button class="btn" id="mbDone" data-t="mbDone">Done: I see the menu now</button>
 </div>
 <div class="foot"><button class="btn ghost" data-back="1" data-t="back">← Back</button><div class="right"><button class="btn primary" id="n2" disabled data-t="cont">Continue</button></div></div>
@@ -302,11 +302,11 @@ footer a{color:var(--ink2)}
 <!-- 5 -->
 <section class="pane hide" id="p5" aria-labelledby="h5">
 <div class="eyebrow" data-t="e5">Step 5 of 5</div>
-<h2 id="h5" data-t="h5">Install BOATSWAIN</h2>
+<h2 id="h5" data-t="h5">Install SLOOP 3</h2>
 <p class="sub" data-t="s5">About a minute. The FM-1 first checks the whole package, without erasing anything, then writes it.</p>
-<dl class="summary"><dt data-t="sumFw">Firmware</dt><dd>BOATSWAIN v__VERSION__ <span class="badge beta" data-t="beta">Public beta</span></dd><dt data-t="sumDev">Device</dt><dd id="sumDev">—</dd><dt data-t="sumBak">Backup</dt><dd id="sumBak">—</dd></dl>
+<dl class="summary"><dt data-t="sumFw">Firmware</dt><dd>SLOOP 3 v__VERSION__ <span class="badge beta" data-t="beta">Public beta</span></dd><dt data-t="sumDev">Device</dt><dd id="sumDev">—</dd><dt data-t="sumBak">Backup</dt><dd id="sumBak">—</dd></dl>
 <div class="note warn"><b data-t="keepT">During the install</b><span data-t="keepB">Don't unplug the FM-1, and keep this tab in front: browsers slow down tabs in the background.</span></div>
-<div class="buttons"><button class="btn primary big" id="go" disabled data-t="install">Install BOATSWAIN</button></div>
+<div class="buttons"><button class="btn primary big" id="go" disabled data-t="install">Install SLOOP 3</button></div>
 <div class="prog hide" id="iprog"><div class="row"><b id="ipct">0 %</b><span id="ieta"></span></div><div class="bar"><div id="fill"></div></div>
 <div class="phases"><span class="phase" id="ph1" data-t="ph1">1 · Checking (nothing erased)</span><span class="phase" id="ph2" data-t="ph2">2 · Writing</span><span class="phase" id="ph3" data-t="ph3">3 · Restarting</span></div></div>
 <div class="note bad hide" id="err5"></div>
@@ -316,8 +316,8 @@ footer a{color:var(--ink2)}
 <!-- 6 -->
 <section class="pane hide" id="p6" aria-labelledby="h6">
 <div class="big-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-<h2 id="h6" data-t="h6">BOATSWAIN is installed</h2>
-<p class="sub" data-t="s6">The FM-1 restarts on BOATSWAIN and the sailboat logo draws itself in. Turn <b>MASTER</b> up gently, and have fun.</p>
+<h2 id="h6" data-t="h6">SLOOP 3 is installed</h2>
+<p class="sub" data-t="s6">The FM-1 restarts on SLOOP 3 and the sailboat logo draws itself in. Turn <b>MASTER</b> up gently, and have fun.</p>
 <div class="cards">
 <div class="card"><b data-t="f1T">Sounds</b><p data-t="f1B"><kbd>ALGORITHM</kbd> picks the track (synths 1–4, drums 5). <kbd>PRESETS</kbd> opens SOUNDS, every sound by category.</p></div>
 <div class="card"><b data-t="f2T">Record</b><p data-t="f2B"><kbd>PLAY</kbd>, then <kbd>REC</kbd>, and play the keys. Hold <kbd>EDIT</kbd> + <kbd>OCT-</kbd> to undo.</p></div>
@@ -326,9 +326,9 @@ footer a{color:var(--ink2)}
 <div class="buttons" style="display:flex;flex-wrap:wrap;gap:10px">
 <a class="btn primary" href="https://isod89.github.io/sloop3-fm1/editor.html" data-t="openEd">Open the web editor</a>
 <a class="btn" href="https://github.com/isod89/sloop3-fm1/blob/main/docs/GUIDE.md" data-t="readGuide">Read the guide</a>
-<a class="btn" href="https://github.com/davydegravy/boatswain-fm1/issues" data-t="report">Report a bug</a>
+<a class="btn" href="https://github.com/isod89/sloop3-fm1/issues/new/choose" data-t="report">Report a bug</a>
 </div>
-<div class="note info"><b data-t="from28T">Coming from SLOOP 2.8?</b><span data-t="from28B">At its first start, BOATSWAIN opens what SLOOP 2.8 left: your sections become patterns, and your presets, favourites, samples, SYN kits, FM6 bank and settings come along. SLOOP 2.8's data is only read, never written.</span></div>
+<div class="note info"><b data-t="from28T">Coming from SLOOP 2.8?</b><span data-t="from28B">At its first start, SLOOP 3 opens what SLOOP 2.8 left: your sections become patterns, and your presets, favourites, samples, SYN kits, FM6 bank and settings come along. SLOOP 2.8's data is only read, never written.</span></div>
 </section>
 
 <details class="more" style="margin-top:18px"><summary data-t="details">Technical details</summary><div><div id="log"></div></div></details>
@@ -337,21 +337,21 @@ footer a{color:var(--ink2)}
 
 <section class="help" id="help">
 <h2 data-t="helpT">Help</h2>
-<p class="dim" data-t="helpS">The answers to what can go wrong. Still stuck? <a href="https://github.com/davydegravy/boatswain-fm1/issues">Ask in the issues</a>.</p>
+<p class="dim" data-t="helpS">The answers to what can go wrong. Still stuck? <a href="https://github.com/isod89/sloop3-fm1/issues/new/choose">Ask in the issues</a>.</p>
 <div class="faq">
 <details><summary data-t="q1">“No FM-1 found”</summary><div data-t="a1">Check that the FM-1 shows MIDI MODE (step 3), and that the cable carries data: try another cable or USB port, without a hub. Close other apps that use MIDI (M-UPGRADE, editors, music software), then click Connect again.</div></details>
 <details><summary data-t="q2">“The FM-1 is running a firmware”</summary><div data-t="a2">It started SLOOP, or another firmware, instead of the menu. Switch it off, then on while holding <kbd>PLAY</kbd> about a second. If no menu appears, m-bootloader isn't installed yet (step 2).</div></details>
 <details><summary data-t="q3">The install stopped halfway</summary><div data-t="a3">Nothing is lost. Nothing is erased before the whole package has been checked. If it stops while writing, m-bootloader sees an incomplete firmware at the next start and opens its menu by itself: reload this page and install again.</div></details>
 <details><summary data-t="q4">The browser never asks about MIDI</summary><div data-t="a4">Use Chrome or Edge. Click the icon left of the address, open the site settings, and allow MIDI devices. Then reload the page.</div></details>
 <details><summary data-t="q5">The backup stops</summary><div data-t="a5">Some m-bootloader versions don't answer reads. Make the backup with M-Flasher instead (step 2), then tick “I already have a full backup”.</div></details>
-<details><summary data-t="q6">BOATSWAIN doesn't start, or starts badly</summary><div data-t="a6">Hold <kbd>OCT-</kbd> while switching on: <b>RESCUE</b>. <kbd>PLAY</kbd> starts with an empty project (your saved project is kept). Or hold <kbd>PLAY</kbd> for m-bootloader's menu and install again. Then tell us what the screen showed.</div></details>
-<details><summary data-t="q7">Going back to SLOOP 2.8 or M-VAVE's firmware</summary><div data-t="a7">Restore your backup with M-Flasher (hold <kbd>REC</kbd> while switching on for download mode). It brings the FM-1 back exactly as it was when you made it. Projects made with BOATSWAIN since then are not in it: save them as files with the web editor first.</div></details>
-<details><summary data-t="q8">Updating BOATSWAIN later</summary><div data-t="a8">Open this page again: steps 3 to 5, about a minute. Your project and your sounds stay.</div></details>
+<details><summary data-t="q6">SLOOP 3 doesn't start, or starts badly</summary><div data-t="a6">Hold <kbd>OCT-</kbd> while switching on: <b>RESCUE</b>. <kbd>PLAY</kbd> starts with an empty project (your saved project is kept). Or hold <kbd>PLAY</kbd> for m-bootloader's menu and install again. Then tell us what the screen showed.</div></details>
+<details><summary data-t="q7">Going back to SLOOP 2.8 or M-VAVE's firmware</summary><div data-t="a7">Restore your backup with M-Flasher (hold <kbd>REC</kbd> while switching on for download mode). It brings the FM-1 back exactly as it was when you made it. Projects made with SLOOP 3 since then are not in it: save them as files with the web editor first.</div></details>
+<details><summary data-t="q8">Updating SLOOP 3 later</summary><div data-t="a8">Open this page again: steps 3 to 5, about a minute. Your project and your sounds stay.</div></details>
 </div>
 </section>
 
 <footer><div class="cols">
-<div><p data-t="foot1"><b>BOATSWAIN</b> is free software (GPL-3.0) by Davy DeGravy, built on <b>SLOOP 3</b> by the SLOOP project (<a href="https://github.com/isod89/sloop3-fm1">github.com/isod89/sloop3-fm1</a>). The SLOOP project does not make or support BOATSWAIN. Public beta. Unofficial: not made, endorsed or supported by M-VAVE. Installing third-party firmware is at your own risk.</p>
+<div><p data-t="foot1"><b>SLOOP 3</b> is free software (GPL-3.0) by the SLOOP project: <a href="https://github.com/isod89/sloop3-fm1">github.com/isod89/sloop3-fm1</a>. Public beta. Unofficial: not made, endorsed or supported by M-VAVE. Installing third-party firmware is at your own risk.</p>
 <p data-t="foot2">The stable version, SLOOP 2.8: <a href="https://github.com/isod89/sloop-fm1">github.com/isod89/sloop-fm1</a>.</p></div>
 <div><p data-t="foot3">m-bootloader and M-Flasher are by Julius Vitkauskas (MIT licence): <a href="https://github.com/jvitkauskas/m-bootloader">m-bootloader</a> · <a href="https://github.com/jvitkauskas/m-flasher">M-Flasher</a>. This page contains none of their code: it talks to m-bootloader's MIDI MODE as its specification describes.</p>
 <p data-t="foot4">Private by design: this page sends nothing anywhere but to your FM-1.</p></div>
@@ -374,19 +374,19 @@ en: {
   runningFix: 'Switch it off, then on while holding PLAY, choose MIDI MODE, press PLAY. It is found automatically. No menu? Set up m-bootloader (step 2).',
   found: 'FM-1 found: ', reading: '. Reading the chip key...', notmb: 'This is not m-bootloader answering. Nothing is sent.',
   mb: 'm-bootloader ', stage: ' (RAM stage)', key: ', chip key 0x', badpkg: 'The package does not check out ({e}). Nothing is sent.',
-  fwready: 'Connected. BOATSWAIN is ready for this FM-1 ({n} bytes, encrypted for its chip).',
+  fwready: 'Connected. SLOOP 3 is ready for this FM-1 ({n} bytes, encrypted for its chip).',
   devMeta: 'm-bootloader {v} · chip key {k} · flash {f}',
   noans: 'The FM-1 does not answer.', noansFix: 'Switch it off, then on while holding PLAY, choose MIDI MODE, and click Connect again.',
-  inst: 'Installing... Do not unplug the FM-1 and keep this tab in front.', check: 'Checking the package', write: 'Writing BOATSWAIN',
-  done: 'Installed! The FM-1 restarts on BOATSWAIN.',
+  inst: 'Installing... Do not unplug the FM-1 and keep this tab in front.', check: 'Checking the package', write: 'Writing SLOOP 3',
+  done: 'Installed! The FM-1 restarts on SLOOP 3.',
   refused: 'The FM-1 refused the package (code {c}).', intact: ' Nothing was written: the FM-1 is as it was.', refusedFix: 'Switch it off and on in MIDI MODE, reload this page and try again. If it happens again, tell us the code.',
   bstart: 'Backing up the whole flash (1 MB)... Nothing is written.', bdone: 'Backup saved to your downloads: ',
   bfail: 'The backup stopped (no answer at 0x{a}).', bfailFix: 'This m-bootloader may not answer reads. Make the backup with M-Flasher, then tick the box below.',
   nomidi: 'This browser can\'t talk to MIDI devices.', err: 'Error: ', denied: 'MIDI access was not allowed.', deniedFix: 'Click the icon left of the address, allow MIDI devices for this site, and click Connect again.',
   left: '{s} left', kb: '{a} of {b} KB', bakNone: 'Not made here (you have one from M-Flasher)', bakFile: 'Saved: {n}',
-  leave: 'BOATSWAIN is being installed. Leaving now interrupts it.', hidden: 'Keep this tab in front while installing: browsers slow down background tabs.',
+  leave: 'SLOOP 3 is being installed. Leaving now interrupts it.', hidden: 'Keep this tab in front while installing: browsers slow down background tabs.',
   chkBrowser: 'Chrome or Edge', chkMidi: 'Web MIDI', chkSecure: 'Secure page', chkNo: 'not available',
-  block: '<b>This browser can\'t install BOATSWAIN.</b> Open this page in <b>Chrome</b> or <b>Edge</b> on a computer (or Chrome on Android): <code>https://davydegravy.github.io/boatswain-fm1/</code>',
+  block: '<b>This browser can\'t install SLOOP 3.</b> Open this page in <b>Chrome</b> or <b>Edge</b> on a computer (or Chrome on Android): <code>https://isod89.github.io/sloop3-fm1/</code>',
   beta: 'Public beta', navGuide: 'Guide', navEditor: 'Web editor', navHelp: 'Help', navBug: 'Report a bug'
 },
 fr: {
@@ -398,35 +398,35 @@ fr: {
   runningFix: 'Éteins-le, puis rallume-le en tenant PLAY, choisis MIDI MODE, appuie sur PLAY. Il sera trouvé tout seul. Pas de menu ? Installe m-bootloader (étape 2).',
   found: 'FM-1 trouvé : ', reading: '. Lecture de la clé de la puce...', notmb: 'Ce n\'est pas m-bootloader qui répond. Rien n\'est envoyé.',
   mb: 'm-bootloader ', stage: ' (en RAM)', key: ', clé de la puce 0x', badpkg: 'Le paquet n\'est pas valide ({e}). Rien n\'est envoyé.',
-  fwready: 'Connecté. BOATSWAIN est prêt pour ce FM-1 ({n} octets, chiffrés pour sa puce).',
+  fwready: 'Connecté. SLOOP 3 est prêt pour ce FM-1 ({n} octets, chiffrés pour sa puce).',
   devMeta: 'm-bootloader {v} · clé de la puce {k} · flash {f}',
   noans: 'Le FM-1 ne répond pas.', noansFix: 'Éteins-le, puis rallume-le en tenant PLAY, choisis MIDI MODE, et clique de nouveau sur Connecter.',
-  inst: 'Installation... Ne débranche pas le FM-1 et garde cet onglet au premier plan.', check: 'Vérification du paquet', write: 'Écriture de BOATSWAIN',
-  done: 'Installé ! Le FM-1 redémarre sur BOATSWAIN.',
+  inst: 'Installation... Ne débranche pas le FM-1 et garde cet onglet au premier plan.', check: 'Vérification du paquet', write: 'Écriture de SLOOP 3',
+  done: 'Installé ! Le FM-1 redémarre sur SLOOP 3.',
   refused: 'Le FM-1 a refusé le paquet (code {c}).', intact: ' Rien n\'a été écrit : le FM-1 est comme avant.', refusedFix: 'Éteins-le et rallume-le en MIDI MODE, recharge cette page et réessaie. Si ça recommence, donne-nous le code.',
   bstart: 'Sauvegarde de toute la flash (1 Mo)... Rien n\'est écrit.', bdone: 'Sauvegarde enregistrée dans tes téléchargements : ',
   bfail: 'La sauvegarde s\'est arrêtée (pas de réponse à 0x{a}).', bfailFix: 'Ce m-bootloader ne répond peut-être pas aux lectures. Fais la sauvegarde avec M-Flasher, puis coche la case ci-dessous.',
   nomidi: 'Ce navigateur ne sait pas parler aux appareils MIDI.', err: 'Erreur : ', denied: 'L\'accès MIDI n\'a pas été autorisé.', deniedFix: 'Clique sur l\'icône à gauche de l\'adresse, autorise les appareils MIDI pour ce site, et clique de nouveau sur Connecter.',
   left: 'encore {s}', kb: '{a} sur {b} Ko', bakNone: 'Pas faite ici (tu en as une de M-Flasher)', bakFile: 'Enregistrée : {n}',
-  leave: 'BOATSWAIN est en cours d\'installation. Quitter maintenant l\'interrompt.', hidden: 'Garde cet onglet au premier plan pendant l\'installation : les navigateurs ralentissent les onglets en arrière-plan.',
+  leave: 'SLOOP 3 est en cours d\'installation. Quitter maintenant l\'interrompt.', hidden: 'Garde cet onglet au premier plan pendant l\'installation : les navigateurs ralentissent les onglets en arrière-plan.',
   chkBrowser: 'Chrome ou Edge', chkMidi: 'Web MIDI', chkSecure: 'Page sécurisée', chkNo: 'indisponible',
-  block: '<b>Ce navigateur ne peut pas installer BOATSWAIN.</b> Ouvre cette page dans <b>Chrome</b> ou <b>Edge</b> sur un ordinateur (ou Chrome sur Android) : <code>https://davydegravy.github.io/boatswain-fm1/</code>',
+  block: '<b>Ce navigateur ne peut pas installer SLOOP 3.</b> Ouvre cette page dans <b>Chrome</b> ou <b>Edge</b> sur un ordinateur (ou Chrome sur Android) : <code>https://isod89.github.io/sloop3-fm1/</code>',
   beta: 'Bêta publique', navGuide: 'Guide', navEditor: 'Éditeur web', navHelp: 'Aide', navBug: 'Signaler un bug',
-  heroBadge: 'Bêta publique · gratuit', heroTitle: 'Installe <span>BOATSWAIN</span> sur ton FM-1',
-  heroLead: 'BOATSWAIN fait du M-VAVE FM-1 une groovebox complète : batterie, basse, accords, mélodies et effets, avec un séquenceur qui boucle le tout. Cette page l\'installe pour toi, étape par étape, depuis ton navigateur.',
+  heroBadge: 'Bêta publique · gratuit', heroTitle: 'Installe <span>SLOOP 3</span> sur ton FM-1',
+  heroLead: 'SLOOP 3 fait du M-VAVE FM-1 une groovebox complète : batterie, basse, accords, mélodies et effets, avec un séquenceur qui boucle le tout. Cette page l\'installe pour toi, étape par étape, depuis ton navigateur.',
   fact1: 'Environ 10 minutes la première fois, 1 minute pour une mise à jour', fact2: 'Une sauvegarde complète avant toute écriture', fact3: 'Rien à installer sur ton ordinateur',
-  heroCap: 'Le FM-1 avec BOATSWAIN (rendu 3D)',
+  heroCap: 'Le FM-1 avec SLOOP 3 (rendu 3D)',
   r1: 'Avant de commencer<small>Une bêta : ce que ça veut dire</small>', r2: 'Le filet de sécurité<small>m-bootloader, une fois</small>', r3: 'Connecter<small>MIDI MODE, USB</small>',
   r4: 'Sauvegarder<small>Ton FM-1, tel qu\'il est</small>', r5: 'Installer<small>Environ une minute</small>', r6: 'Jouer<small>Ta première minute</small>',
-  h1: 'Avant de commencer', s1: 'BOATSWAIN est tout neuf. Voici à quoi t\'attendre, et ce qu\'il te faut.',
-  betaT: 'BOATSWAIN fait tourner SLOOP 3, une bêta publique', betaB: 'Il a été réécrit de zéro : un nouveau moteur de son, un nouveau séquenceur, une nouvelle interface. Il est testé sur de vrais FM-1 en ce moment, tu peux donc rencontrer des bugs. Garde des sauvegardes, et ne compte pas encore dessus sur scène. Quand quelque chose ne va pas, <a href="https://github.com/davydegravy/boatswain-fm1/issues">dis-le-nous</a> : chaque retour l\'améliore.',
-  stableT: 'Tu préfères la version éprouvée ?', stableB: 'SLOOP 2.8 reste disponible sur sa propre page : <a href="https://isod89.github.io/sloop-fm1/">isod89.github.io/sloop-fm1</a>. BOATSWAIN ne modifie jamais les données de SLOOP 2.8 : tu peux revenir en arrière à tout moment avec ta sauvegarde.',
+  h1: 'Avant de commencer', s1: 'SLOOP 3 est tout neuf. Voici à quoi t\'attendre, et ce qu\'il te faut.',
+  betaT: 'SLOOP 3 est une bêta publique', betaB: 'Il a été réécrit de zéro : un nouveau moteur de son, un nouveau séquenceur, une nouvelle interface. Il est testé sur de vrais FM-1 en ce moment, tu peux donc rencontrer des bugs. Garde des sauvegardes, et ne compte pas encore dessus sur scène. Quand quelque chose ne va pas, <a href="https://github.com/isod89/sloop3-fm1/issues/new/choose">dis-le-nous</a> : chaque retour l\'améliore.',
+  stableT: 'Tu préfères la version éprouvée ?', stableB: 'SLOOP 2.8 reste disponible sur sa propre page : <a href="https://isod89.github.io/sloop-fm1/">isod89.github.io/sloop-fm1</a>. SLOOP 3 ne modifie jamais les données de SLOOP 2.8 : tu peux revenir en arrière à tout moment avec ta sauvegarde.',
   needT: 'Il te faut', need1: 'Un <b>M-VAVE FM-1</b> et un <b>câble USB de données</b> (un câble de charge seule ne marche pas), branché directement sur l\'ordinateur.',
   need2: '<b>Chrome</b> ou <b>Edge</b> sur Windows, macOS, Linux ou ChromeOS (ou Chrome sur Android).', need3: 'Le FM-1 alimenté par l\'USB tout du long.',
   upT: 'Tu mets à jour depuis SLOOP 3.0 à 3.3.4 ?', upB: 'Depuis la 3.3.5, le FM-1 garde un projet, avec de la place pour le plus plein. Au premier démarrage, le plus récent de tes 8 projets est gardé. <b>Avant d\'installer :</b> ouvre l\'<a href="https://isod89.github.io/sloop3-fm1/editor.html">éditeur web</a>, Projets, <b>TOUT SAUVEGARDER</b>. L\'éditeur remet ensuite n\'importe lequel.',
-  ack: 'Je comprends que BOATSWAIN est une bêta, que je l\'installe à mes risques, et que je garderai une sauvegarde de mon FM-1.',
+  ack: 'Je comprends que SLOOP 3 est une bêta, que je l\'installe à mes risques, et que je garderai une sauvegarde de mon FM-1.',
   time1: 'L\'installation complète : environ 10 minutes la première fois.', cont: 'Continuer', back: '← Retour',
-  h2: 'Le filet de sécurité : m-bootloader', s2: 'BOATSWAIN s\'installe par m-bootloader, un petit programme libre qui se place sous le firmware. Si une installation est interrompue, ton FM-1 ouvre un menu de secours au lieu de rester bloqué. Tu le mets en place une seule fois.',
+  h2: 'Le filet de sécurité : m-bootloader', s2: 'SLOOP 3 s\'installe par m-bootloader, un petit programme libre qui se place sous le firmware. Si une installation est interrompue, ton FM-1 ouvre un menu de secours au lieu de rester bloqué. Tu le mets en place une seule fois.',
   haveT: 'Il est déjà là ? Vérifie en 10 secondes', have1: 'Éteins le FM-1.', have2: 'Tiens <kbd>PLAY</kbd> et rallume-le. Garde le doigt environ une seconde.', have3: 'Un menu avec <b>BOOT APP</b>, <b>DOWNLOAD MODE</b> et <b>MIDI MODE</b> ? Alors il est là.',
   yesT: 'Je vois le menu', yesB: 'm-bootloader est installé. Passe à la connexion.', noT: 'Pas de menu, ou je ne sais pas', noB: 'Installe d\'abord m-bootloader. On te guide.',
   w1tag: 'Recommandé · Windows, macOS, Linux', w1T: 'Avec M-Flasher',
@@ -437,7 +437,7 @@ fr: {
   w1e: 'Éteins et rallume le FM-1 en tenant <kbd>PLAY</kbd> : le menu apparaît.',
   w2tag: 'Autre possibilité · FM-1 avec le firmware de M-VAVE', w2T: 'Avec l\'application M-UPGRADE de M-VAVE',
   w2a: 'Télécharge <code>fm1-uboot.fwsc</code> depuis la <a href="https://github.com/jvitkauskas/m-bootloader/releases/latest" target="_blank" rel="noopener">dernière version de m-bootloader</a>, ouvre-le dans M-UPGRADE (ferme d\'abord les autres applis MIDI) et lance la mise à jour. Seul le bootloader est écrit. Dans le doute, préfère M-Flasher, qui fait aussi la sauvegarde complète.',
-  mbWarnT: 'Bon à savoir', mbWarnB: '<li>Garde l\'alimentation pendant l\'écriture du bootloader.</li><li>Les FM-1 vendus depuis l\'automne 2026 ont une autre puce flash, la <b>UCUN UC25HQ80</b> (JEDEC <code>0xB36014</code>). m-bootloader n\'a pas encore tourné dessus, et un de ces FM-1 n\'a pas redémarré après son installation. Utilise <b>M-Flasher 0.9.1 ou plus récent</b>, qui te prévient, et fais d\'abord sa sauvegarde. BOATSWAIN accepte cette puce, mais n\'a pas encore été essayé dessus non plus.</li><li>Les mises à jour officielles de M-VAVE remettent leur propre bootloader : après l\'une d\'elles, refais cette étape.</li>',
+  mbWarnT: 'Bon à savoir', mbWarnB: '<li>Garde l\'alimentation pendant l\'écriture du bootloader.</li><li>Les FM-1 vendus depuis l\'automne 2026 ont une autre puce flash, la <b>UCUN UC25HQ80</b> (JEDEC <code>0xB36014</code>). m-bootloader n\'a pas encore tourné dessus, et un de ces FM-1 n\'a pas redémarré après son installation. Utilise <b>M-Flasher 0.9.1 ou plus récent</b>, qui te prévient, et fais d\'abord sa sauvegarde. SLOOP 3 accepte cette puce, mais n\'a pas encore été essayé dessus non plus.</li><li>Les mises à jour officielles de M-VAVE remettent leur propre bootloader : après l\'une d\'elles, refais cette étape.</li>',
   mbDone: 'C\'est fait : je vois le menu',
   h3: 'Connecte ton FM-1', s3: 'Démarre le FM-1 en MIDI MODE, branche-le, et laisse la page le trouver.',
   c1: 'Éteins le FM-1, puis rallume-le en tenant <kbd>PLAY</kbd>.', c2: 'Dans le menu, choisis <b>MIDI MODE</b> avec <kbd>OCT-</kbd> / <kbd>OCT+</kbd>, puis appuie sur <kbd>PLAY</kbd>. L\'écran demande de brancher l\'USB.',
@@ -445,29 +445,29 @@ fr: {
   connect: 'Connecter', waitT: 'Recherche de ton FM-1…', waitB: 'Garde-le en MIDI MODE et branché. Il est trouvé tout seul dès qu\'il apparaît.', devT: 'FM-1 connecté',
   h4: 'Sauvegarde ton FM-1', s4: 'Une copie de tout le FM-1 (1 Mo), enregistrée dans tes téléchargements. Rien n\'est écrit. Avec ce fichier, ton FM-1 peut toujours revenir exactement comme maintenant.',
   backup: 'Sauvegarder mon FM-1', bdoneT: 'Sauvegarde enregistrée', haveBak: 'J\'ai déjà une sauvegarde complète de ce FM-1, faite avec M-Flasher.',
-  h5: 'Installe BOATSWAIN', s5: 'Environ une minute. Le FM-1 vérifie d\'abord tout le paquet, sans rien effacer, puis l\'écrit.',
+  h5: 'Installe SLOOP 3', s5: 'Environ une minute. Le FM-1 vérifie d\'abord tout le paquet, sans rien effacer, puis l\'écrit.',
   sumFw: 'Firmware', sumDev: 'Appareil', sumBak: 'Sauvegarde', keepT: 'Pendant l\'installation', keepB: 'Ne débranche pas le FM-1, et garde cet onglet au premier plan : les navigateurs ralentissent les onglets en arrière-plan.',
-  install: 'Installer BOATSWAIN', ph1: '1 · Vérification (rien d\'effacé)', ph2: '2 · Écriture', ph3: '3 · Redémarrage',
-  h6: 'BOATSWAIN est installé', s6: 'Le FM-1 redémarre sur BOATSWAIN et le voilier se dessine. Monte <b>MASTER</b> doucement, et amuse-toi bien.',
+  install: 'Installer SLOOP 3', ph1: '1 · Vérification (rien d\'effacé)', ph2: '2 · Écriture', ph3: '3 · Redémarrage',
+  h6: 'SLOOP 3 est installé', s6: 'Le FM-1 redémarre sur SLOOP 3 et le voilier se dessine. Monte <b>MASTER</b> doucement, et amuse-toi bien.',
   f1T: 'Les sons', f1B: '<kbd>ALGORITHM</kbd> choisit la piste (synthés 1 à 4, batterie 5). <kbd>PRESETS</kbd> ouvre SOUNDS, tous les sons par catégorie.',
   f2T: 'Enregistrer', f2B: '<kbd>PLAY</kbd>, puis <kbd>REC</kbd>, et joue sur les touches. <kbd>EDIT</kbd> tenu + <kbd>OCT-</kbd> pour annuler.',
   f3T: 'Jouer en live', f3B: 'Tiens <kbd>FX</kbd> et joue une touche : un effet. Tiens <kbd>HOME</kbd> : ouvrir, nouveau et sauver s\'allument.',
   openEd: 'Ouvrir l\'éditeur web', readGuide: 'Lire le guide', report: 'Signaler un bug',
-  from28T: 'Tu viens de SLOOP 2.8 ?', from28B: 'Au premier démarrage, BOATSWAIN ouvre ce que SLOOP 2.8 a laissé : tes sections deviennent des patterns, et tes presets, favoris, samples, kits SYN, banque FM6 et réglages suivent. Les données de SLOOP 2.8 sont seulement lues, jamais écrites.',
-  details: 'Détails techniques', helpT: 'Aide', helpS: 'Les réponses à ce qui peut mal se passer. Toujours bloqué ? <a href="https://github.com/davydegravy/boatswain-fm1/issues">Demande dans les issues</a>.',
+  from28T: 'Tu viens de SLOOP 2.8 ?', from28B: 'Au premier démarrage, SLOOP 3 ouvre ce que SLOOP 2.8 a laissé : tes sections deviennent des patterns, et tes presets, favoris, samples, kits SYN, banque FM6 et réglages suivent. Les données de SLOOP 2.8 sont seulement lues, jamais écrites.',
+  details: 'Détails techniques', helpT: 'Aide', helpS: 'Les réponses à ce qui peut mal se passer. Toujours bloqué ? <a href="https://github.com/isod89/sloop3-fm1/issues/new/choose">Demande dans les issues</a>.',
   q1: '« Aucun FM-1 trouvé »', a1: 'Vérifie que le FM-1 affiche MIDI MODE (étape 3) et que le câble transporte des données : essaie un autre câble ou port USB, sans hub. Ferme les autres applis MIDI (M-UPGRADE, éditeurs, logiciels de musique), puis clique de nouveau sur Connecter.',
   q2: '« Le FM-1 fait tourner un firmware »', a2: 'Il a démarré SLOOP, ou un autre firmware, au lieu du menu. Éteins-le, puis rallume-le en tenant <kbd>PLAY</kbd> environ une seconde. Si aucun menu n\'apparaît, m-bootloader n\'est pas encore installé (étape 2).',
   q3: 'L\'installation s\'est arrêtée en route', a3: 'Rien n\'est perdu. Rien n\'est effacé avant que tout le paquet soit vérifié. Si ça s\'arrête pendant l\'écriture, m-bootloader voit un firmware incomplet au démarrage suivant et ouvre son menu tout seul : recharge cette page et réinstalle.',
   q4: 'Le navigateur ne demande jamais l\'accès MIDI', a4: 'Utilise Chrome ou Edge. Clique sur l\'icône à gauche de l\'adresse, ouvre les paramètres du site et autorise les appareils MIDI. Puis recharge la page.',
   q5: 'La sauvegarde s\'arrête', a5: 'Certaines versions de m-bootloader ne répondent pas aux lectures. Fais la sauvegarde avec M-Flasher (étape 2), puis coche « J\'ai déjà une sauvegarde complète ».',
-  q6: 'BOATSWAIN ne démarre pas, ou mal', a6: 'Tiens <kbd>OCT-</kbd> en allumant : <b>RESCUE</b>. <kbd>PLAY</kbd> démarre avec un projet vide (ton projet sauvé est gardé). Ou tiens <kbd>PLAY</kbd> pour le menu de m-bootloader et réinstalle. Puis dis-nous ce que l\'écran affichait.',
-  q7: 'Revenir à SLOOP 2.8 ou au firmware de M-VAVE', a7: 'Remets ta sauvegarde avec M-Flasher (tiens <kbd>REC</kbd> en allumant pour le mode téléchargement). Le FM-1 revient exactement comme au moment de la sauvegarde. Les projets faits avec BOATSWAIN depuis n\'y sont pas : enregistre-les d\'abord en fichiers avec l\'éditeur web.',
-  q8: 'Mettre BOATSWAIN à jour plus tard', a8: 'Rouvre cette page : étapes 3 à 5, environ une minute. Ton projet et tes sons restent.',
-  foot1: '<b>BOATSWAIN</b> est un logiciel libre (GPL-3.0) de Davy DeGravy, construit sur <b>SLOOP 3</b> du projet SLOOP (<a href="https://github.com/isod89/sloop3-fm1">github.com/isod89/sloop3-fm1</a>). Le projet SLOOP ne fait ni ne prend en charge BOATSWAIN. Bêta publique. Non officiel : ni fait, ni approuvé, ni pris en charge par M-VAVE. Installer un firmware tiers se fait à tes risques.',
+  q6: 'SLOOP 3 ne démarre pas, ou mal', a6: 'Tiens <kbd>OCT-</kbd> en allumant : <b>RESCUE</b>. <kbd>PLAY</kbd> démarre avec un projet vide (ton projet sauvé est gardé). Ou tiens <kbd>PLAY</kbd> pour le menu de m-bootloader et réinstalle. Puis dis-nous ce que l\'écran affichait.',
+  q7: 'Revenir à SLOOP 2.8 ou au firmware de M-VAVE', a7: 'Remets ta sauvegarde avec M-Flasher (tiens <kbd>REC</kbd> en allumant pour le mode téléchargement). Le FM-1 revient exactement comme au moment de la sauvegarde. Les projets faits avec SLOOP 3 depuis n\'y sont pas : enregistre-les d\'abord en fichiers avec l\'éditeur web.',
+  q8: 'Mettre SLOOP 3 à jour plus tard', a8: 'Rouvre cette page : étapes 3 à 5, environ une minute. Ton projet et tes sons restent.',
+  foot1: '<b>SLOOP 3</b> est un logiciel libre (GPL-3.0) du projet SLOOP : <a href="https://github.com/isod89/sloop3-fm1">github.com/isod89/sloop3-fm1</a>. Bêta publique. Non officiel : ni fait, ni approuvé, ni pris en charge par M-VAVE. Installer un firmware tiers se fait à tes risques.',
   foot2: 'La version stable, SLOOP 2.8 : <a href="https://github.com/isod89/sloop-fm1">github.com/isod89/sloop-fm1</a>.',
   foot3: 'm-bootloader et M-Flasher sont de Julius Vitkauskas (licence MIT) : <a href="https://github.com/jvitkauskas/m-bootloader">m-bootloader</a> · <a href="https://github.com/jvitkauskas/m-flasher">M-Flasher</a>. Cette page ne contient aucun de leurs codes : elle parle au MIDI MODE de m-bootloader comme sa spécification le décrit.',
   foot4: 'Respect de ta vie privée : cette page n\'envoie rien nulle part, sauf à ton FM-1.',
-  heroAlt: 'Le M-VAVE FM-1 avec BOATSWAIN', playAlt: 'Le bouton PLAY du FM-1'
+  heroAlt: 'Le M-VAVE FM-1 avec SLOOP 3', playAlt: 'Le bouton PLAY du FM-1'
 }};
 const $ = id => document.getElementById(id);
 let lang = 'en';

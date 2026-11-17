@@ -1,6 +1,6 @@
 # The PC side: tests and the demo render (the FM-1 build comes with hal/fm1)
 CC ?= cc
-# the sanitizers of the twin and the fuzzer (Boatswain: on macOS 26, Apple clang 17's AddressSanitizer hangs as it
+# the sanitizers of the twin and the fuzzer (Teachie Peachie: on macOS 26, Apple clang 17's AddressSanitizer hangs as it
 # starts, before main: there the undefined-behaviour checks only; SAN=... to choose)
 ifeq ($(shell uname),Darwin)
 SAN ?= -fsanitize=undefined

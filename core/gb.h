@@ -26,7 +26,7 @@ size_t strlen(const char *s);
 #define GB_INLINE static inline __attribute__((always_inline))
 #define GB_HOT                      /* (target: the section for code kept hot; empty on the PC) */
 /* GB_SECT(name): placed in a section of the FM-1's memory map (fw/ram.ld). On the PC that place means nothing, and
- * a Mac (Mach-O) only takes a section named "segment,section": there it is left out (Boatswain: the PC side on a Mac) */
+ * a Mac (Mach-O) only takes a section named "segment,section": there it is left out (Teachie Peachie: the PC side on a Mac) */
 #if defined(__MACH__)
 #define GB_SECT(name)
 #else
