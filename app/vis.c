@@ -299,7 +299,7 @@ static void part(const xf *T, int id, float y0, float y1, float reach, float she
 }
 /* the icon: the dial lit to `lit` (the rest `dim`), drawn to `dial`; the mast to `mast`, each band to its reach, the
  * jib to `jib`, the hull to `hull` (0..1: the start's animation); the boat leans by shear and rises by dy */
-static void logo(const xf *T, float dial, float lit, uint16_t dim, float mast, const float *reach, const uint16_t *bc, float jib, float hull, float shear, float dy)
+__attribute__((unused)) static void logo(const xf *T, float dial, float lit, uint16_t dim, float mast, const float *reach, const uint16_t *bc, float jib, float hull, float shear, float dy)
 {
     float s = T->s, cx = T->ox + 120.0f * s, cy = T->oy + 120.0f * s;
     int len = (int)(768.0f * dial), on = (int)(768.0f * dial * lit);
@@ -340,30 +340,34 @@ static void sloop(void)
     logo(&T, 1.0f, (float)M->mix * (1.0f / 255.0f), gfx_mix(BG, LW, 6), 1.0f, reach, bc, 1.0f, 1.0f, sh, dy);
 }
 /* the start: the logo drawn in, the word "sloop" written, the version (vis_splash_draw for ms since the start) */
-static uint32_t SPL_MS; static const char *SPL_VER; static uint16_t SPL_COL[5];
+__attribute__((unused)) static uint32_t SPL_MS; __attribute__((unused)) static const char *SPL_VER; static uint16_t SPL_COL[5];   /* (Teachie Peachie: SPL_VER no longer shown) */
 void vis_splash(uint32_t ms, const char *ver, const uint16_t *col) { SPL_MS = ms; SPL_VER = ver; for (int k = 0; k < 5; k++) SPL_COL[k] = col[k]; }
-static float ease(float x) { x = x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; return 1.0f - (1.0f - x) * (1.0f - x) * (1.0f - x); }
-static float back(float x) { x = x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; float c = 1.7f; return 1.0f + (c + 1.0f) * (x - 1.0f) * (x - 1.0f) * (x - 1.0f) + c * (x - 1.0f) * (x - 1.0f); }
+__attribute__((unused)) static float ease(float x) { x = x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; return 1.0f - (1.0f - x) * (1.0f - x) * (1.0f - x); }
+__attribute__((unused)) static float back(float x) { x = x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; float c = 1.7f; return 1.0f + (c + 1.0f) * (x - 1.0f) * (x - 1.0f) * (x - 1.0f) + c * (x - 1.0f) * (x - 1.0f); }
+#include "tp_logo.h"
+/* Teachie Peachie: its logo from the runs of tp_logo.h (tools/mklogo.py), only the rows of the tile being drawn */
+static void tp_logo_draw(int x0, int y0)
+{
+    int tx, ty, tw, th; gfx_tile(&tx, &ty, &tw, &th); (void)tx; (void)tw;
+    int r0 = ty - y0, r1 = ty + th - y0;
+    if (r1 <= 0 || r0 >= TP_LOGO_H) return;
+    if (r0 < 0) r0 = 0;
+    if (r1 > TP_LOGO_H) r1 = TP_LOGO_H;
+    const uint8_t *p = tp_logo_rle + tp_logo_row8[r0 >> 3];
+    for (int r = r0 & ~7; r < r1; r++)
+        for (int x = 0; x < TP_LOGO_W; ) {
+            unsigned b = *p++, n = b >> 4;
+            n = n < 15u ? n + 1u : 16u + *p++;
+            if (r >= r0 && (b & 15u)) gfx_fill(x0 + x, y0 + r, (int)n, 1, tp_logo_pal[b & 15u]);   /* (0 is white: the page already) */
+            x += (int)n;
+        }
+}
 void vis_splash_draw(void)
 {
-    gfx_fill(0, 0, GFX_W, GFX_H, 0);
-    float t = (float)SPL_MS * 0.001f, reach[5]; uint16_t bc[5];
-    for (int k = 0; k < 5; k++) { reach[k] = back((t - 0.55f - 0.1f * (float)k) / 0.35f); bc[k] = SPL_COL[k];
-        float g = t - 1.6f - 0.07f * (float)k; if (g > 0.0f && g < 0.25f) bc[k] = gfx_mix(SPL_COL[k], LW, (unsigned)(20.0f * (1.0f - g * 4.0f))); }   /* (a glint across) */
-    xf T = { 120.0f - 120.0f * 0.62f, 12.0f, 0.62f };
-    logo(&T, ease(t / 0.7f), 1.0f, gfx_mix(0, LW, 6), ease((t - 0.25f) / 0.4f), reach, bc, ease((t - 1.05f) / 0.4f), ease((t - 0.15f) / 0.35f), 0.0f, 0.0f);
-    {   /* Teachie Peachie: its name written in letter by letter where SLOOP's word was, and SLOOP 3 credited under it */
-        static const char *const NAME[2] = { "TEACHIE", "PEACHIE" }; float r = (t - 1.0f) / 0.7f;   /* (Teachie Peachie: its name, written in) */
-        int n = r <= 0.0f ? 0 : r >= 1.0f ? 14 : (int)(r * 14.0f) + 1;
-        for (int k = 0; k < 2 && n > 7 * k; k++) {
-            char s[8]; int m = n - 7 * k > 7 ? 7 : n - 7 * k;
-            for (int q = 0; q < m; q++) s[q] = NAME[k][q];
-            s[m] = 0;
-            gfx_text(&font_l, 120 - gfx_text_w(&font_l, NAME[k]) / 2, 150 + 31 * k, s, RGB(255, 242, 214));
-        }
-        if (t > 1.6f) gfx_text_c(&font_s, 120, 214, "WITH SLOOP 3", gfx_mix(0, RGB(150, 150, 160), (unsigned)(t > 2.0f ? 32.0f : (t - 1.6f) * 80.0f)));
-    }
-    if (SPL_VER && t > 1.6f) gfx_text_c(&font_s, 120, 222, SPL_VER, gfx_mix(0, RGB(150, 150, 160), (unsigned)(t > 2.0f ? 32.0f : (t - 1.6f) * 80.0f)));
+    /* Teachie Peachie: its logo on white, SLOOP 3 credited under it (SLOOP's sailboat: logo(), no longer drawn here) */
+    gfx_fill(0, 0, GFX_W, GFX_H, RGB(255, 255, 255));
+    tp_logo_draw((GFX_W - TP_LOGO_W) / 2, 6);
+    gfx_text_c(&font_s, 120, 212, "WITH SLOOP 3", RGB(0, 0, 0));
 }
 void vis_draw(void)
 {
