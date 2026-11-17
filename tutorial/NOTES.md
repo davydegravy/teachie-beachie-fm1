@@ -15,7 +15,8 @@ Written 2026-11-17, after lesson 1 first ran on a real FM-1.
 - **Lesson 1 ran on the real FM-1 from start to finish,** in 63 seconds. The project that was on the FM-1 was
   put back afterwards, the same byte for byte.
 - **Nothing is committed,** here or in the song library (`songs/house_one.py`, `songs/house-one.json`).
-- **Still under the old name:** this folder, the GitHub repository, and `PLAN.md`.
+- **The GitHub repository is now `teachie-peachie`.** Still under the old name: this folder on the Mac
+  (`boatswain-fm1`) and `PLAN.md`.
 - **HOUSE ONE is not built in Ableton yet.** It was heard for the first time on the FM-1, in the lesson.
 
 ## What the first real run showed
@@ -93,7 +94,8 @@ Written 2026-11-17, after lesson 1 first ran on a real FM-1.
 
 1. Change lesson 1 from the tester's notes.
 2. Build HOUSE ONE in Ableton, approve it by ear, export it like the other songs.
-3. Commit the work, then rename the folder and the repository to `teachie-peachie`.
+3. Rename this folder on the Mac to `teachie-peachie`. (The work is committed and pushed, and the GitHub
+   repository is renamed.)
 4. Rewrite `PLAN.md` with everything decided since draft 2:
    - Claude leads, and the lesson never waits for it except in four cases.
    - The character is a musician with no mascot, dry replies, and detail on request.

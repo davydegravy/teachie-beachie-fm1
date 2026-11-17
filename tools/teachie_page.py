@@ -10,8 +10,8 @@
 import re, sys
 
 TP_VERSION = "0.1"
-HOME = "https://github.com/davydegravy/boatswain-fm1"   # (the repository keeps its old name for now)
-PAGE = "https://davydegravy.github.io/boatswain-fm1/"
+HOME = "https://github.com/davydegravy/teachie-peachie"
+PAGE = "https://davydegravy.github.io/teachie-peachie/"
 
 path = sys.argv[1]
 t = open(path, encoding="utf-8").read()
