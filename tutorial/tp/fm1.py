@@ -100,7 +100,7 @@ class Midi:
     def close(self): self.i.close(); self.o.close()
 
 class FM1:
-    def __init__(self, link): self.link = link; self.page = self.track = 0; self._names = None; self.lost = 0; self.pending = []   # presses and turns not looked at yet
+    def __init__(self, link): self.link = link; self.page = self.track = 0; self._names = None; self.lost = 0; self.state = 0; self.pending = []   # presses and turns not looked at yet
     def ask(self, cmd, raw=b"", timeout=1.5, tries=1):
         """tries: for a request that is safe to send twice (an answer can be lost on the way), how often to ask"""
         for n in range(tries - 1):
@@ -117,7 +117,7 @@ class FM1:
     # the guide
     def guide(self, op, payload=b""):
         r = self.ask(ED_GUIDE, bytes([op]) + bytes(payload), 0.4, 4)
-        self.page, self.track = r[1], r[2]
+        self.page, self.track, self.state = r[1], r[2], r[3]   # state: bit 0 a card, 1 the start's card, 2 START pressed
         self.pending += [(EVENT.get(r[5 + 2 * i], "?"), r[6 + 2 * i]) for i in range(r[4])]   # (every answer brings them)
     def off(self): return self.guide(0)
     def card(self, words, left="", right="", big=False, strip=0):
@@ -131,6 +131,8 @@ class FM1:
     def take(self, keys=(), buttons=(), knobs=()):
         km = sum(1 << k for k in keys); bm = sum(1 << b for b in buttons); em = sum(1 << e for e in knobs)
         return self.guide(3, km.to_bytes(4, "little") + bm.to_bytes(2, "little") + bytes([em]))
+    def home(self): return self.guide(5)                  # the start's card: START and JUST PLAY
+    def start_asked(self): self.guide(4); return bool(self.state & 4)
     def events(self):
         self.guide(4); ev, self.pending = self.pending, []
         return ev

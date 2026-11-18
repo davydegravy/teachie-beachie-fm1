@@ -2,22 +2,24 @@
 
 Written 2026-11-17, after lesson 1 first ran on a real FM-1.
 
-## Where things stand
+## Where things stand (end of 2026-11-17)
 
+- **The plan is `PLAN.md`, draft 3.** It holds every decision so far, the course, and the order of work.
+  These notes are the record of what was tried and what the tester noticed.
 - **The FM-1:**
   - It has the old flash chip (`0x856014`) and m-bootloader 2.4.
-  - It runs the Teachie Peachie build: SLOOP 3.3.7 plus the guide.
+  - It runs Teachie Peachie: SLOOP 3.3.7 plus the guide, the logo at the start and the START card.
+  - HOUSE ONE is on it, left by the last lesson.
   - The way back to SLOOP 2.8.5 is M-Flasher's RESTORE FULL FLASH with `fm1-20261117-113255.bin`, in
     `Documents/M-Flasher/backups`.
 - **The Mac:**
   - Its two old MIDI names were changed to "FM-1 Update" and "FM-1 SLOOP 3".
   - The two MIDI packages are in `tutorial/.venv`.
-- **Lesson 1 ran on the real FM-1 from start to finish,** in 63 seconds. The project that was on the FM-1 was
-  put back afterwards, the same byte for byte.
-- **Nothing is committed,** here or in the song library (`songs/house_one.py`, `songs/house-one.json`).
-- **The GitHub repository and this folder are both `teachie-peachie-fm1`,** following SLOOP's own naming
-  (`sloop3-fm1`). Only `PLAN.md` still carries the old name.
-- **HOUSE ONE is not built in Ableton yet.** It was heard for the first time on the FM-1, in the lesson.
+  - The installer: `file:///Users/david/Development/teachie-peachie-fm1/build/fw/installer-fm1.html`
+  - The waiting program: `tutorial/.venv/bin/python -u tutorial/run.py welcome --fm1 --wait`, from this folder.
+    It runs only while something keeps it running.
+- **Lesson 1 has run on the real FM-1 several times,** most recently started with START.
+- **HOUSE ONE is not built in Ableton yet.**
 
 ## What the first real run showed
 
@@ -82,34 +84,21 @@ Written 2026-11-17, after lesson 1 first ran on a real FM-1.
 - **A question to settle: could the lessons run on the FM-1 with no USB cable,** with an AI mode when it is
   connected? First answer: yes. It needs a small lesson player inside the firmware, and the lessons and songs
   stored on the FM-1. Measured room: about 6 KB free for code, which should hold the player. The lessons and
-  songs would not fit there; one of the four user-sample slots (about 150 KB) would hold the whole course
-  without cutting anything out of SLOOP. The lessons have to become data first, which was planned anyway.
+  songs would not fit there; the four user-sample slots are 80 KB each (corrected: not 150 KB), so the course
+  would take one or two of them, without cutting anything out of SLOOP. The lessons have to become data first, which was planned anyway.
 
 - **Decided the same day:** keep building lessons on the computer for now. In the end the version without AI
   lives entirely on the FM-1, with no cable. The connected mode with Claude stays alongside it.
 
+- **The logo at the start, on white,** with WITH SLOOP 3 under it, in place of SLOOP's sailboat. Stored in
+  nine flat colours, about 3.3 KB. SLOOP's own tests caught a colour bug in the first version.
+- **"I still want the buttons... the computer should see that I pressed start."** The start card now has
+  `START` on OCT+ and `JUST PLAY` on OCT−. START tells the computer, and the waiting program starts the lesson.
+  It worked on the real FM-1 the first time.
+- **The plan was rewritten as draft 3** at the end of the day.
+
 (More to be filled in.)
 
-## To do next, in an order still to be decided
+## To do next
 
-1. Change lesson 1 from the tester's notes.
-2. Build HOUSE ONE in Ableton, approve it by ear, export it like the other songs.
-3. (Done: the work is committed and pushed, and the repository and folder are renamed.)
-4. Rewrite `PLAN.md` with everything decided since draft 2:
-   - Claude leads, and the lesson never waits for it except in four cases.
-   - The character is a musician with no mascot, dry replies, and detail on request.
-   - The dark screen means Teachie Peachie is speaking.
-   - No pictures on cards in the first version.
-   - SLOOP 3 only for now.
-   - A lesson simply starts, and skip leads to "I'm advanced" or a list of lessons.
-   - The melody game is in.
-5. Build the next pieces:
-   - the half page;
-   - the skip menu and lesson list;
-   - `MORE`;
-   - Claude cutting in;
-   - lesson 2;
-   - lessons as plain text files;
-   - the web page.
-6. Check on the FM-1 that the start screen shows TEACHIE PEACHIE under the sailboat.
-7. Look for a reply on SLOOP's issue 10 (the Mac build fixes).
+The order of work is in `PLAN.md`, section 13.

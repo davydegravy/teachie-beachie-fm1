@@ -1584,7 +1584,8 @@ COLD static void vis_pass(void)
 /* TEACHIE PEACHIE: the guide (ED_GUIDE). A lesson on the computer shows a card (the screen white, its words in black), lights
  * buttons and keys, takes some of them for itself (their presses reported, not acted on) and reads every press and
  * turn. Nothing here acts by itself: with no lesson running, SLOOP 3 is as it was.
- *   ED_GUIDE op ...  ->  op, the page (PG_*), the track, card shown, n, then n presses and turns: kind, which
+ *   ED_GUIDE op ...  ->  op, the page (PG_*), the track, state (bit 0 a card, 1 the start's card, 2 START pressed,
+ *                        waiting for the computer), n, then n presses and turns: kind, which
  *     0                    everything off
  *     1 style words 0 left 0 right 0    a card: style bit 0 shown, bit 1 its words large and centred (a reply), bits
  *                          2-3 a strip (1 at the top, 2 at the bottom: a band over the page, which stays live); the
@@ -1593,12 +1594,14 @@ COLD static void vis_pass(void)
  *                          5 the double blink (the guide points)
  *     3 keys(u32) buttons(u16) knobs(u8)   what the guide takes for itself
  *     4                    nothing: the presses since the last answer
+ *     5                    the start's card again, START and JUST PLAY
  *   kinds: 1 a key down, 2 up, 3 a button down, 4 up, 5 a knob a click right, 6 left */
 /* (its look: white paper, black ink, nothing else; SLOOP's pages are dark, so a card is plainly not SLOOP's) */
 #define G_PAPER RGB(255, 255, 255)
 #define G_INK RGB(0, 0, 0)
 static struct {
-    uint8_t card, big, strip, only, gen, home;     /* home: the card of the start, until a lesson or JUST PLAY */           /* strip: 0 a whole card, 1 a band at the top, 2 at the bottom */
+    uint8_t card, big, strip, only, gen, home, ask;   /* home: the card of the start; ask: START pressed (1 waiting, 2 no answer) */
+    uint32_t ask_t;           /* strip: 0 a whole card, 1 a band at the top, 2 at the bottom */
     char text[176], left[16], right[16];
     uint8_t ls[8], ll[8], nl;                       /* the words' lines: where each starts, how long */
     uint8_t led[41];
@@ -1676,18 +1679,40 @@ COLD static void guide_draw(void)                   /* the card, over whatever t
         gfx_text(&font_s, GFX_W - 12 - gfx_text_w(&font_s, G.right), 216, G.right, G_INK);
     }
 }
-/* the start: Teachie Peachie's own card, not SLOOP's page, until a lesson shows its first card or OCT+ says JUST PLAY */
-COLD static void guide_home(void)
+/* the start: Teachie Peachie's own card, not SLOOP's page. OCT+ START asks the computer for a lesson (it sees G.ask
+ * in the guide's answers, and its lesson's first card takes this one's place); OCT- JUST PLAY leaves it for SLOOP */
+COLD static void guide_card_text(const char *t, const char *l, const char *r)
 {
-    static const char T[] = "^TEACHIE PEACHIE\nREADY FOR A LESSON.\nSTART ONE FROM THE COMPUTER.";
-    uint8_t *z = (uint8_t *)&G; uint8_t gen = G.gen; for (uint32_t i = 0; i < sizeof G; i++) z[i] = 0;
-    for (uint32_t i = 0; i < sizeof T; i++) G.text[i] = T[i];
-    static const char R[] = "JUST PLAY"; for (uint32_t i = 0; i < sizeof R; i++) G.right[i] = R[i];
-    G.card = 1; G.home = 1; G.cap_btn = 1u << BTN_OCT_UP; G.led[BTN_OCT_UP] = 5; guide_wrap(); G.gen = (uint8_t)(gen + 1);
+    uint32_t i = 0; for (; t[i] && i + 1 < sizeof G.text; i++) G.text[i] = t[i];
+    G.text[i] = 0;
+    for (i = 0; l[i] && i + 1 < sizeof G.left; i++) G.left[i] = l[i];
+    G.left[i] = 0;
+    for (i = 0; r[i] && i + 1 < sizeof G.right; i++) G.right[i] = r[i];
+    G.right[i] = 0;
+    guide_wrap(); G.gen++;
 }
 COLD static void guide_home_off(void) { uint8_t *z = (uint8_t *)&G; uint8_t gen = G.gen; for (uint32_t i = 0; i < sizeof G; i++) z[i] = 0; G.gen = (uint8_t)(gen + 1); }
+COLD static void guide_home(void)
+{
+    guide_home_off();
+    G.card = 1; G.home = 1; G.cap_btn = 1u << BTN_OCT_UP | 1u << BTN_OCT_DOWN; G.led[BTN_OCT_UP] = 5; G.led[BTN_OCT_DOWN] = 5;
+    guide_card_text("TEACHIE PEACHIE\nREADY FOR A LESSON.", "JUST PLAY", "START");
+}
+COLD static void guide_home_ask(void)                /* START: the computer is asked (it sees G.ask) */
+{
+    G.ask = 1; G.ask_t = time_ticks(); G.led[BTN_OCT_UP] = 0; G.led[BTN_OCT_DOWN] = 2;
+    guide_card_text("TEACHIE PEACHIE\nSTARTING...", "JUST PLAY", "");
+}
+COLD static void guide_home_tick(void)               /* no lesson 4 s after START: the computer did not answer */
+{
+    if (G.home && G.ask == 1 && (uint32_t)(time_ticks() - G.ask_t) > 4000000u * lsb) {
+        G.ask = 2; G.led[BTN_OCT_UP] = 5; G.led[BTN_OCT_DOWN] = 5;
+        guide_card_text("TEACHIE PEACHIE\nTHE COMPUTER DID NOT ANSWER.\nCHECK THE USB CABLE, THEN PRESS [OCT+] AGAIN.", "JUST PLAY", "START");
+    }
+}
 COLD static void guide_leds(void)                   /* after SLOOP's own lights: the guide's, over them */
 {
+    guide_home_tick();
     uint32_t ph = (time_ticks() / (62500u * lsb)) & 7u;      /* sixteenths of a second: two short pulses, twice a second */
     int on = ph == 0 || ph == 2;
     if (G.only) { panel_glow_clear(); for (int i = 0; i < 41; i++) panel_level(i, 0); }
@@ -2884,7 +2909,8 @@ COLD static void ed_request(void)
     }
     case ED_GUIDE: {                                          /* Teachie Peachie's guide (see G above) */
         int op = n ? r[0] : 4;
-        if (op == 0) { uint8_t gen = G.gen, *z = (uint8_t *)&G; for (uint32_t i = 0; i < sizeof G; i++) z[i] = 0; G.gen = (uint8_t)(gen + 1); }
+        if (op == 0) guide_home_off();
+        else if (op == 5) guide_home();                       /* the start's card again (a lesson over) */
         else if (op == 1 && n >= 2) {
             if (G.home) guide_home_off();
             G.card = r[1] & 1u; G.big = (r[1] >> 1) & 1u; G.strip = (r[1] >> 2) & 3u;
@@ -2904,7 +2930,7 @@ COLD static void ed_request(void)
         }
         uint32_t k = 0;
         while (G.ev_r != G.ev_w && k < 32) { r[5 + 2 * k] = G.ev[G.ev_r & 31][0]; r[6 + 2 * k] = G.ev[G.ev_r & 31][1]; G.ev_r++; k++; }
-        r[0] = (uint8_t)op; r[1] = (uint8_t)sticky; r[2] = (uint8_t)trk; r[3] = G.card; r[4] = (uint8_t)k;
+        r[0] = (uint8_t)op; r[1] = (uint8_t)sticky; r[2] = (uint8_t)trk; r[3] = (uint8_t)(G.card | G.home << 1 | (G.ask == 1) << 2); r[4] = (uint8_t)k;
         ed_send(cmd, 5 + 2 * k); return;
     }
     default: ed_err(ED_ERR_BAD); return;
@@ -3344,7 +3370,10 @@ COLD static void open_page(int b)
 COLD static void buttons(void)
 {
     uint32_t rel, pr = panel_button_edges(&rel);
-    if ((guide_edges(3, &pr, &rel, 14, G.cap_btn, &G.took_btn) & (1u << BTN_OCT_UP)) && G.home) guide_home_off();   /* JUST PLAY */
+    {   uint32_t gp = guide_edges(3, &pr, &rel, 14, G.cap_btn, &G.took_btn);   /* the start's card: JUST PLAY, START */
+        if (G.home && (gp & (1u << BTN_OCT_DOWN))) guide_home_off();
+        else if (G.home && (gp & (1u << BTN_OCT_UP)) && G.ask != 1) guide_home_ask();
+    }
     pr |= rm_pr | eb_pr; rel |= rm_rel | eb_rel; rm_pr = rm_rel = eb_pr = eb_rel = 0;   /* (REMOTE: the buttons over MIDI; the editor's) */
     if (!m_rmch) rm_held = 0;
     if (pr | rel) t_input = time_ticks();
