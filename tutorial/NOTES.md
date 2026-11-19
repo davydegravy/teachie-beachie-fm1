@@ -97,7 +97,67 @@ Written 2026-11-17, after lesson 1 first ran on a real FM-1.
   It worked on the real FM-1 the first time.
 - **The plan was rewritten as draft 3** at the end of the day.
 
-(More to be filled in.)
+## 2026-11-18: all thirty lessons drafted
+
+- **The lessons are Markdown files now,** in `lessons/`, one each. `lessons/README.md` says how to go through
+  them on the FM-1, where to write notes, and how a lesson file is written. Lesson 1 was moved over and plays as
+  before.
+- **Each lesson was played through on the simulated FM-1** by the robot learner, which does what each step asks.
+  Most steps are checked against the FM-1 itself: the lesson reads that the kick really is in box 1, the track
+  really is muted, the page really is the piano roll. So the button moves in the lessons are known to work on
+  this firmware.
+- **None of the twenty-nine new lessons has been played by a person.** Wording, pace and how it feels are all
+  still to judge.
+- **The song question:** a lesson names its song and section, so a song can be swapped later. Every lesson uses
+  HOUSE ONE for now, and each file says what in it is tied to the song.
+
+### What building them showed about SLOOP 3
+
+- **The white keys mean two things on the drum track:** drums when played, boxes while SEQ is held. The drum
+  that boxes write is the drum played last. Tapping a box with the wrong drum picked can take a note out. The
+  lessons say "play its key first" each time, and the hints repeat it.
+- **Black keys also pick a drum, but each press flips between two.** The lessons use the white keys instead.
+- **While the FM-1 saves, it misses presses** and answers nothing for a moment. Copying a page saves too. This
+  is very likely what the "lost answers" of 2026-11-17 were. The connector now asks again and keeps what a late
+  answer brings.
+- **SLOOP saves by itself** when the music has been stopped for a few seconds. Lesson 29 wrecks the project
+  while it plays for that reason.
+- **Opening the saved project stops the music.**
+- **HOME on the TRACKS page opens the visualiser.** The lesson cannot see that yet.
+- **The echo knob on the SENDS page is labelled ECHO,** so the lessons say echo there.
+- **A key played on a muted track still sounds.** Only what the sequencer plays is muted. Lessons 11, 21 and 22
+  use that: the lead is muted and the learner is the lead.
+
+### What the lessons cannot do yet
+
+- **Read the key, scale, chord, arpeggiator, the drum that is picked, or the cursor** in the piano roll and the
+  song's lines. Lessons 11, 12, 13, 22 and 26 count knob clicks in those places. A small addition to the guide
+  in the firmware would let them check the result.
+- **OCT+ is the "done" button on free steps,** so the octave can't go up during them, and lesson 23 had to be
+  written around it. OCT- is left alone, so undo works.
+- **Lesson 29 only describes** recording a song as a sound file.
+- **The path for people who know grooveboxes** is only started: few steps are marked *(beginners only)* so far.
+
+### The cards change colour again
+
+- **"I just think it will better separate the tutorial from Sloop."** Cards and strips are now a creamy peach,
+  `#FFCBA4`, with dark red words, `#960000`, in place of white and black. The frames round button names and the
+  answers by the OCT buttons take the same red.
+- **The first peach tried, `#F4A834`, looked "almost yellow ... or orange"** on the simulated FM-1. Three peaches
+  were shown side by side on a real card, and `#FFCBA4` was kept. A colour is best chosen from a picture of a
+  card, not from its number.
+- **The logo at the start moved onto the same peach,** with WITH SLOOP 3 in the same red. The logo itself was
+  redrawn (`assets/logo/teachie-peachie.jpg`; the same art on white is beside it). It is stored in eight flat
+  colours and takes about 2.9 KB, a little less than the old one. About 3.8 KB of code room is left.
+- These are changes to the firmware, so it has to be installed again to show on the FM-1.
+
+### To check first on the real FM-1
+
+- That the waiting program still finds the FM-1 and START still works. The part of the connector that listens
+  for answers was changed and has only run on the simulated FM-1 since.
+- That a lesson's start feels quick enough. A new project plus the song takes about four seconds after BEGIN,
+  with the begin card still showing.
+- That the top strips leave the dials readable (lessons 11, 13, 14, 19, 21, 22, 26, 28).
 
 ## To do next
 

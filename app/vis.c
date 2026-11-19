@@ -358,16 +358,17 @@ static void tp_logo_draw(int x0, int y0)
         for (int x = 0; x < TP_LOGO_W; ) {
             unsigned b = *p++, n = b >> 4;
             n = n < 15u ? n + 1u : 16u + *p++;
-            if (r >= r0 && (b & 15u)) gfx_fill(x0 + x, y0 + r, (int)n, 1, tp_logo_pal[b & 15u]);   /* (0 is white: the page already) */
+            if (r >= r0 && (b & 15u)) gfx_fill(x0 + x, y0 + r, (int)n, 1, tp_logo_pal[b & 15u]);   /* (0 is the background round it: the page already) */
             x += (int)n;
         }
 }
 void vis_splash_draw(void)
 {
-    /* Teachie Peachie: its logo on white, SLOOP 3 credited under it (SLOOP's sailboat: logo(), no longer drawn here) */
-    gfx_fill(0, 0, GFX_W, GFX_H, RGB(255, 255, 255));
+    /* Teachie Peachie: its logo on the cards' peach, SLOOP 3 credited under it in their red (SLOOP's sailboat: logo(), no
+     * longer drawn here) */
+    gfx_fill(0, 0, GFX_W, GFX_H, TP_PAPER);
     tp_logo_draw((GFX_W - TP_LOGO_W) / 2, 6);
-    gfx_text_c(&font_s, 120, 212, "WITH SLOOP 3", RGB(0, 0, 0));
+    gfx_text_c(&font_s, 120, 212, "WITH SLOOP 3", TP_INK);
 }
 void vis_draw(void)
 {

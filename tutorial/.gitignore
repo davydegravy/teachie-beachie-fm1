@@ -1,5 +1,4 @@
 logbook/
 seachest/
 .venv/
-__pycache__/
-songs/*.wav
+progress.json

@@ -1581,7 +1581,7 @@ COLD static void vis_pass(void)
     in.beats256 = b256; in.style = vis_style; in.name = vis_named; if (vis_named) vis_named--;
     sbuf_used(); vis_frame(sbuf, &in);
 }
-/* TEACHIE PEACHIE: the guide (ED_GUIDE). A lesson on the computer shows a card (the screen white, its words in black), lights
+/* TEACHIE PEACHIE: the guide (ED_GUIDE). A lesson on the computer shows a card (the screen peach, its words dark red), lights
  * buttons and keys, takes some of them for itself (their presses reported, not acted on) and reads every press and
  * turn. Nothing here acts by itself: with no lesson running, SLOOP 3 is as it was.
  *   ED_GUIDE op ...  ->  op, the page (PG_*), the track, state (bit 0 a card, 1 the start's card, 2 START pressed,
@@ -1596,9 +1596,9 @@ COLD static void vis_pass(void)
  *     4                    nothing: the presses since the last answer
  *     5                    the start's card again, START and JUST PLAY
  *   kinds: 1 a key down, 2 up, 3 a button down, 4 up, 5 a knob a click right, 6 left */
-/* (its look: white paper, black ink, nothing else; SLOOP's pages are dark, so a card is plainly not SLOOP's) */
-#define G_PAPER RGB(255, 255, 255)
-#define G_INK RGB(0, 0, 0)
+/* (its look: peach paper, dark red ink, nothing else; SLOOP's pages are dark, so a card is plainly not SLOOP's) */
+#define G_PAPER TP_PAPER                          /* (app/vis.h: the start screen's too) */
+#define G_INK TP_INK
 static struct {
     uint8_t card, big, strip, only, gen, home, ask;   /* home: the card of the start; ask: START pressed (1 waiting, 2 no answer) */
     uint32_t ask_t;           /* strip: 0 a whole card, 1 a band at the top, 2 at the bottom */

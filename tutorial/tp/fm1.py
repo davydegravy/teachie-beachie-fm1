@@ -4,11 +4,11 @@
 
 Two links, the same messages on both:
   Twin    the simulated FM-1 (build/twin serve), for tests: it also has a learner's hands and can save the screen
-  Midi    a real FM-1 over USB (needs the Python packages mido and python-rtmidi; not tried on hardware yet)
+  Midi    a real FM-1 over USB (needs the Python packages mido and python-rtmidi, in tutorial/.venv)
 """
 import queue, subprocess, threading, time, zlib
 
-ED_READ, ED_WBEGIN, ED_WDATA, ED_WEND, ED_NOTES, ED_LIVE, ED_NAMES, ED_GUIDE = 5, 6, 7, 8, 12, 15, 20, 21
+ED_SOUND, ED_READ, ED_WBEGIN, ED_WDATA, ED_WEND, ED_PATTERN, ED_NOTES, ED_LIVE, ED_NOTES2, ED_SONG, ED_NAMES, ED_GUIDE = 2, 5, 6, 7, 8, 10, 12, 15, 16, 18, 20, 21
 K_KIT = 9                                   # a factory sound's kind: a drum kit
 
 class Refused(RuntimeError):
@@ -65,7 +65,7 @@ class Twin:
     def _w(self, s): self.p.stdin.write(s + "\n"); self.p.stdin.flush()
     def send(self, sx): self._w("M " + " ".join("%02x" % b for b in sx))
     def recv(self, timeout):
-        try: return self.frames.get(timeout=timeout)
+        try: return self.frames.get(timeout=timeout) if timeout > 0 else self.frames.get_nowait()
         except queue.Empty: return None
     # a learner's hands, and eyes
     def key(self, k, down): self._w("K %d %d" % (k, int(down)))
@@ -81,7 +81,7 @@ class Twin:
         except Exception: self.p.kill()
 
 class Midi:
-    """A real FM-1 over USB MIDI. Written to the same shape as Twin; not tried on hardware yet."""
+    """A real FM-1 over USB MIDI. The same shape as Twin."""
     def __init__(self, names=("SLOOP 3", "Felucca")):       # (a Mac that knew SLOOP 2.8 may still call it Felucca)
         import mido
         ok = lambda n: any(x in n for x in names) and "Update" not in n
@@ -91,34 +91,44 @@ class Midi:
     def send(self, sx): self.o.send(self.mido.Message("sysex", data=list(sx[1:-1])))
     def recv(self, timeout):
         end = time.time() + timeout
-        while time.time() < end:
+        while True:
             m = self.i.poll()
-            if m is None: time.sleep(0.001); continue
-            if m.type == "sysex": return bytes([0xF0] + list(m.data) + [0xF7])
-        return None
+            if m is not None and m.type == "sysex": return bytes([0xF0] + list(m.data) + [0xF7])
+            if m is None:
+                if time.time() >= end: return None
+                time.sleep(0.001)
     def shot(self, name): return None
     def close(self): self.i.close(); self.o.close()
 
 class FM1:
     def __init__(self, link): self.link = link; self.page = self.track = 0; self._names = None; self.lost = 0; self.state = 0; self.pending = []   # presses and turns not looked at yet
+    def _absorb(self, r):
+        """a guide's answer taken in: the page, the track, the state, and the presses and turns it brings (each answer
+        brings them once, so every one that arrives is read, even a late one)"""
+        self.page, self.track, self.state = r[1], r[2], r[3]   # state: bit 0 a card, 1 the start's card, 2 START pressed
+        self.pending += [(EVENT.get(r[5 + 2 * i], "?"), r[6 + 2 * i]) for i in range(r[4])]
+    def _drain(self):
+        """answers that came too late for their question (the FM-1 was busy, saving for instance): out of the way"""
+        while True:
+            sx = self.link.recv(0)
+            if not sx: return
+            r = parse(sx)
+            if r and r[0] == ED_GUIDE and len(r[1]) >= 5: self._absorb(r[1])
     def ask(self, cmd, raw=b"", timeout=1.5, tries=1):
-        """tries: for a request that is safe to send twice (an answer can be lost on the way), how often to ask"""
-        for n in range(tries - 1):
-            try: return self.ask(cmd, raw, timeout)
-            except TimeoutError: self.lost += 1
-        self.link.send(frame(cmd, raw))
-        end = time.time() + timeout
-        while time.time() < end:
-            sx = self.link.recv(end - time.time())
-            r = parse(sx) if sx else None
-            if r and r[0] == cmd: return r[1]
-            if r and r[0] == 0: raise Refused(cmd, r[1][0] if r[1] else -1)
+        """tries: for a request that is safe to send twice (an answer can be late or lost), how often to ask"""
+        for n in range(tries):
+            self._drain(); self.link.send(frame(cmd, raw))
+            end = time.time() + timeout
+            while time.time() < end:
+                sx = self.link.recv(end - time.time())
+                r = parse(sx) if sx else None
+                if r and r[0] == ED_GUIDE and len(r[1]) >= 5: self._absorb(r[1])
+                if r and r[0] == cmd: return r[1]
+                if r and r[0] == 0: raise Refused(cmd, r[1][0] if r[1] else -1)
+            if n + 1 < tries: self.lost += 1
         raise TimeoutError("no answer to command %d" % cmd)
     # the guide
-    def guide(self, op, payload=b""):
-        r = self.ask(ED_GUIDE, bytes([op]) + bytes(payload), 0.4, 4)
-        self.page, self.track, self.state = r[1], r[2], r[3]   # state: bit 0 a card, 1 the start's card, 2 START pressed
-        self.pending += [(EVENT.get(r[5 + 2 * i], "?"), r[6 + 2 * i]) for i in range(r[4])]   # (every answer brings them)
+    def guide(self, op, payload=b""): self.ask(ED_GUIDE, bytes([op]) + bytes(payload), 0.4, 4)
     def off(self): return self.guide(0)
     def card(self, words, left="", right="", big=False, strip=0):
         """strip: 0 a whole card, 1 a band at the top, 2 at the bottom (the page stays live around it)"""
@@ -138,6 +148,36 @@ class FM1:
         return ev
     # SLOOP 3's own LIVE page: a button, a key, PLAY
     def live(self, op=0, a=0, b=0, c=0): return self.ask(ED_LIVE, bytes([op, a, b, c]), 0.4, 4)
+    def status(self):
+        """what the FM-1 is doing now, from LIVE's answer: the transport, the tempo, the message on its screen, each track"""
+        r = self.live(); o = r[1:]; f = o[0]
+        st = dict(playing=bool(f & 1), recording=bool(f & 2), armed=bool(f & 4), song=bool(f & 8), song_rec=bool(f & 16), fill=bool(f & 32),
+                  countin=bool(f & 64), tempo=(o[1] | o[2] << 8) / 10.0, bar=o[3] | o[4] << 8, beat=o[5], track=o[6], punch=None if o[13] == 255 else o[13],
+                  dust=o[14], duck=o[15], mfilt=o[16] - 100, swing=o[17], msg=bytes(o[21:45]).split(b"\0")[0].decode("ascii", "replace") if o[20] else "", tracks=[])
+        for t in range(5):
+            q = o[45 + 22 * t: 67 + 22 * t]
+            st["tracks"].append(dict(cur=q[0], next=q[1], mute=bool(q[2]), solo=bool(q[3]), level=round(q[4] * 100 / 127), pan=round(q[5] * 100 / 127) - 50,
+                                     chorus=round(q[6] * 100 / 127), delay=round(q[7] * 100 / 127), reverb=round(q[8] * 100 / 127), filter=round((q[9] - 64) * 100 / 63),
+                                     engine=q[10], preset=q[11] | q[12] << 8, used=q[14] | q[15] << 8, steps=q[17], div=q[18], gate=q[19], swing=q[20], quant=q[21]))
+        return st
+    def pattern(self, track, pat=255):
+        """a pattern's notes: (its length in steps, [(step, length in steps, note or pad, velocity, condition, ratchet)])"""
+        out, first = [], 0
+        while True:
+            r = self.ask(ED_PATTERN, bytes([track, pat, first & 255, first >> 8, 1]), 0.5, 4); steps, total, cnt = r[2] | r[3] << 8, r[6] | r[7] << 8, r[10]
+            for i in range(cnt):
+                o = r[11 + 8 * i: 19 + 8 * i]; out.append(((o[0] | o[1] << 8) / 96.0, (o[2] | o[3] << 8) / 96.0, o[4], o[5], o[6], o[7]))
+            first += cnt
+            if first >= total or not cnt: return steps, out
+    def sound_values(self, track):
+        """a track's sound: (its name, its 48 values as the screen counts them)"""
+        r = self.ask(ED_SOUND, bytes([track]), 0.5, 4)
+        return r[4:20].split(b"\0")[0].decode("ascii", "replace"), [int.from_bytes(r[20 + 2 * k: 22 + 2 * k], "little", signed=True) for k in range(48)]
+    def song_lines(self): return len(self.song())
+    def tap(self, b, hold=0.08):
+        """a button tapped from here, as the editor's LIVE page does (the guide does not see these)"""
+        self.press_button(b, True); time.sleep(hold); self.press_button(b, False); time.sleep(0.06)
+    def turn(self, e, clicks): self.ask(ED_LIVE, bytes([3, e, clicks & 255, 0]), 2.5)       # (asked once: twice would turn it twice)
     def all_keys_up(self):
         for k in range(27): self.live(2, k, 0)
     def playing(self): return bool(self.live()[1] & 1)
@@ -167,14 +207,26 @@ class FM1:
     def level(self, track, v): self.live(4, track, 0, v)
     def select(self, track): self.live(9, track)
     def write_pattern(self, track, steps, notes, pat=255):
-        """the pattern rewritten: notes are (step, length in steps, note, velocity); a drum's note is its pad, 0..15"""
-        raw = [(int(round(s * 96)), max(12, int(round(l * 96))), n, v) for s, l, n, v in notes]; first = 0
+        """the pattern rewritten: notes are (step, length in steps, note, velocity) and, if wanted, a condition (1: only in a
+        fill); a drum's note is its pad, 0..15"""
+        raw = [(int(round(n[0] * 96)), max(12, int(round(n[1] * 96))), n[2], n[3], n[4] if len(n) > 4 else 0) for n in notes]; first = 0
+        wide = any(n[4] for n in raw); per = 50 if wide else 60
         while True:
-            c = raw[first:first + 60]
+            c = raw[first:first + per]
             body = bytes([track, pat]) + first.to_bytes(2, "little") + steps.to_bytes(2, "little") + bytes([len(c)])
-            r = self.patient(ED_NOTES, body + b"".join(a.to_bytes(2, "little") + b.to_bytes(2, "little") + bytes([n, v]) for a, b, n, v in c))
+            r = self.patient(ED_NOTES2 if wide else ED_NOTES, body + b"".join(a.to_bytes(2, "little") + b.to_bytes(2, "little") + bytes([n, v] + ([cd, 1] if wide else [])) for a, b, n, v, cd in c))
             first += len(c)
             if first >= len(raw): return r[2] | r[3] << 8       # the notes it holds now
+    def write_song(self, lines):
+        """the song written: lines are (pattern, bars), one after the other, every track on that pattern"""
+        body, bar = b"", 0
+        for pat, bars in lines: body += bar.to_bytes(2, "little") + bytes([0] + [pat] * 5); bar += bars
+        self.ask(ED_SONG, bytes([0, len(lines)]) + bar.to_bytes(2, "little") + body, 0.8, 2)
+    def song(self):
+        """the song's lines: [(the bar it starts on, each track's pattern, its length in bars)]"""
+        r = self.ask(ED_SONG, bytes([0]), 0.5, 3); total = r[2] | r[3] << 8
+        at = [r[7 + 8 * i] | r[8 + 8 * i] << 8 for i in range(r[6])]
+        return [(at[i], list(r[10 + 8 * i: 15 + 8 * i]), (at[i + 1] if i + 1 < len(at) else total) - at[i]) for i in range(len(at))]
     # the whole project, out and back in
     def read_project(self):
         data, total = b"", None

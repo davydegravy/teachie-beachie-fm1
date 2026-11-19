@@ -15,7 +15,7 @@ class Teacher:
     def say(self, words, left="", right="", shot=None, big=False):
         self.fm1.card(words, left, right, big=big); self.note("card", words.replace("\n", " / ")); self._shot(shot)
     def reply(self, word, hold=1.2, shot=None):
-        """the dry voice: a word or two, large, alone on the dark screen"""
+        """the dry voice: a word or two, large, alone on the card"""
         self.fm1.lights({}, only=True); self.fm1.card(word, big=True); self.note("reply", word); self._shot(shot); time.sleep(hold)
     def strip(self, words, where=1, shot=None):
         """a line or two over SLOOP's own screen, which stays live (where: 1 the top, 2 the bottom)"""

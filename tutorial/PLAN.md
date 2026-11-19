@@ -2,8 +2,9 @@
 
 A course that teaches the FM-1 and SLOOP 3 from zero, on the FM-1 itself.
 
-Draft 3, 2026-11-17. It replaces draft 2 (written as BOATSWAIN) and takes in every decision since. What has
-been tried on the real FM-1 so far is in `NOTES.md`.
+Draft 3, 2026-11-17, brought up to date on 2026-11-18 when all thirty lessons were drafted. It replaces draft 2
+(written as BOATSWAIN) and takes in every decision since. What has been tried so far is in `NOTES.md`, and the
+lessons themselves are in `lessons/`.
 
 ## 1. The goal
 
@@ -38,7 +39,7 @@ child sees it.
   compose.
 - **The lesson never waits for Claude,** except in four cases (section 9).
 - **The character is a musician, not a mascot,** and nothing about it is cute or childish (section 5).
-- **The look:** white cards with black words, button names in a thin frame, and no pictures on cards in the
+- **The look:** peach cards with dark red words, button names in a thin frame, and no pictures on cards in the
   first version. The logo shows only at the start (section 5).
 - **All music is original,** written in the styles a groovebox is made for. Nothing under copyright goes into
   the course (section 8).
@@ -48,6 +49,8 @@ child sees it.
   lessons (section 6).
 - **Lessons are built on the computer first,** where changes are quick. The lesson player moves into the
   firmware once the lesson format has settled.
+- **A lesson is a Markdown file,** written to be read by a person: its steps as a numbered list, with notes for
+  Claude and the tester's notes under them (`lessons/README.md`).
 
 ## 3. One course, two ways to take it
 
@@ -56,7 +59,7 @@ The same lessons, songs and firmware serve both.
 | | Connected, with Claude | On its own, on the FM-1 |
 |---|---|---|
 | **What it needs** | The FM-1 on the USB cable, and the waiting program on the computer | Only the FM-1 |
-| **Status** | Built for lesson 1 | Planned: needs the lesson player in the firmware |
+| **Status** | All thirty lessons run, with no Claude yet | Planned: needs the lesson player in the firmware |
 | **Lit buttons, cards, questions, the melody game** | Yes | Yes |
 | **Checks the learner's work** | Yes | Yes |
 | **Do it for me, all three sizes** | Yes, from the song as written | Yes, from the song as written |
@@ -76,14 +79,18 @@ The same lessons, songs and firmware serve both.
 
 ## 4. Lesson 1, as it runs today
 
-Lesson 1, HELLO, is built and has run on the real FM-1. It takes about a minute.
+Lesson 1, HELLO, has run on the real FM-1 several times. It takes about a minute. The other twenty-nine are
+first drafts, each played through on the simulated FM-1 and not yet by a person.
 
-1. **The start.** The FM-1 shows the peach logo on white with WITH SLOOP 3 under it, then the start card:
+1. **The start.** The FM-1 shows the peach logo on the cards' peach background with WITH SLOOP 3 under it, then
+   the start card:
    `TEACHIE PEACHIE / READY FOR A LESSON.`, with `JUST PLAY` on OCT− and `START` on OCT+.
 2. **START.** The card says `STARTING...`. The waiting program on the computer sees the press and starts the
    lesson. If no computer answers within 4 seconds, the card says so and offers START again.
-3. **The begin card:** `LESSON 1 / HELLO`, with `BEGIN` on OCT+. Nothing on the FM-1 changes before BEGIN.
-4. **The lesson loads its song,** HOUSE ONE, after saving a copy of what was on the FM-1.
+3. **The begin card:** `LESSON 1 / HELLO`, with `BEGIN` on OCT+ and `LESSONS` on OCT−, which opens the list of
+   lessons (SELECT chooses). Nothing on the FM-1 changes before BEGIN.
+4. **The lesson starts a new project and loads its song,** HOUSE ONE, after saving a copy of what was on the
+   FM-1.
 5. `A BLINKING LIGHT MEANS: PRESS THIS. TRY IT NOW.`, with `GO` blinking on OCT+.
 6. `WE MAKE OUR SONGS IN SLOOP. SLOOP HAS 5 TRACKS WITH DIFFERENT INSTRUMENTS. PRESS [PLAY] TO OPEN A SONG IN
    SLOOP.` PLAY blinks.
@@ -94,8 +101,8 @@ Lesson 1, HELLO, is built and has run on the real FM-1. It takes about a minute.
 9. **The joke.** The FM-1 plays a very fast run. `YOUR TURN.` The first two keys blink and the learner plays
    them. The screen says `FASTER FASTER FASTER`, and the next key pressed sets the whole run off. `NICE.`
 10. `HA, THAT WAS TOO FAST. NOBODY CAN PLAY THAT BY HAND. A SEQUENCER CAN.`
-11. **The end card:** `LESSON 1 / DONE`, with `REPLAY` on OCT− and `NEXT` on OCT+. For now NEXT says
-    `LESSON 2 SOON.` Then the start card comes back, and the song stays on the FM-1.
+11. **The end card:** `LESSON 1 / DONE`, with `REPLAY` on OCT− and `NEXT` on OCT+. NEXT brings up lesson 2's
+    begin card. The song stays on the FM-1.
 
 **Every press is the real SLOOP press.** There is no pretend mode, so what the learner learns still works
 with the tutorial switched off.
@@ -104,9 +111,12 @@ with the tutorial switched off.
 
 ### The look
 
-- **The start:** the peach logo on white, WITH SLOOP 3 under it in black. It replaces SLOOP's sailboat.
-- **Cards and strips are white with black words,** and nothing else: no orange, no edge bar. SLOOP's own
-  screens are dark, so white always means "this is the tutorial".
+- **The start:** the peach logo on the same peach background as the cards, WITH SLOOP 3 under it in the same
+  dark red. It replaces SLOOP's sailboat. (The logo was redrawn on 2026-11-18, flatter and cleaner; it is stored
+  in eight flat colours, about 2.9 KB.)
+- **Cards and strips are a creamy peach (`#FFCBA4`) with dark red words (`#960000`),** and nothing else: no
+  edge bar, no second colour. SLOOP's own screens are dark, so peach always means "this is the tutorial". (Changed
+  on 2026-11-18 from white with black words, to set the tutorial further apart from SLOOP.)
 - **A button's name sits in a thin frame,** in the words (`PRESS [PLAY]`) and by the answers (`[OCT+]`).
 - **Two sizes of text:** a dry reply alone in large letters in the middle, an instruction smaller and to the
   left.
@@ -139,26 +149,31 @@ These are the only things a learner has to learn about the tutorial itself.
 | **A faint key** | Part of the picture, such as the boxes that already hold a drum. | Yes |
 | **The card** | A full screen of words, for an idea, a question or a reply. | Yes |
 | **The strip** | One or two lines over SLOOP's own screen, which stays live. | Yes |
-| **The half page** | Words on top, SLOOP's four knob dials live below. | No |
+| **The strip at the top** | One line, when SLOOP's four knob dials at the bottom have to stay in view. | Yes |
+| **The half page** | Words on top, SLOOP's four knob dials live below. | No (the strip at the top does the job so far) |
 | **OCT− and OCT+, both blinking** | A question with two answers, one by each button. While it is up, they don't change the octave. | Yes |
 | **White keys lit with numbers** | A choice with three answers or more. | No |
-| **Both OCT buttons together** | "I'm stuck." A hint, then the choices below. | No |
+| **Both OCT buttons together** | "I'm stuck." A hint, then the choices below. | No. For now a hint comes by itself when a step takes long, and after the last hint the lesson offers `SHOW ME`. |
 | **START and JUST PLAY** | On the start card: begin a lesson, or go to SLOOP. | Yes |
-| **REPLAY and NEXT** | On a lesson's end card. A menu will go here later. | Yes |
+| **REPLAY and NEXT** | On a lesson's end card. | Yes |
+| **LESSONS** | On a lesson's begin card: the list of lessons, chosen with SELECT. | Yes |
 | **SKIP** | Leads to "I know grooveboxes, just SLOOP 3", or to the list of lessons. | No |
 | **MORE** | A fuller explanation, on the computer. | No |
 
 **"Do it for me" comes in three sizes,** all from the song as written, none counting against the learner:
 - **SHOW ME:** the FM-1 does the next move itself, slowly, with the button lit. Then it undoes the move and
-  the learner tries.
-- **FINISH IT:** the rest of the part being worked on is written in, for example the hi-hats.
-- **BRING THE BAND:** the other tracks come in, so the learner's part plays inside a finished song.
+  the learner tries. (Built in part: offered after the hints run out, and the move is not undone.)
+- **FINISH IT:** the rest of the part being worked on is written in, for example the hi-hats. (Built: lesson 3.)
+- **BRING THE BAND:** the other tracks come in, so the learner's part plays inside a finished song. (Built:
+  lesson 15, and the band is unmuted at the end of most lessons.)
 
 **"Just SLOOP 3."** Every step in a lesson file is marked "everyone" or "beginners only". The path for people
 who know grooveboxes plays the same lessons with the beginner-only steps left out.
 
 **A wrong press never loses anything.** The screen says `NOT THAT ONE.` and the right button blinks. If the
-learner wanders to another screen, the strip says how to come back.
+learner wanders to another screen, the strip says how to come back. (Built differently so far: most steps are
+done when the FM-1 is in the right state, however the learner got there, and a step that needs a certain page
+brings the learner back to it after a moment.)
 
 ## 7. The rules of teaching
 
@@ -252,16 +267,17 @@ Not built yet: in lesson 1 the lesson runs, but Claude doesn't cut in.
 
 Four parts, thirty lessons. Each part ends with **a piece of the learner's own,** made with no lit buttons.
 
-The button moves come from SLOOP's guides, and each is checked on the simulated FM-1 when its lesson is built,
-because SLOOP 3 is still changing.
+The button moves come from SLOOP's guides and its code. Each has been checked on the simulated FM-1: the robot
+learner makes the move, and the lesson reads from the FM-1 that it did what the lesson says. All thirty are
+drafted in `lessons/`.
 
 ### Part 1: your first beat
 
 | # | Lesson | The one idea | What the learner does |
 |---|---|---|---|
-| 1 | Hello (built) | A blinking light means "press me". SLOOP has five tracks. | Starts and stops a song with PLAY, plays the melody game, meets the run nobody can play by hand. |
+| 1 | Hello | A blinking light means "press me". SLOOP has five tracks. | Starts and stops a song with PLAY, plays the melody game, meets the run nobody can play by hand. |
 | 2 | Sixteen boxes | A sequencer is a row of boxes and a walking light. | Picks the drum track, opens the drum grid with SEQ, puts a kick in boxes 1, 5, 9 and 13: a house beat. |
-| 3 | Kick, snare, hat | A beat is three simple layers. | Adds the snare on 5 and 13 and the hats, picking each sound with a black key. |
+| 3 | Kick, snare, hat | A beat is three simple layers. | Adds the snare on 5 and 13 and the hats, picking each drum by playing its key first. |
 | 4 | The drum kit | The drums' 16 sounds are on the white keys. | Plays along on the keys, tries other kits with PRESETS. |
 | 5 | Meet the tracks | Each track plays its own instrument. | Holds GLO and taps keys 1 to 5 to silence each track, then solos one. |
 | 6 | Faster, slower, oops | Tempo is how fast the light walks. Undo takes a mistake back. | Changes the tempo with SELECT, makes a mess on purpose, undoes it (EDIT + OCT−), saves (SAVE twice). |
@@ -275,9 +291,9 @@ because SLOOP 3 is still changing.
 | 9 | Pick your sound | Each track can play any instrument. | Turns PRESETS, opens SOUNDS, picks by category, keeps a favourite. |
 | 10 | Record it live | REC writes down what you play. | Presses REC and plays over the loop. Undoes a bad take and tries again. |
 | 11 | No wrong notes | A key is a family of notes that sound good together. | Sets the key (SEL + a key), then plays a tune on the white keys by following the lights. |
-| 12 | One-finger chords | A chord is several notes at once. | Turns chords on (SEL + KNOB 1) and records four chords. |
+| 12 | One-finger chords | A chord is several notes at once. | Turns chords on (SEL, then KNOB 3) and records four chords. |
 | 13 | The piano roll | Notes can be moved, stretched and removed. | Opens NOTES (SEQ twice), fixes a wrong note, makes one longer. |
-| 14 | Mix the tracks | If everyone shouts, nobody is heard. | Sets the five levels (GLO + the knobs), uses mute and solo to listen to one track. |
+| 14 | Mix the tracks | If everyone shouts, nobody is heard. | Sets the levels (KNOB 2 on the TRACKS page), uses solo to listen to one track. |
 | 15 | **Your own loop** | | Drums, bass, chords and a melody. The learner makes at least two of the parts and may ask for the rest. |
 
 ### Part 3: make it move
@@ -287,7 +303,7 @@ because SLOOP 3 is still changing.
 | 16 | Eight pages | A pattern is a page, and each track has eight. | Holds SAVE, starts page 2, copies page 1 onto it and changes it: a verse beat and a chorus beat. |
 | 17 | Fills and rolls | A fill says "something new is coming". | Plays a fill by hand (GLO + a key), writes one that only plays as a fill, makes a hat roll (ARP + a key). |
 | 18 | Play the effects | Some effects are played like notes. | Holds FX and presses keys for the punch-in effects, then locks them on (FX + HOME). |
-| 19 | Echo and space | Delay repeats a sound. Reverb puts it in a room. | Sends the melody to the delay and the snare to the reverb. |
+| 19 | Echo and space | Delay repeats a sound. Reverb puts it in a room. | Sends the melody to the echo and the reverb, finds what too much sounds like, changes the echo itself. |
 | 20 | Colour a track | An insert changes one track. A filter makes it dark or bright. | Puts FUZZ or CRUSH on the bass, sweeps the filter on the whole mix (FX + KNOB 1). |
 | 21 | Shape a sound | A sound has a beginning and an end. | On the ENV and EDIT pages, makes one sound start slowly, ring longer, get brighter. |
 | 22 | Wobble and arps | The FM-1 can move a sound, or play a chord's notes by itself. | Adds a wobble with the LFO page, then holds a chord and lets the arpeggiator play it. **The payoff:** the arpeggiator plays lesson 1's impossible run. |
@@ -301,8 +317,8 @@ because SLOOP 3 is still changing.
 | 25 | Chain the pages | Pages played in a row make a song. | Holds SAVE and taps pages in order, then records a song live (SONG REC). |
 | 26 | Write it line by line | A song can be written down and edited. | Opens SONG 2/2 and sets each line: which page, how many bars. |
 | 27 | Build-ups and drops | Taking tracks away is as strong as adding them. | Arranges with mutes, fills and filter sweeps: a quiet intro, a build, a drop. |
-| 28 | Swing and feel | The same beat can march or dance. | Adds swing, and soft and hard hits (OCT− and OCT+ while drumming). |
-| 29 | Keep it and share it | A finished song deserves to be kept. | Saves the project, keeps a copy on the computer, records the song as a sound file to send to family. |
+| 28 | Swing and feel | The same beat can march or dance. | Adds swing, makes some hats louder than others, plays soft and hard hits (OCT− and OCT+ while drumming). |
+| 29 | Keep it and share it | A finished song deserves to be kept. | Saves the project, wrecks it on purpose and opens the saved one again. Recording the song as a sound file is only described so far. |
 | 30 | **The final test** | | An empty project and no lights. A whole song: three parts or more, four tracks or more, effects, saved. Claude helps only when asked. |
 
 ### After the course: deeper series, in any order
@@ -335,16 +351,17 @@ Each is a short series of lessons inside SLOOP 3, covering what the thirty lesso
 | Piece | What it is | Status |
 |---|---|---|
 | **The guide** | The addition to SLOOP 3's firmware: cards, strips, framed button names, lights at four levels or the double blink, buttons and keys the lesson takes for itself, every press and turn reported. | Built |
-| **The start** | The logo on white, then the start card with START and JUST PLAY. | Built |
+| **The start** | The logo on the cards' peach, then the start card with START and JUST PLAY. | Built |
 | **The connector** | The computer's side of the USB link: SLOOP's own editor commands plus the guide. | Built |
-| **The waiting program** | Waits for START on the FM-1, runs the lesson, then waits again. It finds the FM-1 again after it is unplugged. | Built; runs while a Claude session keeps it running |
-| **The lessons** | Lesson 1 is written in Python for now. | To become data, readable by Claude, the computer and the FM-1 alike |
+| **The waiting program** | Waits for START on the FM-1, plays the lessons from where the learner is, then waits again. It finds the FM-1 again after it is unplugged. | Built; runs while a terminal or a Claude session keeps it running |
+| **The lessons** | Thirty Markdown files, read by a person, by Claude and by the lesson player on the computer (`tp/lesson.py`). | Drafted; to be packed for the FM-1 later |
+| **The checker** | Reads every lesson, measures its words against the FM-1's screen, and plays it on the simulated FM-1 with the robot learner (`check.py`). | Built |
 | **The songs** | Spec files in the song library's form. | HOUSE ONE written |
 | **The logbook and the copies** | Folders on the computer, kept out of the repository. | Built |
 | **The lesson player** | Inside the firmware, for the version on its own. | Planned |
 
 **The room left in the firmware is small:**
-- **About 3.4 KB of code** is left before SLOOP's sample bank, after the guide, the start card and the logo.
+- **About 3.8 KB of code** is left before SLOOP's sample bank, after the guide, the start card and the logo.
   The lesson player should fit there.
 - **The lessons and songs go in a sample slot.** SLOOP 3 has four slots of 80 KB each. The course would
   take one or two, without cutting anything from SLOOP. Installing new firmware doesn't erase them.
@@ -354,21 +371,23 @@ Each is a short series of lessons inside SLOOP 3, covering what the thirty lesso
 **Done (2026-11-17):** the guide, the start, the connector, the robot learner, lesson 1, HOUSE ONE, the
 waiting program, and Teachie Peachie installed and run on the real FM-1.
 
+**Done (2026-11-18):** lessons as Markdown files, the player that runs them, the checker, the list of lessons on
+the begin card, and first drafts of all thirty lessons, each played through on the simulated FM-1.
+
 **Next, in order:**
-1. **Finish lesson 1:**
-   - react to a wrong key in the melody game;
-   - send the fast run in one message, so it plays at its real speed;
-   - number the FM-1's answers, so a lost one can't lose a press.
+1. **The author plays the lessons** on the real FM-1, from lesson 1, and writes notes in each file. The lessons
+   are revised from the notes and the logbook.
 2. **Build HOUSE ONE in Ableton** and approve it by ear. Check first that the library's tools handle five
    tracks.
-3. **Turn lessons into data,** in a form the FM-1 will later play too.
-4. **The rest of part 1,** lessons 2 to 7, with the pieces they need: the skip menu, the lesson list, `MORE`,
-   the half page, "I'm stuck", and "do it for me".
-5. **Claude cutting in,** first in lesson 7, where the learner makes a beat of their own.
-6. **The author plays part 1,** and it is revised from the logbook and notes.
-7. **Part 1 on the FM-1 alone:** the lesson player in the firmware. This comes early on purpose, while the
-   lesson format is still cheap to change.
-8. **Parts 2, 3 and 4,** each built, played, revised, and checked on the FM-1 alone.
+3. **The other songs,** one style at a time, each approved by ear before a lesson uses it (section 8).
+4. **A small addition to the firmware:** the guide tells the lesson the key, scale, chord, arpeggiator, the drum
+   that is picked, and where the cursor is. Then the steps that only count clicks can check the result.
+5. **What the lessons still lack:** `MORE`, "I'm stuck" on both OCT buttons, the skip menu on the FM-1, and the
+   two questions at a lesson's end.
+6. **Claude cutting in,** first in lesson 7, where the learner makes a beat of their own.
+7. **Part 1 on the FM-1 alone:** the lessons packed into a sample slot, and the lesson player in the firmware.
+   This comes early on purpose, while the lesson format is still cheap to change.
+8. **Parts 2, 3 and 4** on the FM-1 alone.
 9. **The first young learner** plays the course from lesson 1, connected.
 10. **Going public:** the public repository, the installer page and the lessons. Then showing it to SLOOP's
     developer, and offering the guide to SLOOP itself.
@@ -378,8 +397,11 @@ waiting program, and Teachie Peachie installed and run on the real FM-1.
 - **SLOOP 3 is a beta and changes often.** Lessons name what to do ("open the drum grid") as well as which
   button does it, and everything is re-tested after each new SLOOP.
 - **Room in the firmware.** The guide and the player have to stay small.
-- **Lost answers.** One answer from the FM-1 is occasionally lost, on the real FM-1 and on the simulated one.
-  The connector asks again; the cause is still to be found.
+- **Late answers.** While the FM-1 saves, it answers nothing for a moment, and it misses presses too. The
+  connector asks again and keeps whatever a late answer brings. This looks like the whole of the "lost
+  answers" seen on 2026-11-17, though that is not proven on the real FM-1.
+- **SLOOP saves by itself** whenever the music has been stopped for a few seconds, so a lesson's song becomes
+  the saved project. That is as decided, and lesson 29 has to work around it.
 - **Other programs talking to the FM-1.** SLOOP's web editor or the installer page open at the same time can
   get in the way. Close them during a lesson.
 - **Old MIDI names on a Mac.** A Mac that knew SLOOP 2.8 calls the FM-1 "Felucca", and the installer can't find
