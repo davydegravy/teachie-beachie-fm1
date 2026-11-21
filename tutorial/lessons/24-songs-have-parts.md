@@ -13,60 +13,60 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section A; patterns A B C D; song lines 1 2 3 3 4 3; track bass; page TRACKS
-2. **Card:** A SONG IS NOT ONE LOOP. / IT HAS PARTS: AN INTRO, A VERSE, A CHORUS, A BREAK.
-   - **OCT+:** GO
-3. **Card:** FIRST, LISTEN TO A WHOLE SONG. / THE STRIP NAMES EACH PART AS IT COMES.
-   - **OCT+:** PLAY IT
+2. **Card:** A song is not one loop. / It has parts: an intro, a verse, a chorus, a break.
+   - **OCT+:** Go
+3. **Card:** First, listen to a whole song. / The strip names each part as it comes.
+   - **OCT+:** Play it
 4. **Setup:** song mode on; play
-5. **Strip:** INTRO. / ONLY THE BEAT AND THE BASS.
+5. **Strip:** Intro. / Only the beat and the bass.
    - **Wait:** until bar 5
-6. **Strip:** VERSE. / THE PIANO AND THE PAD COME IN.
+6. **Strip:** Verse. / The piano and the pad come in.
    - **Wait:** until bar 9
-7. **Strip:** CHORUS. / THE WHOLE BAND, WITH THE TUNE.
+7. **Strip:** Chorus. / The whole band, with the tune.
    - **Wait:** until bar 17
-8. **Strip:** BREAK. / THE BASS DROPS OUT.
+8. **Strip:** Break. / The bass drops out.
    - **Wait:** until bar 21
-9. **Strip:** CHORUS AGAIN. / EVERYONE IS BACK.
+9. **Strip:** Chorus again. / Everyone is back.
    - **Wait:** until bar 25
 10. **Setup:** stop
-11. **Card:** NOW YOU NAME THEM. / THE SONG PLAYS AGAIN. / AT EACH PART, ANSWER WITH [OCT-] OR [OCT+].
-    - **OCT+:** GO
+11. **Card:** Now you name them. / The song plays again. / At each part, answer with [OCT-] or [OCT+].
+    - **OCT+:** Go
 12. **Setup:** play
-13. **Card:** WHICH PART IS THIS?
-    - **OCT-:** INTRO → right
-    - **OCT+:** CHORUS → wrong
-    - **Right:** YES.
-    - **Wrong:** NO. ONLY BEAT AND BASS: THAT IS THE INTRO.
+13. **Card:** Which part is this?
+    - **OCT-:** Intro → right
+    - **OCT+:** Chorus → wrong
+    - **Right:** Yes.
+    - **Wrong:** No. Only beat and bass: that is the intro.
     - **Robot:** answer left
 14. **Wait:** until bar 6
-15. **Card:** AND NOW?
-    - **OCT-:** BREAK → wrong
-    - **OCT+:** VERSE → right
-    - **Right:** YES.
-    - **Wrong:** NO. THE PIANO CAME IN: THE VERSE.
+15. **Card:** And now?
+    - **OCT-:** Break → wrong
+    - **OCT+:** Verse → right
+    - **Right:** Yes.
+    - **Wrong:** No. The piano came in: the verse.
 16. **Wait:** until bar 10
-17. **Card:** AND THIS?
-    - **OCT-:** CHORUS → right
-    - **OCT+:** INTRO → wrong
-    - **Right:** YES.
-    - **Wrong:** NO. THE WHOLE BAND AND THE TUNE: THE CHORUS.
+17. **Card:** And this?
+    - **OCT-:** Chorus → right
+    - **OCT+:** Intro → wrong
+    - **Right:** Yes.
+    - **Wrong:** No. The whole band and the tune: the chorus.
     - **Robot:** answer left
 18. **Wait:** until bar 18
-19. **Card:** SOMETHING WENT MISSING. WHICH PART?
-    - **OCT-:** VERSE → wrong
-    - **OCT+:** BREAK → right
-    - **Right:** YES.
-    - **Wrong:** NO. THE BASS LEFT: THAT IS THE BREAK.
+19. **Card:** Something went missing. Which part?
+    - **OCT-:** Verse → wrong
+    - **OCT+:** Break → right
+    - **Right:** Yes.
+    - **Wrong:** No. The bass left: that is the break.
 20. **Wait:** until bar 22
-21. **Card:** LAST ONE.
-    - **OCT-:** CHORUS → right
-    - **OCT+:** BREAK → wrong
-    - **Right:** YES.
-    - **Wrong:** NO. EVERYONE IS BACK: THE CHORUS.
+21. **Card:** Last one.
+    - **OCT-:** Chorus → right
+    - **OCT+:** Break → wrong
+    - **Right:** Yes.
+    - **Wrong:** No. Everyone is back: the chorus.
     - **Robot:** answer left
 22. **Setup:** stop; song mode off
-23. **Card:** INTRO, VERSE, CHORUS, BREAK, CHORUS. / EACH PART CHANGES SOMETHING. THAT KEEPS A LISTENER LISTENING.
-    - **OCT+:** DONE
+23. **Card:** Intro, verse, chorus, break, chorus. / Each part changes something. That keeps a listener listening.
+    - **OCT+:** Done
 
 ## Screens
 

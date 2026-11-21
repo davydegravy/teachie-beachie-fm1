@@ -588,11 +588,189 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
 - **The mock-ups use typefaces that come with the Mac** (Modern is Avenir Next Demi Bold). Those cannot go into the
   project. The real one has to be a free, open typeface that looks the same; none is on this Mac yet, and
   SLOOP's own Inter is not here either (its tool points at a Linux path).
-- **Not started.** What it takes: the open typeface; a lessons font with small letters, made into the pack; the
-  firmware drawing cards and strips with it (and still showing something sensible with no pack); the lessons'
-  words turned from capitals into sentences by a script (692 pieces of text, 588 different words; a short list
-  says what stays in capitals: framed names, SLOOP, FM-1, and the words SLOOP's own screen shows); the checker
-  measuring with the new font; the replay and the pictures again.
+- **Two open typefaces downloaded at his word** ("can you download Google Sans and Lato"), from Google Fonts'
+  repository on GitHub (`github.com/google/fonts`, folder `ofl`), each with its license, into `assets/fonts/`:
+  Google Sans (one file with every weight, 5 MB) and Lato in Medium, SemiBold and Bold (about 650 KB each). Not
+  committed yet.
+  - "I'm allowed to use these fonts on an FM-1?" Both are under the SIL Open Font License 1.1, as SLOOP's Inter
+    is: they may be built into a product and passed on, the license text goes with the project, the font is
+    not sold by itself. Lato's name is reserved for the unchanged font. Google Sans has no reserved name, but
+    "Google" and "Google Sans" are trademarks: not in the project's name, and nothing that suggests Google is
+    behind it (`assets/fonts/google-sans/TRADEMARKS.md`). A reading of the license files, not legal advice.
+  - Drawn next to Modern with outlined buttons: `tutorial/card-looks-fonts.png` (Google Sans Medium and SemiBold,
+    Lato SemiBold and Bold). Google Sans SemiBold is the closest to Modern.
+- **Chosen: Google Sans Medium** ("Google sans medium"), over SemiBold, which had been the suggestion.
+- **Built the same night.**
+  - **The font.** `tools/mklessonfont.py` renders Google Sans Medium the way SLOOP's `mkfont.py` renders Inter: a
+    small size (18 pixels, capitals 13 high, as SLOOP's small font) and a large one (34, capitals 25), each with
+    all of ASCII, so with small letters. 4.8 KB and 9.5 KB, kept as `assets/fonts/lessons-font.bin`.
+  - **In the pack.** The two fonts follow the lessons and the clips (`tools/mkcourse.py`); the pack is `TPC2` now
+    and 51 KB (a slot holds 80; the pack's own limit is 64). A pack and a firmware must be from the same build.
+  - **In the firmware.** When the pack is found, the guide draws cards and strips with its fonts (`course_find`
+    in `fw/course.inc`, `GF_S` and `GF_L` in `fw/main.c`); the pack is looked for at power-on, so the start card
+    has them too. In `app/gfx.c` a font with more than 77 glyphs is read as all of ASCII. With no pack the
+    guide uses SLOOP's fonts and puts the words in capitals first, as before. 308 bytes; 516 are free.
+    The build's own check refuses a pointer into the flash window kept in ready-made data, so which fonts
+    to use is a flag, not a pointer.
+  - **The words.** A script turned the 691 texts into sentences; every line was read afterwards and about sixty
+    were set by hand. The rules that came out of it are in `lessons/README.md`: capitals only for a name in a
+    frame, a word quoted from SLOOP's screen (`FILT says OFF`, `the SONG page`, `the top says COPY`) and names
+    (SLOOP, FM-1, A minor); small letters after a colon; `Knob 1` to `Knob 4`. `FASTER / FASTER / FASTER` in
+    lesson 1 stays in capitals. The start cards, the list of lessons, `Stuck?`, `Not yet.`, `Lesson 6 / Done`
+    and the other built-in words follow, in the firmware and in the lesson program.
+  - **The tools.** The checker measures with the lessons' font and allows small letters. The simulated FM-1s of
+    the robot runs start with the pack on them, so the pictures show the new look.
+- **How it really draws, and SemiBold after all.** On the simulated FM-1 the letters come out a little thinner than
+  in the mock-ups. `tutorial/card-looks-real.png` shows Medium and SemiBold as the FM-1 draws them; seeing that:
+  "lets go with semibold". The font file is made with weight 600 now (the tool's default). A weight is a change to
+  the font file and the lesson pack only, not to the firmware. Where this section says Medium for what was
+  built, read SemiBold.
+
+- **Checked the same night, with SemiBold.** The build, `make test` and `make twin` pass. The robot replay again:
+  all thirty lessons, five ways, 150 runs, none stopped (computer-led with the clumsy robot; the FM-1 leading
+  itself, plain, clumsy and slow to let go; computer-led once more for the pictures). Looked at: the pictures of
+  lessons 1, 17, 18 and 26, the start card, the list of lessons, and a card on a simulated FM-1 with no pack
+  (capitals, SLOOP's font, as before). Not yet on a real FM-1: it needs the firmware and the lesson pack again,
+  both from this build.
+
+- **2026-11-21: on the real FM-1, and the start card.** The firmware of the night before went on the tester's
+  FM-1, then the pack (`device.py --install`: slot 4, 30 lessons found). First word back: the start card. Asked
+  for: the name larger, `Ready for a lesson` in the regular size, and better words ("Start the lessons or just
+  play in Sloop"). Built: with the pack on the FM-1 the card is a large one, `Teachie / Beachie` in the large
+  font, then two small lines, `Ready for a lesson?` and `Or just play in SLOOP.`; `Starting...` the same way.
+  A small line under a large one gets 6 px of air. With no pack (SLOOP's wide capitals) those small lines do not
+  fit one line, so there the card stays a plain one with the same words. `The computer did not answer` stays
+  plain too. Picture: `tutorial/home-card.png`. Checked: the build (277,896 bytes, 344 to spare), `make test`,
+  and on the simulated FM-1 the card with the pack, START through to the list of lessons, and the three cards
+  with no pack. Not replayed ("don't test everything ... I'm sure there will be more edits"). The lesson pack is
+  unchanged, so only the firmware has to go on the FM-1 again.
+- **The same morning: a lesson's name.** "That looks much better", then: on the lesson cards `Lesson 1` in the
+  smaller size and `Hello` in the larger. Built in the firmware and in the lesson program: `Lesson N` is a small
+  line (`^`) on a lesson's first card, on the list of lessons (under `< Turn [SELECT] >`) and on `Lesson N / Done`.
+  Picture: `tutorial/lesson-list.png`. Checked: the build, `make test`, the lint of the thirty lessons, and the
+  cards on the simulated FM-1 (lessons 1, 8, 26 and 29 on the list).
+- **Waiting, to be made all at once** ("can you just take notes and we will make the changes all at once"):
+  1. **An underline.** "Yes I like the underline": the small `Lesson N` line, on a lesson's first card, the list
+     and `Lesson N / Done`, underlined as in the mock-up. The cards cannot underline yet: it needs a mark of its
+     own (my plan: a line starting with `_` is drawn small and underlined, on any card; `^` stays small without
+     a line), in the firmware's wrap and draw, and in `check.py`'s measuring.
+  2. **A heading on lesson 1's buttons card (step 3), underlined.** The tester's word was `Conventions`; they asked
+     for suggestions. Not chosen yet. All fit one small line (212 px): `How to read the cards` (186), `Reading the
+     cards` (151), `How the cards work` (169), `Buttons and keys` (146), `Good to know` (121), `Conventions`
+     (108). The card has 6 lines and an answer; with the heading 7, its limit.
+  3. **"Border", not "frame".** Step 3 to say `A name with a border / is a button: [OCT+]`. Step 4 the same way,
+     asked too ("please change that to A number with a border is a white key"): `A number with a border / is a
+     white key.` (199 px, fits). My suggestion, not asked: the word "frame" in `lessons/README.md` where it means
+     this border.
+  4. **Lesson 1, step 6: what SLOOP is.** Today: `We make our songs in SLOOP. / SLOOP has 5 tracks with different
+     instruments.` Asked: say SLOOP is a groovebox, with how many instruments and samples it has. And for all the
+     words from now on: "With this new font we have more space so I think we should improve our copy so it is
+     more informative--but more is not always better." My draft (6 lines, the widest 211 of 212 px):
+     `SLOOP is a groovebox: / a whole band in one box. / We make our songs in it. / 153 sounds, 37 drum kits. /
+     Piano, strings and horns / are real recordings.` The facts: 153 sounds (`docs/sloop/facts.json`); 37 drum
+     kits ready to play, ACOUSTIC to JAZZ (SLOOP's own count, 46, adds the 9 slots for kits of your own); the
+     factory samples are a piano, vibes, a bass, horns, strings, a flute, a scratch and percussion
+     (`assets/CREDITS-SAMPLES.txt`). The 5 tracks leave this card: the strip two steps later says `Five tracks. /
+     One song.` Lesson 5 (step 18) says what a groovebox is in full, with the sequencer, and lesson 9 (step 2)
+     says 153 again; both stay as they are.
+  5. **Lesson 1, step 7: one line, a smaller strip.** Asked: "This is SLOOP / Press [PLAY]" on one line, so the
+     strip covers less of the screen (one line: 35 px high instead of 58). As written it does not fit: `This is
+     SLOOP. Press [PLAY].` is 233 px of 212. Wordings that fit: `SLOOP! Press [PLAY].` (178, my pick: it still
+     names what they see), `Now press [PLAY].` (151), `This is SLOOP: [PLAY]!` (183). Not chosen yet. My
+     suggestion, not asked: steps 8 and 9 on one line too, `5 tracks, 1 song. Listen.` (195) and `Press [PLAY]
+     to stop.` (172).
+  6. **Lesson 1, the melody game (steps 11 and 13).** Today: `The melody game / Listen. / Then play it back.`
+     Asked: an underlined heading `Repeat after me`, then "Listen. then play it back, the blinking keys will help
+     you know what buttons to press." My draft (4 lines): `_Repeat after me / Listen. Then play it back. / The
+     blinking key shows / which key to press next.` Two words changed from theirs, to say so when it is made:
+     "keys", not "buttons" (lesson 1's card 3 and 4 just taught that buttons and keys are different), and one
+     key, the next one, because during an Echo the FM-1 blinks only the next key to play (`course.inc`,
+     `PH_ECHO`); while it plays the phrase itself it lights each key in turn. My suggestions, not asked: step 13,
+     the second round, could be just `_Repeat after me / Listen. Then play it back.`; and step 15's `One more` and
+     step 16's `Your turn` underlined the same way, so all the game's cards look alike. All of item 6 accepted
+     ("Yeah I like your changes").
+  7. **Lesson 1, the end of the game.** Step 17 (big): `Faster / Faster / FASTER`, the last one in capitals
+     (asked; the three lines fit, 103 to 123 px). Step 20, in the tester's words: `Ha, sorry, I'm just messing with you. /
+     That was way too fast. / Nearly impossible to play by hand. / But with a sequencer you can.` It fits exactly:
+     7 lines, the most a card with an answer holds. Cut at the breaks I would choose, the words unchanged:
+     `Ha, sorry, I'm just / messing with you. / That was way too fast. / Nearly impossible / to play by hand. /
+     But with a sequencer / you can.` Then the last sentence changed: "But a sequencer can." The card as it is
+     to be made, 6 lines: `Ha, sorry, I'm just / messing with you. / That was way too fast. / Nearly impossible /
+     to play by hand. / But a sequencer can.` (`lessons/README.md` says `FASTER / FASTER / FASTER` stays in capitals:
+     that line changes with it.)
+  8. **Lesson 2, step 2** (beginners only). Today: `In lesson 1 the FM-1 played a run too fast for hands. / A
+     sequencer did that. / Today you get one.` Asked: "In lesson 1 the FM-1 played a sequence too fast for hands. A
+     sequencer played it. Let's learn how to use a sequencer." Their line `played a sequence too fast for` is too wide
+     (it wraps), so cut at my breaks, the tester's words unchanged, 6 lines: `In lesson 1 the FM-1 / played a sequence / too
+     fast for hands. / A sequencer played it. / Let's learn how / to use a sequencer.`
+  9. **Lesson 2, step 12.** Asked: `Kick on 1, 5, 9, 13. / They call this four on the floor. / This is the beat
+     of house music.` Two of those lines are too wide and would leave `floor.` and `music.` alone, so cut at my
+     breaks, the tester's words unchanged, 5 lines: `Kick on 1, 5, 9, 13. / They call this / four on the floor. / This is
+     the beat / of house music.`
+  10. **Lesson 2, step 13 (the free strip).** The tester's draft: `Add kicks, or tap a full / box again to remove / [OCT+]
+      when done.`, and they asked for another word than "full". Not chosen yet. My suggestions: no adjective at all,
+      `Tap a box to add a kick. / Tap it again to remove it. / [OCT+] when done.` (3 lines, 206 px at most; my
+      pick); or "filled" (`a filled box`); or "a kick" (`tap a kick again to remove it`). Not "lit": step 3 says
+      a light walks along the boxes. Step 3 says "a full box" too, so the same word goes there. (Lesson 3's tester
+      note, 2026-11-20: they did not know a box could just be pressed again to empty it.) Chosen: my pick, no
+      adjective ("yes that is much better"). Step 3 without "full", chosen too ("yes that is much better"), 6
+      lines: `A sequencer is / a row of boxes. / A light walks along them. / When it steps on a box / with a sound
+      in it, / the sound plays.`
+  11. **Lesson 2, step 17 (its last card).** Today: `A sequencer: boxes, and a light that walks. / You just
+      programmed one.` Chosen, my draft ("lesson 2. Yes I like your changes"), 5 lines: `That's a sequencer: /
+      boxes, and a light / that walks along them. / You just programmed / your first beat.`
+  12. **Lesson 3, step 2.** Today: `Last time: four kicks. / A beat has three layers: kick, snare and hat. / Today:
+      the other two.` Asked: "Last lesson had four kicks. / A beat has three layers: / kick, snare and hat. / Now
+      lets take a look at the other two." `Last lesson had four kicks.` is too wide for one line, so cut at my
+      breaks, the tester's words unchanged (with the apostrophe in "let's"), 6 lines: `Last lesson had / four kicks. / A
+      beat has three layers: / kick, snare and hat. / Now let's take a look / at the other two.`
+      Step 3 stays as it is (`Press [PLAY]. Your four kicks.` is too wide for one line; "lets just keep it as is").
+  13. **Lesson 3, step 4.** Today: `Playing a drum's key / picks that drum. / The boxes then write it. / So first
+      pick the snare.` The tester does not like it; their gist: "Each key represents a different kind of drum. press a
+      drum's key to select that drum. The selected drum can then be put into the boxes. Pick the snare." My draft,
+      4 lines: `Each key is a drum. / Play one to pick it. / The boxes you fill next / get the drum you picked.`
+      "Pick the snare" left to step 5, which says `Pick the snare: / play [KEY 3].` Their answer, the card to make
+      (their words, my breaks; 6 lines): `Each key is / a different drum. / Play one to pick it. / The selected drum /
+      can then be put / into the boxes.`
+  14. **Lesson 3, step 8** (beginners only). The tester's question: "is there supposed to be a kick on every beat? or is
+      that referencing the first beat?" The card is right (kicks on boxes 1, 5, 9, 13 are beats 1 to 4; snares
+      on 5 and 13 are beats 2 and 4), but no lesson says a beat is 4 boxes, and "beat" also means the whole
+      drum part (step 2 `A beat has three layers`, step 19 `That is a drum beat`). My draft, 6 lines, chosen ("Ok
+      that looks good"): `Every 4 boxes is a beat. / Kick on every beat. / Snare on beats 2 and 4: / the
+      backbeat. / Most songs you know / have one.`
+  15. **Lesson 3, step 12.** Today: `The grid has a row for each drum. / The keys light up only for the drum you
+      picked last.` The tester does not love the second sentence; their idea: "The keys for the selected drum will light
+      up." What SLOOP does (`fw/main.c`, `leds()`): with SEQ held, a key is lit where the selected drum plays in
+      that box (the playhead flips it; keys 1, 5, 9, 13 glow faintly). Their line could read as "the drum's own key
+      lights". My draft, 6 lines: `The screen shows / every drum. / The keys show only / the selected drum: / a key
+      lights up / where it plays.` Not wanted ("I don't like your edit"). The card to make, their words, 4 lines:
+      `The grid has a row / for each drum. / The keys for the selected / drum will light up.` (The tester thought SEQ is
+      not held at this point; on the drum grid the keys show the selected drum's boxes whether SEQ is held or
+      not: `steps_on_keys() || sticky == PG_STEPS`.)
+  16. **Lesson 3, step 19 (its last card).** Today: `Three layers: kick, snare, hat. / That is a drum beat.` Chosen
+      from three drafts ("lets go with the first"), 4 lines: `Kick, snare, hat. / Three layers, / one drum beat. /
+      And you made it.`
+  17. **Lesson 4, step 2.** Today: `The drum track has 16 sounds. / One on each white key. / Together they are a
+      kit.` Asked, 4 lines: `The drum track has 16 / different drum sounds. / One on each white key. / Together they
+      are a kit.`
+  18. **Lesson 4, step 7.** Today: `SLOOP has many kits. / Each one puts 16 new sounds on the same keys. / Your beat
+      stays the same.` Asked: "many" becomes a number ("more than #"). 37 is the count of ready kits, as in lesson
+      1's SLOOP card. The words otherwise unchanged, at my breaks, 6 lines (offered): `SLOOP has 37 drum kits. /
+      Each one puts / 16 new sounds / on the same keys. / Your beat / stays the same.` Shorter, offered too, 4
+      lines: `SLOOP has 37 drum kits. / Each one puts 16 new / sounds on the keys. / Your beat stays as it is.`
+      Their answer, the card to make, 5 lines: `SLOOP has 37 drum kits. / Each one puts 16 new / sounds on the keys. /
+      Your programmed beat / stays the same.`
+  19. **Lesson 4, steps 8, 9 and 11: "drum kit", not "kit".** Asked. `Turn [PRESETS] one click. / A new drum kit.`,
+      `Try more drum kits. / [OCT+] on one you like.`, `The whole band, / with your drum kit.` All fit as they
+      are.
+  20. **Lesson 4, step 13 (its last card).** Today: `16 sounds on 16 white keys. / [PRESETS] changes the kit.` The
+      tester wants it redone: 37 drum kits, 16 sounds on the white keys, PRESETS changes the drum kit. Three drafts offered,
+      5 lines each; my pick, chosen ("yeah lets go with the first"): `A drum kit: 16 sounds, / one on each white key. / SLOOP has 37 of them. / [PRESETS]
+      changes / the drum kit.` The others: `37 drum kits, / 16 sounds each, / one on each white key. / [PRESETS]
+      changes / the drum kit.` and `37 drum kits. / 16 sounds in each, / one per white key. / Turn [PRESETS] / to
+      change the drum kit.`
+  21. **Lesson 5:** shown, nothing asked ("Lets move on"). Left as it is for now; my note for later: step 18's
+      groovebox card could build on lesson 1's new SLOOP card instead of saying it again.
 
 ## To do next
 

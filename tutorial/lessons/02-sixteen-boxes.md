@@ -11,48 +11,48 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; mute bass lead chords pad; track bass; page TRACKS
-2. **Card:** IN LESSON 1 THE FM-1 PLAYED A RUN TOO FAST FOR HANDS. / A SEQUENCER DID THAT. / TODAY YOU GET ONE. *(beginners only)*
-   - **OCT+:** GO
-3. **Card:** A SEQUENCER IS A ROW OF BOXES. / A LIGHT WALKS ALONG THEM. / WHEN IT STEPS ON A FULL BOX, THAT BOX PLAYS. *(beginners only)*
-   - **OCT+:** NEXT
-4. **Strip:** TURN [ALGORITHM] TO TRACK 5: THE DRUMS.
+2. **Card:** In lesson 1 the FM-1 played a run too fast for hands. / A sequencer did that. / Today you get one. *(beginners only)*
+   - **OCT+:** Go
+3. **Card:** A sequencer is a row of boxes. / A light walks along them. / When it steps on a full box, that box plays. *(beginners only)*
+   - **OCT+:** Next
+4. **Strip:** Turn [ALGORITHM] to track 5: the drums.
    - **Do:** turn ALGORITHM right 4
    - **Until:** track is drums
-   - **Hint:** KEEP TURNING UNTIL / TRACK 5 IS LIT.
-5. **Strip:** PRESS [SEQ] TO OPEN / THE DRUM GRID.
+   - **Hint:** Keep turning until / track 5 is lit.
+5. **Strip:** Press [SEQ] to open / the drum grid.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-6. **Card:** 16 BOXES ACROSS. / THAT IS ONE BAR OF MUSIC. / HOLD [SEQ], AND THE 16 WHITE KEYS ARE THE 16 BOXES.
-   - **OCT+:** NEXT
-7. **Strip:** PLAY [KEY 1], THE LOWEST WHITE KEY: THE KICK.
+6. **Card:** 16 boxes across. / That is one bar of music. / Hold [SEQ], and the 16 white keys are the 16 boxes.
+   - **OCT+:** Next
+7. **Strip:** Play [KEY 1], the lowest white key: the kick.
    - **Do:** tap box 1
    - **Page:** STEPS
-8. **Strip:** NOW HOLD [SEQ] AND TAP [1].
+8. **Strip:** Now hold [SEQ] and tap [1].
    - **Do:** hold SEQ, tap box 1
    - **Until:** drums has KICK on box 1
-   - **Hint:** KEEP HOLDING [SEQ]. / TAP THE BLINKING KEY.
-9. **Strip:** PRESS [PLAY]. / WATCH THE LIGHT WALK.
+   - **Hint:** Keep holding [SEQ]. / Tap the blinking key.
+9. **Strip:** Press [PLAY]. / Watch the light walk.
    - **Do:** press PLAY
    - **Until:** playing
    - **Wait:** 2 bars
-10. **Strip:** ONE KICK IS LONELY. / HOLD [SEQ] AND TAP / [5], [9] AND [13].
+10. **Strip:** One kick is lonely. / Hold [SEQ] and tap / [5], [9] and [13].
     - **Do:** hold SEQ, tap box 5 9 13
     - **Until:** drums has KICK on boxes 1 5 9 13
-    - **Hint:** HOLD [SEQ] AND TAP / EACH BLINKING KEY.
-11. **Reply:** GOOD.
-12. **Card:** KICK ON 1, 5, 9, 13. / FOUR ON THE FLOOR. / THIS IS THE BEAT OF HOUSE MUSIC.
-    - **OCT+:** NEXT
-13. **Strip:** ADD KICKS, OR TAP A FULL BOX: IT EMPTIES. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
+    - **Hint:** Hold [SEQ] and tap / each blinking key.
+11. **Reply:** Good.
+12. **Card:** Kick on 1, 5, 9, 13. / Four on the floor. / This is the beat of house music.
+    - **OCT+:** Next
+13. **Strip:** Add kicks, or tap a full box: it empties. / [OCT+] when done.
+    - **OCT+:** Done
     - **Robot:** hold SEQ, tap box 7, let go
 14. **Setup:** unmute; play
-15. **Strip:** YOUR KICK. / NOW WITH THE BAND.
+15. **Strip:** Your kick. / Now with the band.
     - **Wait:** 4 bars
-16. **Strip:** PRESS [PLAY] TO STOP.
+16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** A SEQUENCER: BOXES, AND A LIGHT THAT WALKS. / YOU JUST PROGRAMMED ONE.
-    - **OCT+:** DONE
+17. **Card:** A sequencer: boxes, and a light that walks. / You just programmed one.
+    - **OCT+:** Done
 
 ## Screens
 

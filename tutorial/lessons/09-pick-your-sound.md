@@ -11,52 +11,52 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track lead; page TRACKS
-2. **Card:** EVERY TRACK CAN PLAY ANY INSTRUMENT. / SLOOP HAS 153 OF THEM.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY]. TRACK 2 PLAYS THE TUNE.
+2. **Card:** Every track can play any instrument. / SLOOP has 153 of them.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY]. Track 2 plays the tune.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** TURN [PRESETS] ONE CLICK. A NEW SOUND.
+4. **Strip:** Turn [PRESETS] one click. A new sound.
    - **Do:** turn PRESETS right 1
    - **Until:** lead sound changed
-5. **Strip:** TRY MORE CLICKS. / [OCT+] WHEN DONE.
-   - **OCT+:** DONE
+5. **Strip:** Try more clicks. / [OCT+] when done.
+   - **OCT+:** Done
    - **Robot:** turn PRESETS right 2
-6. **Card:** SOUNDS COME IN FAMILIES: BASS, KEYS, ORGAN, PAD, LEAD, PLUCK AND MORE. / THE SOUNDS PAGE SHOWS A WHOLE FAMILY.
-   - **OCT+:** NEXT
+6. **Card:** Sounds come in families: bass, keys, organ, pad, lead, pluck and more. / The SOUNDS page shows a whole family.
+   - **OCT+:** Next
 7. **Setup:** page TRACKS
-8. **Strip:** TAP [EDIT] UNTIL YOU SEE 16 SOUND NAMES.
+8. **Strip:** Tap [EDIT] until you see 16 sound names.
    - **Do:** press EDIT
    - **Until:** page is SOUNDS
-   - **Hint:** IT IS THE LAST OF THE EDIT PAGES. KEEP TAPPING.
+   - **Hint:** It is the last of the edit pages. Keep tapping.
    - **Robot:** press EDIT, press EDIT, press EDIT, press EDIT, press EDIT, press EDIT
-9. **Strip:** EACH WHITE KEY IS A SOUND. TAP ONE.
+9. **Strip:** Each white key is a sound. Tap one.
    - **Do:** tap box 3
    - **Until:** lead sound changed
    - **Page:** SOUNDS
-10. **Strip:** KNOB 1 CHANGES THE FAMILY. TURN IT.
+10. **Strip:** Knob 1 changes the family. Turn it.
     - **Do:** turn KNOB 1 right 1
     - **Page:** SOUNDS
-11. **Strip:** FIND YOUR SOUND. / [OCT+] WHEN DONE.
-    - **OCT+:** THIS ONE
+11. **Strip:** Find your sound. / [OCT+] when done.
+    - **OCT+:** This one
     - **Page:** SOUNDS
     - **Robot:** tap box 2
-12. **Strip:** KNOB 4 RIGHT: / NOW A FAVORITE.
+12. **Strip:** Knob 4 right: / now a favorite.
     - **Do:** turn KNOB 4 right 1
     - **Until:** says FAV
     - **Page:** SOUNDS
-13. **Card:** FAVORITES LIVE IN THE FIRST FAMILY: FAVS. / YOUR BEST SOUNDS, ONE TAP AWAY.
-    - **OCT+:** NEXT
-14. **Strip:** PRESS [HOME].
+13. **Card:** Favorites live in the first family: FAVS. / Your best sounds, one tap away.
+    - **OCT+:** Next
+14. **Strip:** Press [HOME].
     - **Do:** press HOME
     - **Until:** page is TRACKS
-15. **Strip:** THE TUNE, IN YOUR SOUND.
+15. **Strip:** The tune, in your sound.
     - **Wait:** 4 bars
-16. **Strip:** PRESS [PLAY] TO STOP.
+16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** [PRESETS] STEPS THROUGH SOUNDS. / THE SOUNDS PAGE SHOWS A FAMILY. / KNOB 4 KEEPS A FAVORITE.
-    - **OCT+:** DONE
+17. **Card:** [PRESETS] steps through sounds. / The SOUNDS page shows a family. / Knob 4 keeps a favorite.
+    - **OCT+:** Done
 
 ## Screens
 

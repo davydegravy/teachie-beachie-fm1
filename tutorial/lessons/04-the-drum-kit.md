@@ -10,35 +10,35 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; mute lead chords pad; track drums; page STEPS
-2. **Card:** THE DRUM TRACK HAS 16 SOUNDS. / ONE ON EACH WHITE KEY. / TOGETHER THEY ARE A KIT.
-   - **OCT+:** GO
-3. **Strip:** PLAY EVERY WHITE KEY. THE TOP NAMES EACH DRUM.
+2. **Card:** The drum track has 16 sounds. / One on each white key. / Together they are a kit.
+   - **OCT+:** Go
+3. **Strip:** Play every white key. The top names each drum.
    - **Echo:** box 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-4. **Reply:** GOOD.
-5. **Strip:** PRESS [PLAY].
+4. **Reply:** Good.
+5. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-6. **Strip:** PLAY ALONG. TRY [KEY 4], THE CLAP. / [OCT+] WHEN DONE.
-   - **OCT+:** DONE
+6. **Strip:** Play along. Try [KEY 4], the clap. / [OCT+] when done.
+   - **OCT+:** Done
    - **Until:** played 4 keys
-   - **Hint:** NOT YET. PLAY A FEW DRUMS FIRST.
+   - **Hint:** Not yet. Play a few drums first.
    - **Robot:** tap box 4 10 11 4
-7. **Card:** SLOOP HAS MANY KITS. / EACH ONE PUTS 16 NEW SOUNDS ON THE SAME KEYS. / YOUR BEAT STAYS THE SAME.
-   - **OCT+:** NEXT
-8. **Strip:** TURN [PRESETS] ONE CLICK. / A NEW KIT.
+7. **Card:** SLOOP has many kits. / Each one puts 16 new sounds on the same keys. / Your beat stays the same.
+   - **OCT+:** Next
+8. **Strip:** Turn [PRESETS] one click. / A new kit.
    - **Do:** turn PRESETS right 1
    - **Until:** drums sound changed
-9. **Strip:** TRY MORE KITS. / [OCT+] ON ONE YOU LIKE.
-   - **OCT+:** THIS ONE
+9. **Strip:** Try more kits. / [OCT+] on one you like.
+   - **OCT+:** This one
    - **Robot:** turn PRESETS right 2
 10. **Setup:** unmute; play
-11. **Strip:** THE WHOLE BAND, / WITH YOUR KIT.
+11. **Strip:** The whole band, / with your kit.
     - **Wait:** 4 bars
-12. **Strip:** PRESS [PLAY] TO STOP.
+12. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-13. **Card:** 16 SOUNDS ON 16 WHITE KEYS. / [PRESETS] CHANGES THE KIT.
-    - **OCT+:** DONE
+13. **Card:** 16 sounds on 16 white keys. / [PRESETS] changes the kit.
+    - **OCT+:** Done
 
 ## Screens
 

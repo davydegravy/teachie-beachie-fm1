@@ -121,7 +121,9 @@ with the tutorial switched off.
 - **Two sizes of text:** a dry reply alone in large letters in the middle, an instruction smaller and to the
   left.
 - **No pictures on cards** in the first version, unless one has an obvious value.
-- **The screen has capital letters only,** so all lesson text is written for that.
+- **The lessons have a font of their own, with small letters** (since 2026-11-20: Google Sans SemiBold, in the lesson
+  pack), so their words are sentences. SLOOP's own fonts have capitals only; with no pack on the FM-1 the cards fall
+  back to those, in capitals.
 
 ### The character
 
@@ -191,7 +193,7 @@ brings the learner back to it after a moment.)
 - **Every lesson ends in music.** The learner's part sits inside a full song, never alone.
 - **Nothing can be broken.** Undo comes early. Any lesson can be started again.
 - **The same picture every time.** A step is always a "box", a pattern always a "page" (the table below).
-- **Few words on the screen.** About eight lines of twenty capitals. The FM-1 shows, and the words only point.
+- **Few words on the screen.** About eight lines of twenty letters. The FM-1 shows, and the words only point.
 - **A short review to open each lesson,** on something from two or three lessons back.
 
 ### The big ideas, each with one picture
@@ -363,7 +365,7 @@ Each is a short series of lessons inside SLOOP 3, covering what the thirty lesso
 
 **The room left in the firmware is small:**
 - **The lesson player takes about 8.3 KB of code.** To make room, SLOOP's import of an old SLOOP 2.8 project at
-  the first start is left out. After that about 800 bytes are free.
+  the first start is left out. After that about 500 bytes are free.
 - **If more room is needed:** the sample bank can move up by 2 KB into space that is free behind it, and the
   visualizers take about 5.5 KB.
 - **The lessons and songs are in a sample slot.** All thirty lessons with their songs are about 35 KB, and a slot

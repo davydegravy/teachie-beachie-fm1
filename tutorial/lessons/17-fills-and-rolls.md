@@ -11,57 +11,57 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums fill SNARE on 13 14 15 16; track drums; page STEPS
-2. **Card:** A FILL IS A SHORT BURST OF DRUMS. / IT SAYS: SOMETHING NEW IS COMING.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY].
+2. **Card:** A fill is a short burst of drums. / It says: something new is coming.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Card:** THIS BEAT HIDES FOUR SNARES THAT ONLY PLAY WHEN YOU ASK.
-   - **OCT+:** NEXT
-5. **Strip:** HOLD [GLO] AND HOLD [KEY 11].
+4. **Card:** This beat hides four snares that only play when you ask.
+   - **OCT+:** Next
+5. **Strip:** Hold [GLO] and hold [KEY 11].
    - **Do:** hold GLO, long box 11
    - **Until:** fill on
-6. **Strip:** AGAIN. AIM FOR THE END OF THE BAR.
+6. **Strip:** Again. Aim for the end of the bar.
    - **Do:** hold GLO, long box 11
    - **Until:** fill on
-7. **Card:** [12] IS EASIER. / IT PLAYS THE FILL FOR ONE WHOLE BAR, THEN STOPS BY ITSELF.
-   - **OCT+:** NEXT
-8. **Strip:** HOLD [GLO], TAP [12].
+7. **Card:** [12] is easier. / It plays the fill for one whole bar, then stops by itself.
+   - **OCT+:** Next
+8. **Strip:** Hold [GLO], tap [12].
    - **Do:** hold GLO, tap box 12
    - **Wait:** 2 bars
-9. **Card:** NOW A FILL NOTE OF YOUR OWN. / A NOTE CAN BE MARKED TO PLAY ONLY IN A FILL.
-   - **OCT+:** NEXT
-10. **Strip:** PICK THE HIGH TOM: / PLAY [11].
+9. **Card:** Now a fill note of your own. / A note can be marked to play only in a fill.
+   - **OCT+:** Next
+10. **Strip:** Pick the high tom: / play [11].
     - **Do:** tap box 11
     - **Page:** STEPS
-11. **Card:** THE NEXT MOVE TAKES THREE FINGERS. / HOLD TWO THINGS, / THEN PRESS A THIRD.
-    - **OCT+:** NEXT
-12. **Strip:** HOLD [SEQ] + HOLD [12]. / THE TOP SAYS STEP 12.
+11. **Card:** The next move takes three fingers. / Hold two things, / then press a third.
+    - **OCT+:** Next
+12. **Strip:** Hold [SEQ] + hold [12]. / The top says STEP 12.
     - **Do:** hold SEQ, hold box 12
     - **Until:** drums has TOM H on box 12
-    - **Hint:** HEAR A CRASH? [SEQ] WAS NOT HELD. HOLD [SEQ] FIRST.
-13. **Strip:** KEEP HOLDING BOTH. / PRESS [OCT+] ONCE.
+    - **Hint:** Hear a crash? [SEQ] was not held. Hold [SEQ] first.
+13. **Strip:** Keep holding both. / Press [OCT+] once.
     - **Do:** hold SEQ, hold box 12, press OCT+
     - **Until:** drums has 5 fill notes or more
-    - **Hint:** HOLD [SEQ] + [12], THEN [OCT+] ONCE. THE TOP SAYS FILL.
-    - **Hint:** TOP SAYS NO FILL? [OCT-] PUTS IT BACK. THEN [OCT+] ONCE.
-14. **Card:** FILL. IT WORKED. / LET GO OF EVERYTHING. / THE TOM NOW PLAYS ONLY IN A FILL.
-    - **OCT+:** NEXT
-15. **Strip:** NOW [GLO], NOT [SEQ]: / HOLD [GLO], TAP [12].
+    - **Hint:** Hold [SEQ] + [12], then [OCT+] once. The top says FILL.
+    - **Hint:** Top says NO FILL? [OCT-] puts it back. Then [OCT+] once.
+14. **Card:** FILL. It worked. / Let go of everything. / The tom now plays only in a fill.
+    - **OCT+:** Next
+15. **Strip:** Now [GLO], not [SEQ]: / hold [GLO], tap [12].
     - **Do:** hold GLO, tap box 12
     - **Wait:** 2 bars
-16. **Card:** A ROLL IS ONE DRUM, REPEATED FAST. / HOLD [ARP] AND HOLD A DRUM KEY.
-    - **OCT+:** NEXT
-17. **Strip:** HOLD [ARP], HOLD [5]: A HAT ROLL.
+16. **Card:** A roll is one drum, repeated fast. / Hold [ARP] and hold a drum key.
+    - **OCT+:** Next
+17. **Strip:** Hold [ARP], hold [5]: a hat roll.
     - **Do:** hold ARP, long box 5
-18. **Strip top:** [ARP] + KNOB 1: RATE, / HOW FAST IT ROLLS. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
+18. **Strip top:** [ARP] + Knob 1: RATE, / how fast it rolls. / [OCT+] when done.
+    - **OCT+:** Done
     - **Robot:** hold ARP, turn KNOB 1 right 1, long box 5, let go
-19. **Strip:** PRESS [PLAY] TO STOP.
+19. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-20. **Card:** [GLO] AND [11] OR [12]: A FILL. / [SEQ] + A KEY + [OCT+]: A FILL NOTE. / [ARP] AND A KEY: A ROLL.
-    - **OCT+:** DONE
+20. **Card:** [GLO] and [11] or [12]: / a fill. / [SEQ] + a key + [OCT+]: / a fill note. / [ARP] and a key: a roll.
+    - **OCT+:** Done
 
 ## Screens
 

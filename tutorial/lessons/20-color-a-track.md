@@ -10,55 +10,55 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track bass; page TRACKS
-2. **Card:** AN INSERT CHANGES THE SOUND OF ONE TRACK: FUZZ, CRUSH AND MORE. / A FILTER MAKES SOUND DARK OR THIN.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY]. TRACK 1, THE BASS, IS CHOSEN.
+2. **Card:** An insert changes the sound of one track: fuzz, crush and more. / A filter makes sound dark or thin.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY]. Track 1, the bass, is chosen.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** TAP [FX] UNTIL THE SCREEN SAYS INSERT.
+4. **Strip:** Tap [FX] until the screen says INSERT.
    - **Do:** press FX
    - **Until:** page is INSERT
    - **Robot:** press FX, press FX, press FX, press FX, press FX, press FX, press FX
-5. **Strip top:** KNOB 1 IS THE TYPE. / TURN IT TO FUZZ.
+5. **Strip top:** Knob 1 is the TYPE. / Turn it to FUZZ.
    - **Do:** turn KNOB 1 right 1
    - **Until:** bass insert is FUZZ
    - **Page:** INSERT
-6. **Reply:** DIRTY.
-7. **Strip top:** KNOB 2 IS DRIVE: / MORE DIRT OR LESS.
+6. **Reply:** Dirty.
+7. **Strip top:** Knob 2 is drive: / more dirt or less.
    - **Do:** turn KNOB 2 right 5
    - **Page:** INSERT
-8. **Strip top:** KNOB 1, ONE MORE CLICK: CRUSH.
+8. **Strip top:** Knob 1, one more click: CRUSH.
    - **Do:** turn KNOB 1 right 1
    - **Until:** bass insert is CRUSH
    - **Page:** INSERT
-9. **Strip top:** PICK THE TYPE YOU LIKE. OFF IS FINE. / [OCT+] WHEN DONE.
-   - **OCT+:** DONE
+9. **Strip top:** Pick the TYPE you like. OFF is fine. / [OCT+] when done.
+   - **OCT+:** Done
    - **Page:** INSERT
-10. **Card:** NOW A FILTER, ON THE WHOLE SONG. / HOLD [FX], AND KNOB 1 IS THE FILTER KNOB.
-    - **OCT+:** NEXT
-11. **Card:** THE FILTER KNOB: / LEFT IS LP: ONLY THE LOW SOUNDS STAY. / RIGHT IS HP: ONLY THE HIGH SOUNDS STAY. / MIDDLE IS OFF.
-    - **OCT+:** NEXT
-12. **Strip top:** [FX] AND KNOB 1 LEFT: / FILT GOES PAST LP 40.
+10. **Card:** Now a filter, on the whole song. / Hold [FX], and Knob 1 is the filter knob.
+    - **OCT+:** Next
+11. **Card:** The filter knob: / Left is LP: only the low sounds stay. / Right is HP: only the high sounds stay. / Middle is OFF.
+    - **OCT+:** Next
+12. **Strip top:** [FX] and Knob 1 left: / FILT goes past LP 40.
     - **Do:** hold FX, turn KNOB 1 left 5
     - **Until:** master filter below -40
-    - **Hint:** HOLD [FX]. FILT IS THE FIRST DIAL BELOW.
-13. **Strip top:** [FX] AND KNOB 1 RIGHT / UNTIL FILT SAYS OFF.
+    - **Hint:** Hold [FX]. FILT is the first dial below.
+13. **Strip top:** [FX] and Knob 1 right / until FILT says OFF.
     - **Do:** hold FX, turn KNOB 1 right 3
     - **Until:** master filter is 0
-14. **Strip top:** KEEP TURNING RIGHT: / FILT GOES PAST HP 40.
+14. **Strip top:** Keep turning right: / FILT goes past HP 40.
     - **Do:** hold FX, turn KNOB 1 right 5
     - **Until:** master filter above 40
-15. **Strip top:** [FX] AND KNOB 1 LEFT / UNTIL FILT SAYS OFF.
+15. **Strip top:** [FX] and Knob 1 left / until FILT says OFF.
     - **Do:** hold FX, turn KNOB 1 left 3
     - **Until:** master filter is 0
-16. **Strip:** PRESS [HOME].
+16. **Strip:** Press [HOME].
     - **Do:** press HOME
     - **Until:** page is TRACKS
-17. **Strip:** PRESS [PLAY] TO STOP.
+17. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-18. **Card:** INSERT: ONE TRACK'S COLOR. / [FX] AND KNOB 1: A FILTER ON EVERYTHING.
-    - **OCT+:** DONE
+18. **Card:** Insert: one track's color. / [FX] and Knob 1: a filter on everything.
+    - **OCT+:** Done
 
 ## Screens
 

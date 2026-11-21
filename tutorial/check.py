@@ -18,14 +18,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from tp import lesson as L
 
-def advances(name):
-    """the width of each letter of one of the screen's fonts, from app/fonts.c"""
-    src = open(os.path.join(HERE, "..", "app", "fonts.c")).read()
-    block = src[src.index("gfx_glyph %s_g[" % name):]; block = block[:block.index("};")]
-    return [int(m.group(1)) for m in re.finditer(r"\{\s*\d+,\s*\d+,\s*-?\d+,\s*-?\d+,\s*(\d+),\s*\d+\s*\}", block)]
-ADV = dict(s=advances("font_s"), l=advances("font_l"))
+def advances(k):
+    """the width of each letter of one of the lessons' fonts (0 the small one, 1 the large), from assets/fonts/lessons-font.bin
+    (tools/mklessonfont.py): the fonts the FM-1 draws the lessons with, from the pack"""
+    b = open(os.path.join(HERE, "..", "assets", "fonts", "lessons-font.bin"), "rb").read()
+    at = b[4 + 2 * k] | b[5 + 2 * k] << 8; n = b[at]
+    return [b[at + 6 + 8 * i + 4] for i in range(n)]
+ADV = dict(s=advances(0), l=advances(1))
 
-def width(font, text): return sum(ADV[font][ord(c) - 32] if 32 <= ord(c) < 96 else ADV[font][31] for c in text)
+def width(font, text): return sum(ADV[font][ord(c) - 32] if 32 <= ord(c) < 127 else ADV[font][31] for c in text)
 
 def wrap(text, font):
     """the words cut into lines as the FM-1 does it (fw/main.c guide_wrap): at a new line, and at a space before the edge"""
@@ -50,7 +51,7 @@ def lint(lesson):
     def fits(step, text, kind, answers=False):
         w = L.words(text); font = "l" if kind in ("big", "reply") else "s"
         for c in w:
-            if c != "\n" and not 32 <= ord(c) < 96: say(step, "the screen has no letter %r (in \"%s\")" % (c, text[:40]))
+            if c != "\n" and not 32 <= ord(c) < 127: say(step, "the screen has no letter %r (in \"%s\")" % (c, text[:40]))
         if len(w) > 175: say(step, "%d letters, and the screen's card holds 175: \"%s...\"" % (len(w), text[:40]))
         lines = wrap(w, font); room = 4 if font == "l" else 3 if kind.startswith("strip") else 7 if answers else 8
         if len(lines) > room: say(step, "%d lines on the screen, and a %s holds %d: %s" % (len(lines), kind, room, " | ".join(lines)))
@@ -73,9 +74,9 @@ def lint(lesson):
             for key in ("OCT-", "OCT+"):
                 v = step.sub(key)
                 if v is None: continue
-                label, _, effect = v.partition("→"); label = label.strip().upper()
+                label, _, effect = v.partition("→"); label = label.strip()
                 if kind.startswith("strip") and "[%s]" % key not in step.text.upper().replace("−", "-"): say(step, "a strip shows no answers: its words should name [%s]" % key)
-                other = (step.sub("OCT+" if key == "OCT-" else "OCT-") or "").partition("→")[0].strip().upper()
+                other = (step.sub("OCT+" if key == "OCT-" else "OCT-") or "").partition("→")[0].strip()
                 if width("s", label) > 150 or (key == "OCT-" and width("s", label) + width("s", other) > 200): say(step, "the answers \"%s\" and \"%s\" are too wide to sit side by side" % (label, other))
                 for e in [x.strip() for x in effect.split(";") if x.strip()]:
                     m = re.match(r"go to (\d+)$", e)
@@ -126,6 +127,9 @@ if __name__ == "__main__":
         print("%-28s %s" % (l.name, "read: %d steps" % len(l.steps) if not bad else "PROBLEMS"))
         for b in bad: print("    " + b); fail += 1
     if "--run" in sys.argv:
+        import device                                               # the simulated FM-1s start with the lesson pack on them: its fonts draw the cards
+        sys.path.insert(0, os.path.join(HERE, "..", "tools")); import mkcourse
+        os.environ["TP_FLASH"] = os.path.abspath(device.seed_flash(mkcourse.build()[0]))
         print("playing %d lessons on simulated FM-1s ..." % len(chosen), flush=True)
         with ThreadPoolExecutor(max_workers=6) as pool:
             for l, (ok, tail, secs) in zip(chosen, pool.map(run, chosen)):

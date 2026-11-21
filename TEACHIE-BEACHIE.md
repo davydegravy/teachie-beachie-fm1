@@ -63,6 +63,17 @@ The unchanged v3.3.7 built this way is byte-for-byte the firmware inside SLOOP's
     name or the credit to SLOOP would be missing.
   - `tests/install_sim.js` expects the new "restarts on Teachie Beachie" message.
 
+**The lessons' font:**
+- The lessons are drawn in a font of their own, with small letters: **Google Sans SemiBold** ((c) The Google Sans
+  Project Authors, SIL Open Font License 1.1; the license and Google's note on its trademarks are in
+  `assets/fonts/google-sans/`). `tools/mklessonfont.py` renders it once into `assets/fonts/lessons-font.bin` (two
+  sizes, 14 KB), and `tools/mkcourse.py` puts that into the lesson pack. The typeface's own file is not in this
+  repository: it is `GoogleSans[GRAD,opsz,wght].ttf` from `github.com/google/fonts`, folder `ofl/googlesans`.
+- SLOOP's own screens keep SLOOP's fonts (Inter Bold, capitals only). With no lesson pack on the FM-1, the
+  cards use those too, in capitals.
+- In `app/gfx.c`, a font with more than SLOOP's 77 glyphs is read as all of ASCII (a letter's glyph is its code
+  less 32). Nothing else in SLOOP's drawing changes.
+
 **Not changed yet:**
 - **The USB MIDI name, "FM-1 SLOOP 3".** The installer and SLOOP's web editor recognize the FM-1 by that name.
 - **The firmware's own version, `VERSION` "3.3.7" in `fw/main.c`.** The editor reads it.

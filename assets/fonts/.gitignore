@@ -1,0 +1,2 @@
+# the typefaces' own files: fetched from github.com/google/fonts when a font is made again (tools/mklessonfont.py)
+*.ttf

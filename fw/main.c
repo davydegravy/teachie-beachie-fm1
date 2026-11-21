@@ -1624,12 +1624,18 @@ COLD static uint32_t guide_edges(int kind, uint32_t *pr, uint32_t *rel, int n, u
     uint32_t r = *rel & *took; *took &= ~r; *rel &= ~r;
     return p;
 }
+/* the guide's fonts: the lessons' own, from the pack (course.inc: sentences in small letters), or SLOOP's when no pack is
+ * on the FM-1; SLOOP's have capitals only, so then the words are put in capitals first */
+static gfx_font tp_font[2]; static uint8_t tp_fonts;      /* tp_fonts: the pack's two fonts are in tp_font (filled when the pack is found) */
+#define GF_S (tp_fonts ? &tp_font[0] : &font_s)
+#define GF_L (tp_fonts ? &tp_font[1] : &font_l)
 COLD static int guide_w(const gfx_font *f, const char *s, int n) { char b[44]; if (n > 43) n = 43; for (int i = 0; i < n; i++) b[i] = s[i]; b[n] = 0; return gfx_text_w(f, b); }
 COLD static void guide_wrap(void)                   /* the words cut into lines: at '\n', and at a space before the edge */
 {
     const char *t = G.text; int i = 0; G.nl = 0;
+    if (!tp_fonts) for (char *p = G.text; p < G.right + sizeof G.right; p++) if (*p >= 'a' && *p <= 'z') *p -= 32;   /* (text, left, right: one after the other in G) */
     while (t[i] && G.nl < 8) {
-        const gfx_font *f = G.big && t[i] != '^' ? &font_l : &font_s;   /* (a large card's line that starts with ^: small, a heading) */
+        const gfx_font *f = G.big && t[i] != '^' ? GF_L : GF_S;   /* (a large card's line that starts with ^: small, a heading) */
         int s = i, e = i, last = -1, in = 0;
         while (t[e] && t[e] != '\n') {
             if (t[e] == '[') in = 1; else if (t[e] == ']') in = 0;
@@ -1669,23 +1675,24 @@ COLD static void guide_draw(void)                   /* the card, over whatever t
     if (G.strip) {                                   /* a band: the page above or below it stays as it is */
         int tag = G.strip == 3, x = tag ? 6 : 10, w = GFX_W;   /* (3: a tag in the top left corner, as wide as its words) */
         int h = (tag ? 3 : 12) + G.nl * 23, y0 = G.strip == 2 ? GFX_H - h : 0;
-        if (tag) for (int k = w = 0; k < G.nl; k++) { int e = guide_seg(&font_s, x + 6, 0, G.text + G.ls[k], G.ll[k], 0); if (e > w) w = e; }
+        if (tag) for (int k = w = 0; k < G.nl; k++) { int e = guide_seg(GF_S, x + 6, 0, G.text + G.ls[k], G.ll[k], 0); if (e > w) w = e; }
         gfx_fill(0, y0, w, h, G_PAPER);
-        for (int k = 0; k < G.nl; k++) guide_line(&font_s, x, y0 + (tag ? 6 : 8) + 23 * k, G.text + G.ls[k], G.ll[k], 0);
+        for (int k = 0; k < G.nl; k++) guide_line(GF_S, x, y0 + (tag ? 6 : 8) + 23 * k, G.text + G.ls[k], G.ll[k], 0);
         return;
     }
     gfx_fill(0, 0, GFX_W, GFX_H, G_PAPER);
-    const gfx_font *f = G.big ? &font_l : &font_s; int step = G.big ? 36 : 23;
+    const gfx_font *f = G.big ? GF_L : GF_S; int step = G.big ? 36 : 23;
     int y = G.big ? (GFX_H - 30 - G.nl * step) / 2 + 6 : 18;
     for (int k = 0; k < G.nl; k++) {
         int sm = G.big && G.text[G.ls[k]] == '^';     /* (a heading: small) */
-        guide_line(sm ? &font_s : f, G.big ? GFX_W / 2 : 12, y, G.text + G.ls[k], G.ll[k], G.big);
+        if (sm && k && G.text[G.ls[k - 1]] != '^') y += 6;   /* (small words under large ones: a little air) */
+        guide_line(sm ? GF_S : f, G.big ? GFX_W / 2 : 12, y, G.text + G.ls[k], G.ll[k], G.big);
         y += sm ? 28 : step;
     }
-    if (G.left[0]) { guide_line(&font_s, 12, 192, "[OCT-]", 6, 0); gfx_text(&font_s, 12, 216, G.left, G_INK); }
+    if (G.left[0]) { guide_line(GF_S, 12, 192, "[OCT-]", 6, 0); gfx_text(GF_S, 12, 216, G.left, G_INK); }
     if (G.right[0]) {
-        guide_line(&font_s, GFX_W - 20 - gfx_text_w(&font_s, "OCT+"), 192, "[OCT+]", 6, 0);
-        gfx_text(&font_s, GFX_W - 12 - gfx_text_w(&font_s, G.right), 216, G.right, G_INK);
+        guide_line(GF_S, GFX_W - 20 - gfx_text_w(GF_S, "OCT+"), 192, "[OCT+]", 6, 0);
+        gfx_text(GF_S, GFX_W - 12 - gfx_text_w(GF_S, G.right), 216, G.right, G_INK);
     }
 }
 /* the start: Teachie Beachie's own card, not SLOOP's page. OCT+ START asks the computer for a lesson (it sees G.ask
@@ -1704,14 +1711,14 @@ COLD static void guide_home_off(void) { uint8_t *z = (uint8_t *)&G; uint8_t gen 
 COLD static void guide_home(void)
 {
     guide_home_off();
-    G.card = 1; G.home = 1; G.cap_btn = 1u << BTN_OCT_UP | 1u << BTN_OCT_DOWN; G.led[BTN_OCT_UP] = 5; G.led[BTN_OCT_DOWN] = 5;
-    guide_card_text("TEACHIE BEACHIE\nREADY FOR A LESSON.", "JUST PLAY", "START");
+    G.card = 1; G.big = tp_fonts; G.home = 1; G.cap_btn = 1u << BTN_OCT_UP | 1u << BTN_OCT_DOWN; G.led[BTN_OCT_UP] = 5; G.led[BTN_OCT_DOWN] = 5;
+    guide_card_text(tp_fonts ? "Teachie\nBeachie\n^Ready for a lesson?\n^Or just play in SLOOP." : "Teachie Beachie\nReady for a lesson?\nOr just play in SLOOP.", "Just play", "Start");   /* (its name large, the rest a heading's size; with SLOOP's wide capitals, no pack, a plain card: those lines would not fit) */
 }
 COLD static void guide_home_ask(void)                /* START: the computer is asked (it sees G.ask) */
 {
     G.ask = 1; G.ask_t = time_ticks(); G.led[BTN_OCT_UP] = 0; G.led[BTN_OCT_DOWN] = 2;
     if (!hs[HS_LIGHTS]) hs[HS_LIGHTS] = 3;           /* a lesson: the buttons glow (HOME > LIGHTS was OFF: HIGH; KEYS as it is, the lesson blinks a key) */
-    guide_card_text("TEACHIE BEACHIE\nSTARTING...", "JUST PLAY", "");
+    G.big = 1; guide_card_text("Teachie\nBeachie\n^Starting...", "Just play", "");
 }
 #define CCOLD COLD __attribute__((minsize))
 CCOLD static int course_find(void); CCOLD static void course_start(void); CCOLD static void course_stop(void); CCOLD static void course_tick(void);
@@ -1720,8 +1727,8 @@ COLD static void guide_home_tick(void)               /* no lesson 4 s after STAR
 {
     if (G.home && G.ask == 1 && (uint32_t)(time_ticks() - G.ask_t) > 1000000u * lsb && course_find()) { course_start(); return; }   /* no computer by now, and the lessons are on the FM-1: its own course */
     if (G.home && G.ask == 1 && (uint32_t)(time_ticks() - G.ask_t) > 4000000u * lsb) {
-        G.ask = 2; G.led[BTN_OCT_UP] = 5; G.led[BTN_OCT_DOWN] = 5;
-        guide_card_text("TEACHIE BEACHIE\nTHE COMPUTER DID NOT ANSWER.\nCHECK THE USB CABLE, THEN PRESS [OCT+] AGAIN.", "JUST PLAY", "START");
+        G.ask = 2; G.big = 0; G.led[BTN_OCT_UP] = 5; G.led[BTN_OCT_DOWN] = 5;   /* (many words: a plain card) */
+        guide_card_text("Teachie Beachie\nThe computer did not answer.\nCheck the USB cable, then press [OCT+] again.", "Just play", "Start");
     }
 }
 /* HOME > LIGHTS, the glow: every button, and the keys that KEYS names (from leds; and again under a guide's card, which
@@ -4454,6 +4461,7 @@ COLD __attribute__((noinline)) static void start(uint32_t arg)
     splash_bad = (uint8_t)(!two || crash_msg[0]); splash_say = !two ? "CORE 2: SILENT" : crash_msg[0] ? crash_msg : safe_start ? "SAFE START: AN EMPTY PROJECT" : boot_msg;   /* (3.3: no popup with the name and version) */
     if ((panel_raw_buttons() & 3u) == 3u) { cal_start(); if (splash_bad) say_bad(splash_say); }   /* OCT- and OCT+ held: the calibration, as on SLOOP */
     else { splash_on = 1; splash_t0 = time_ticks(); }
+    course_find();                                    /* (the lessons' fonts, if the pack is there) */
 #ifdef HOST
     extern char *getenv(const char *);
     if (getenv("TP_HOME"))

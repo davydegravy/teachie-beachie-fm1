@@ -121,7 +121,7 @@ class Lesson:
                 else: where[1] = txt
         if [s.n for s in self.steps] != list(range(1, len(self.steps) + 1)): raise Bad("%s: the steps should be numbered 1, 2, 3 ... in order" % self.name)
 
-def words(text): return re.sub(r"\s+/\s+", "\n", text.strip()).upper()                         # " / " in the file: a new line on the screen
+def words(text): return re.sub(r"\s+/\s+", "\n", text.strip())                         # " / " in the file: a new line on the screen
 
 def lessons(folder=None):
     """every lesson in the folder, in order"""
@@ -460,7 +460,7 @@ class Player:
         for key in ("OCT-", "OCT+"):
             v = step.sub(key)
             if v is None: out.append(None); continue
-            label, _, effect = v.partition("→"); out.append((label.strip().upper(), effect.strip()))
+            label, _, effect = v.partition("→"); out.append((label.strip(), effect.strip()))
         return out
     # ---- the FM-1 made ready
     def goto(self, name):
@@ -582,7 +582,7 @@ class Player:
         while True:
             if need is not None and self.picked != need and BTN["SEQ"] not in self.held:
                 # a key played with SEQ not held: it sounded a drum, and boxes would now write that drum
-                self.show(step, "THAT PLAYED A DRUM. / HOLD [SEQ] FIRST."); self.t.note("slip", "played %s" % (PADS[self.picked] if self.picked is not None else "a drum"))
+                self.show(step, "That played a drum. / Hold [SEQ] first."); self.t.note("slip", "played %s" % (PADS[self.picked] if self.picked is not None else "a drum"))
                 self.pick(need); end = time.time() + (1.2 if self.fast else 2.4)
                 while time.time() < end: self.pump(); time.sleep(0.05)
                 if self.picked != need: continue                                    # (played again meanwhile: said again)
@@ -659,7 +659,7 @@ class Player:
         """a long time and every hint used: the lesson offers to do the move itself. Shown, the step is over: the move is
         made as a learner would make it, and what that leaves undone in a drum's boxes is written in"""
         f = self.fm1; f.take(buttons=[BTN["OCT_DOWN"], BTN["OCT_UP"]])
-        self.t.say("STUCK?\nI CAN DO THIS STEP FOR YOU.", "NO", "SHOW ME"); self.t.point([BTN["OCT_DOWN"], BTN["OCT_UP"]])
+        self.t.say("Stuck?\nI can do this step for you.", "No", "Show me"); self.t.point([BTN["OCT_DOWN"], BTN["OCT_UP"]])
         ev = self.t.wait_for({("button", BTN["OCT_DOWN"]), ("button", BTN["OCT_UP"])}); f.take(); f.lights(); self.held.clear()
         if ev[1] == BTN["OCT_DOWN"]: return False
         self.show(step); hands = Hands(f); todo = self.left_to_do(ops, conds, self.seen(base)) if conds else ops
@@ -698,7 +698,7 @@ class Player:
             if got is not None:
                 s = self.seen(base)
                 if all(c.ok(s) for c in conds): break
-                hint = step.sub("Hint") or "NOT YET."
+                hint = step.sub("Hint") or "Not yet."
                 self.show(step, hint); self.t.note("not yet", step.sub("Until")); self.nap(6.0); self.show(step)
             now = time.time()
             if page and not self.held:
@@ -779,10 +779,10 @@ class Player:
                 m = re.match(r"go to (\d+)$", e)
                 if m: i = int(m.group(1)) - 1
                 elif e in ("right", "wrong"):
-                    self.fm1.lights({}, only=True); self.fm1.card(words(step.sub(e.capitalize()) or ("YES." if e == "right" else "NOT QUITE.")), big=len(step.sub(e.capitalize()) or "") < 24)
+                    self.fm1.lights({}, only=True); self.fm1.card(words(step.sub(e.capitalize()) or ("Yes." if e == "right" else "Not quite.")), big=len(step.sub(e.capitalize()) or "") < 24)
                     self.t.note(e, ""); self.nap(1.4 if e == "right" else 3.0)
                 else: self.setup(e[6:].strip() if e.startswith("setup:") else e)
         f.take(); f.lights()
         if f.status()["playing"] and (lesson.head.get("Ends") or "").lower() != "playing": f.live(5, 0)
-        got = t.ask("LESSON %d\nDONE" % lesson.number, "REPLAY", "NEXT", big=True)
+        got = t.ask("^Lesson %d\nDone" % lesson.number, "Replay", "Next", big=True)
         return "replay" if got == "left" else "next"

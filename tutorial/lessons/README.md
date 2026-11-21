@@ -149,19 +149,25 @@ the numbered list under `## Steps`.
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; track bass
-2. **Card:** A SEQUENCER IS A ROW OF BOXES. / A LIGHT WALKS ALONG THEM.
-   - **OCT+:** NEXT
-3. **Strip:** NOW HOLD [SEQ] AND TAP BOX 1.
+2. **Card:** A sequencer is a row of boxes. / A light walks along them.
+   - **OCT+:** Next
+3. **Strip:** Now hold [SEQ] and tap [KEY 1].
    - **Do:** hold SEQ, tap box 1
    - **Until:** drums has KICK on box 1
-   - **Hint:** KEEP [SEQ] DOWN AND TAP THE BLINKING KEY.
+   - **Hint:** Keep holding [SEQ] and tap the blinking key.
 ```
 
 ### A step
 
 One numbered line: the kind of step in bold, then its words. In the words, ` / ` (a slash with a space on each
 side) starts a new line on the screen; a slash inside a word, as in `LFO 1/3`, is printed. A button's name in
-`[ ]` is drawn in a frame. A step marked `*(beginners only)*` is left out on the
+`[ ]` is drawn in a frame.
+
+**The words are written as sentences,** as they will show: the FM-1 draws the lessons in a font of their own, with
+small letters (Google Sans SemiBold, kept in the lesson pack). Capitals are for three things only: a name in a frame
+(`[PLAY]`, `[KEY 12]`), a word quoted from SLOOP's own screen (`until FILT says OFF`, `the SONG page`, `the top says
+COPY`), and names (SLOOP, FM-1, A minor). A line goes on in small letters after a colon. The four knobs are `Knob 1`
+to `Knob 4`. A step marked `*(beginners only)*` is left out on the
 path for people who know grooveboxes.
 
 | Kind | What the learner gets |

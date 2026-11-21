@@ -11,51 +11,51 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; bass empty; mute lead chords pad; track bass; page TRACKS
-2. **Card:** DRUMS HAVE BOXES. SO DO THE OTHER TRACKS. / BUT THEIR BOXES HOLD NOTES.
-   - **OCT+:** GO
-3. **Strip:** TRACK 1 IS THE BASS. PLAY A FEW KEYS.
+2. **Card:** Drums have boxes. So do the other tracks. / But their boxes hold notes.
+   - **OCT+:** Go
+3. **Strip:** Track 1 is the bass. Play a few keys.
    - **Do:** tap A3 C4 E4
    - **Until:** played 3 keys
-4. **Strip:** PRESS [SEQ]. THE SAME 16 BOXES.
+4. **Strip:** Press [SEQ]. The same 16 boxes.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-5. **Strip:** PLAY THE BLINKING KEY. IT IS AN A.
+5. **Strip:** Play the blinking key. It is an A.
    - **Do:** tap A3
    - **Page:** STEPS
-6. **Strip:** HOLD [SEQ] AND TAP [KEY 1]. THE A DROPS IN.
+6. **Strip:** Hold [SEQ] and tap [KEY 1]. The A drops in.
    - **Do:** hold SEQ, tap box 1
    - **Until:** bass has notes on box 1
-   - **Hint:** KEEP HOLDING [SEQ] AND TAP THE BLINKING KEY.
-7. **Strip:** PRESS [PLAY].
+   - **Hint:** Keep holding [SEQ] and tap the blinking key.
+7. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-8. **Strip:** HOLD [SEQ]. THE SAME A ON [4], [7], [11], [14].
+8. **Strip:** Hold [SEQ]. The same A on [4], [7], [11], [14].
    - **Do:** hold SEQ, tap box 4 7 11 14
    - **Until:** bass has notes on boxes 1 4 7 11 14
-9. **Reply:** GOOD.
-10. **Card:** ONE NOTE IN FIVE BOXES IS ALREADY A BASS LINE. / NOW A SECOND NOTE.
-    - **OCT+:** NEXT
-11. **Strip:** LET GO OF [SEQ]. PLAY THE HIGHER A.
+9. **Reply:** Good.
+10. **Card:** One note in five boxes is already a bass line. / Now a second note.
+    - **OCT+:** Next
+11. **Strip:** Let go of [SEQ]. Play the higher A.
     - **Do:** tap A4
     - **Page:** STEPS
-12. **Strip:** HOLD [SEQ]. PUT IT ON [16].
+12. **Strip:** Hold [SEQ]. Put it on [16].
     - **Do:** hold SEQ, tap box 16
     - **Until:** bass has notes on box 16
-13. **Card:** LISTEN FOR WHERE THE BASS AND THE KICK MEET, AND WHERE THE BASS SLIPS BETWEEN.
-    - **OCT+:** NEXT
-14. **Card:** MAKE IT YOUR OWN. / PLAY A KEY TO CHOOSE A NOTE. / HOLD [SEQ], TAP A BOX: IT GOES IN. / TAP AGAIN: IT GOES OUT.
-    - **OCT+:** START
-15. **Strip:** YOUR BASS LINE. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
+13. **Card:** Listen for where the bass and the kick meet, and where the bass slips between.
+    - **OCT+:** Next
+14. **Card:** Make it your own. / Play a key to choose a note. / Hold [SEQ], tap a box: it goes in. / Tap again: it goes out.
+    - **OCT+:** Start
+15. **Strip:** Your bass line. / [OCT+] when done.
+    - **OCT+:** Done
     - **Robot:** tap C4, hold SEQ, tap box 9, let go
 16. **Setup:** unmute; play
-17. **Strip:** YOUR BASS LINE, IN THE SONG.
+17. **Strip:** Your bass line, in the song.
     - **Wait:** 4 bars
-18. **Strip:** PRESS [PLAY] TO STOP.
+18. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-19. **Card:** A KEY PICKS THE NOTE. / [SEQ] AND A BOX WRITES IT.
-    - **OCT+:** DONE
+19. **Card:** A key picks the note. / [SEQ] and a box writes it.
+    - **OCT+:** Done
 
 ## Screens
 

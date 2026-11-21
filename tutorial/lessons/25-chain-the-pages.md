@@ -11,67 +11,67 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section A; patterns A B C D; track drums; page TRACKS
-2. **Card:** YOU HAVE FOUR PAGES: INTRO, VERSE, CHORUS, BREAK. / PLAYED IN A ROW, PAGES MAKE A SONG.
-   - **OCT+:** GO
-3. **Strip:** PRESS [SAVE] ONCE: THE SONG PAGE.
+2. **Card:** You have four pages: intro, verse, chorus, break. / Played in a row, pages make a song.
+   - **OCT+:** Go
+3. **Strip:** Press [SAVE] once: the SONG page.
    - **Do:** press SAVE
    - **Until:** page is SONG
-   - **Hint:** ONE TAP ONLY. TWO QUICK TAPS SAVE INSTEAD.
-4. **Strip:** PRESS [PLAY]. PAGE 1 IS LIT.
+   - **Hint:** One tap only. Two quick taps save instead.
+4. **Strip:** Press [PLAY]. Page 1 is lit.
    - **Do:** press PLAY
    - **Until:** playing
-5. **Strip:** KEYS ARE PAGES HERE. / TAP [KEY 3].
+5. **Strip:** Keys are pages here. / Tap [KEY 3].
    - **Do:** tap box 3
    - **Until:** drums on pattern 3
    - **Page:** SONG
-6. **Strip:** [1]: BACK TO THE INTRO.
+6. **Strip:** [1]: back to the intro.
    - **Do:** tap box 1
    - **Until:** drums on pattern 1
    - **Page:** SONG
-7. **Card:** A CHAIN PLAYS PAGES IN A ROW BY ITSELF. / TAP [15], THEN THE PAGES IN ORDER.
-   - **OCT+:** NEXT
-8. **Strip:** TAP [15]: CHAIN.
+7. **Card:** A chain plays pages in a row by itself. / Tap [15], then the pages in order.
+   - **OCT+:** Next
+8. **Strip:** Tap [15]: CHAIN.
    - **Do:** tap box 15
    - **Until:** says CHAIN
    - **Page:** SONG
-9. **Strip:** NOW [1], [2], [3], IN THAT ORDER.
+9. **Strip:** Now [1], [2], [3], in that order.
    - **Do:** tap box 1, tap box 2, tap box 3
    - **Page:** SONG
-10. **Strip:** THE CHAIN PLAYS: 1, 2, 3, ROUND AND ROUND.
+10. **Strip:** The chain plays: 1, 2, 3, round and round.
     - **Wait:** 8 bars
-11. **Strip:** [15] AGAIN: THE CHAIN ENDS.
+11. **Strip:** [15] again: the chain ends.
     - **Do:** tap box 15
     - **Until:** says CHAIN DONE
     - **Page:** SONG
-12. **Card:** A CHAIN IS GONE ONCE YOU END IT. / TO KEEP AN ORDER, RECORD IT. / [14] IS SONG REC.
-    - **OCT+:** NEXT
-13. **Strip:** TAP [14]. IT STARTS ON THE BAR.
+12. **Card:** A chain is gone once you end it. / To keep an order, record it. / [14] is SONG REC.
+    - **OCT+:** Next
+13. **Strip:** Tap [14]. It starts on the bar.
     - **Do:** tap box 14
     - **Until:** song recording
     - **Page:** SONG
-14. **Strip:** TAP THE PAGES LIVE. / [OCT+] AT THE END.
-    - **OCT+:** THE END
+14. **Strip:** Tap the pages live. / [OCT+] at the end.
+    - **OCT+:** The end
     - **Page:** SONG
     - **Robot:** wait 2.2, tap box 2, wait 2.2, tap box 3, wait 2.2
-15. **Strip:** [14] AGAIN: THE SONG IS KEPT.
+15. **Strip:** [14] again: the song is kept.
     - **Do:** tap box 14
     - **Until:** says SONG
     - **Page:** SONG
-16. **Strip:** [13] PLAYS THE SONG YOU RECORDED.
+16. **Strip:** [13] plays the song you recorded.
     - **Do:** tap box 13
     - **Until:** song playing
     - **Page:** SONG
-17. **Strip:** YOUR SONG PLAYS. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
-18. **Strip:** [13] AGAIN: BACK TO LOOPING.
+17. **Strip:** Your song plays. / [OCT+] when done.
+    - **OCT+:** Done
+18. **Strip:** [13] again: back to looping.
     - **Do:** tap box 13
     - **Until:** says LOOP
     - **Page:** SONG
-19. **Strip:** PRESS [HOME], THEN [PLAY] TO STOP.
+19. **Strip:** Press [HOME], then [PLAY] to stop.
     - **Do:** press HOME, press PLAY
     - **Until:** page is TRACKS and stopped
-20. **Card:** [SAVE]: THE SONG PAGE. / [15]: A CHAIN. / [14]: RECORD A SONG. / [13]: PLAY IT.
-    - **OCT+:** DONE
+20. **Card:** [SAVE]: the SONG page. / [15]: a chain. / [14]: record a song. / [13]: play it.
+    - **OCT+:** Done
 
 ## Screens
 

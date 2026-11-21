@@ -12,47 +12,47 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; track drums; pick HAT; page TRACKS
-2. **Card:** THE SAME BEAT CAN MARCH OR DANCE. / SWING PLAYS EVERY SECOND BOX A LITTLE LATE.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY]. STRAIGHT, LIKE A MARCH.
+2. **Card:** The same beat can march or dance. / Swing plays every second box a little late.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY]. Straight, like a march.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip top:** KNOB 1, SWING: UP TO 50.
+4. **Strip top:** Knob 1, SWING: up to 50.
    - **Do:** turn KNOB 1 right 3
    - **Until:** swing above 45
    - **Page:** TRACKS
-5. **Reply:** IT DANCES.
-6. **Strip top:** SET IT BY EAR. / [OCT+] WHEN DONE.
-   - **OCT+:** DONE
+5. **Reply:** It dances.
+6. **Strip top:** Set it by ear. / [OCT+] when done.
+   - **OCT+:** Done
    - **Page:** TRACKS
-7. **Card:** FEEL ALSO COMES FROM SOFT AND HARD HITS. / HATS THAT ARE ALL THE SAME SOUND LIKE A MACHINE.
-   - **OCT+:** NEXT
-8. **Strip:** PRESS [SEQ] FOR THE DRUM GRID.
+7. **Card:** Feel also comes from soft and hard hits. / Hats that are all the same sound like a machine.
+   - **OCT+:** Next
+8. **Strip:** Press [SEQ] for the drum grid.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-9. **Strip:** PLAY [KEY 5]: THE HAT.
+9. **Strip:** Play [KEY 5]: the hat.
    - **Do:** tap box 5
    - **Page:** STEPS
-10. **Strip top:** HOLD [SEQ] + [4]: / KNOB 2 TO HARD.
+10. **Strip top:** Hold [SEQ] + [4]: / Knob 2 to HARD.
     - **Do:** hold SEQ, hold box 4, turn KNOB 2 right 2
     - **Until:** drums has 1 hard notes or more
-    - **Hint:** KEEP HOLDING BOTH. LEVEL IS THE 2ND DIAL.
-11. **Strip top:** NOW [8], [12], [16].
+    - **Hint:** Keep holding both. LEVEL is the 2nd dial.
+11. **Strip top:** Now [8], [12], [16].
     - **Do:** hold SEQ, hold box 8, turn KNOB 2 right 2, let go, hold SEQ, hold box 12, turn KNOB 2 right 2, let go, hold SEQ, hold box 16, turn KNOB 2 right 2
     - **Until:** drums has 4 hard notes or more
-    - **Hint:** [SEQ], HOLD THE BOX, KNOB 2 RIGHT. ONE BOX AT A TIME.
-12. **Reply:** IT BREATHES.
-13. **Card:** PLAYING BY HAND HAS SOFT AND HARD TOO. / HOLD [OCT-] AND PLAY A DRUM: SOFT. / HOLD [OCT+]: HARD.
-    - **OCT+:** NEXT
-14. **Strip:** HOLD [OCT-], PLAY [3].
+    - **Hint:** [SEQ], hold the box, Knob 2 right. One box at a time.
+12. **Reply:** It breathes.
+13. **Card:** Playing by hand has soft and hard too. / Hold [OCT-] and play a drum: soft. / Hold [OCT+]: hard.
+    - **OCT+:** Next
+14. **Strip:** Hold [OCT-], play [3].
     - **Do:** hold OCT-, tap box 3
-15. **Strip:** NOW HOLD [OCT+], PLAY IT AGAIN.
+15. **Strip:** Now hold [OCT+], play it again.
     - **Do:** hold OCT+, tap box 3
-16. **Strip:** PRESS [PLAY] TO STOP.
+16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** SWING: KNOB 1 ON THE TRACKS PAGE. / LEVELS: [SEQ], A BOX, KNOB 2. / BY HAND: [OCT-] SOFT, [OCT+] HARD.
-    - **OCT+:** DONE
+17. **Card:** Swing: Knob 1 on the TRACKS page. / Levels: [SEQ], a box, Knob 2. / By hand: [OCT-] soft, [OCT+] hard.
+    - **OCT+:** Done
 
 ## Screens
 

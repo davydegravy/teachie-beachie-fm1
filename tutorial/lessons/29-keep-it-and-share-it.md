@@ -11,37 +11,37 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track drums; page TRACKS
-2. **Card:** A FINISHED SONG DESERVES TO BE KEPT. / THE FM-1 HOLDS ONE PROJECT: ALL YOUR PAGES, YOUR SOUNDS AND THE SONG.
-   - **OCT+:** GO
-3. **Card:** HOLD [HOME]: THE PROJECT PAGE. / [KEY 1]: OPEN. / [3]: NEW. / [5]: SAVE.
-   - **OCT+:** NEXT
-4. **Strip:** HOLD [HOME] AND TAP [5]: SAVE.
+2. **Card:** A finished song deserves to be kept. / The FM-1 holds one project: all your pages, your sounds and the song.
+   - **OCT+:** Go
+3. **Card:** Hold [HOME]: the PROJECT page. / [KEY 1]: OPEN. / [3]: NEW. / [5]: SAVE.
+   - **OCT+:** Next
+4. **Strip:** Hold [HOME] and tap [5]: SAVE.
    - **Do:** hold HOME, tap box 5
    - **Until:** says PROJECT SAVED
-5. **Strip:** PRESS [PLAY].
+5. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-6. **Card:** SAVED. NOW SEE WHAT THAT IS WORTH. / WE WRECK IT ON PURPOSE: / THE DRUMS GET ERASED.
-   - **OCT+:** NEXT
-7. **Strip:** HOLD [REC] FOR TWO SECONDS.
+6. **Card:** Saved. Now see what that is worth. / We wreck it on purpose: / the drums get erased.
+   - **OCT+:** Next
+7. **Strip:** Hold [REC] for two seconds.
    - **Do:** hold REC, wait 2.5
    - **Until:** drums is empty
-8. **Strip:** NO DRUMS. THEY ARE GONE.
+8. **Strip:** No drums. They are gone.
    - **Wait:** 2 bars
-9. **Card:** OPEN BRINGS BACK WHAT YOU SAVED. / IT ASKS IF YOU ARE SURE, / SO YOU TAP TWICE.
-   - **OCT+:** NEXT
-10. **Strip:** HOLD [HOME]: [1], / THEN [1] AGAIN.
+9. **Card:** OPEN brings back what you saved. / It asks if you are sure, / so you tap twice.
+   - **OCT+:** Next
+10. **Strip:** Hold [HOME]: [1], / then [1] again.
     - **Do:** hold HOME, tap box 1, tap box 1
     - **Until:** drums has 4 notes or more
-11. **Reply:** ALL BACK.
-12. **Card:** THE FM-1 ALSO SAVES BY ITSELF WHEN THE MUSIC IS STOPPED. / SO SAVE ON PURPOSE BEFORE YOU TRY SOMETHING RISKY, AND KEEP PLAYING.
-    - **OCT+:** NEXT
-13. **Card:** A COPY ON THE COMPUTER IS SAFER STILL. / TEACHIE BEACHIE KEEPS ONE BEFORE EVERY LESSON, IN ITS BACKUPS FOLDER. *(connected only)*
-    - **OCT+:** NEXT
-14. **Card:** TO SHARE A SONG, RECORD IT AS SOUND. / THE FM-1 SENDS ITS SOUND DOWN THE USB CABLE. A COMPUTER CAN RECORD IT. ASK A GROWN-UP.
-    - **OCT+:** NEXT
-15. **Card:** [HOME] AND [5]: SAVE. / [HOME] AND [1], TWICE: OPEN WHAT YOU SAVED. / [SAVE] TWICE SAVES TOO.
-    - **OCT+:** DONE
+11. **Reply:** All back.
+12. **Card:** The FM-1 also saves by itself when the music is stopped. / So save on purpose before you try something risky, and keep playing.
+    - **OCT+:** Next
+13. **Card:** A copy on the computer is safer still. / Teachie Beachie keeps one before every lesson, in its backups folder. *(connected only)*
+    - **OCT+:** Next
+14. **Card:** To share a song, record it as sound. / The FM-1 sends its sound down the USB cable. A computer can record it. Ask a grown-up.
+    - **OCT+:** Next
+15. **Card:** [HOME] and [5]: save. / [HOME] and [1], twice: open what you saved. / [SAVE] twice saves too.
+    - **OCT+:** Done
 
 ## Screens
 

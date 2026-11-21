@@ -11,53 +11,53 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track lead; page TRACKS
-2. **Card:** AN ECHO REPEATS A SOUND. / A REVERB PUTS IT IN A ROOM. / EACH TRACK SENDS AS MUCH AS YOU LIKE TO BOTH.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY]. TRACK 2, THE TUNE, IS CHOSEN.
+2. **Card:** An echo repeats a sound. / A reverb puts it in a room. / Each track sends as much as you like to both.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY]. Track 2, the tune, is chosen.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** TAP [FX] UNTIL THE SCREEN SAYS SENDS.
+4. **Strip:** Tap [FX] until the screen says SENDS.
    - **Do:** press FX
    - **Until:** page is SENDS
    - **Robot:** press FX, press FX, press FX, press FX, press FX, press FX, press FX
-5. **Strip top:** KNOB 3, ECHO: UP.
+5. **Strip top:** Knob 3, echo: up.
    - **Do:** turn KNOB 3 right 5
    - **Until:** lead delay above 50
    - **Page:** SENDS
-6. **Strip top:** KNOB 4, REVERB: UP.
+6. **Strip top:** Knob 4, reverb: up.
    - **Do:** turn KNOB 4 right 5
    - **Until:** lead reverb above 55
    - **Page:** SENDS
-7. **Card:** TOO MUCH OF BOTH TURNS TO MUD. / PULL THE REVERB BACK UNTIL THE TUNE IS CLEAR AGAIN.
-   - **OCT+:** NEXT
-8. **Strip top:** KNOB 4 DOWN, BELOW 30.
+7. **Card:** Too much of both turns to mud. / Pull the reverb back until the tune is clear again.
+   - **OCT+:** Next
+8. **Strip top:** Knob 4 down, below 30.
    - **Do:** turn KNOB 4 left 5
    - **Until:** lead reverb below 30
    - **Page:** SENDS
-9. **Card:** THE ECHO HAS A PAGE OF ITS OWN. / IT IS CALLED DELAY.
-   - **OCT+:** NEXT
-10. **Strip:** TAP [FX] UNTIL THE SCREEN SAYS DELAY.
+9. **Card:** The echo has a page of its own. / It is called DELAY.
+   - **OCT+:** Next
+10. **Strip:** Tap [FX] until the screen says DELAY.
     - **Do:** press FX
     - **Until:** page is DELAY
     - **Robot:** press FX, press FX, press FX, press FX
-11. **Strip top:** KNOB 1: THE ECHO'S TIME.
+11. **Strip top:** Knob 1: the echo's time.
     - **Do:** turn KNOB 1 left 1
     - **Page:** DELAY
-12. **Strip top:** KNOB 2: MORE REPEATS.
+12. **Strip top:** Knob 2: more repeats.
     - **Do:** turn KNOB 2 right 5
     - **Page:** DELAY
-13. **Card:** ONE MORE TRICK: A THROW. / HOLD [FX] AND [OCT+]: EVERYTHING ECHOES WHILE YOU HOLD.
-    - **OCT+:** NEXT
-14. **Strip:** HOLD [FX] AND HOLD [OCT+].
+13. **Card:** One more trick: a throw. / Hold [FX] and [OCT+]: everything echoes while you hold.
+    - **OCT+:** Next
+14. **Strip:** Hold [FX] and hold [OCT+].
     - **Do:** hold FX, press OCT+
-15. **Strip:** PRESS [HOME].
+15. **Strip:** Press [HOME].
     - **Do:** press HOME
     - **Until:** page is TRACKS
-16. **Strip:** PRESS [PLAY] TO STOP.
+16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** [FX]: THE SENDS. KNOB 3 ECHO, KNOB 4 REVERB. / A LITTLE GOES A LONG WAY.
-    - **OCT+:** DONE
+17. **Card:** [FX]: the sends. Knob 3 echo, Knob 4 reverb. / A little goes a long way.
+    - **OCT+:** Done
 
 ## Screens
 

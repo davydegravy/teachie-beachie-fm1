@@ -11,55 +11,55 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; lead empty; mute chords; track lead; page TRACKS
-2. **Card:** BOXES ARE ONE WAY TO WRITE MUSIC. / THE OTHER WAY: JUST PLAY, AND THE FM-1 WRITES IT DOWN.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY]. TRACK 2 IS EMPTY.
+2. **Card:** Boxes are one way to write music. / The other way: just play, and the FM-1 writes it down.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY]. Track 2 is empty.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** LISTEN. THEN PLAY IT BACK.
+4. **Strip:** Listen. Then play it back.
    - **Play:** A4 C5 E5
    - **Echo:** A4 C5 E5
-5. **Strip:** PRESS [REC]. ITS LIGHT COMES ON.
+5. **Strip:** Press [REC]. Its light comes on.
    - **Do:** press REC
    - **Until:** recording
-6. **Strip:** PLAY THOSE NOTES AGAIN. IT WRITES THEM DOWN.
+6. **Strip:** Play those notes again. It writes them down.
    - **Do:** tap A4 C5 E5
    - **Until:** lead has 3 notes or more
    - **Robot:** tap A4, wait 0.3, tap C5, wait 0.3, tap E5
-7. **Strip:** PRESS [REC] AGAIN TO STOP RECORDING.
+7. **Strip:** Press [REC] again to stop recording.
    - **Do:** press REC
    - **Until:** not recording
-8. **Strip:** IT PLAYS WHAT YOU PLAYED.
+8. **Strip:** It plays what you played.
    - **Wait:** 2 bars
-9. **Card:** IT ALSO PULLS EACH NOTE ONTO THE NEAREST BOX, SO YOU SOUND IN TIME. / THAT IS CALLED QUANTIZE. *(beginners only)*
-   - **OCT+:** NEXT
-10. **Card:** NOT HAPPY WITH A TAKE? / UNDO TAKES THE WHOLE TAKE BACK.
-    - **OCT+:** NEXT
-11. **Strip:** HOLD [EDIT], PRESS [OCT-].
+9. **Card:** It also pulls each note onto the nearest box, so you sound in time. / That is called quantize. *(beginners only)*
+   - **OCT+:** Next
+10. **Card:** Not happy with a take? / Undo takes the whole take back.
+    - **OCT+:** Next
+11. **Strip:** Hold [EDIT], press [OCT-].
     - **Do:** hold EDIT, press OCT-
     - **Until:** lead is empty
-12. **Strip:** REDO BRINGS IT BACK: / HOLD [EDIT], PRESS [OCT+].
+12. **Strip:** Redo brings it back: / hold [EDIT], press [OCT+].
     - **Do:** hold EDIT, press OCT+
     - **Until:** lead has 3 notes or more
-13. **Card:** THERE IS A BIGGER ERASER. / HOLD [REC] FOR TWO SECONDS: THE WHOLE TRACK IS EMPTY. / UNDO BRINGS IT BACK.
-    - **OCT+:** NEXT
-14. **Strip:** HOLD [REC] FOR TWO SECONDS.
+13. **Card:** There is a bigger eraser. / Hold [REC] for two seconds: the whole track is empty. / Undo brings it back.
+    - **OCT+:** Next
+14. **Strip:** Hold [REC] for two seconds.
     - **Do:** hold REC, wait 2.5
     - **Until:** lead is empty
-    - **Hint:** KEEP HOLDING [REC] UNTIL THE TOP SAYS TRACK ERASED.
-15. **Strip:** RECORD YOUR OWN TUNE. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
+    - **Hint:** Keep holding [REC] until the top says TRACK ERASED.
+15. **Strip:** Record your own tune. / [OCT+] when done.
+    - **OCT+:** Done
     - **Until:** lead has 3 notes or more and not recording
-    - **Hint:** NOT YET. RECORD 3 NOTES OR MORE, THEN STOP [REC].
+    - **Hint:** Not yet. Record 3 notes or more, then stop [REC].
     - **Robot:** press REC, tap A4, wait 0.3, tap C5, wait 0.3, tap E5, wait 0.3, press REC, wait 0.3
 16. **Setup:** unmute; play
-17. **Strip:** YOUR TUNE, WITH THE BAND.
+17. **Strip:** Your tune, with the band.
     - **Wait:** 4 bars
-18. **Strip:** PRESS [PLAY] TO STOP.
+18. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-19. **Card:** [REC] WRITES DOWN WHAT YOU PLAY. / UNDO TAKES A TAKE BACK. / [REC] HELD: THE TRACK IS ERASED.
-    - **OCT+:** DONE
+19. **Card:** [REC] writes down what you play. / Undo takes a take back. / [REC] held: the track is erased.
+    - **OCT+:** Done
 
 ## Screens
 

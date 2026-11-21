@@ -39,8 +39,17 @@ CCOLD static int course_find(void)                   /* the pack, in whichever s
     tpc = 0;
     for (int i = SMP_NUSR - 1; i >= 0 && flash_ok; i--) {
         const uint8_t *h = (const uint8_t *)(uintptr_t)(FLASH_WIN + SLOT_AT[i] - 0x4000u);
-        if (h[0] == 'T' && h[1] == 'P' && h[2] == 'C' && h[3] == 'O' && h[512] == 'T' && h[513] == 'P' && h[514] == 'C' && h[515] == '1' && h[518]) { tpc = h + 512; return 1; }
+        if (h[0] == 'T' && h[1] == 'P' && h[2] == 'C' && h[3] == 'O' && h[512] == 'T' && h[513] == 'P' && h[514] == 'C' && h[515] == '2' && h[518]) {
+            tpc = h + 512;
+            for (int k = 0; k < 2; k++) {                /* its two fonts, after the lessons and the clips: 6 bytes, the glyphs, the bits */
+                const uint8_t *b = tpc + c_u16(tpc + 8 + 2 * (tpc[6] + tpc[7] + k));
+                tp_font[k] = (gfx_font){ (const gfx_glyph *)(const void *)(b + 6), b + 6 + 8 * b[0], b[0], b[1], b[2], b[3], b[4], b[5] };
+            }
+            tp_fonts = 1;
+            return 1;
+        }
     }
+    tp_fonts = 0;
     return 0;
 }
 /* ---- what the learner sees */
@@ -278,9 +287,9 @@ CCOLD static void c_lesson_card(int list)           /* a lesson's first card, or
     const uint8_t *l = c_lesson(C.les); char b[72], *p;
     c_leds(); G.cap_keys = 0; G.cap_btn = 1u << BTN_OCT_UP | 1u << BTN_OCT_DOWN; G.cap_enc = list ? 1u << ENC_SELECT : 0;
     G.led[BTN_OCT_UP] = G.led[BTN_OCT_DOWN] = 5; G.only = 1;
-    p = put_s(b, list ? "^< TURN [SELECT] >\nLESSON " : "LESSON "); p = put_u(p, l[0]); p = put_s(p, "\n");   /* (the heading has to fit one small line, 212 px: a part that wraps is drawn large) */
+    p = put_s(b, list ? "^< Turn [SELECT] >\n^Lesson " : "^Lesson "); p = put_u(p, l[0]); p = put_s(p, "\n");   /* (the heading has to fit one small line, 212 px: a part that wraps is drawn large) */
     for (const uint8_t *s = l + 2; *s && p < b + sizeof b - 1; s++) *p++ = (char)*s;
-    *p = 0; c_say(CK_BIG, b, list ? "HOME" : "LESSONS", "BEGIN");
+    *p = 0; c_say(CK_BIG, b, list ? "Home" : "Lessons", "Begin");
     C.ph = list ? PH_LIST : PH_BEGIN;
 }
 CCOLD static void course_stop(void) { if (C.kplay) c_key(C.kplay - 1, 0); C.ph = PH_OFF; C.kplay = 0; }
@@ -343,9 +352,9 @@ CCOLD static void c_to_step(void)                    /* step number C.step under
     G.cap_keys = G.cap_btn = 0; G.cap_enc = 0; c_leds();
     if (C.step >= C.nstep) {
         if (Q.playing) transport(0);
-        char b[24], *p = put_s(b, "LESSON "); p = put_u(p, c_lesson(C.les)[0]); *put_s(p, "\nDONE") = 0;
+        char b[24], *p = put_s(b, "^Lesson "); p = put_u(p, c_lesson(C.les)[0]); *put_s(p, "\nDone") = 0;   /* (the number small, as on the list) */
         G.cap_btn = 1u << BTN_OCT_UP | 1u << BTN_OCT_DOWN; G.led[BTN_OCT_UP] = G.led[BTN_OCT_DOWN] = 5; G.only = 1;
-        c_say(CK_BIG, b, "REPLAY", "NEXT"); C.ph = PH_END; return;
+        c_say(CK_BIG, b, "Replay", "Next"); C.ph = PH_END; return;
     }
     const uint8_t *s = c_lesson(C.les) + 2; while (*s) s++;
     s++; for (int i = 0; i < C.step; i++) s += 2 + c_u16(s);
@@ -359,7 +368,7 @@ CCOLD static void c_answered(int right)             /* an answer given: what it 
     if (!c_until(&any, 0, 0)) {                      /* (too early: what is still needed, then the question again) */
         int hn; const uint8_t *h = c_field(CT_HINT, 0, &hn);
         c_leds(); G.only = !c_strip(C.st[2]);
-        if (h) c_show(C.st[2], h, hn, 0, 0); else c_say(C.st[2], "NOT YET.", 0, 0);
+        if (h) c_show(C.st[2], h, hn, 0, 0); else c_say(C.st[2], "Not yet.", 0, 0);
         C.t_end = C.ms + 6000u; C.ret = PH_ANSWER; C.reshow = 1; C.ph = PH_MSG; return;
     }
     while (*e) e++;
@@ -370,7 +379,7 @@ CCOLD static void c_answered(int right)             /* an answer given: what it 
     if (msg) {
         int tn; const uint8_t *t = c_field(msg == 1 ? CT_RIGHTTXT : CT_WRONGTXT, 0, &tn);
         c_leds(); G.only = 1;
-        if (t) c_show(tn < 24 ? CK_BIG : CK_CARD, t, tn, 0, 0); else c_say(CK_BIG, msg == 1 ? "YES." : "NOT QUITE.", 0, 0);
+        if (t) c_show(tn < 24 ? CK_BIG : CK_CARD, t, tn, 0, 0); else c_say(CK_BIG, msg == 1 ? "Yes." : "Not quite.", 0, 0);
         C.t_end = C.ms + (msg == 1 ? 1400u : 3000u); C.ret = PH_BYE; C.reshow = 0; C.ph = PH_MSG; return;
     }
     c_after(PH_ANSWER);
@@ -394,7 +403,7 @@ CCOLD static void c_event(int kind, int id)          /* a press or a turn, as th
         }
         if (id == BTN_OCT_UP) {
             if (C.ph == PH_END) {
-                if (C.les + 1 >= tpc[6]) { c_msg("THAT WAS\nTHE LAST\nLESSON.", CK_BIG, 2500u, PH_OFF, 0); break; }
+                if (C.les + 1 >= tpc[6]) { c_msg("That was\nthe last\nlesson.", CK_BIG, 2500u, PH_OFF, 0); break; }
                 C.les++; c_lesson_card(0);
             } else c_lesson_begin();
         } else if (C.ph == PH_BEGIN) c_lesson_card(1);
@@ -467,7 +476,7 @@ CCOLD static void course_tick(void)                  /* each round of the interf
             else if (any ? ok : 3 * C.at >= dn) { c_after(PH_DO); break; }
             if (C.need != 255 && (last_notes[C_DRUM] & 15) != C.need && !(held_btn & (1u << BTN_SEQ))) {
                 /* a key played with SEQ not held: it sounded a drum, and boxes would now write that drum */
-                c_pick(C.need); c_msg("THAT PLAYED A DRUM.\nHOLD [SEQ] FIRST.", kind, 2400u, PH_DO, 1); break;
+                c_pick(C.need); c_msg("That played a drum.\nHold [SEQ] first.", kind, 2400u, PH_DO, 1); break;
             }
             /* the lights: what to hold, what is still to press */
             for (int i = 0; 3 * i < dn; i++) {
@@ -490,7 +499,7 @@ CCOLD static void course_tick(void)                  /* each round of the interf
             if (h) { c_show(kind, h, hn, 0, 0); C.hint++; C.t_hint = C.ms + 25000u; }
             else if (d && C.ms >= C.t_hint + 20000u) {
                 c_leds(); G.cap_btn = 1u << BTN_OCT_UP | 1u << BTN_OCT_DOWN; G.led[BTN_OCT_UP] = G.led[BTN_OCT_DOWN] = 5; G.only = 1;
-                c_say(CK_CARD, "STUCK?\nI CAN DO THIS STEP FOR YOU.", "NO", "SHOW ME"); C.ph = PH_STUCK;
+                c_say(CK_CARD, "Stuck?\nI can do this step for you.", "No", "Show me"); C.ph = PH_STUCK;
             }
         }
     } break;

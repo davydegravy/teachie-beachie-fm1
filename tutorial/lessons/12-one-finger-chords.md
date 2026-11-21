@@ -11,45 +11,45 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; chords empty; key A minor; track chords; page TRACKS
-2. **Card:** A CHORD IS SEVERAL NOTES PLAYED TOGETHER, USUALLY THREE. / SLOOP CAN PLAY A WHOLE CHORD FROM ONE KEY.
-   - **OCT+:** GO
-3. **Strip:** PRESS [SEL]: THE KEY PAGE.
+2. **Card:** A chord is several notes played together, usually three. / SLOOP can play a whole chord from one key.
+   - **OCT+:** Go
+3. **Strip:** Press [SEL]: the KEY page.
    - **Do:** press SEL
    - **Until:** page is KEY
-4. **Strip top:** KNOB 3: 1 CLICK RIGHT. / TILES SHOW CHORDS.
+4. **Strip top:** Knob 3: 1 click right. / Tiles show chords.
    - **Do:** turn KNOB 3 right 1
    - **Page:** KEY
-5. **Strip:** ONE KEY, ONE CHORD. PLAY THE BLINKING KEYS.
+5. **Strip:** One key, one chord. Play the blinking keys.
    - **Echo:** C4 A4 E4 B4
-6. **Card:** THOSE FOUR ARE THIS SONG'S CHORDS: A MINOR, F, C AND G. / ONE FOR EACH BAR.
-   - **OCT+:** NEXT
-7. **Strip:** PRESS [PLAY].
+6. **Card:** Those four are this song's chords: A minor, F, C and G. / One for each bar.
+   - **OCT+:** Next
+7. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-8. **Strip:** FOLLOW THE LIGHT: A CHORD FOR EACH BAR. / [OCT+] WHEN READY.
+8. **Strip:** Follow the light: a chord for each bar. / [OCT+] when ready.
    - **Follow:** C4 A4 E4 B4
-   - **OCT+:** READY
-9. **Strip:** PRESS [REC].
+   - **OCT+:** Ready
+9. **Strip:** Press [REC].
    - **Do:** press REC
    - **Until:** recording
-10. **Strip:** PLAY THE FOUR CHORDS, ONE EACH BAR.
+10. **Strip:** Play the four chords, one each bar.
     - **Follow:** C4 A4 E4 B4
     - **Until:** chords has 12 notes or more
     - **Robot:** tap C4, wait 1.5, tap A4, wait 1.5, tap E4, wait 1.5, tap B4
-11. **Strip:** PRESS [REC] TO STOP RECORDING.
+11. **Strip:** Press [REC] to stop recording.
     - **Do:** press REC
     - **Until:** not recording
-12. **Strip:** YOUR CHORDS. LISTEN.
+12. **Strip:** Your chords. Listen.
     - **Wait:** 4 bars
-13. **Card:** KEEP THEM?
-    - **OCT-:** AGAIN → chords empty; go to 9
-    - **OCT+:** KEEP
+13. **Card:** Keep them?
+    - **OCT-:** Again → chords empty; go to 9
+    - **OCT+:** Keep
 14. **Setup:** page TRACKS
-15. **Strip:** PRESS [PLAY] TO STOP.
+15. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-16. **Card:** [SEL], THEN KNOB 3: ONE-FINGER CHORDS. / FOUR CHORDS IN A LOOP: MOST POP SONGS WORK THIS WAY.
-    - **OCT+:** DONE
+16. **Card:** [SEL], then Knob 3: one-finger chords. / Four chords in a loop: most pop songs work this way.
+    - **OCT+:** Done
 
 ## Screens
 

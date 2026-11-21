@@ -12,53 +12,53 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; lead sound FAT LEAD; mute lead; track lead; page TRACKS
-2. **Card:** EVERY SOUND HAS A SHAPE: HOW IT STARTS, HOW LONG IT RINGS, HOW BRIGHT IT IS. / YOU CAN CHANGE ALL THREE.
-   - **OCT+:** GO
-3. **Strip:** PLAY A FEW KEYS. A PLAIN, SHARP SOUND.
+2. **Card:** Every sound has a shape: how it starts, how long it rings, how bright it is. / You can change all three.
+   - **OCT+:** Go
+3. **Strip:** Play a few keys. A plain, sharp sound.
    - **Until:** played 3 keys
    - **Robot:** tap A4 C5 E5
-4. **Strip:** PRESS [ENV].
+4. **Strip:** Press [ENV].
    - **Do:** press ENV
    - **Until:** page is ENV
-5. **Card:** ATK IS THE ATTACK: HOW FAST A NOTE STARTS. / TURN KNOB 1 UP, AND KEEP PLAYING KEYS TO HEAR IT.
-   - **OCT+:** NEXT
-6. **Strip top:** KNOB 1, ATK: UP.
+5. **Card:** ATK is the attack: how fast a note starts. / Turn Knob 1 up, and keep playing keys to hear it.
+   - **OCT+:** Next
+6. **Strip top:** Knob 1, ATK: up.
    - **Do:** turn KNOB 1 right 5
    - **Until:** lead ATK above 50
    - **Page:** ENV
-7. **Reply:** IT FADES IN.
-8. **Card:** REL IS THE RELEASE: HOW LONG A NOTE RINGS AFTER YOU LET GO.
-   - **OCT+:** NEXT
-9. **Strip top:** KNOB 4, REL: UP.
+7. **Reply:** It fades in.
+8. **Card:** REL is the release: how long a note rings after you let go.
+   - **OCT+:** Next
+9. **Strip top:** Knob 4, REL: up.
    - **Do:** turn KNOB 4 right 5
    - **Until:** lead REL above 70
    - **Page:** ENV
-10. **Card:** NOW BRIGHTNESS. THAT IS THE FILTER. / ITS PAGE IS CALLED FLT. / [EDIT] GOES FROM PAGE TO PAGE.
-    - **OCT+:** NEXT
-11. **Strip top:** TAP [EDIT] UNTIL FLT.
+10. **Card:** Now brightness. That is the filter. / Its page is called FLT. / [EDIT] goes from page to page.
+    - **OCT+:** Next
+11. **Strip top:** Tap [EDIT] until FLT.
     - **Do:** press EDIT
     - **Until:** page is FILTER
     - **Robot:** press EDIT, press EDIT, press EDIT, press EDIT, press EDIT, press EDIT
-12. **Strip top:** KNOB 1, CUT: DOWN.
+12. **Strip top:** Knob 1, CUT: down.
     - **Do:** turn KNOB 1 left 5
     - **Until:** lead E4 below 45
     - **Page:** FILTER
-13. **Reply:** DARKER.
-14. **Strip top:** KNOB 1, CUT: UP HIGH.
+13. **Reply:** Darker.
+14. **Strip top:** Knob 1, CUT: up high.
     - **Do:** turn KNOB 1 right 5
     - **Until:** lead E4 above 95
     - **Page:** FILTER
-15. **Reply:** BRIGHTER.
-16. **Strip:** PRESS [HOME], THEN [PLAY].
+15. **Reply:** Brighter.
+16. **Strip:** Press [HOME], then [PLAY].
     - **Do:** press HOME, press PLAY
     - **Until:** page is TRACKS and playing
-17. **Strip:** PLAY YOUR SOUND OVER THE SONG. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
-18. **Strip:** PRESS [PLAY] TO STOP.
+17. **Strip:** Play your sound over the song. / [OCT+] when done.
+    - **OCT+:** Done
+18. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-19. **Card:** [ENV]: KNOB 1 THE START, KNOB 4 THE END. / [EDIT], FLT: KNOB 1 THE BRIGHTNESS.
-    - **OCT+:** DONE
+19. **Card:** [ENV]: Knob 1 the start, Knob 4 the end. / [EDIT], FLT: Knob 1 the brightness.
+    - **OCT+:** Done
 
 ## Screens
 

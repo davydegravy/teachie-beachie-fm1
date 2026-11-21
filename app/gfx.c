@@ -140,6 +140,7 @@ static unsigned px_of(const uint8_t *b, unsigned i, unsigned bpp, unsigned mask)
     return (w >> (16u - bpp - (q & 7u))) & mask;
 }
 /* ---------------------------------------------------------------- text */
+static uint8_t FN;                                       /* how many glyphs the font being drawn has (Teachie Beachie's own have 95: all of ASCII, small letters too) */
 static int glyph_of(const char **ps)
 {
     const uint8_t *s = (const uint8_t *)*ps;
@@ -154,6 +155,7 @@ static int glyph_of(const char **ps)
     if (c == 0xE2 && s[0] && s[1]) { *ps = (const char *)(s + 2); return '-' - 32; }           /* − – —: a dash */
     if (c >= 0x80) { while ((*s & 0xC0) == 0x80) s++; *ps = (const char *)s; return '?' - 32; }
     *ps = (const char *)s;
+    if (FN > 77 && c >= 32 && c < 127) return c - 32;    /* (Teachie Beachie: a font with all of ASCII) */
     switch (c) {                                         /* the few small letters the font has (chord names) */
     case 'm': return 71; case 'b': return 72; case 'd': return 73; case 'i': return 74; case 's': return 75; case 'u': return 76;
     default: break;
@@ -168,6 +170,7 @@ static int cx(int v) { return CX == 100 ? v : (v * CX + 50) / 100; }
 int gfx_text_w(const gfx_font *f, const char *s)
 {
     int w = 0, gap = 0;
+    FN = f->n;
     while (*s) { int k = glyph_of(&s); w += gap + cx(f->g[k].adv); gap = k == 0 && SP < 0 ? 0 : SP; }   /* (a space keeps its width: words stay apart when squeezed) */
     return w;
 }
@@ -178,6 +181,7 @@ int gfx_text(const gfx_font *f, int x, int y, const char *s, uint16_t c)
     int top = y - f->cap_top;                            /* the em box's top */
     if (!(top - 8 < TY + TH && top + f->height + 8 > TY)) return x + gfx_text_w(f, s);   /* (accents rise above) */
     const unsigned bpp = f->bpp, mask = (1u << bpp) - 1u, scale = (512u + mask / 2u) / mask;   /* to 0..32 (x 16) */
+    FN = f->n;
     while (*s) {
         int k = glyph_of(&s);
         const gfx_glyph *g = &f->g[k];

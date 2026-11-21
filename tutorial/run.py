@@ -46,11 +46,11 @@ def begin(teacher, fm1, i):
     None to go back to the start card"""
     while True:
         l = LESSONS[i]
-        if teacher.ask("LESSON %d\n%s" % (l.number, l.title.upper()), "LESSONS", "BEGIN", big=True) == "right": return i
+        if teacher.ask("^Lesson %d\n%s" % (l.number, l.title), "Lessons", "Begin", big=True) == "right": return i
         fm1.take(buttons=[BTN["OCT_DOWN"], BTN["OCT_UP"]], knobs=[KNOB["SELECT"]]); fm1.lights({BTN["OCT_DOWN"]: BLINK, BTN["OCT_UP"]: BLINK}, only=True)
         shown = None
         while True:
-            if shown != i: l = LESSONS[i]; fm1.card("^< TURN [SELECT] >\nLESSON %d\n%s" % (l.number, l.title.upper()), "HOME", "BEGIN", big=True); shown = i
+            if shown != i: l = LESSONS[i]; fm1.card("^< Turn [SELECT] >\n^Lesson %d\n%s" % (l.number, l.title), "Home", "Begin", big=True); shown = i
             got = None
             for kind, which in fm1.events():
                 if kind in ("knob_right", "knob_left") and which == KNOB["SELECT"]: i = max(0, min(len(LESSONS) - 1, i + (1 if kind == "knob_right" else -1)))
@@ -95,7 +95,7 @@ def course(fm1, link, i):
         if i is None: return
         progress(i); lesson(fm1, link, i)
         if "--once" in sys.argv: return
-        if i + 1 >= len(LESSONS): teacher.reply("THAT WAS\nTHE LAST\nLESSON.", hold=2.5); return
+        if i + 1 >= len(LESSONS): teacher.reply("That was\nthe last\nlesson.", hold=2.5); return
         i += 1; progress(i)
 
 def serve():

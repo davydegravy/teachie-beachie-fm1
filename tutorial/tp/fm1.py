@@ -133,7 +133,7 @@ class FM1:
     def off(self): return self.guide(0)
     def card(self, words, left="", right="", big=False, strip=0):
         """strip: 0 a whole card, 1 a band at the top, 2 at the bottom, 3 a tag in the top left corner (the page stays live around it)"""
-        t = lambda s: s.upper().encode("ascii", "replace") + b"\0"
+        t = lambda s: s.encode("ascii", "replace") + b"\0"
         return self.guide(1, bytes([1 | (2 if big else 0) | strip << 2]) + t(words) + t(left) + t(right))
     def no_card(self): return self.guide(1, bytes([0, 0, 0, 0]))
     def lights(self, how=None, only=False):

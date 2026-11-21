@@ -12,24 +12,24 @@
 ## Steps
 
 1. **Setup:** new project; page TRACKS
-2. **Card:** THE FINAL TEST. / AN EMPTY PROJECT. / NO BLINKING LIGHTS. NO HINTS.
-   - **OCT+:** GO
-3. **Card:** MAKE A WHOLE SONG: / 3 PAGES OR MORE. / 4 TRACKS OR MORE. / SOME EFFECTS. / A SONG: 3 PAGES IN A ROW, OR MORE.
-   - **OCT+:** NEXT
-4. **Card:** WHEN YOUR SONG IS DONE, PRESS [SAVE] TWICE. / THE CORNER OF THE SCREEN REMINDS YOU: / [SAVE] X2
-   - **OCT+:** START
-5. **Strip corner:** [SAVE] X2
+2. **Card:** The final test. / An empty project. / No blinking lights. No hints.
+   - **OCT+:** Go
+3. **Card:** Make a whole song: / 3 pages or more. / 4 tracks or more. / Some effects. / A song: 3 pages in a row, or more.
+   - **OCT+:** Next
+4. **Card:** When your song is done, press [SAVE] twice. / The corner of the screen reminds you: / [SAVE] x2
+   - **OCT+:** Start
+5. **Strip corner:** [SAVE] x2
    - **Until:** pressed SAVE twice
    - **Robot:** press SEQ, tap A3, hold SEQ, tap box 1 5, let go, turn ALGORITHM right 1, tap A4, hold SEQ, tap box 3, let go, turn ALGORITHM right 1, tap C5, hold SEQ, tap box 1, let go, turn ALGORITHM right 2, tap box 1, hold SEQ, tap box 1 5 9 13, let go, press HOME, hold SAVE, long box 2, let go, wait 2, hold SAVE, long box 3, let go, wait 2, press SAVE, wait 0.8, turn SELECT right 1, turn KNOB 4 right 3, wait 0.3, press HOME, wait 0.6, press SAVE twice, wait 1.5
-6. **Card:** IS YOUR SONG FINISHED? / THE GOAL WAS 3 PAGES, 4 TRACKS, AND A SONG OF 3 PAGES IN A ROW. / YOU DECIDE.
-   - **OCT-:** NOT YET → go to 5
-   - **OCT+:** YES
+6. **Card:** Is your song finished? / The goal was 3 pages, 4 tracks, and a song of 3 pages in a row. / You decide.
+   - **OCT-:** Not yet → go to 5
+   - **OCT+:** Yes
 7. **Setup:** song mode on; play
-8. **Strip:** YOUR SONG. / [OCT+] WHEN YOU HAVE HEARD IT.
-   - **OCT+:** DONE
+8. **Strip:** Your song. / [OCT+] when you have heard it.
+   - **OCT+:** Done
 9. **Setup:** stop
-10. **Card:** THE COURSE IS DONE. / YOU CAN MAKE A SONG FROM NOTHING, ON YOUR OWN. / THE FM-1 IS YOURS NOW.
-    - **OCT+:** DONE
+10. **Card:** The course is done. / You can make a song from nothing, on your own. / The FM-1 is yours now.
+    - **OCT+:** Done
 
 ## Screens
 

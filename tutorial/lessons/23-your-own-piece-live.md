@@ -10,34 +10,34 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; track drums; page STEPS
-2. **Card:** PART 3 ENDS WITH A SHOW. / YOU BUILD A SECOND PAGE AND A FILL. / THEN YOU PLAY IT ALL LIVE.
-   - **OCT+:** GO
-3. **Card:** GO TO A PAGE: [SAVE] + A KEY. / A FILL NOTE: [SEQ] + A KEY + [OCT+]. / A FILL: [GLO] + [KEY 12]. / EFFECTS: [FX] + A KEY.
-   - **OCT+:** START
-4. **Strip:** HOLD [SAVE], HOLD [2]. / LET GO WHEN THE TOP / SAYS COPY.
+2. **Card:** Part 3 ends with a show. / You build a second page and a fill. / Then you play it all live.
+   - **OCT+:** Go
+3. **Card:** Go to a page: [SAVE] + a key. / A fill note: [SEQ] + a key + [OCT+]. / A fill: [GLO] + [KEY 12]. / Effects: [FX] + a key.
+   - **OCT+:** Start
+4. **Strip:** Hold [SAVE], hold [2]. / Let go when the top / says COPY.
    - **Do:** hold SAVE, long box 2
    - **Until:** 2 patterns or more
-   - **Hint:** A SHORT TAP ONLY GOES TO PAGE 2. HOLD BOTH LONGER.
+   - **Hint:** A short tap only goes to page 2. Hold both longer.
    - **Robot:** hold SAVE, long box 2, let go, wait 1.5
-5. **Strip:** YOU ARE ON PAGE 2. CHANGE IT. / [OCT+] WHEN READY.
-   - **OCT+:** READY
+5. **Strip:** You are on page 2. Change it. / [OCT+] when ready.
+   - **OCT+:** Ready
    - **Robot:** tap box 1, hold SEQ, tap box 3, let go
-6. **Strip:** NOW MARK ONE NOTE AS A FILL NOTE.
+6. **Strip:** Now mark one note as a fill note.
    - **Until:** drums has 1 fill notes or more
-   - **Hint:** HOLD [SEQ] + HOLD A KEY, THEN PRESS [OCT+] ONCE.
+   - **Hint:** Hold [SEQ] + hold a key, then press [OCT+] once.
    - **Robot:** tap box 11, hold SEQ, hold box 12, press OCT+, let go
-7. **Card:** NOW PLAY IT LIVE. / CHANGE PAGES, DROP IN FILLS, PLAY THE EFFECTS. / A MINUTE OR SO, LIKE A SHOW.
-   - **OCT+:** GO
+7. **Card:** Now play it live. / Change pages, drop in fills, play the effects. / A minute or so, like a show.
+   - **OCT+:** Go
 8. **Setup:** play
-9. **Strip:** YOU ARE ON. / [OCT+] WHEN THE SHOW IS OVER.
-   - **OCT+:** THE END
+9. **Strip:** You are on. / [OCT+] when the show is over.
+   - **OCT+:** The end
 10. **Setup:** stop
-11. **Strip:** SAVE IT: PRESS [SAVE] TWICE.
+11. **Strip:** Save it: press [SAVE] twice.
     - **Do:** press SAVE twice
     - **Until:** says PROJECT SAVED
 12. **Setup:** page TRACKS
-13. **Card:** PART 3 IS DONE. / YOU CAN PLAY THE FM-1 LIVE.
-    - **OCT+:** DONE
+13. **Card:** Part 3 is done. / You can play the FM-1 live.
+    - **OCT+:** Done
 
 ## Screens
 

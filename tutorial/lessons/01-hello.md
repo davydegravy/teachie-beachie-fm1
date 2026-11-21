@@ -10,44 +10,44 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track lead
-2. **Card:** A BLINKING LIGHT MEANS: PRESS THIS. / TRY IT NOW.
-   - **OCT+:** GO
-3. **Card:** A NAME IN A FRAME / IS A BUTTON: [OCT+] / PRESS: DOWN AND UP. / HOLD: KEEP IT DOWN. / [OCT+] IS BLINKING. / PRESS IT.
-   - **OCT+:** NEXT
-4. **Card:** A NUMBER IN A FRAME / IS A WHITE KEY. / COUNT FROM THE LEFT. / [KEY 5], OR JUST [5], / IS BLINKING. / TAP IT.
+2. **Card:** A blinking light means: press this. / Try it now.
+   - **OCT+:** Go
+3. **Card:** A name in a frame / is a button: [OCT+] / Press: down and up. / Hold: keep it down. / [OCT+] is blinking. / Press it.
+   - **OCT+:** Next
+4. **Card:** A number in a frame / is a white key. / Count from the left. / [KEY 5], or just [5], / is blinking. / Tap it.
    - **Echo:** box 5
-5. **Reply:** GOOD.
-6. **Card:** WE MAKE OUR SONGS IN SLOOP. / SLOOP HAS 5 TRACKS WITH DIFFERENT INSTRUMENTS.
-   - **OCT+:** NEXT
-7. **Strip:** THIS IS SLOOP. / PRESS [PLAY].
+5. **Reply:** Good.
+6. **Card:** We make our songs in SLOOP. / SLOOP has 5 tracks with different instruments.
+   - **OCT+:** Next
+7. **Strip:** This is SLOOP. / Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-8. **Strip:** FIVE TRACKS. / ONE SONG. LISTEN.
+8. **Strip:** Five tracks. / One song. Listen.
    - **Wait:** 4 bars
-9. **Strip:** [PLAY] STOPS IT TOO. / PRESS [PLAY].
+9. **Strip:** [PLAY] stops it too. / Press [PLAY].
    - **Do:** press PLAY
    - **Until:** stopped
-10. **Reply:** GOOD.
-11. **Card:** THE MELODY GAME / LISTEN. / THEN PLAY IT BACK.
+10. **Reply:** Good.
+11. **Card:** The melody game / Listen. / Then play it back.
     - **Play:** A4 C5 E5
     - **Echo:** A4 C5 E5
-12. **Reply:** GOOD.
-13. **Card:** THE MELODY GAME / LISTEN. / THEN PLAY IT BACK.
+12. **Reply:** Good.
+13. **Card:** The melody game / Listen. / Then play it back.
     - **Play:** A4 B4 C5 D5 E5
     - **Echo:** A4 B4 C5 D5 E5
-14. **Reply:** GOOD.
-15. **Card:** ONE MORE / LISTEN. / THEN PLAY IT BACK.
+14. **Reply:** Good.
+15. **Card:** One more / Listen. / Then play it back.
     - **Play:** RUN fast
-16. **Card:** YOUR TURN / PLAY IT BACK.
+16. **Card:** Your turn / Play it back.
     - **Echo:** A3 C4
 17. **Big:** FASTER / FASTER / FASTER
     - **Keys:** silent
     - **Do:** tap E4 or any key
 18. **Play:** RUN fast
     - **Keys:** silent
-19. **Reply:** NICE.
-20. **Card:** HA, THAT WAS TOO FAST. NOBODY CAN PLAY THAT BY HAND. / A SEQUENCER CAN.
-    - **OCT+:** NEXT
+19. **Reply:** Nice.
+20. **Card:** Ha, that was too fast. Nobody can play that by hand. / A sequencer can.
+    - **OCT+:** Next
 
 ## Screens
 

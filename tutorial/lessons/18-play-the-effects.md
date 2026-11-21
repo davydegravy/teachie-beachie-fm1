@@ -11,49 +11,49 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track lead; page TRACKS
-2. **Card:** SOME EFFECTS ARE PLAYED LIKE NOTES. / HOLD [FX], AND EVERY KEY IS AN EFFECT FOR AS LONG AS YOU HOLD IT.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY].
+2. **Card:** Some effects are played like notes. / Hold [FX], and every key is an effect for as long as you hold it.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** HOLD [FX] AND HOLD [KEY 7]: STOP.
+4. **Strip:** Hold [FX] and hold [KEY 7]: STOP.
    - **Do:** hold FX, long box 7
    - **Until:** punch on
-   - **Hint:** KEEP HOLDING [FX], THEN HOLD THE BLINKING KEY.
-5. **Card:** WHILE [FX] IS HELD, / THE SCREEN IS A MAP. / 4 BRIGHT ROWS OF 4: / THE 16 WHITE KEYS. / THE DIM NAMES / BETWEEN THE ROWS: / THE BLACK KEYS.
-   - **OCT+:** NEXT
-6. **Strip:** HOLD [FX] + [3]: 1/16. / A STUTTER.
+   - **Hint:** Keep holding [FX], then hold the blinking key.
+5. **Card:** While [FX] is held, / the screen is a map. / 4 bright rows of 4: / the 16 white keys. / The dim names / between the rows: / the black keys.
+   - **OCT+:** Next
+6. **Strip:** Hold [FX] + [3]: 1/16. / A stutter.
    - **Do:** hold FX, long box 3
    - **Until:** punch on
-7. **Strip:** HOLD [FX] + [9]: LP. / A FILTER CLOSES.
+7. **Strip:** Hold [FX] + [9]: LP. / A filter closes.
    - **Do:** hold FX, long box 9
    - **Until:** punch on
-8. **Strip:** HOLD [FX] + [15]: ECHO.
+8. **Strip:** Hold [FX] + [15]: ECHO.
    - **Do:** hold FX, long box 15
    - **Until:** punch on
-9. **Strip:** HOLD [FX] + [6]: REV. / BACKWARDS.
+9. **Strip:** Hold [FX] + [6]: REV. / Backwards.
    - **Do:** hold FX, long box 6
    - **Until:** punch on
-10. **Strip:** NOW FIND CRUSH / ON THE MAP. PLAY IT.
+10. **Strip:** Now find CRUSH / on the map. Play it.
     - **Until:** punch on
-    - **Hint:** CRUSH IS IN ROW 3, THE LAST ONE: HOLD [FX] + [12].
+    - **Hint:** CRUSH is in row 3, the last one: hold [FX] + [12].
     - **Robot:** hold FX, long box 12
-11. **Card:** TIRED OF HOLDING [FX]? / LOCK IT: THE KEYS STAY EFFECTS AND YOU CAN LET GO. / THE LOCK IS [FX] AND [HOME].
-    - **OCT+:** NEXT
-12. **Strip:** HOLD [FX], TAP [HOME], / THEN LET GO OF BOTH.
+11. **Card:** Tired of holding [FX]? / Lock it: the keys stay effects and you can let go. / The lock is [FX] and [HOME].
+    - **OCT+:** Next
+12. **Strip:** Hold [FX], tap [HOME], / then let go of both.
     - **Do:** hold FX, press HOME
     - **Until:** says LOCK
-13. **Strip:** PLAY THE EFFECTS. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
+13. **Strip:** Play the effects. / [OCT+] when done.
+    - **OCT+:** Done
     - **Robot:** long box 4, long box 14
-14. **Strip:** PRESS [FX] ONCE TO UNLOCK.
+14. **Strip:** Press [FX] once to unlock.
     - **Do:** press FX
     - **Until:** pressed FX
-15. **Strip:** PRESS [PLAY] TO STOP.
+15. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-16. **Card:** [FX] AND A KEY: AN EFFECT WHILE YOU HOLD IT. / [FX] AND [HOME]: LOCKED. / [FX] AGAIN: UNLOCKED.
-    - **OCT+:** DONE
+16. **Card:** [FX] and a key: an effect while you hold it. / [FX] and [HOME]: locked. / [FX] again: unlocked.
+    - **OCT+:** Done
 
 ## Screens
 

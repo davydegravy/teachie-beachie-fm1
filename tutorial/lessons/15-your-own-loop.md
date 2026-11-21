@@ -11,34 +11,34 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; bass empty; lead empty; chords empty; pad empty; drums empty; track drums; page STEPS
-2. **Card:** PART 2 ENDS WITH A LOOP OF YOUR OWN. / DRUMS FIRST. / THEN AT LEAST ONE MORE TRACK.
-   - **OCT+:** GO
-3. **Card:** BOXES: [SEQ] + A KEY. / LIVE: [REC]. / A TRACK: [ALGORITHM]. / UNDO: [EDIT] + [OCT-].
-   - **OCT+:** START
-4. **Strip:** DRUMS FIRST. / [OCT+] WHEN THE BEAT IS READY.
-   - **OCT+:** READY
+2. **Card:** Part 2 ends with a loop of your own. / Drums first. / Then at least one more track.
+   - **OCT+:** Go
+3. **Card:** Boxes: [SEQ] + a key. / Live: [REC]. / A track: [ALGORITHM]. / Undo: [EDIT] + [OCT-].
+   - **OCT+:** Start
+4. **Strip:** Drums first. / [OCT+] when the beat is ready.
+   - **OCT+:** Ready
    - **Until:** drums has 4 notes or more
-   - **Hint:** NOT YET. THE BEAT NEEDS 4 HITS OR MORE.
+   - **Hint:** Not yet. The beat needs 4 hits or more.
    - **Robot:** tap box 1, hold SEQ, tap box 1 5 9 13, let go
-5. **Strip:** NOW A BASS LINE, CHORDS OR A TUNE. / [OCT+] WHEN READY.
-   - **OCT+:** READY
+5. **Strip:** Now a bass line, chords or a tune. / [OCT+] when ready.
+   - **OCT+:** Ready
    - **Until:** 2 tracks or more
-   - **Hint:** NOT YET. WRITE SOMETHING ON A SECOND TRACK FIRST.
+   - **Hint:** Not yet. Write something on a second track first.
    - **Robot:** turn ALGORITHM right 1, tap A3, hold SEQ, tap box 1 4 7, let go
-6. **Card:** WANT THE REST OF THE BAND? / THE TRACKS THAT ARE STILL EMPTY CAN BE FILLED IN FOR YOU.
-   - **OCT-:** NO
-   - **OCT+:** YES → fill empty tracks
+6. **Card:** Want the rest of the band? / The tracks that are still empty can be filled in for you.
+   - **OCT-:** No
+   - **OCT+:** Yes → fill empty tracks
 7. **Setup:** play
-8. **Strip:** YOUR LOOP. LISTEN.
+8. **Strip:** Your loop. Listen.
    - **Wait:** 4 bars
-9. **Strip:** KEEP WORKING IF YOU LIKE. / [OCT+] WHEN DONE.
-   - **OCT+:** DONE
-10. **Strip:** SAVE IT: PRESS [SAVE] TWICE.
+9. **Strip:** Keep working if you like. / [OCT+] when done.
+   - **OCT+:** Done
+10. **Strip:** Save it: press [SAVE] twice.
     - **Do:** press SAVE twice
     - **Until:** says PROJECT SAVED
 11. **Setup:** page TRACKS; stop
-12. **Card:** PART 2 IS DONE. / YOU CAN BUILD A LOOP: DRUMS, BASS, CHORDS AND A TUNE.
-    - **OCT+:** DONE
+12. **Card:** Part 2 is done. / You can build a loop: drums, bass, chords and a tune.
+    - **OCT+:** Done
 
 ## Screens
 

@@ -10,28 +10,28 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; mute bass lead chords pad; track drums; page STEPS
-2. **Card:** YOUR TURN. / AN EMPTY DRUM TRACK AND NO BLINKING LIGHTS. / MAKE A BEAT OF YOUR OWN.
-   - **OCT+:** GO
-3. **Card:** PICK A DRUM: PLAY ITS KEY. / [SEQ] + A KEY: A BOX FILLS. AGAIN: IT EMPTIES. / [PLAY]: HEAR IT. / [EDIT] + [OCT-]: UNDO.
-   - **OCT+:** START
-4. **Strip:** MAKE YOUR BEAT. / [OCT+] WHEN IT IS READY.
-   - **OCT+:** READY
+2. **Card:** Your turn. / An empty drum track and no blinking lights. / Make a beat of your own.
+   - **OCT+:** Go
+3. **Card:** Pick a drum: play its key. / [SEQ] + a key: a box fills. Again: it empties. / [PLAY]: hear it. / [EDIT] + [OCT-]: undo.
+   - **OCT+:** Start
+4. **Strip:** Make your beat. / [OCT+] when it is ready.
+   - **OCT+:** Ready
    - **Until:** drums has 6 notes or more
-   - **Hint:** NOT YET. A BEAT NEEDS 6 HITS OR MORE.
+   - **Hint:** Not yet. A beat needs 6 hits or more.
    - **Page:** STEPS
    - **Robot:** tap box 1, hold SEQ, tap box 1 5 9 13, let go, tap box 3, hold SEQ, tap box 5 13, let go
 5. **Setup:** unmute; play
-6. **Strip:** YOUR BEAT. / THE BAND JOINS IN.
+6. **Strip:** Your beat. / The band joins in.
    - **Wait:** 4 bars
-7. **Card:** HAPPY WITH IT?
-   - **OCT-:** CHANGE IT → go to 4
-   - **OCT+:** KEEP IT
-8. **Strip:** SAVE IT: PRESS [SAVE] TWICE.
+7. **Card:** Happy with it?
+   - **OCT-:** Change it → go to 4
+   - **OCT+:** Keep it
+8. **Strip:** Save it: press [SAVE] twice.
    - **Do:** press SAVE twice
    - **Until:** says PROJECT SAVED
 9. **Setup:** page TRACKS; stop
-10. **Card:** PART 1 IS DONE. / YOU CAN MAKE A BEAT. / NEXT: THE REST OF THE BAND.
-    - **OCT+:** DONE
+10. **Card:** Part 1 is done. / You can make a beat. / Next: the rest of the band.
+    - **OCT+:** Done
 
 ## Screens
 

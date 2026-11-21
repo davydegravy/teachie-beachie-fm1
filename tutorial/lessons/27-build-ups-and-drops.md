@@ -12,42 +12,42 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums fill SNARE on 13 14 15 16; mute lead chords pad; master filter -70; track drums; page TRACKS
-2. **Card:** TAKING TRACKS AWAY IS AS STRONG AS ADDING THEM. / A BUILD-UP ADDS A LITTLE AT A TIME. / A DROP IS WHEN IT ALL ARRIVES.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY]. BASS AND DRUMS, BEHIND A WALL.
+2. **Card:** Taking tracks away is as strong as adding them. / A build-up adds a little at a time. / A drop is when it all arrives.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY]. Bass and drums, behind a wall.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip top:** [FX] AND KNOB 1 RIGHT UNTIL FILT SAYS OFF.
+4. **Strip top:** [FX] and Knob 1 right until FILT says OFF.
    - **Do:** hold FX, turn KNOB 1 right 3
    - **Until:** master filter is 0
-   - **Hint:** HOLD [FX]. FILT IS THE FIRST DIAL BELOW.
-5. **Strip:** BRING IN THE PAD: [GLO] AND [KEY 4].
+   - **Hint:** Hold [FX]. FILT is the first dial below.
+5. **Strip:** Bring in the pad: [GLO] and [KEY 4].
    - **Do:** hold GLO, tap box 4
    - **Until:** pad is not muted
-6. **Strip:** THE CHORDS: [GLO] AND [3].
+6. **Strip:** The chords: [GLO] and [3].
    - **Do:** hold GLO, tap box 3
    - **Until:** chords is not muted
-7. **Strip:** ANNOUNCE IT WITH A FILL: [GLO] AND [12].
+7. **Strip:** Announce it with a fill: [GLO] and [12].
    - **Do:** hold GLO, tap box 12
-8. **Strip:** THE DROP: [GLO] AND [2]. THE TUNE ARRIVES.
+8. **Strip:** The drop: [GLO] and [2]. The tune arrives.
    - **Do:** hold GLO, tap box 2
    - **Until:** lead is not muted
-9. **Reply:** THAT IS A DROP.
-10. **Card:** NOW THE OTHER WAY. / TAKE THE DRUMS OUT FOR A MOMENT, THEN BRING THEM BACK ON A STRONG BEAT.
-    - **OCT+:** NEXT
-11. **Strip:** [GLO] AND [5]: NO DRUMS.
+9. **Reply:** That is a drop.
+10. **Card:** Now the other way. / Take the drums out for a moment, then bring them back on a strong beat.
+    - **OCT+:** Next
+11. **Strip:** [GLO] and [5]: no drums.
     - **Do:** hold GLO, tap box 5
     - **Until:** drums is muted
-12. **Strip:** WAIT FOR IT ... THEN [5] AGAIN.
+12. **Strip:** Wait for it ... then [5] again.
     - **Do:** hold GLO, tap box 5
     - **Until:** nothing muted
-13. **Strip top:** MUTES, FILLS, FILTER. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
-14. **Strip:** PRESS [PLAY] TO STOP.
+13. **Strip top:** Mutes, fills, filter. / [OCT+] when done.
+    - **OCT+:** Done
+14. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-15. **Card:** BUILD: ADD A LITTLE AT A TIME. / DROP: EVERYTHING AT ONCE. / A GAP MAKES THE RETURN HIT HARDER.
-    - **OCT+:** DONE
+15. **Card:** Build: add a little at a time. / Drop: everything at once. / A gap makes the return hit harder.
+    - **OCT+:** Done
 
 ## Screens
 

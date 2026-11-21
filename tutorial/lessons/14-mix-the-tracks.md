@@ -10,36 +10,36 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; bass level 100; lead level 100; chords level 100; pad level 100; drums level 100; track bass; page TRACKS
-2. **Card:** IF EVERYONE SHOUTS, NOBODY IS HEARD. / A MIX GIVES EACH TRACK ITS OWN LOUDNESS.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY]. EVERY TRACK IS AT FULL.
+2. **Card:** If everyone shouts, nobody is heard. / A mix gives each track its own loudness.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY]. Every track is at full.
    - **Do:** press PLAY
    - **Until:** playing
    - **Wait:** 2 bars
-4. **Card:** THE PAD IS A CUSHION. IT BELONGS AT THE BACK. / CHOOSE IT, THEN TURN KNOB 2: ITS LEVEL.
-   - **OCT+:** NEXT
-5. **Strip:** [ALGORITHM] TO TRACK 4: THE PAD.
+4. **Card:** The pad is a cushion. It belongs at the back. / Choose it, then turn Knob 2: its level.
+   - **OCT+:** Next
+5. **Strip:** [ALGORITHM] to track 4: the pad.
    - **Do:** turn ALGORITHM right 3
    - **Until:** track is pad
-6. **Strip top:** KNOB 2 DOWN TO 40.
+6. **Strip top:** Knob 2 down to 40.
    - **Do:** turn KNOB 2 left 5
    - **Until:** pad level below 46
    - **Page:** TRACKS
-7. **Strip:** [ALGORITHM] TO TRACK 3: THE CHORDS.
+7. **Strip:** [ALGORITHM] to track 3: the chords.
    - **Do:** turn ALGORITHM left 1
    - **Until:** track is chords
-8. **Strip top:** KNOB 2 DOWN TO 70.
+8. **Strip top:** Knob 2 down to 70.
    - **Do:** turn KNOB 2 left 5
    - **Until:** chords level below 76
    - **Page:** TRACKS
-9. **Strip:** SET ALL FIVE BY EAR. / [OCT+] WHEN IT SOUNDS RIGHT.
-   - **OCT+:** DONE
+9. **Strip:** Set all five by ear. / [OCT+] when it sounds right.
+   - **OCT+:** Done
    - **Robot:** turn KNOB 2 left 3
-10. **Strip:** PRESS [PLAY] TO STOP.
+10. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-11. **Card:** A GOOD MIX: DRUMS AND BASS STRONG, THE TUNE CLEAR, CHORDS AND PAD BEHIND.
-    - **OCT+:** DONE
+11. **Card:** A good mix: drums and bass strong, the tune clear, chords and pad behind.
+    - **OCT+:** Done
 
 ## Screens
 

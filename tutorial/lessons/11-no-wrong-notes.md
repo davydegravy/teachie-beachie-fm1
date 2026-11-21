@@ -12,53 +12,53 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; mute lead; track lead; page TRACKS
-2. **Card:** SOME NOTES FIT A SONG. SOME DON'T. / THE ONES THAT FIT ARE CALLED ITS KEY.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY].
+2. **Card:** Some notes fit a song. Some don't. / The ones that fit are called its key.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** PLAY ONLY BLACK KEYS FOR A WHILE.
+4. **Strip:** Play only black keys for a while.
    - **Until:** played 4 keys
    - **Robot:** tap F#3 G#3 A#3 C#4
-5. **Reply:** SOUR.
-6. **Strip:** NOW ONLY WHITE KEYS. ANY OF THEM.
+5. **Reply:** Sour.
+6. **Strip:** Now only white keys. Any of them.
    - **Until:** played 4 keys
    - **Robot:** tap A4 C5 D5 E5
-7. **Card:** THEY ALL FIT. / THIS SONG IS IN THE KEY OF A MINOR, AND A MINOR IS EXACTLY THE WHITE KEYS.
-   - **OCT+:** NEXT
-8. **Card:** SLOOP CAN LOCK THE KEYBOARD TO A KEY. / FIRST TELL IT WHICH KEY.
-   - **OCT+:** NEXT
-9. **Strip:** HOLD [SEL] AND TAP AN A.
+7. **Card:** They all fit. / This song is in the key of A minor, and A minor is exactly the white keys.
+   - **OCT+:** Next
+8. **Card:** SLOOP can lock the keyboard to a key. / First tell it which key.
+   - **OCT+:** Next
+9. **Strip:** Hold [SEL] and tap an A.
    - **Do:** hold SEL, tap A4
    - **Until:** says KEY A
-10. **Strip:** PRESS [SEL]: THE KEY PAGE.
+10. **Strip:** Press [SEL]: the KEY page.
     - **Do:** press SEL
     - **Until:** page is KEY
-11. **Strip top:** KNOB 2 RIGHT UNTIL / SCALE SAYS MIN.
+11. **Strip top:** Knob 2 right until / SCALE says MIN.
     - **Do:** turn KNOB 2 right 2
     - **Page:** KEY
-    - **Hint:** TWO CLICKS RIGHT. SCALE IS THE 2ND DIAL.
-12. **Strip top:** KNOB 4: ONE CLICK RIGHT. SNAP.
+    - **Hint:** Two clicks right. SCALE is the 2nd dial.
+12. **Strip top:** Knob 4: one click right. SNAP.
     - **Do:** turn KNOB 4 right 1
     - **Page:** KEY
-13. **Card:** MIN IS THE MINOR SCALE. / SNAP PULLS EVERY KEY ONTO IT. / THE BLACK KEYS CAN'T GO WRONG NOW.
-    - **OCT+:** NEXT
-14. **Strip:** PLAY THE BLACK KEYS AGAIN.
+13. **Card:** MIN is the minor scale. / SNAP pulls every key onto it. / The black keys can't go wrong now.
+    - **OCT+:** Next
+14. **Strip:** Play the black keys again.
     - **Until:** played 4 keys
     - **Robot:** tap F#3 G#3 A#3 C#4
-15. **Reply:** NO SOUR NOTES.
-16. **Strip:** FOLLOW THE LIGHTS: A TUNE IN A MINOR.
+15. **Reply:** No sour notes.
+16. **Strip:** Follow the lights: a tune in A minor.
     - **Echo:** A4 C5 D5 E5 E5 D5 C5 A4
-17. **Strip:** NOW MAKE UP YOUR OWN. / [OCT+] WHEN DONE.
-    - **OCT+:** DONE
-18. **Strip:** PRESS [HOME].
+17. **Strip:** Now make up your own. / [OCT+] when done.
+    - **OCT+:** Done
+18. **Strip:** Press [HOME].
     - **Do:** press HOME
     - **Until:** page is TRACKS
-19. **Strip:** PRESS [PLAY] TO STOP.
+19. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-20. **Card:** A KEY IS A FAMILY OF NOTES. / [SEL] AND A KEY SETS IT. / SNAP KEEPS YOU INSIDE IT.
-    - **OCT+:** DONE
+20. **Card:** A key is a family of notes. / [SEL] and a key sets it. / SNAP keeps you inside it.
+    - **OCT+:** Done
 
 ## Screens
 

@@ -9,7 +9,8 @@ lessons' words and what each step asks for, as small numbered instructions the f
 course"). The numbers are kept in one place, here; `--header` writes them as app/tp_course.h for the firmware.
 
 The pack (every number little-endian):
-    "TPC1"  u16 size  u8 lessons  u8 clip sets  u16 lesson offsets...  u16 clip-set offsets...
+    "TPC2"  u16 size  u8 lessons  u8 clip sets  u16 lesson offsets...  u16 clip-set offsets...  u16 small font, u16 large font
+    (the two fonts last, each from an even byte: assets/fonts/lessons-font.bin, made by tools/mklessonfont.py)
   a lesson:    u8 number, u8 steps, its title, 0, then its steps
   a step:      u16 the bytes that follow, u8 kind, u8 flags (1: beginners only), then fields: tag, length, bytes
   a clip set (a song's section, or one bar of it, ready to go into patterns):
@@ -190,7 +191,7 @@ class Pack:
         else: f += field("TEXT", L.words(s.text).encode("ascii"))
         for k, v in s.subs:
             if k in ("OCT-", "OCT+"):
-                label, _, eff = v.partition("→"); f += field("LEFT" if k == "OCT-" else "RIGHT", s0(label.strip().upper()) + self.effect(eff.strip(), song))
+                label, _, eff = v.partition("→"); f += field("LEFT" if k == "OCT-" else "RIGHT", s0(label.strip()) + self.effect(eff.strip(), song))
             elif k == "Do": f += field("DO", self.do(v, lesson.phrases))
             elif k == "Until": f += field("UNTIL", self.until(v))
             elif k == "Hint": f += field("HINT", L.words(v).encode("ascii"))
@@ -214,7 +215,7 @@ class Pack:
     def lesson(self, l):
         m = re.search(r"song (.+?),? section", " ".join(s.text for s in l.steps if s.kind.lower() == "setup").lower())
         song = m.group(1).replace(" ", "-") if m else "house-one"
-        out = bytes([l.number, len(l.steps)]) + s0(l.title.upper())
+        out = bytes([l.number, len(l.steps)]) + s0(l.title)
         for s in l.steps:
             try: out += self.step(s, l, song)
             except (Cant, KeyError, ValueError, L.Bad) as e: raise Cant("lesson %d step %d: %s" % (l.number, s.n, e))
@@ -222,10 +223,15 @@ class Pack:
 
 def build(first=1, last=99):
     p = Pack(); lessons = [p.lesson(l) for l in L.lessons() if first <= l.number <= last]
-    head = 8 + 2 * len(lessons) + 2 * len(p.clips); at = head; offs = []
+    fb = open(os.path.join(HERE, "..", "assets", "fonts", "lessons-font.bin"), "rb").read()      # the lessons' two fonts
+    if fb[:4] != b"TPF1": raise Cant("assets/fonts/lessons-font.bin is not a font file of tools/mklessonfont.py")
+    o = struct.unpack("<HH", fb[4:8]); fonts = [fb[o[0]:o[1]], fb[o[1]:]]
+    head = 8 + 2 * (len(lessons) + len(p.clips) + len(fonts)); at = head; offs = []
     for b in lessons + p.clips: offs.append(at); at += len(b)
+    pad = at & 1; at += pad                                                   # (a glyph holds a 16-bit number: the fonts from an even byte)
+    for b in fonts: offs.append(at); at += len(b)
     if at > 0xFFFF: raise Cant("the pack is %d bytes: more than its offsets can say" % at)
-    pack = b"TPC1" + struct.pack("<HBB", at, len(lessons), len(p.clips)) + b"".join(struct.pack("<H", o) for o in offs) + b"".join(lessons + p.clips)
+    pack = b"TPC2" + struct.pack("<HBB", at, len(lessons), len(p.clips)) + b"".join(struct.pack("<H", o) for o in offs) + b"".join(lessons + p.clips) + bytes(pad) + b"".join(fonts)
     return pack, [len(b) for b in lessons], [len(b) for b in p.clips]
 
 def slot_image(pack):

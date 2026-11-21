@@ -11,56 +11,56 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track drums; pick KICK; page TRACKS
-2. **Card:** TEMPO IS HOW FAST THE LIGHT WALKS. / IT IS COUNTED IN BEATS PER MINUTE: BPM.
-   - **OCT+:** GO
-3. **Strip:** PRESS [PLAY].
+2. **Card:** Tempo is how fast the light walks. / It is counted in beats per minute: BPM.
+   - **OCT+:** Go
+3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** THE BIG NUMBER IS THE TEMPO. TURN [SELECT] UP PAST 135.
+4. **Strip:** The big number is the tempo. Turn [SELECT] up past 135.
    - **Do:** turn SELECT right 3
    - **Until:** tempo above 135
-   - **Hint:** KEEP TURNING, PAST 135.
-5. **Strip:** NOW LEFT. SLOW IT DOWN, BELOW 90.
+   - **Hint:** Keep turning, past 135.
+5. **Strip:** Now left. Slow it down, below 90.
    - **Do:** turn SELECT left 3
    - **Until:** tempo below 90
-6. **Reply:** SLOW JAM.
-7. **Strip:** BACK TO ABOUT 122, WHERE THIS SONG LIVES.
+6. **Reply:** Slow jam.
+7. **Strip:** Back to about 122, where this song lives.
    - **Do:** turn SELECT right 3
    - **Until:** tempo above 117 and tempo below 127
-8. **Card:** NOW THE OOPS. / MAKE A MESS ON PURPOSE. / THEN TAKE IT BACK.
-   - **OCT+:** NEXT
-9. **Strip:** PRESS [SEQ] FOR THE DRUM GRID.
+8. **Card:** Now the oops. / Make a mess on purpose. / Then take it back.
+   - **OCT+:** Next
+9. **Strip:** Press [SEQ] for the drum grid.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-10. **Strip:** HOLD [SEQ]. TAP [KEY 2], [6] AND [10].
+10. **Strip:** Hold [SEQ]. Tap [KEY 2], [6] and [10].
     - **Do:** hold SEQ, tap box 2 6 10
     - **Until:** drums has KICK on boxes 2 6 10
-11. **Strip:** KICKS IN THE WRONG PLACES. OUCH.
+11. **Strip:** Kicks in the wrong places. Ouch.
     - **Wait:** 2 bars
-12. **Card:** UNDO TAKES BACK YOUR LAST MOVE. / IT IS [EDIT] AND [OCT-] TOGETHER.
-    - **OCT+:** NEXT
-13. **Strip:** HOLD [EDIT] AND PRESS [OCT-].
+12. **Card:** Undo takes back your last move. / It is [EDIT] and [OCT-] together.
+    - **OCT+:** Next
+13. **Strip:** Hold [EDIT] and press [OCT-].
     - **Do:** hold EDIT, press OCT-
     - **Until:** says UNDONE
-14. **Strip:** ONE KICK GONE. UNDO TWICE MORE.
+14. **Strip:** One kick gone. Undo twice more.
     - **Do:** hold EDIT, press OCT-, press OCT-
     - **Until:** drums has no KICK on boxes 2 6 10
-    - **Hint:** HOLD [EDIT], PRESS [OCT-]. ONCE FOR EACH KICK.
-15. **Reply:** ALL BACK.
-16. **Card:** UNDO REMEMBERS YOUR LAST 8 MOVES. / WENT TOO FAR? [EDIT] AND [OCT+] IS REDO.
-    - **OCT+:** NEXT
-17. **Card:** SAVE KEEPS YOUR WORK WHEN THE FM-1 IS SWITCHED OFF.
-    - **OCT+:** NEXT
-18. **Strip:** PRESS [SAVE] TWICE, QUICKLY.
+    - **Hint:** Hold [EDIT], press [OCT-]. Once for each kick.
+15. **Reply:** All back.
+16. **Card:** Undo remembers your last 8 moves. / Went too far? [EDIT] and [OCT+] is redo.
+    - **OCT+:** Next
+17. **Card:** Save keeps your work when the FM-1 is switched off.
+    - **OCT+:** Next
+18. **Strip:** Press [SAVE] twice, quickly.
     - **Do:** press SAVE twice
     - **Until:** says PROJECT SAVED
-    - **Hint:** TWO QUICK TAPS ON [SAVE].
+    - **Hint:** Two quick taps on [SAVE].
 19. **Setup:** page TRACKS
-20. **Strip:** PRESS [PLAY] TO STOP.
+20. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-21. **Card:** TEMPO: [SELECT]. / UNDO: [EDIT] AND [OCT-]. / SAVE: [SAVE] TWICE. / NOW NOTHING CAN GO WRONG.
-    - **OCT+:** DONE
+21. **Card:** Tempo: [SELECT]. / Undo: [EDIT] and [OCT-]. / Save: [SAVE] twice. / Now nothing can go wrong.
+    - **OCT+:** Done
 
 ## Screens
 
