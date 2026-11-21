@@ -1,8 +1,8 @@
-# Teachie Peachie
+# Teachie Beachie
 
-Teachie Peachie is firmware for the M-VAVE FM-1, built on **SLOOP 3** by the SLOOP project
+Teachie Beachie is firmware for the M-VAVE FM-1, built on **SLOOP 3** by the SLOOP project
 ([github.com/isod89/sloop3-fm1](https://github.com/isod89/sloop3-fm1)). It is free software under the
-GPL-3.0, the same licence as SLOOP 3 (see `LICENSE`). The SLOOP project does not make or support Teachie Peachie.
+GPL-3.0, the same license as SLOOP 3 (see `LICENSE`). The SLOOP project does not make or support Teachie Beachie.
 
 The base is SLOOP 3 **v3.3.7-beta**, the tag `v3.3.7-beta` in this repository. SLOOP's own README stays as it
 was, in `README.md`.
@@ -41,7 +41,7 @@ The unchanged v3.3.7 built this way is byte-for-byte the firmware inside SLOOP's
   only takes `segment,section` names. The twin's scrambled-RAM section uses Mach-O's own name, and so does
   `fw/unpack.c`.
 - **Sanitizers:** macOS 26 with Apple clang 17's AddressSanitizer hangs before `main`. On a Mac the twin, the
-  fuzzer and the unpack test use the undefined-behaviour checks only (`SAN` in the `Makefile` and
+  fuzzer and the unpack test use the undefined-behavior checks only (`SAN` in the `Makefile` and
   `fw/build.sh`).
 - **Missing Linux commands:** `host/twin.sh` falls back to `perl`'s alarm when there is no `timeout`. In
   `fw/build.sh`, `stat -c` becomes `wc -c`. `host/twin.c` includes `unistd.h` for `_exit`.
@@ -49,19 +49,20 @@ The unchanged v3.3.7 built this way is byte-for-byte the firmware inside SLOOP's
   instead of 64. On Linux the stray memory happened to be harmless; on a Mac it failed the GRAIN pitch check.
 
 **The name:**
-- **Start screen:** the sailboat logo is drawn in as before, then **TEACHIE PEACHIE** is written in under it, on two lines, with
-  "WITH SLOOP 3" below that (`app/vis.c`). The twin's start scenario saves a picture of it,
-  `boot-name.ppm` (`host/twin.c`).
+- **Start screen:** Teachie Beachie's own logo, a peach with a beach sunset inside, on the cards' peach color, with
+  "WITH SLOOP 3" under it (`app/vis.c`; SLOOP's sailboat is no longer drawn there). The picture is
+  `assets/logo/teachie-beachie.jpg`; `tools/mklogo.py` makes it flat (eight colors) and packs it into
+  `app/tp_logo.h`, about 2.1 KB. The twin's start scenario saves pictures of the screen (`host/twin.c`).
 - **Installer page:** `web/installer.tmpl.html` stays exactly SLOOP's, so a merge never clashes there. During the
   build, `tools/teachie_page.py` rewrites the finished page (`fw/build.sh` runs it after `mkpage.py`):
-  - Teachie Peachie wherever the page names the firmware it installs, with SLOOP 3 credited in the title, the beta
+  - Teachie Beachie wherever the page names the firmware it installs, with SLOOP 3 credited in the title, the beta
     note and the footer.
-  - Bug reports point to Teachie Peachie, not to SLOOP's tracker.
-  - It shows version `0.1 · SLOOP 3.3.7`, with Teachie Peachie's version set at the top of the script.
+  - Bug reports point to Teachie Beachie, not to SLOOP's tracker.
+  - It shows version `0.1 · SLOOP 3.3.7`, with Teachie Beachie's version set at the top of the script.
   - If SLOOP rewords the page, the script names each sentence it no longer finds. It stops the build if the
     name or the credit to SLOOP would be missing.
-  - `tests/install_sim.js` expects the new "restarts on Teachie Peachie" message.
+  - `tests/install_sim.js` expects the new "restarts on Teachie Beachie" message.
 
 **Not changed yet:**
-- **The USB MIDI name, "FM-1 SLOOP 3".** The installer and SLOOP's web editor recognise the FM-1 by that name.
+- **The USB MIDI name, "FM-1 SLOOP 3".** The installer and SLOOP's web editor recognize the FM-1 by that name.
 - **The firmware's own version, `VERSION` "3.3.7" in `fw/main.c`.** The editor reads it.

@@ -33,7 +33,7 @@
 #define ED_H2 0x33
 enum { ED_NONE, ED_INFO, ED_SOUND, ED_SET, ED_DESC, ED_READ, ED_WBEGIN, ED_WDATA, ED_WEND, ED_LOAD, ED_PATTERN, ED_THEME, ED_NOTES, ED_SAMPLE, ED_BANK,
        ED_LIVE, ED_NOTES2, ED_LOCKS, ED_SONG, ED_HOME, ED_NAMES,
-       ED_GUIDE };   /* (Teachie Peachie: the guide, fw/main.c) */   /* (protocol 2, 3.1.5: the editor's LIVE, SEQUENCER, SONG, SETTINGS, LIBRARY) */
+       ED_GUIDE };   /* (Teachie Beachie: the guide, fw/main.c) */   /* (protocol 2, 3.1.5: the editor's LIVE, SEQUENCER, SONG, SETTINGS, LIBRARY) */
 enum { ED_ERR_BAD = 1, ED_ERR_BUSY, ED_ERR_NONE, ED_ERR_CRC, ED_ERR_FILE, ED_ERR_FLASH };
 #define ED_PROTO 2
 /* a received SysEx (F0 .. F7, n bytes): its command and its bytes unpacked into out (cap); -1 not ours */

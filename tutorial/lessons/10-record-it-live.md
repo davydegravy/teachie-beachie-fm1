@@ -2,7 +2,8 @@
 
 - **Part:** 2, add the band
 - **The idea:** REC writes down what you play.
-- **The learner does:** presses REC and plays over the loop, undoes a take, and records again.
+- **The learner does:** presses REC and plays over the loop, undoes a take and brings it back, erases the track,
+  and records again.
 - **Got it when:** they record a take, throw it away and record another, without help.
 - **Song:** HOUSE ONE, section C, its first bar. The lead starts empty and the piano is muted.
 - **Style in the end:** funk and disco
@@ -32,21 +33,32 @@
    - **Wait:** 2 bars
 9. **Card:** IT ALSO PULLS EACH NOTE ONTO THE NEAREST BOX, SO YOU SOUND IN TIME. / THAT IS CALLED QUANTIZE. *(beginners only)*
    - **OCT+:** NEXT
-10. **Card:** NOT HAPPY WITH A TAKE? / UNDO TAKES THE WHOLE TAKE BACK. / HOLD [EDIT], PRESS [OCT-].
+10. **Card:** NOT HAPPY WITH A TAKE? / UNDO TAKES THE WHOLE TAKE BACK.
+    - **OCT+:** NEXT
+11. **Strip:** HOLD [EDIT], PRESS [OCT-].
     - **Do:** hold EDIT, press OCT-
     - **Until:** lead is empty
-11. **Strip:** RECORD YOUR OWN TUNE. / [OCT+] WHEN DONE.
+12. **Strip:** REDO BRINGS IT BACK: / HOLD [EDIT], PRESS [OCT+].
+    - **Do:** hold EDIT, press OCT+
+    - **Until:** lead has 3 notes or more
+13. **Card:** THERE IS A BIGGER ERASER. / HOLD [REC] FOR TWO SECONDS: THE WHOLE TRACK IS EMPTY. / UNDO BRINGS IT BACK.
+    - **OCT+:** NEXT
+14. **Strip:** HOLD [REC] FOR TWO SECONDS.
+    - **Do:** hold REC, wait 2.5
+    - **Until:** lead is empty
+    - **Hint:** KEEP HOLDING [REC] UNTIL THE TOP SAYS TRACK ERASED.
+15. **Strip:** RECORD YOUR OWN TUNE. / [OCT+] WHEN DONE.
     - **OCT+:** DONE
     - **Until:** lead has 3 notes or more and not recording
-    - **Hint:** RECORD 3 NOTES OR MORE, THEN STOP [REC].
+    - **Hint:** NOT YET. RECORD 3 NOTES OR MORE, THEN STOP [REC].
     - **Robot:** press REC, tap A4, wait 0.3, tap C5, wait 0.3, tap E5, wait 0.3, press REC, wait 0.3
-12. **Setup:** unmute
-13. **Strip:** YOUR TUNE, WITH THE BAND.
+16. **Setup:** unmute; play
+17. **Strip:** YOUR TUNE, WITH THE BAND.
     - **Wait:** 4 bars
-14. **Strip:** PRESS [PLAY] TO STOP.
+18. **Strip:** PRESS [PLAY] TO STOP.
     - **Do:** press PLAY
     - **Until:** stopped
-15. **Card:** [REC] WRITES DOWN WHAT YOU PLAY. / UNDO TAKES A TAKE BACK. / RECORD AGAIN TO ADD MORE.
+19. **Card:** [REC] WRITES DOWN WHAT YOU PLAY. / UNDO TAKES A TAKE BACK. / [REC] HELD: THE TRACK IS ERASED.
     - **OCT+:** DONE
 
 ## Screens
@@ -59,9 +71,16 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 - REC pressed while the song plays records at once. Pressed while stopped, it waits (REC READY) and the first
   note starts everything. If the learner ends up there, PLAY or a note gets them going.
-- Holding REC for two seconds erases the whole track. It says so first (HOLD REC: ERASE THE TRACK). Undo brings
-  the track back.
+- Holding REC for two seconds erases the whole track, on the page that is up. It says so first (HOLD REC: ERASE
+  THE TRACK); let go before the two seconds and it says ERASE CANCELLED. Undo brings the track back. The lesson
+  teaches it at step 14, after undo and redo, so it is a tool before the final test.
 - A second take adds to the first. To start clean, undo or erase first.
 
 ## Tester notes
 
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- Erasing a track is taught here now, after undo (asked in the final test: "how do I delete a whole track?"): redo
+  brings the take back (`REDO BRINGS IT BACK: / HOLD [EDIT], PRESS [OCT+].`), a card (`THERE IS A BIGGER ERASER.
+  ...`), then `HOLD [REC] FOR TWO SECONDS.` The track is empty again for the learner's own tune. 19 steps: old step
+  12 is 15.

@@ -259,7 +259,7 @@ static void sc_boot(void)                     /* a blank FM-1: it starts, it pla
     EXPECT(tw_audio_on, "no sound started");
     shot("boot");                                         /* (the start's logo, 3.1.6; 3.3: no popup with the version after it) */
     EXPECT(splash_on, "the start: no logo");
-    wait_ms(1700); if (splash_on) shot("boot-name");      /* (Teachie Peachie: the name written in, before the logo goes) */
+    wait_ms(1700); if (splash_on) shot("boot-name");      /* (Teachie Beachie: the name written in, before the logo goes) */
     for (int i = 0; i < 400 && splash_on; i++) wait_ms(10);
     wait_ms(100);
     EXPECT(!splash_on && !msg_live && !said_since(0, "SLOOP " VERSION), "a popup at the start (3.3: none, unless something is wrong)");
@@ -1037,7 +1037,7 @@ static void sc_serve(void)
             line[ln] = 0; ln = 0;
             if (line[0] == 'Q') return;
             if (line[0] == 'S') { shot(line + 2); printf("SHOT %s\n", line + 2); fflush(stdout); continue; }
-            /* (Teachie Peachie) a learner's hands: K key 0|1, B button 0|1, E knob clicks; L: the lights, 41 levels (0 off .. 4 full) */
+            /* (Teachie Beachie) a learner's hands: K key 0|1, B button 0|1, E knob clicks; L: the lights, 41 levels (0 off .. 4 full) */
             if (line[0] == 'K' || line[0] == 'B') { int a = 0, d = 0; sscanf(line + 1, "%d %d", &a, &d); uint32_t *w = line[0] == 'K' ? &tw_keys : &tw_btn; if (a >= 0 && a < 27) { if (d) *w |= 1u << a; else *w &= ~(1u << a); } continue; }
             if (line[0] == 'W') { if (line[1]) { wav_on(line + 2); printf("WAV %s\n", line + 2); } else { tw_wav_close(); printf("WAV\n"); } fflush(stdout); continue; }   /* the sound kept as a file, from here; W alone: to here */
             if (line[0] == 'E') { int a = 0, d = 0; sscanf(line + 1, "%d %d", &a, &d); if (a >= 0 && a < 7) tw_enc[a] += d; continue; }

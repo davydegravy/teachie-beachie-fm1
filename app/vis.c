@@ -317,7 +317,7 @@ __attribute__((unused)) static void logo(const xf *T, float dial, float lit, uin
 #undef SY
 }
 /* "sloop" (the long logo's strokes, its units); reveal 0..1 letter by letter */
-__attribute__((unused)) static void word(float ox, float oy, float s, float reveal, uint16_t col)   /* (Teachie Peachie: its name instead, below) */
+__attribute__((unused)) static void word(float ox, float oy, float s, float reveal, uint16_t col)   /* (Teachie Beachie: its name instead, below) */
 {
 #define P(v) (ox + (v) * s)
 #define Q(v) (oy + (v) * s)
@@ -340,12 +340,14 @@ static void sloop(void)
     logo(&T, 1.0f, (float)M->mix * (1.0f / 255.0f), gfx_mix(BG, LW, 6), 1.0f, reach, bc, 1.0f, 1.0f, sh, dy);
 }
 /* the start: the logo drawn in, the word "sloop" written, the version (vis_splash_draw for ms since the start) */
-__attribute__((unused)) static uint32_t SPL_MS; __attribute__((unused)) static const char *SPL_VER; static uint16_t SPL_COL[5];   /* (Teachie Peachie: SPL_VER no longer shown) */
+__attribute__((unused)) static uint32_t SPL_MS; __attribute__((unused)) static const char *SPL_VER; static uint16_t SPL_COL[5];   /* (Teachie Beachie: SPL_VER no longer shown) */
 void vis_splash(uint32_t ms, const char *ver, const uint16_t *col) { SPL_MS = ms; SPL_VER = ver; for (int k = 0; k < 5; k++) SPL_COL[k] = col[k]; }
 __attribute__((unused)) static float ease(float x) { x = x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; return 1.0f - (1.0f - x) * (1.0f - x) * (1.0f - x); }
 __attribute__((unused)) static float back(float x) { x = x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; float c = 1.7f; return 1.0f + (c + 1.0f) * (x - 1.0f) * (x - 1.0f) * (x - 1.0f) + c * (x - 1.0f) * (x - 1.0f); }
 #include "tp_logo.h"
-/* Teachie Peachie: its logo from the runs of tp_logo.h (tools/mklogo.py), only the rows of the tile being drawn */
+/* Teachie Beachie: its logo from tp_logo.h (tools/mklogo.py), only the rows of the tile being drawn. A row is its
+ * runs (a byte each: the length, the colour), or 0xFF and the row above with each run's start moved (a nibble each,
+ * -8..7): read from the 16th row above the tile's first, the rows before it not drawn */
 static void tp_logo_draw(int x0, int y0)
 {
     int tx, ty, tw, th; gfx_tile(&tx, &ty, &tw, &th); (void)tx; (void)tw;
@@ -353,18 +355,29 @@ static void tp_logo_draw(int x0, int y0)
     if (r1 <= 0 || r0 >= TP_LOGO_H) return;
     if (r0 < 0) r0 = 0;
     if (r1 > TP_LOGO_H) r1 = TP_LOGO_H;
-    const uint8_t *p = tp_logo_rle + tp_logo_row8[r0 >> 3];
-    for (int r = r0 & ~7; r < r1; r++)
-        for (int x = 0; x < TP_LOGO_W; ) {
-            unsigned b = *p++, n = b >> 4;
-            n = n < 15u ? n + 1u : 16u + *p++;
-            if (r >= r0 && (b & 15u)) gfx_fill(x0 + x, y0 + r, (int)n, 1, tp_logo_pal[b & 15u]);   /* (0 is the background round it: the page already) */
-            x += (int)n;
+    const uint8_t *p = tp_logo_rle + tp_logo_row16[r0 >> 4];
+    uint8_t at[TP_LOGO_RUNS + 1], col[TP_LOGO_RUNS]; int k = 0;      /* the row's runs: where each starts, its colour */
+    for (int r = r0 & ~15; r < r1; r++) {
+        if (*p == 0xFF) {
+            for (int i = 1; i < k; i++) at[i] = (uint8_t)(at[i] + (i & 1 ? *++p >> 4 : *p & 15u) - 8u);
+            p++;
+        } else {
+            unsigned x = 0; k = 0;
+            do {
+                unsigned b = *p++, n = (b >> 4) + 1u;
+                if (n > 15u) n = *p++;
+                at[k] = (uint8_t)x; col[k++] = b & 15u; x += n;
+            } while (x < TP_LOGO_W);
+            at[k] = TP_LOGO_W;
         }
+        if (r >= r0)
+            for (int i = 0; i < k; i++)
+                if (col[i]) gfx_fill(x0 + at[i], y0 + r, at[i + 1] - at[i], 1, tp_logo_pal[col[i]]);   /* (0 is the background round it: the page already) */
+    }
 }
 void vis_splash_draw(void)
 {
-    /* Teachie Peachie: its logo on the cards' peach, SLOOP 3 credited under it in their red (SLOOP's sailboat: logo(), no
+    /* Teachie Beachie: its logo on the cards' peach, SLOOP 3 credited under it in their red (SLOOP's sailboat: logo(), no
      * longer drawn here) */
     gfx_fill(0, 0, GFX_W, GFX_H, TP_PAPER);
     tp_logo_draw((GFX_W - TP_LOGO_W) / 2, 6);

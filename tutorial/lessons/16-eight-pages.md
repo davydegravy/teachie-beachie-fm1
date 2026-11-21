@@ -17,31 +17,31 @@
 3. **Strip:** PRESS [PLAY]. THIS IS PAGE 1.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Card:** HOLD [SAVE]: WHITE KEYS 1 TO 8 ARE THE PAGES. / TAP ONE TO GO THERE. / HOLD ONE TO COPY THIS PAGE ONTO IT.
+4. **Card:** HOLD [SAVE]: [KEY 1] TO [8] ARE THE PAGES. / TAP ONE TO GO THERE. / HOLD ONE TO COPY THIS PAGE ONTO IT.
    - **OCT+:** NEXT
-5. **Strip:** HOLD [SAVE], THEN HOLD KEY 2 FOR A SECOND.
+5. **Strip:** HOLD [SAVE], THEN HOLD [2] FOR A SECOND.
    - **Do:** hold SAVE, long box 2
    - **Until:** drums pattern 2 has notes and drums on pattern 2
-   - **Hint:** KEEP BOTH DOWN UNTIL THE TOP SAYS COPY.
+   - **Hint:** KEEP HOLDING BOTH UNTIL THE TOP SAYS COPY.
 6. **Reply:** COPIED.
 7. **Card:** YOU ARE ON PAGE 2 NOW. IT IS A COPY OF PAGE 1. / CHANGE IT, AND PAGE 1 STAYS AS IT WAS.
    - **OCT+:** NEXT
 8. **Strip:** PRESS [SEQ] FOR THE DRUM GRID.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-9. **Strip:** PLAY WHITE KEY 1: THE KICK.
+9. **Strip:** PLAY [1]: THE KICK.
    - **Do:** tap box 1
    - **Page:** STEPS
-10. **Strip:** HOLD [SEQ]. EXTRA KICKS IN BOXES 8 AND 16.
+10. **Strip:** HOLD [SEQ]. EXTRA KICKS ON [8] AND [16].
     - **Do:** hold SEQ, tap box 8 16
     - **Until:** drums has KICK on boxes 8 16
-    - **Hint:** IF THE TOP DOES NOT SAY KICK, PLAY WHITE KEY 1.
+    - **Hint:** IF THE TOP DOES NOT SAY KICK, PLAY [1].
 11. **Card:** TWO PAGES. / PAGE 1: THE BEAT. / PAGE 2: THE SAME BEAT WITH A PUSH.
     - **OCT+:** NEXT
-12. **Strip:** HOLD [SAVE], TAP KEY 1. IT COMES ON THE NEXT BAR.
+12. **Strip:** HOLD [SAVE], TAP [1]. IT COMES ON THE NEXT BAR.
     - **Do:** hold SAVE, tap box 1
     - **Until:** drums on pattern 1
-13. **Strip:** AND BACK: [SAVE] AND KEY 2.
+13. **Strip:** AND BACK: [SAVE] AND [2].
     - **Do:** hold SAVE, tap box 2
     - **Until:** drums on pattern 2
 14. **Strip:** SWITCH PAGES AS YOU LIKE. / [OCT+] WHEN DONE.
@@ -68,3 +68,6 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Tester notes
 
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- Framed key names: `[KEY 1] TO [8] ARE THE PAGES`, `HOLD [SAVE], THEN HOLD [2] FOR A SECOND.`

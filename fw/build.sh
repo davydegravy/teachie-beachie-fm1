@@ -34,7 +34,7 @@ python3 tools/xipcheck.py $O/ram.elf "$TC"
 # app.bin: the XIP stub and the RAM image after it, packed (3.2: tools/lz4pack.py, unpacked by fw/unpack.c at the start;
 # tests/unpack_test.c runs that same code on the PC over this very image, and over damaged ones)
 python3 tools/lz4pack.py $O/ram.bin $O/ram.pk
-# (Teachie Peachie: on macOS 26 Apple clang's AddressSanitizer hangs as it starts: there the undefined-behaviour checks only)
+# (Teachie Beachie: on macOS 26 Apple clang's AddressSanitizer hangs as it starts: there the undefined-behaviour checks only)
 [ "$(uname)" = Darwin ] && SAN=${SAN:--fsanitize=undefined} || SAN=${SAN:--fsanitize=address,undefined}
 cc -O1 -g -std=c11 -Wall -Wextra $SAN -fno-sanitize-recover=undefined -o build/unpack_test tests/unpack_test.c
 ASAN_OPTIONS=detect_leaks=0 ./build/unpack_test $O/ram.pk $O/ram.bin
@@ -56,7 +56,7 @@ test $(wc -c < $O/fw.area) -le $((0x78000 - 0x4000)) || { echo "the area would r
 python3 tools/mkpage.py $O/fw.area "3.3.7" $O/installer-fm1.html
 python3 tools/mkeditor.py web/editor.html > /dev/null
 cp web/editor.html $O/editor-sloop3.html
-# (Teachie Peachie: the page under its name, SLOOP 3 credited; web/installer.tmpl.html stays SLOOP's)
+# (Teachie Beachie: the page under its name, SLOOP 3 credited; web/installer.tmpl.html stays SLOOP's)
 python3 tools/teachie_page.py $O/installer-fm1.html
 # the page against a simulated m-bootloader: the package it serves, decrypted, is fw.area (tests/install_sim.js)
 node tests/install_sim.js $O/installer-fm1.html $O/fw.area | tail -1

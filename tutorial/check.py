@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Teachie Peachie: the lessons checked.
+"""Teachie Beachie: the lessons checked.
 
     python3 tutorial/check.py              every lesson file read: its steps understood, its words measured against
                                            the FM-1's screen (lines that would not fit are named)
@@ -8,6 +8,8 @@
                                            by a robot learner that does what each step asks (several lessons at once).
                                            A picture of each lesson's screens goes to tutorial/lessons/screens/
     python3 tutorial/check.py --run 3 4    only lessons 3 and 4
+    python3 tutorial/check.py --run --clumsy   the robot learner first taps a blinking box with SEQ not held, as a
+                                           beginner does: the lesson has to say so and still get there
 
 Run it from the repository's top folder; --run needs build/twin (make build/twin)."""
 import os, re, subprocess, sys, time
@@ -29,9 +31,11 @@ def wrap(text, font):
     """the words cut into lines as the FM-1 does it (fw/main.c guide_wrap): at a new line, and at a space before the edge"""
     lines, i = [], 0
     while i < len(text) and len(lines) < 99:
-        s = e = i; last = -1
+        s = e = i; last = -1; frame = False
         while e < len(text) and text[e] != "\n":
-            if text[e] == " ": last = e
+            if text[e] == "[": frame = True
+            elif text[e] == "]": frame = False
+            if text[e] == " " and not frame: last = e
             if last > s and width(font, text[s:e + 1]) > 240 - 28: e = last; break
             e += 1
         lines.append(text[s:e]); i = e
@@ -83,6 +87,8 @@ def lint(lesson):
                     if op[0] in ("press", "hold") and op[1] in (0, 1) and step.sub("OCT+" if op[1] else "OCT-"):
                         say(step, "%s asks for [%s], which is also this step's answer button" % (key, "OCT+" if op[1] else "OCT-"))
             if step.sub("Until"): L.parse_until(step.sub("Until"))
+            if kind == "card" and (step.sub("Do") or step.sub("Until")) and not (step.sub("OCT-") or step.sub("OCT+")): say(step, "a card that asks for a move hides what the move does: a card with an answer, then the move on a strip")
+            if step.sub("Until") and step.sub("OCT-") and step.sub("OCT+"): say(step, "an Until holds back both answers until it is true: with two answers the learner is shut in on the card (lesson 30, 2026-11-20)")
             for key in ("Play", "Echo", "Follow", "Lights"):
                 if step.sub(key): L.keys_of(" ".join(x for x in step.sub(key).split() if x.lower() not in L.SPEED), lesson.phrases)
             if step.sub("Page") and step.sub("Page").upper() not in L.PAGES: say(step, "no page called %s" % step.sub("Page"))
@@ -100,7 +106,7 @@ def run(lesson):
         for f in os.listdir(out):
             if f.endswith((".ppm", ".json")): os.remove(os.path.join(out, f))
     env = dict(os.environ, UBSAN_OPTIONS="print_stacktrace=1:halt_on_error=1", ASAN_OPTIONS="detect_leaks=0:handle_segv=0:allow_user_segv_handler=1:handle_sigfpe=0")
-    p = subprocess.run([sys.executable, os.path.join(HERE, "run.py"), str(lesson.number), "--twin", "--fast"], capture_output=True, text=True, env=env, timeout=900)
+    p = subprocess.run([sys.executable, os.path.join(HERE, "run.py"), str(lesson.number), "--twin", "--fast"] + (["--clumsy"] if "--clumsy" in sys.argv else []), capture_output=True, text=True, env=env, timeout=900)
     text = p.stdout + p.stderr; ok = p.returncode == 0 and "LESSON DONE" in text
     open(os.path.join(out, "log.txt"), "w").write(text) if os.path.isdir(out) else None
     if ok:

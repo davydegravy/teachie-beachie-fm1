@@ -17,31 +17,31 @@
 3. **Strip:** PRESS [PLAY]. BASS AND DRUMS, BEHIND A WALL.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** OPEN THE FILTER SLOWLY: [FX] AND KNOB 1 RIGHT.
+4. **Strip top:** [FX] AND KNOB 1 RIGHT UNTIL FILT SAYS OFF.
    - **Do:** hold FX, turn KNOB 1 right 3
    - **Until:** master filter is 0
-   - **Hint:** KEEP TURNING UNTIL FILT SAYS OFF.
-5. **Strip:** BRING IN THE PAD: [GLO] AND KEY 4.
+   - **Hint:** HOLD [FX]. FILT IS THE FIRST DIAL BELOW.
+5. **Strip:** BRING IN THE PAD: [GLO] AND [KEY 4].
    - **Do:** hold GLO, tap box 4
    - **Until:** pad is not muted
-6. **Strip:** THE CHORDS: [GLO] AND KEY 3.
+6. **Strip:** THE CHORDS: [GLO] AND [3].
    - **Do:** hold GLO, tap box 3
    - **Until:** chords is not muted
-7. **Strip:** ANNOUNCE IT WITH A FILL: [GLO] AND KEY 12.
+7. **Strip:** ANNOUNCE IT WITH A FILL: [GLO] AND [12].
    - **Do:** hold GLO, tap box 12
-8. **Strip:** THE DROP: [GLO] AND KEY 2. THE TUNE ARRIVES.
+8. **Strip:** THE DROP: [GLO] AND [2]. THE TUNE ARRIVES.
    - **Do:** hold GLO, tap box 2
    - **Until:** lead is not muted
 9. **Reply:** THAT IS A DROP.
 10. **Card:** NOW THE OTHER WAY. / TAKE THE DRUMS OUT FOR A MOMENT, THEN BRING THEM BACK ON A STRONG BEAT.
     - **OCT+:** NEXT
-11. **Strip:** [GLO] AND KEY 5: NO DRUMS.
+11. **Strip:** [GLO] AND [5]: NO DRUMS.
     - **Do:** hold GLO, tap box 5
     - **Until:** drums is muted
-12. **Strip:** WAIT FOR IT ... THEN KEY 5 AGAIN.
+12. **Strip:** WAIT FOR IT ... THEN [5] AGAIN.
     - **Do:** hold GLO, tap box 5
     - **Until:** nothing muted
-13. **Strip:** PLAY WITH MUTES, FILLS AND THE FILTER. / [OCT+] WHEN DONE.
+13. **Strip top:** MUTES, FILLS, FILTER. / [OCT+] WHEN DONE.
     - **OCT+:** DONE
 14. **Strip:** PRESS [PLAY] TO STOP.
     - **Do:** press PLAY

@@ -16,7 +16,7 @@
 3. **Strip:** PRESS [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** THE BIG NUMBER IS THE TEMPO. TURN [SELECT] RIGHT.
+4. **Strip:** THE BIG NUMBER IS THE TEMPO. TURN [SELECT] UP PAST 135.
    - **Do:** turn SELECT right 3
    - **Until:** tempo above 135
    - **Hint:** KEEP TURNING, PAST 135.
@@ -32,30 +32,34 @@
 9. **Strip:** PRESS [SEQ] FOR THE DRUM GRID.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-10. **Strip:** HOLD [SEQ]. TAP BOXES 2, 6 AND 10.
+10. **Strip:** HOLD [SEQ]. TAP [KEY 2], [6] AND [10].
     - **Do:** hold SEQ, tap box 2 6 10
     - **Until:** drums has KICK on boxes 2 6 10
 11. **Strip:** KICKS IN THE WRONG PLACES. OUCH.
     - **Wait:** 2 bars
-12. **Card:** UNDO TAKES BACK YOUR LAST MOVE. / HOLD [EDIT] AND PRESS [OCT-].
+12. **Card:** UNDO TAKES BACK YOUR LAST MOVE. / IT IS [EDIT] AND [OCT-] TOGETHER.
+    - **OCT+:** NEXT
+13. **Strip:** HOLD [EDIT] AND PRESS [OCT-].
     - **Do:** hold EDIT, press OCT-
     - **Until:** says UNDONE
-13. **Strip:** ONE KICK GONE. UNDO TWICE MORE.
+14. **Strip:** ONE KICK GONE. UNDO TWICE MORE.
     - **Do:** hold EDIT, press OCT-, press OCT-
     - **Until:** drums has no KICK on boxes 2 6 10
     - **Hint:** HOLD [EDIT], PRESS [OCT-]. ONCE FOR EACH KICK.
-14. **Reply:** ALL BACK.
-15. **Card:** UNDO REMEMBERS YOUR LAST 8 MOVES. / WENT TOO FAR? [EDIT] AND [OCT+] IS REDO.
+15. **Reply:** ALL BACK.
+16. **Card:** UNDO REMEMBERS YOUR LAST 8 MOVES. / WENT TOO FAR? [EDIT] AND [OCT+] IS REDO.
     - **OCT+:** NEXT
-16. **Card:** SAVE KEEPS YOUR WORK WHEN THE FM-1 IS SWITCHED OFF. / PRESS [SAVE] TWICE, QUICKLY.
+17. **Card:** SAVE KEEPS YOUR WORK WHEN THE FM-1 IS SWITCHED OFF.
+    - **OCT+:** NEXT
+18. **Strip:** PRESS [SAVE] TWICE, QUICKLY.
     - **Do:** press SAVE twice
     - **Until:** says PROJECT SAVED
     - **Hint:** TWO QUICK TAPS ON [SAVE].
-17. **Setup:** page TRACKS
-18. **Strip:** PRESS [PLAY] TO STOP.
+19. **Setup:** page TRACKS
+20. **Strip:** PRESS [PLAY] TO STOP.
     - **Do:** press PLAY
     - **Until:** stopped
-19. **Card:** TEMPO: [SELECT]. / UNDO: [EDIT] AND [OCT-]. / SAVE: [SAVE] TWICE. / NOW NOTHING CAN GO WRONG.
+21. **Card:** TEMPO: [SELECT]. / UNDO: [EDIT] AND [OCT-]. / SAVE: [SAVE] TWICE. / NOW NOTHING CAN GO WRONG.
     - **OCT+:** DONE
 
 ## Screens
@@ -75,3 +79,20 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Tester notes
 
+2026-11-19, on the real FM-1.
+
+- **Give the first tempo step a target.** "When turning the tempo up maybe we should give them a target like
+  135." (Said of "lesson 5"; the step is here, in lesson 6.) The step already ends at 135, but only its hint says
+  so, and the hint comes after 25 seconds. A wording that fits the strip in three lines: `THE BIG NUMBER IS THE
+  TEMPO. TURN [SELECT] UP PAST 135.` Not changed yet.
+
+2026-11-20, the hidden-screen pass ("Yes, fix them").
+
+- Undo (old step 12) and save (old step 16) are each a card with an answer and then a strip, so `UNDONE` and
+  `PROJECT SAVED` show when they happen. 21 steps: from old step 13 on, add one; from old step 16 on, two.
+- The three tempo strips stay at the bottom: the number they point at is at the top of the screen. The wording
+  note above is still open.
+
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- Applied: `THE BIG NUMBER IS THE TEMPO. TURN [SELECT] UP PAST 135.`

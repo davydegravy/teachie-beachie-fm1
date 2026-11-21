@@ -22,14 +22,14 @@
 5. **Strip:** PLAY THE BLINKING KEY. IT IS AN A.
    - **Do:** tap A3
    - **Page:** STEPS
-6. **Strip:** HOLD [SEQ] AND TAP BOX 1. THE A DROPS IN.
+6. **Strip:** HOLD [SEQ] AND TAP [KEY 1]. THE A DROPS IN.
    - **Do:** hold SEQ, tap box 1
    - **Until:** bass has notes on box 1
-   - **Hint:** KEEP [SEQ] DOWN AND TAP THE BLINKING KEY.
+   - **Hint:** KEEP HOLDING [SEQ] AND TAP THE BLINKING KEY.
 7. **Strip:** PRESS [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-8. **Strip:** HOLD [SEQ]. THE SAME A IN BOXES 4, 7, 11, 14.
+8. **Strip:** HOLD [SEQ]. THE SAME A ON [4], [7], [11], [14].
    - **Do:** hold SEQ, tap box 4 7 11 14
    - **Until:** bass has notes on boxes 1 4 7 11 14
 9. **Reply:** GOOD.
@@ -38,21 +38,23 @@
 11. **Strip:** LET GO OF [SEQ]. PLAY THE HIGHER A.
     - **Do:** tap A4
     - **Page:** STEPS
-12. **Strip:** HOLD [SEQ]. PUT IT IN BOX 16.
+12. **Strip:** HOLD [SEQ]. PUT IT ON [16].
     - **Do:** hold SEQ, tap box 16
     - **Until:** bass has notes on box 16
 13. **Card:** LISTEN FOR WHERE THE BASS AND THE KICK MEET, AND WHERE THE BASS SLIPS BETWEEN.
     - **OCT+:** NEXT
-14. **Strip:** NOW CHANGE THE LINE. / [OCT+] WHEN DONE.
+14. **Card:** MAKE IT YOUR OWN. / PLAY A KEY TO CHOOSE A NOTE. / HOLD [SEQ], TAP A BOX: IT GOES IN. / TAP AGAIN: IT GOES OUT.
+    - **OCT+:** START
+15. **Strip:** YOUR BASS LINE. / [OCT+] WHEN DONE.
     - **OCT+:** DONE
     - **Robot:** tap C4, hold SEQ, tap box 9, let go
-15. **Setup:** unmute
-16. **Strip:** YOUR BASS LINE, IN THE SONG.
+16. **Setup:** unmute; play
+17. **Strip:** YOUR BASS LINE, IN THE SONG.
     - **Wait:** 4 bars
-17. **Strip:** PRESS [PLAY] TO STOP.
+18. **Strip:** PRESS [PLAY] TO STOP.
     - **Do:** press PLAY
     - **Until:** stopped
-18. **Card:** A KEY PICKS THE NOTE. / [SEQ] AND A BOX WRITES IT.
+19. **Card:** A KEY PICKS THE NOTE. / [SEQ] AND A BOX WRITES IT.
     - **OCT+:** DONE
 
 ## Screens
@@ -70,3 +72,16 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Tester notes
 
+2026-11-19, on the real FM-1.
+
+- **`NOW CHANGE THE LINE. [OCT+] WHEN DONE.` does not say what to do.** "I'm not entirely sure what I am supposed
+  to do as far as change the line." The strip was cut short to fit and lost its meaning: "the line" is the bass
+  line, and changing it means choosing other notes or other boxes. An idea: a card before the strip, which fits
+  in seven lines: `MAKE IT YOUR OWN. / PLAY A KEY TO CHOOSE A NOTE. / HOLD [SEQ], TAP A BOX: IT GOES IN. / TAP AGAIN: IT GOES OUT.` Then the strip only has to say `[OCT+] WHEN DONE`. The same goes for
+  the other "change it" steps (lessons 2, 3, 7): check each says what can be changed and how. Not changed yet.
+
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- Applied: a card before the free step (`MAKE IT YOUR OWN. / PLAY A KEY TO CHOOSE A NOTE. / HOLD [SEQ], TAP A BOX:
+  IT GOES IN. / TAP AGAIN: IT GOES OUT.`), and the strip is `YOUR BASS LINE. / [OCT+] WHEN DONE.` 19 steps: from
+  old step 14 on, add one.

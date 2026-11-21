@@ -12,34 +12,41 @@
 1. **Setup:** song HOUSE ONE section C; track lead
 2. **Card:** A BLINKING LIGHT MEANS: PRESS THIS. / TRY IT NOW.
    - **OCT+:** GO
-3. **Card:** WE MAKE OUR SONGS IN SLOOP. / SLOOP HAS 5 TRACKS WITH DIFFERENT INSTRUMENTS. / PRESS [PLAY] TO OPEN A SONG IN SLOOP.
+3. **Card:** A NAME IN A FRAME / IS A BUTTON: [OCT+] / PRESS: DOWN AND UP. / HOLD: KEEP IT DOWN. / [OCT+] IS BLINKING. / PRESS IT.
+   - **OCT+:** NEXT
+4. **Card:** A NUMBER IN A FRAME / IS A WHITE KEY. / COUNT FROM THE LEFT. / [KEY 5], OR JUST [5], / IS BLINKING. / TAP IT.
+   - **Echo:** box 5
+5. **Reply:** GOOD.
+6. **Card:** WE MAKE OUR SONGS IN SLOOP. / SLOOP HAS 5 TRACKS WITH DIFFERENT INSTRUMENTS.
+   - **OCT+:** NEXT
+7. **Strip:** THIS IS SLOOP. / PRESS [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** FIVE TRACKS. / ONE SONG. LISTEN.
+8. **Strip:** FIVE TRACKS. / ONE SONG. LISTEN.
    - **Wait:** 4 bars
-5. **Strip:** [PLAY] STOPS IT TOO. / PRESS [PLAY].
+9. **Strip:** [PLAY] STOPS IT TOO. / PRESS [PLAY].
    - **Do:** press PLAY
    - **Until:** stopped
-6. **Reply:** GOOD.
-7. **Card:** THE MELODY GAME / LISTEN. / THEN PLAY IT BACK.
-   - **Play:** A4 C5 E5
-   - **Echo:** A4 C5 E5
-8. **Reply:** GOOD.
-9. **Card:** THE MELODY GAME / LISTEN. / THEN PLAY IT BACK.
-   - **Play:** A4 B4 C5 D5 E5
-   - **Echo:** A4 B4 C5 D5 E5
 10. **Reply:** GOOD.
-11. **Card:** ONE MORE / LISTEN. / THEN PLAY IT BACK.
+11. **Card:** THE MELODY GAME / LISTEN. / THEN PLAY IT BACK.
+    - **Play:** A4 C5 E5
+    - **Echo:** A4 C5 E5
+12. **Reply:** GOOD.
+13. **Card:** THE MELODY GAME / LISTEN. / THEN PLAY IT BACK.
+    - **Play:** A4 B4 C5 D5 E5
+    - **Echo:** A4 B4 C5 D5 E5
+14. **Reply:** GOOD.
+15. **Card:** ONE MORE / LISTEN. / THEN PLAY IT BACK.
     - **Play:** RUN fast
-12. **Card:** YOUR TURN / PLAY IT BACK.
+16. **Card:** YOUR TURN / PLAY IT BACK.
     - **Echo:** A3 C4
-13. **Big:** FASTER / FASTER / FASTER
+17. **Big:** FASTER / FASTER / FASTER
     - **Keys:** silent
     - **Do:** tap E4 or any key
-14. **Play:** RUN fast
+18. **Play:** RUN fast
     - **Keys:** silent
-15. **Reply:** NICE.
-16. **Card:** HA, THAT WAS TOO FAST. NOBODY CAN PLAY THAT BY HAND. / A SEQUENCER CAN.
+19. **Reply:** NICE.
+20. **Card:** HA, THAT WAS TOO FAST. NOBODY CAN PLAY THAT BY HAND. / A SEQUENCER CAN.
     - **OCT+:** NEXT
 
 ## Screens
@@ -52,8 +59,25 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 - The first two keys of the fast run are real: the learner plays them and hears them. From FASTER on, the keys are
   silent and any key sets the run off, so it sounds as if the learner played it.
-- If the learner laughs or looks puzzled at the fast run, that is the point. Don't explain the joke before step 16.
+- If the learner laughs or looks puzzled at the fast run, that is the point. Don't explain the joke before step 20.
 - Lesson 22 pays this off: the arpeggiator plays the same run.
 
 ## Tester notes
+
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- A new card, step 3, right after the blinking light: `[PLAY] IS A BUTTON. / [KEY 5] OR JUST [5]: / WHITE KEY 5
+  FROM THE LEFT. / PRESS OR TAP: DOWN AND UP. / HOLD: KEEP IT DOWN.` Asked for the same day: "in the very beginning
+  we should have one card that explains the buttons and holding and pressing and also what we are going to call
+  them." A first draft. 18 steps: from old step 3 on, add one.
+- The same evening, after seeing it: "I think we should blink key 5, also PLAY is a button, maybe that should be
+  [THIS] is a button. That page is a little confusing, it's also very early in the tutorial so I think [we] should
+  make it so there is no confusion. If it doesn't fit on one page we should make two." Now two cards, each with
+  something to press at once, so that a blinking light still means "press this":
+  - step 3, buttons: `A NAME IN A FRAME / IS A BUTTON: [OCT+] / PRESS: DOWN AND UP. / HOLD: KEEP IT DOWN. / [OCT+] IS
+    BLINKING. / PRESS IT.` The example is OCT+, the button that is blinking on the card anyway. PLAY is not
+    used here: a blinking PLAY would be pressed and start the song under the card.
+  - step 4, keys: `A NUMBER IN A FRAME / IS A WHITE KEY. / COUNT FROM THE LEFT. / [KEY 5], OR JUST [5], / IS BLINKING. /
+    TAP IT.` Key 5 blinks and the step ends when it is tapped (an Echo of one key), then `GOOD.`
+  20 steps: from the old step 4 on, add two.
 

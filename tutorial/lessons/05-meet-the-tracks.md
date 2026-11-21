@@ -16,39 +16,39 @@
 3. **Strip:** PRESS [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** HOLD [GLO]. THE KEYS ARE NOW TRACKS. / TAP WHITE KEY 1.
+4. **Strip:** HOLD [GLO]. THE KEYS ARE NOW TRACKS. / TAP [KEY 1].
    - **Do:** hold GLO, tap box 1
    - **Until:** bass is muted
-   - **Hint:** KEEP [GLO] DOWN AND / TAP THE BLINKING KEY.
-5. **Strip:** THE BASS IS MUTED. / [GLO] AND KEY 1 AGAIN.
+   - **Hint:** KEEP HOLDING [GLO]. / TAP THE BLINKING KEY.
+5. **Strip:** THE BASS IS MUTED. / [GLO] AND [1] AGAIN.
    - **Do:** hold GLO, tap box 1
    - **Until:** bass is not muted
-6. **Strip:** KEY 2 IS THE LEAD: THE TUNE. / MUTE IT.
+6. **Strip:** [2] IS THE LEAD: THE TUNE. / MUTE IT.
    - **Do:** hold GLO, tap box 2
    - **Until:** lead is muted
-7. **Strip:** KEY 3: THE CHORDS, ON A PIANO. / MUTE THEM TOO.
+7. **Strip:** [3]: THE CHORDS, ON A PIANO. / MUTE THEM TOO.
    - **Do:** hold GLO, tap box 3
    - **Until:** chords is muted
-8. **Strip:** KEY 4: THE PAD. A SOFT CUSHION. / MUTE IT.
+8. **Strip:** [4]: THE PAD. A SOFT CUSHION. / MUTE IT.
    - **Do:** hold GLO, tap box 4
    - **Until:** pad is muted
 9. **Card:** ONLY BASS AND DRUMS NOW. / THEY ARE THE RHYTHM SECTION. EVERY BAND LEANS ON THEM.
    - **OCT+:** NEXT
-10. **Strip:** BRING THEM BACK: / [GLO] AND KEYS 4, 3, 2.
+10. **Strip:** BRING THEM BACK: / [GLO] AND [4], [3], [2].
     - **Do:** hold GLO, tap box 4 3 2
     - **Until:** nothing muted
-11. **Card:** SOLO IS THE OPPOSITE OF MUTE: ONLY THAT TRACK PLAYS. / KEYS 6 TO 10 ARE THE FIVE SOLOS.
+11. **Card:** SOLO IS THE OPPOSITE OF MUTE: ONLY THAT TRACK PLAYS. / [6] TO [10] ARE THE FIVE SOLOS.
     - **OCT+:** NEXT
-12. **Strip:** HOLD [GLO], TAP KEY 10: / ONLY THE DRUMS.
+12. **Strip:** HOLD [GLO], TAP [10]: / ONLY THE DRUMS.
     - **Do:** hold GLO, tap box 10
     - **Until:** drums is solo
-13. **Strip:** KEY 10 AGAIN: / EVERYONE BACK.
+13. **Strip:** [10] AGAIN: / EVERYONE BACK.
     - **Do:** hold GLO, tap box 10
     - **Until:** nothing solo
 14. **Strip:** MUTE AND SOLO AS YOU LIKE. / [OCT+] WHEN DONE.
     - **OCT+:** DONE
     - **Until:** nothing muted and nothing solo
-    - **Hint:** BRING EVERY TRACK BACK FIRST.
+    - **Hint:** NOT YET. BRING EVERY TRACK BACK FIRST.
 15. **Strip:** TURN [ALGORITHM] TO TRACK 2, THE LEAD.
     - **Do:** turn ALGORITHM right 1
     - **Until:** track is lead
@@ -70,9 +70,12 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 - While GLO is held, SLOOP shows its MIX page: tiles 1 to 5 for the mutes, S1 to S5 for the solos. The learner
   can read the state there.
-- Track numbers and colours on the screen: 1 bass (blue), 2 lead (green), 3 chords (yellow), 4 pad (pink),
+- Track numbers and colors on the screen: 1 bass (blue), 2 lead (green), 3 chords (yellow), 4 pad (pink),
   5 drums (orange).
 - If asked which track matters most: none. Ask them which one they missed most when it was gone.
 
 ## Tester notes
 
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- Framed key names (`TAP [KEY 1]`, `[GLO] AND [4], [3], [2]`), and `NOT YET. BRING EVERY TRACK BACK FIRST.`

@@ -18,12 +18,12 @@
 4. **Strip:** DRUMS FIRST. / [OCT+] WHEN THE BEAT IS READY.
    - **OCT+:** READY
    - **Until:** drums has 4 notes or more
-   - **Hint:** THE BEAT NEEDS AT LEAST 4 HITS.
+   - **Hint:** NOT YET. THE BEAT NEEDS 4 HITS OR MORE.
    - **Robot:** tap box 1, hold SEQ, tap box 1 5 9 13, let go
 5. **Strip:** NOW A BASS LINE, CHORDS OR A TUNE. / [OCT+] WHEN READY.
    - **OCT+:** READY
    - **Until:** 2 tracks or more
-   - **Hint:** WRITE SOMETHING ON A SECOND TRACK FIRST.
+   - **Hint:** NOT YET. WRITE SOMETHING ON A SECOND TRACK FIRST.
    - **Robot:** turn ALGORITHM right 1, tap A3, hold SEQ, tap box 1 4 7, let go
 6. **Card:** WANT THE REST OF THE BAND? / THE TRACKS THAT ARE STILL EMPTY CAN BE FILLED IN FOR YOU.
    - **OCT-:** NO
@@ -58,3 +58,6 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Tester notes
 
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- The two "not yet" hints begin with `NOT YET.`

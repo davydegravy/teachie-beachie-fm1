@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
-"""Teachie Peachie: a lesson read from its Markdown file (tutorial/lessons/NN-name.md) and played on an FM-1.
+"""Teachie Beachie: a lesson read from its Markdown file (tutorial/lessons/NN-name.md) and played on an FM-1.
 
 The file is written to be read by a person first. The player reads only two things in it: the list at the top
 (the lesson's number and title come from the heading) and the numbered list under "## Steps". Everything else,
@@ -9,7 +9,8 @@ tutorial/lessons/README.md.
 A step is one numbered line, "N. **Kind:** words", with what goes with it as bullets under it:
   kinds   Setup   what the FM-1 is given before the learner does anything (a song, an empty track, a page)
           Card    a full peach screen of words          Big     a few words, large and centred
-          Strip   a band of words over SLOOP's own screen, at the bottom ("Strip top": at the top)
+          Strip   a band of words over SLOOP's own screen, at the bottom ("Strip top": at the top; "Strip corner": a
+                  small tag in the top left corner, as wide as its words, for a step where the screen is needed)
           Reply   the dry voice: a word or two, large, for a moment
           Wait    nothing new for a while
           Play    the FM-1 plays a phrase itself, lighting each key      Echo   the learner plays it back
@@ -43,7 +44,7 @@ VALUE = dict(ATK=8, DEC=9, SUS=10, REL=11, EFLT=12, EPIT=13, ESHP=14, TRIM=15, L
              IMIX=40, SLICER=41, **{"E%d" % i: i for i in range(8)})                # a sound's values, by the names the lessons use
 INSERTS = ["OFF", "SOFT", "HARD", "FOLD", "FUZZ", "CRUSH", "PHASR", "FLANG", "CHOR"]
 SPEED = dict(slow=0.5, fast=0.075)
-KINDS = ("setup", "card", "big", "reply", "strip", "strip top", "wait", "play", "echo")
+KINDS = ("setup", "card", "big", "reply", "strip", "strip top", "strip corner", "wait", "play", "echo")
 
 class Bad(Exception): pass
 
@@ -120,7 +121,7 @@ class Lesson:
                 else: where[1] = txt
         if [s.n for s in self.steps] != list(range(1, len(self.steps) + 1)): raise Bad("%s: the steps should be numbered 1, 2, 3 ... in order" % self.name)
 
-def words(text): return re.sub(r"\s*/\s*", "\n", text.strip()).upper()                         # " / " in the file: a new line on the screen
+def words(text): return re.sub(r"\s+/\s+", "\n", text.strip()).upper()                         # " / " in the file: a new line on the screen
 
 def lessons(folder=None):
     """every lesson in the folder, in order"""
@@ -154,6 +155,7 @@ def parse_do(text, phrases=None):
             if not m or m.group(1).upper() not in KNOB_NAMES: raise Bad("a turn is written \"turn KNOB 1 right\" or \"turn SELECT left 5\" (in \"%s\")" % text)
             ops.append(("turn", KNOB_NAMES[m.group(1).upper()], (1 if m.group(2).lower() == "right" else -1) * int(m.group(3) or 1)))
         elif verb == "let": ops.append(("letgo", None))
+        elif verb == "idle": ops.append(("idle", None))
         elif verb == "wait": ops.append(("wait", float(w[1])))
         elif verb == "answer": ops.append(("answer", w[1].lower()))
         else: raise Bad("I don't know how to \"%s\" (in \"%s\")" % (c, text))
@@ -219,7 +221,7 @@ class Seen:
         raise Bad("nothing to read for %s" % (what,))
 
 class Cond:
-    def __init__(self, text): self.text, self.fn, self.miss, self.needs_base = text, None, None, None
+    def __init__(self, text): self.text, self.fn, self.miss, self.needs_base, self.drum = text, None, None, None, None   # drum: the pad its boxes ask for
     def ok(self, seen): return self.fn(seen)
 
 def boxes(text): return [int(x) - 1 for x in re.findall(r"\d+", text)]
@@ -302,6 +304,7 @@ def parse_until(text):
                 have = {int(round(n[0])) for n in s.pattern(t)[1] if pad is None or n[2] == pad}
                 return [b for b in bx if b not in have]
             k.miss = missing; k.fn = lambda s, missing=missing: not missing(s)
+            if what in PADS and t == TRACK["drums"]: k.drum = PADS.index(what)
         elif rest.startswith("has ") and " after box" in rest:
             b = boxes(rest)[0]; k.fn = lambda s, t=t, b=b: any(n[0] >= b for n in s.pattern(t)[1])
         elif rest.startswith("sound is not "): name = c.split(None, 4)[4].upper(); k.fn = lambda s, t=t, name=name: s.sound(t)[0].upper() != name
@@ -408,12 +411,16 @@ class Hands:
         elif what == "key": self.fm1.play_key(which, bool(value))
         else: self.fm1.turn(which, value)
 
+LAYERS = {BTN[b] for b in ("FX", "SEL", "EDIT", "GLO", "HOME", "SAVE", "ARP", "SEQ")}   # a key pressed with one of these held plays nothing
+
 class Player:
     """plays lessons through a Teacher (tp/teach.py). robot: a simulated FM-1's link, for a run with no person"""
     def __init__(self, teacher, robot_link=None, fast=False, path="beginner"):
         self.t, self.fm1, self.fast, self.path = teacher, teacher.fm1, fast, path
         self.robot = Hands(self.fm1, robot_link) if robot_link is not None else None
         self.held, self.events, self.msgs, self.shown = set(), [], set(), 0
+        self.picked, self.keys_taken, self.clumsy = None, False, False       # the drum that boxes write, as far as the lesson can tell (None: it can't)
+        self.hint_s, self.stuck_s = [float(x) for x in os.environ.get("TP_PATIENCE", "25,45").split(",")]   # a hint after this long; then, after the last hint, the offer to show the move
     # ---- small things
     def nap(self, s): time.sleep(min(s, 0.35) if self.fast else s)
     def pump(self):
@@ -425,7 +432,15 @@ class Player:
                 if which == getattr(self, "_last_b", None) and now - getattr(self, "_last_t", 0) < 0.7: ev.append(("twice", which))   # two quick taps of one button
                 self._last_b, self._last_t = which, now
             elif kind == "button_up": self.held.discard(which)
-            elif kind == "key": self._last_b = None
+            elif kind == "key":
+                self._last_b = None
+                if self.fm1.track == TRACK["drums"] and not self.held & LAYERS and not self.keys_taken:   # a drum played: boxes write that one now
+                    if which in WHITE: self.picked = WHITE.index(which)
+                    elif self.fm1.page == PAGES["STEPS"]: self.picked = None                              # (a black key there flips between two drums)
+                    else: self.picked = WHITE.index(max(k for k in WHITE if k < which))
+            elif kind in ("knob_right", "knob_left") and which == KNOB["KNOB1"] and self.fm1.track == TRACK["drums"] and self.picked is not None:
+                if BTN["SEQ"] in self.held or (not self.held & LAYERS and self.fm1.page in (PAGES["STEPS"], PAGES["DRUM SOUND"])):
+                    self.picked = (self.picked + (1 if kind == "knob_right" else -1)) % 16
         self.events += ev
         return ev
     def seen(self, base=None): return Seen(self.fm1, base, self.events, self.msgs)
@@ -438,7 +453,7 @@ class Player:
         if kind == "card": self.t.say(w, left[0] if left else "", right[0] if right else "")
         elif kind == "big": self.t.say(w, left[0] if left else "", right[0] if right else "", big=True)
         elif kind == "reply": self.fm1.card(w, big=True); self.t.note("reply", w.replace("\n", " / "))
-        elif kind.startswith("strip"): self.t.strip(w, where=1 if "top" in kind else 2)
+        elif kind.startswith("strip"): self.t.strip(w, where=1 if "top" in kind else 3 if "corner" in kind else 2)
         self.shown += 1; self.t._shot("%02d-%02d" % (self.lesson.number, self.shown))
     def answers(self, step):
         out = []
@@ -511,12 +526,7 @@ class Player:
                 f.press_button(BTN["SEL"], True); time.sleep(0.45); f.play_key(key, True); time.sleep(0.1); f.play_key(key, False); time.sleep(0.1)
                 f.turn(KNOB["KNOB2"], 2 if op[2].startswith("min") else 1); time.sleep(0.15); f.press_button(BTN["SEL"], False); time.sleep(0.1)
             elif op[0] == "mfilt": f.live(14, 255, 255, op[1] + 100)
-            elif op[0] == "pick":                                                  # its key played with the drums turned right down
-                st = f.status(); was, lvl = st["track"], st["tracks"][TRACK["drums"]]["level"]; muted = st["tracks"][TRACK["drums"]]["mute"]
-                f.select(TRACK["drums"]); f.live(4, TRACK["drums"], 0, 0); time.sleep(0.05)
-                f.play_key(WHITE[op[1]], True); time.sleep(0.06); f.play_key(WHITE[op[1]], False); time.sleep(0.25)
-                f.live(4, TRACK["drums"], 0, round(lvl * 127 / 100)); f.select(was)
-                if muted: f.live(4, TRACK["drums"], 6, 1)
+            elif op[0] == "pick": self.pick(op[1])
             elif op[0] == "send": f.live(4, op[1], dict(chorus=2, delay=3, reverb=4)[op[2]], round(op[3] * 127 / 100))
             elif op[0] == "track": f.select(op[1])
             elif op[0] == "tempo": f.tempo(op[1])
@@ -534,6 +544,14 @@ class Player:
                 st = f.status()
                 if st["recording"] or st["armed"]: f.tap(BTN["REC"])
         self.t.note("setup", text)
+    def pick(self, pad):
+        """the drum that boxes write, chosen from here: its key played with the drum track turned right down for a moment"""
+        f = self.fm1; st = f.status(); was, lvl = st["track"], st["tracks"][TRACK["drums"]]["level"]; muted = st["tracks"][TRACK["drums"]]["mute"]
+        f.select(TRACK["drums"]); f.live(4, TRACK["drums"], 0, 0); time.sleep(0.08)
+        f.play_key(WHITE[pad], True); time.sleep(0.06); f.play_key(WHITE[pad], False); time.sleep(0.25)
+        f.live(4, TRACK["drums"], 0, round(lvl * 127 / 100)); f.select(was)
+        if muted: f.live(4, TRACK["drums"], 6, 1)
+        self.picked = pad; self.t.note("picked", PADS[pad])
     def song_name(self):
         m = re.search(r"song (.+?),? section", " ".join(s.text for s in self.lesson.steps if s.kind.lower() == "setup").lower())
         return m.group(1).replace(" ", "-") if m else "house-one"
@@ -542,13 +560,33 @@ class Player:
         """the step's Do pointed at, until its Until is true (or, with no Until, until the Do has been seen)"""
         ops = parse_do(step.sub("Do") or "", self.lesson.phrases); conds = parse_until(step.sub("Until") or "")
         robot_ops = parse_do(step.sub("Robot"), self.lesson.phrases) if step.sub("Robot") else ops
+        idle = any(o[0] == "idle" for o in robot_ops); robot_ops = [o for o in robot_ops if o[0] != "idle"]
+        need = next((c.drum for c in conds if c.drum is not None), None)          # the drum this step's boxes are for
         hints, page = step.all("Hint"), step.sub("Page")
         base = {c.needs_base: None for c in conds if c.needs_base}
         if base: s0 = self.seen(); base = {k: s0.value(k) for k in base}
-        t0 = time.time(); at = 0; turned = 0; hint_at = t0 + 25; hint_i = 0; robot = None; robot_due = t0 + 0.5; off_page = None; self.events = []; self.msgs.clear()
+        t0 = time.time(); at = 0; turned = 0; hint_at = t0 + self.hint_s; hint_i = 0; robot = None; robot_due = t0 + 0.5; off_page = None; self.events = []; self.msgs.clear()
         if conds and all(c.ok(self.seen(base)) for c in conds) and not any(c.needs_base for c in conds):
-            self.t.note("already", step.sub("Until")); return
+            on = lambda: (lambda st: bool(st["fill"] or st["punch"] is not None))(self.seen().st)
+            if not on(): self.t.note("already", step.sub("Until")); return
+            self.t.note("held", "a fill or an effect still held from the step before: let go first")
+            while on(): self.pump(); time.sleep(0.05)
+            t0 = time.time(); hint_at = t0 + self.hint_s; robot_due = t0 + 0.5; self.events = []; self.msgs.clear()
+        if need is not None:
+            self.pump()
+            if self.fm1.track != TRACK["drums"]: self.fm1.select(TRACK["drums"]); self.t.note("back", "to the drum track")
+            if self.picked != need: self.pick(need)                                 # (whatever was played before: the right drum now)
+            if self.robot and self.clumsy and not idle:                             # a learner who taps a blinking box before holding SEQ
+                miss = [b for c in conds if c.miss for b in c.miss(self.seen(base))]
+                if miss: robot_ops = [("tap", WHITE[miss[-1] % 16]), ("wait", 3.2)] + robot_ops
         while True:
+            if need is not None and self.picked != need and BTN["SEQ"] not in self.held:
+                # a key played with SEQ not held: it sounded a drum, and boxes would now write that drum
+                self.show(step, "THAT PLAYED A DRUM. / HOLD [SEQ] FIRST."); self.t.note("slip", "played %s" % (PADS[self.picked] if self.picked is not None else "a drum"))
+                self.pick(need); end = time.time() + (1.2 if self.fast else 2.4)
+                while time.time() < end: self.pump(); time.sleep(0.05)
+                if self.picked != need: continue                                    # (played again meanwhile: said again)
+                self.show(step); hint_at = time.time() + self.hint_s
             for ev in self.pump():
                 if os.environ.get("TP_DEBUG"): print("      event", ev, "%.2f" % (time.time() - t0), flush=True)
                 if conds or at >= len(ops): continue
@@ -597,12 +635,12 @@ class Player:
                 else:
                     self.robot.move(*mv[:3]); robot_due = now + mv[3]
                     if os.environ.get("TP_DEBUG"): print("      robot", mv, "%.2f" % (now - t0), flush=True)
-            if not self.robot and hint_i < len(hints) and now >= hint_at:
-                self.show(step, hints[hint_i]); self.t.note("hint", "%d" % (hint_i + 1)); hint_i += 1; hint_at = now + 25
-            elif not self.robot and hint_i >= len(hints) and now >= hint_at + 20 and ops:
-                if self.stuck(step, ops, conds, s): at = len(ops)
-                hint_at = time.time() + 25; self.show(step, hints[-1] if hints else None)
-            if now - t0 > (60 if self.robot else 3600): raise TimeoutError("lesson %d step %d: never done: %s" % (self.lesson.number, step.n, step.sub("Until") or step.sub("Do")))
+            if (not self.robot or idle) and hint_i < len(hints) and now >= hint_at:
+                self.show(step, hints[hint_i]); self.t.note("hint", "%d" % (hint_i + 1)); hint_i += 1; hint_at = now + self.hint_s
+            elif (not self.robot or idle) and hint_i >= len(hints) and now >= hint_at + self.stuck_s - self.hint_s and ops:
+                if self.stuck(step, ops, conds, need, base): break                  # shown: the step is over, whatever came of it
+                hint_at = time.time() + self.hint_s; self.show(step, hints[-1] if hints else None)
+            if now - t0 > (60 if self.robot else 24 * 3600): raise TimeoutError("lesson %d step %d: never done: %s" % (self.lesson.number, step.n, step.sub("Until") or step.sub("Do")))
             time.sleep(0.03 if self.robot else 0.06)
         if self.robot: time.sleep(0.1); self.robot.let_go(); time.sleep(0.12)
         self.lights({}); self._lit = None; self.fm1.lights()
@@ -617,17 +655,28 @@ class Player:
         miss = {WHITE[b % 16] for c in conds if c.miss for b in c.miss(s)}
         if not any(c.miss for c in conds): return ops
         return [op for op in ops if op[0] not in ("tap", "long", "khold") or op[1] in miss]
-    def stuck(self, step, ops, conds, s):
-        """a long time and every hint used: the lesson offers to do the move itself"""
+    def stuck(self, step, ops, conds, need=None, base=None):
+        """a long time and every hint used: the lesson offers to do the move itself. Shown, the step is over: the move is
+        made as a learner would make it, and what that leaves undone in a drum's boxes is written in"""
         f = self.fm1; f.take(buttons=[BTN["OCT_DOWN"], BTN["OCT_UP"]])
         self.t.say("STUCK?\nI CAN DO THIS STEP FOR YOU.", "NO", "SHOW ME"); self.t.point([BTN["OCT_DOWN"], BTN["OCT_UP"]])
-        ev = self.t.wait_for({("button", BTN["OCT_DOWN"]), ("button", BTN["OCT_UP"])}, timeout=3600); f.take(); f.lights(); self.held.clear()
+        ev = self.t.wait_for({("button", BTN["OCT_DOWN"]), ("button", BTN["OCT_UP"])}); f.take(); f.lights(); self.held.clear()
         if ev[1] == BTN["OCT_DOWN"]: return False
-        self.show(step); hands = Hands(f)
-        for mv in moves(self.left_to_do(ops, conds, s) if conds else ops, tap=0.25, gap=0.45):
+        self.show(step); hands = Hands(f); todo = self.left_to_do(ops, conds, self.seen(base)) if conds else ops
+        if need is not None:                                                        # first the drum's own key: boxes write the drum played last
+            if f.track != TRACK["drums"]: f.select(TRACK["drums"])
+            todo = [("tap", WHITE[need])] + todo; self.picked = need
+        for mv in moves(todo, tap=0.25, gap=0.45):
             if mv[0] != "none": self.lights({(mv[1] if mv[0] == "button" else light_of_key(mv[1])): 4} if mv[0] != "knob" else {})
             hands.move(*mv[:3]); time.sleep(mv[3])
-        self.t.note("shown", step.sub("Do")); return True
+        hands.let_go(); self.lights({}); time.sleep(0.3); s = self.seen(base); ok = all(c.ok(s) for c in conds)
+        if not ok and need is not None:                                             # still not there: the notes written straight in
+            for c in conds:
+                if c.drum is None or not c.miss(s): continue
+                steps, notes = f.pattern(TRACK["drums"]); have = {(int(round(n[0])), n[2]) for n in notes}
+                f.write_pattern(TRACK["drums"], steps, [(a, l, n, v, cd) for a, l, n, v, cd, _ in notes] + [(b, 1, c.drum, 100, 0) for b in c.miss(s) if (b, c.drum) not in have])
+            ok = all(c.ok(self.seen(base)) for c in conds)
+        self.t.note("shown", "%s%s" % (step.sub("Do"), "" if ok or not conds else "  (and the lesson still does not see: %s)" % step.sub("Until"))); return True
     def answer(self, step):
         """a question on the OCT buttons. With an Until, the answer counts only once it is true"""
         left, right = self.answers(step); conds = parse_until(step.sub("Until") or ""); f = self.fm1
@@ -650,7 +699,7 @@ class Player:
                 s = self.seen(base)
                 if all(c.ok(s) for c in conds): break
                 hint = step.sub("Hint") or "NOT YET."
-                self.show(step, hint); self.t.note("not yet", step.sub("Until")); self.nap(2.5); self.show(step)
+                self.show(step, hint); self.t.note("not yet", step.sub("Until")); self.nap(6.0); self.show(step)
             now = time.time()
             if page and not self.held:
                 f.guide(4)
@@ -664,7 +713,7 @@ class Player:
                 else:
                     robot = None; b = BTN["OCT_DOWN"] if choice == "left" and left else BTN["OCT_UP"]
                     self.robot.move("button", b, 1); time.sleep(0.09); self.robot.move("button", b, 0); robot_due = now + 1.5
-            if now - t0 > (60 if self.robot else 7200): raise TimeoutError("lesson %d step %d: no answer" % (self.lesson.number, step.n))
+            if now - t0 > (60 if self.robot else 24 * 3600): raise TimeoutError("lesson %d step %d: no answer" % (self.lesson.number, step.n))
             time.sleep(0.03)
         if self.robot: time.sleep(0.1); self.robot.let_go(); time.sleep(0.1)
         f.take(); f.lights(); self._lit = None; self.held.clear()
@@ -683,7 +732,7 @@ class Player:
                 for e in ev:
                     if e[0] == "key": self.t.note("other press", "key %d" % e[1])
                 if self.robot and time.time() >= due: self.robot.move("key", k, 1); time.sleep(0.09); self.robot.move("key", k, 0); due = time.time() + 1.5
-                if time.time() - t0 > (30 if self.robot else 3600): raise TimeoutError("nobody played key %d" % k)
+                if time.time() - t0 > (30 if self.robot else 24 * 3600): raise TimeoutError("nobody played key %d" % k)
                 time.sleep(0.02)
         self.lights({}, only=True); self._lit = None
     def wait(self, text):
@@ -705,7 +754,7 @@ class Player:
         if kind == "setup": self.setup(step.text); return None
         if kind == "wait": self.wait(step.text); return None
         if kind not in KINDS: raise Bad("lesson %d step %d: no kind of step called %s" % (self.lesson.number, step.n, step.kind))
-        if step.sub("Keys") == "silent": self.fm1.take(keys=range(27))
+        if step.sub("Keys") == "silent": self.fm1.take(keys=range(27)); self.keys_taken = True
         if kind == "play": keys, speed = self.phrase(step.text); self.t.play(keys, speed); self._lit = None
         elif kind == "echo": self.echo(self.phrase(step.text)[0])
         else: self.show(step)
@@ -717,7 +766,7 @@ class Player:
         elif step.sub("Do") or step.sub("Until"): self.do_until(step)
         if step.sub("Wait"): self.wait(step.sub("Wait"))
         elif kind == "reply": self.nap(1.2)
-        if step.sub("Keys") == "silent": self.fm1.take()
+        if step.sub("Keys") == "silent": self.fm1.take(); self.keys_taken = False
         return effect
     def play(self, lesson):
         """the lesson from its first card to its last. Returns "replay", "next" or "lessons" """

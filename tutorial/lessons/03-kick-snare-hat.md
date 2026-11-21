@@ -17,43 +17,45 @@
 3. **Strip:** PRESS [PLAY]. / YOUR FOUR KICKS.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** PLAY WHITE KEY 3: THE SNARE.
+4. **Card:** PLAYING A DRUM'S KEY PICKS THAT DRUM. / THE BOXES THEN WRITE IT. / SO FIRST PICK THE SNARE.
+   - **OCT+:** NEXT
+5. **Strip:** PICK THE SNARE: / PLAY [KEY 3].
    - **Do:** tap box 3
    - **Page:** STEPS
-5. **Strip:** NOW HOLD [SEQ] AND TAP BOXES 5 AND 13.
+6. **Strip:** NOW HOLD [SEQ] AND TAP [5] AND [13].
    - **Do:** hold SEQ, tap box 5 13
    - **Until:** drums has SNARE on boxes 5 13
-   - **Hint:** IF THE TOP SAYS KICK, PLAY WHITE KEY 3 FIRST.
-6. **Reply:** GOOD.
-7. **Card:** KICK ON EVERY BEAT. / SNARE ON BEATS 2 AND 4. / THAT SNARE IS THE BACKBEAT. MOST SONGS YOU KNOW HAVE IT. *(beginners only)*
+   - **Hint:** IF THE TOP SAYS KICK, PLAY [3] FIRST.
+7. **Reply:** GOOD.
+8. **Card:** KICK ON EVERY BEAT. / SNARE ON BEATS 2 AND 4. / THAT SNARE IS THE BACKBEAT. MOST SONGS YOU KNOW HAVE IT. *(beginners only)*
    - **OCT+:** NEXT
-8. **Strip:** NOW THE HAT. / PLAY WHITE KEY 5.
+9. **Strip:** NOW PICK THE HAT: / PLAY [5].
    - **Do:** tap box 5
    - **Page:** STEPS
-9. **Strip:** HOLD [SEQ]. HATS IN 3, 7, 11 AND 15: BETWEEN THE KICKS.
-   - **Do:** hold SEQ, tap box 3 7 11 15
-   - **Until:** drums has HAT on boxes 3 7 11 15
-   - **Hint:** IF THE TOP DOES NOT SAY HAT, PLAY WHITE KEY 5 FIRST.
-10. **Reply:** NICE.
-11. **Card:** THE GRID HAS A ROW FOR EACH DRUM. / THE KEYS LIGHT UP ONLY FOR THE DRUM YOU PICKED LAST.
+10. **Strip:** HOLD [SEQ]. HATS ON [3], [7], [11], [15]: BETWEEN THE KICKS.
+    - **Do:** hold SEQ, tap box 3 7 11 15
+    - **Until:** drums has HAT on boxes 3 7 11 15
+    - **Hint:** IF THE TOP DOES NOT SAY HAT, PLAY [5] FIRST.
+11. **Reply:** NICE.
+12. **Card:** THE GRID HAS A ROW FOR EACH DRUM. / THE KEYS LIGHT UP ONLY FOR THE DRUM YOU PICKED LAST.
     - **OCT+:** NEXT
-12. **Card:** MORE HATS? ONE IN EVERY ODD BOX MAKES IT RUSH ALONG. / WRITE THEM, OR HAVE THEM WRITTEN.
+13. **Card:** MORE HATS? ONE IN EVERY ODD BOX MAKES IT RUSH ALONG. / WRITE THEM, OR HAVE THEM WRITTEN.
     - **OCT-:** I WILL
     - **OCT+:** FINISH IT → drums HAT on 1 5 9 13
-13. **Strip:** HOLD [SEQ]. HATS IN 1, 5, 9 AND 13 TOO.
+14. **Strip:** HOLD [SEQ]. HATS ON [1], [5], [9], [13] TOO.
     - **Do:** hold SEQ, tap box 1 5 9 13
     - **Until:** drums has HAT on boxes 1 3 5 7 9 11 13 15
-    - **Hint:** IF THE TOP DOES NOT SAY HAT, PLAY WHITE KEY 5 FIRST.
+    - **Hint:** IF THE TOP DOES NOT SAY HAT, PLAY [5] FIRST.
     - **Robot:** tap box 5, hold SEQ, tap box 1 5 9 13
-14. **Setup:** unmute
-15. **Strip:** KICK, SNARE, HAT. / AND THE BAND.
+15. **Setup:** unmute; play
+16. **Strip:** KICK, SNARE, HAT. / AND THE BAND.
     - **Wait:** 4 bars
-16. **Strip:** CHANGE ANYTHING YOU LIKE. / [OCT+] WHEN DONE.
+17. **Strip:** WRONG BOX? TAP IT AGAIN. / [OCT+] WHEN DONE.
     - **OCT+:** DONE
-17. **Strip:** PRESS [PLAY] TO STOP.
+18. **Strip:** PRESS [PLAY] TO STOP.
     - **Do:** press PLAY
     - **Until:** stopped
-18. **Card:** THREE LAYERS: KICK, SNARE, HAT. / THAT IS A DRUM BEAT.
+19. **Card:** THREE LAYERS: KICK, SNARE, HAT. / THAT IS A DRUM BEAT.
     - **OCT+:** DONE
 
 ## Screens
@@ -68,7 +70,22 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   box 5 with SEQ held, the kick in box 5 is removed. The hints say how to get back; if kicks have gone missing,
   say so and help put them back (white key 1, then SEQ and the box).
 - "Backbeat" is the only new music word. Use it again in later lessons.
-- If they choose I WILL in step 12 and then struggle, FINISH IT is still there next time round.
+- If they choose I WILL in step 13 and then struggle, FINISH IT is still there next time round.
 
 ## Tester notes
 
+2026-11-19, on the real FM-1. "Lesson 3 was great."
+
+- **Say more plainly what picking a drum is.** "How to select the drum, the selection phase of picking the snare:
+  be more explicit about what that step is." Today the strip only says `PLAY WHITE KEY 3: THE SNARE`. It does not
+  say that playing a drum's key is what chooses the drum the boxes will write. Not changed yet.
+- **Later in the lesson, say that a wrong box can be undone by tapping it again.** "If they pick the wrong step
+  they can just press it again and it goes away." Lesson 2 says `A FULL BOX EMPTIES` once; lesson 3 never says
+  it. Not changed yet.
+
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- Both notes above are applied. A card before the snare says what picking is (`PLAYING A DRUM'S KEY PICKS THAT
+  DRUM. / THE BOXES THEN WRITE IT. / SO FIRST PICK THE SNARE.`), and the strips say `PICK THE SNARE: / PLAY [KEY
+  3].` and `NOW PICK THE HAT: / PLAY [5].`
+- The free step near the end says `WRONG BOX? TAP IT AGAIN.` 19 steps: from old step 4 on, add one.

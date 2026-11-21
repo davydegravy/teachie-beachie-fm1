@@ -30,21 +30,21 @@
 8. **Strip:** PRESS [SEQ] FOR THE DRUM GRID.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-9. **Strip:** PLAY WHITE KEY 5: THE HAT.
+9. **Strip:** PLAY [KEY 5]: THE HAT.
    - **Do:** tap box 5
    - **Page:** STEPS
-10. **Strip:** HOLD [SEQ], HOLD BOX 4, TURN KNOB 2 RIGHT.
+10. **Strip top:** HOLD [SEQ] + [4]: / KNOB 2 TO HARD.
     - **Do:** hold SEQ, hold box 4, turn KNOB 2 right 2
     - **Until:** drums has 1 hard notes or more
-    - **Hint:** KEEP BOTH DOWN. TURN UNTIL LEVEL SAYS HARD.
-11. **Strip:** THE SAME FOR BOXES 8, 12 AND 16.
+    - **Hint:** KEEP HOLDING BOTH. LEVEL IS THE 2ND DIAL.
+11. **Strip top:** NOW [8], [12], [16].
     - **Do:** hold SEQ, hold box 8, turn KNOB 2 right 2, let go, hold SEQ, hold box 12, turn KNOB 2 right 2, let go, hold SEQ, hold box 16, turn KNOB 2 right 2
     - **Until:** drums has 4 hard notes or more
     - **Hint:** [SEQ], HOLD THE BOX, KNOB 2 RIGHT. ONE BOX AT A TIME.
 12. **Reply:** IT BREATHES.
 13. **Card:** PLAYING BY HAND HAS SOFT AND HARD TOO. / HOLD [OCT-] AND PLAY A DRUM: SOFT. / HOLD [OCT+]: HARD.
     - **OCT+:** NEXT
-14. **Strip:** HOLD [OCT-], PLAY WHITE KEY 3.
+14. **Strip:** HOLD [OCT-], PLAY [3].
     - **Do:** hold OCT-, tap box 3
 15. **Strip:** NOW HOLD [OCT+], PLAY IT AGAIN.
     - **Do:** hold OCT+, tap box 3

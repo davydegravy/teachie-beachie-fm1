@@ -24,10 +24,42 @@ its last on the simulated FM-1 by a robot learner, and none has been played by a
 To start from a particular lesson, put its number in the command: `tutorial/run.py 5 --fm1 --wait`.
 
 **Where you are is remembered** in `tutorial/progress.json`. Each run's log goes to `tutorial/logbook/`, and a
-copy of what was on the FM-1 before each lesson goes to `tutorial/seachest/`.
+copy of what was on the FM-1 before each lesson goes to `tutorial/backups/`.
 
 **A lesson replaces what is on the FM-1.** It starts a new project and loads its own song. The copy in the
-seachest is the way back.
+backups folder is the way back.
+
+## On the FM-1 alone, with no computer
+
+The same lessons can run on the FM-1 by itself. The firmware has its own lesson player, and the lessons are packed
+into one of the FM-1's four sample slots.
+
+**Putting the lessons on the FM-1** (once, and again whenever a lesson file changes), with the FM-1 switched on
+normally and plugged in:
+
+```bash
+tutorial/.venv/bin/python tutorial/device.py --install
+```
+
+It uses the last empty sample slot, and says which. Add `1-15` to put only lessons 1 to 15 on.
+
+The firmware has to be on the FM-1 first (`build/fw/installer-fm1.html`, opened in Chrome), and the lessons and the
+firmware have to come from the same build. On a computer that does not have `tutorial/.venv` yet, make it once:
+
+```bash
+python3 -m venv tutorial/.venv && tutorial/.venv/bin/pip install mido python-rtmidi
+```
+
+**Taking a lesson:** press **OCT+** (START) on the start card. With no computer answering, the FM-1 begins its own
+course after a second. Everything else is as above: BEGIN, LESSONS and SELECT, REPLAY and NEXT.
+
+**Leaving a lesson:** hold **OCT−** and **OCT+** together for two seconds. The lesson's first card comes back.
+
+**What is different without a computer:**
+- The FM-1 does not remember which lesson was next once it is switched off. Use LESSONS to go to it.
+- SHOW ME does the step directly (the notes appear, the page opens); it does not press the buttons one by one.
+- There is no log, and no copy is kept of what was on the FM-1 before a lesson.
+- If the lesson program on a computer is running and the FM-1 is plugged in, the computer leads, as before.
 
 ## Making notes
 
@@ -71,7 +103,7 @@ Each file also has a picture of the lesson's screens, in order, taken from the r
 | 17 | [Fills and rolls](17-fills-and-rolls.md) | A fill says "something new is coming". |
 | 18 | [Play the effects](18-play-the-effects.md) | Some effects are played like notes. |
 | 19 | [Echo and space](19-echo-and-space.md) | A delay repeats a sound; a reverb puts it in a room. |
-| 20 | [Colour a track](20-colour-a-track.md) | An insert changes one track; a filter makes it dark or bright. |
+| 20 | [Color a track](20-color-a-track.md) | An insert changes one track; a filter makes it dark or bright. |
 | 21 | [Shape a sound](21-shape-a-sound.md) | A sound has a beginning, an end and a brightness. |
 | 22 | [Wobble and arps](22-wobble-and-arps.md) | The FM-1 can move a sound, and play a chord note by note. |
 | 23 | [Your own piece, live](23-your-own-piece-live.md) | A performance. |
@@ -127,15 +159,16 @@ the numbered list under `## Steps`.
 
 ### A step
 
-One numbered line: the kind of step in bold, then its words. In the words, ` / ` starts a new line on the
-screen, and a button's name in `[ ]` is drawn in a frame. A step marked `*(beginners only)*` is left out on the
+One numbered line: the kind of step in bold, then its words. In the words, ` / ` (a slash with a space on each
+side) starts a new line on the screen; a slash inside a word, as in `LFO 1/3`, is printed. A button's name in
+`[ ]` is drawn in a frame. A step marked `*(beginners only)*` is left out on the
 path for people who know grooveboxes.
 
 | Kind | What the learner gets |
 |---|---|
 | **Card** | A full peach screen of words: an idea, or a question. About seven short lines. |
-| **Big** | A few words, large and centred. |
-| **Strip** | A band of words along the bottom, over SLOOP's own screen, which stays live. Three lines at most. **Strip top** puts it along the top, for when the dials at the bottom matter. |
+| **Big** | A few words, large and centered. |
+| **Strip** | A band of words along the bottom, over SLOOP's own screen, which stays live. Three lines at most. **Strip top** puts it along the top, for when the dials at the bottom matter. **Strip corner** is a small tag in the top left corner, as wide as its words, for a step where the learner needs the whole screen (lesson 30). |
 | **Reply** | The dry voice: a word or two, large, for a moment. `GOOD.` |
 | **Setup** | Nothing to see. The FM-1 is made ready: a song, an empty track, a page. |
 | **Wait** | Nothing new for a while: `4 seconds`, `2 bars`, `until bar 9`. |
@@ -203,6 +236,10 @@ Joined with `;`.
   `key A minor` · `play` · `stop` · `rec off`
 
 ## Checking a lesson after changing it
+
+(These check the lessons as a computer plays them. `python3 tutorial/device.py` plays them on a simulated FM-1 that
+leads itself, the way the FM-1 does with no cable; add lesson numbers for only those, and `--clumsy` for the robot
+that slips.)
 
 From the repository's top folder:
 

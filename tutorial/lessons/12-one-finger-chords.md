@@ -16,7 +16,7 @@
 3. **Strip:** PRESS [SEL]: THE KEY PAGE.
    - **Do:** press SEL
    - **Until:** page is KEY
-4. **Strip:** KNOB 3: ONE CLICK RIGHT. THE TILES SHOW CHORDS.
+4. **Strip top:** KNOB 3: 1 CLICK RIGHT. / TILES SHOW CHORDS.
    - **Do:** turn KNOB 3 right 1
    - **Page:** KEY
 5. **Strip:** ONE KEY, ONE CHORD. PLAY THE BLINKING KEYS.
@@ -60,7 +60,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 ## Notes for Claude
 
 - The lesson cannot read the CHORD setting from the FM-1 yet. After step 4 the tiles should show chord names
-  (Am, F, C, G ...). If they show single notes, KNOB 3 has to go one more click.
+  (Am, F, C, G ...) and the CHORD dial says TRIAD. The strip is at the top so that dial is in view. If they show single notes, KNOB 3 has to go one more click.
 - The light changes at the start of each bar, which is slightly late for a first-time player. Tell them to look
   ahead: Am, F, C, G, round and round.
 - Chords recorded a little early or late are pulled onto the nearest box when they play back.

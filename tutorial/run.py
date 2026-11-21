@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Teachie Peachie: run the lessons (tutorial/lessons/NN-name.md).
+"""Teachie Beachie: run the lessons (tutorial/lessons/NN-name.md).
 
     tutorial/.venv/bin/python -u tutorial/run.py --fm1 --wait     a real FM-1 over USB: wait for START on its start
                                                                   card, then play the lessons from where the learner is
@@ -14,7 +14,7 @@ again after it is unplugged or switched off. --once: one lesson, then stop (the 
 --advanced: the steps marked "beginners only" are left out.
 
 Run it from the repository's top folder. --fm1 needs the Python with the two MIDI packages (tutorial/.venv); --twin
-needs build/twin (make build/twin). Before each lesson the project on the FM-1 is copied to tutorial/seachest/. The
+needs build/twin (make build/twin). Before each lesson the project on the FM-1 is copied to tutorial/backups/. The
 lesson's song stays on the FM-1 afterwards. Each run's log goes to tutorial/logbook/, and where the learner has got
 to is kept in tutorial/progress.json."""
 import json, os, sys, time
@@ -50,7 +50,7 @@ def begin(teacher, fm1, i):
         fm1.take(buttons=[BTN["OCT_DOWN"], BTN["OCT_UP"]], knobs=[KNOB["SELECT"]]); fm1.lights({BTN["OCT_DOWN"]: BLINK, BTN["OCT_UP"]: BLINK}, only=True)
         shown = None
         while True:
-            if shown != i: l = LESSONS[i]; fm1.card("LESSONS\nTURN [SELECT] TO CHOOSE.\n\n%d  %s" % (l.number, l.title.upper()), "HOME", "BEGIN"); shown = i
+            if shown != i: l = LESSONS[i]; fm1.card("^< TURN [SELECT] >\nLESSON %d\n%s" % (l.number, l.title.upper()), "HOME", "BEGIN", big=True); shown = i
             got = None
             for kind, which in fm1.events():
                 if kind in ("knob_right", "knob_left") and which == KNOB["SELECT"]: i = max(0, min(len(LESSONS) - 1, i + (1 if kind == "knob_right" else -1)))
@@ -63,14 +63,17 @@ def begin(teacher, fm1, i):
 
 def lesson(fm1, link, i):
     """one lesson played (again while the learner asks for REPLAY). Returns "next" """
+    try: LESSONS[i] = type(LESSONS[i])(LESSONS[i].path)        # the lesson's file read again: an edit made since the program began is in
+    except Exception as e: print("lesson %d not read again (%s): played as it was" % (LESSONS[i].number, e), flush=True)
     l = LESSONS[i]; stamp = time.strftime("%Y%m%d-%H%M%S")
     teacher = Teacher(fm1, learner=Robot(link) if twin else None, shots=twin)
     there = fm1.read_project()                                  # the project that was there: a copy kept, not put back
     if not twin:
-        os.makedirs(os.path.join(HERE, "seachest"), exist_ok=True)
-        open(os.path.join(HERE, "seachest", "project-%s.s3p" % stamp), "wb").write(there)
+        os.makedirs(os.path.join(HERE, "backups"), exist_ok=True)
+        open(os.path.join(HERE, "backups", "project-%s.s3p" % stamp), "wb").write(there)
     teacher.note("kept", "a copy of the project that was there, %d bytes" % len(there))
     player = Player(teacher, robot_link=link if twin else None, fast=fast, path="advanced" if "--advanced" in sys.argv else "beginner")
+    player.clumsy = "--clumsy" in sys.argv                    # (the tests: a robot that taps a blinking box before holding SEQ)
     try:
         while player.play(l) == "replay": teacher.note("again", l.name)
         teacher.note("finished", l.name)
@@ -106,7 +109,11 @@ def serve():
         robot = Robot(link) if twin else None
         try:
             fm1 = FM1(link); fm1.events()
-            if not fm1.state & 2 and not fm1.playing(): fm1.home()   # (no card up and not playing: the start card)
+            if fm1.state & 1 and not fm1.state & 2:                  # a lesson's card still up: the lesson before was cut short
+                fm1.off(); fm1.all_keys_up()
+                if fm1.playing(): fm1.live(5, 0)
+                fm1.home()
+            elif not fm1.state & 2 and not fm1.playing(): fm1.home()   # (no card up and not playing: the start card)
             print("FM-1 found: waiting for START", flush=True); said = "found"
             while True:
                 if fm1.start_asked():

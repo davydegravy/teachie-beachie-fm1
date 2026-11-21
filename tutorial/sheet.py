@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Teachie Peachie: the screens a run on the simulated FM-1 saved, side by side in one picture.
+"""Teachie Beachie: the screens a run on the simulated FM-1 saved, side by side in one picture.
     python3 tutorial/sheet.py build/tw/lessons/02-sixteen-boxes [out.png]"""
 import os, sys
 from PIL import Image

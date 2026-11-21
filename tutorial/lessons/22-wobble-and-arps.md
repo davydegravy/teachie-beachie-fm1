@@ -12,7 +12,7 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; mute lead; track pad; page TRACKS
-2. **Card:** THE FM-1 CAN MOVE A SOUND BY ITSELF. / AN LFO IS A SLOW WAVE THAT TURNS A KNOB FOR YOU, UP AND DOWN, FOR EVER.
+2. **Card:** THE FM-1 CAN MOVE A SOUND BY ITSELF. / AN LFO IS A SLOW WAVE THAT TURNS A KNOB FOR YOU, UP AND DOWN, FOREVER.
    - **OCT+:** GO
 3. **Strip:** PRESS [PLAY]. TRACK 4, THE PAD, IS CHOSEN.
    - **Do:** press PLAY
@@ -62,7 +62,7 @@
     - **Until:** played 3 keys
     - **Page:** ARP
 18. **Card:** NOBODY CAN PLAY THAT BY HAND. / YOU JUST DID.
-    - **OCT+:** HA
+    - **OCT+:** NEXT
 19. **Strip:** HOLD OTHER KEYS. TRY CHORDS. / [OCT+] WHEN DONE.
     - **OCT+:** DONE
 20. **Strip:** PRESS [HOME].
@@ -92,4 +92,12 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   (loudness, a tremolo).
 
 ## Tester notes
+
+2026-11-20, on the real FM-1.
+
+- **"It uses the words for ever, shouldn't that be forever?"** Yes, one word in American English. Step 2's card
+  now ends `UP AND DOWN, FOREVER.` It was the only one in the lessons. Changed the same day.
+- **"At one point it says OCT+ HA, I think it should just say next."** Step 18's card (`NOBODY CAN PLAY THAT BY
+  HAND. / YOU JUST DID.`) had HA as its answer, the only joke label in the course. It says NEXT now. The rule
+  it gives: a button's word says what the press does (NEXT, DONE, GO), never a reply to the card.
 

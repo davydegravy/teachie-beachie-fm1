@@ -59,7 +59,7 @@
 15. **Strip:** [SELECT] ONE CLICK LEFT: THE SONG PAGE.
     - **Do:** turn SELECT left 1
     - **Until:** page is SONG
-16. **Strip:** TAP WHITE KEY 13, THEN PRESS [PLAY].
+16. **Strip:** TAP [KEY 13], THEN PRESS [PLAY].
     - **Do:** tap box 13, press PLAY
     - **Until:** song playing and playing
     - **Page:** SONG

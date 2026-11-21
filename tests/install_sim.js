@@ -90,7 +90,7 @@ async function install() {
   for (let i = 0x4000 + AREA.length; i < size; i++) if (fb[i] !== 0xFF) { check(false, 'padding'); break; }
   await read(0xF0000000, 8);
   setTimeout(() => {
-    check(logs.some(l => /Installed! The FM-1 restarts on TEACHIE PEACHIE/.test(l)), 'the page says it is installed');
+    check(logs.some(l => /Installed! The FM-1 restarts on TEACHIE BEACHIE/.test(l)), 'the page says it is installed');
     check(els.st5.className === 'done' && els.st6.className === 'done', 'steps 5 and 6 marked done');
     check(!els.p6.classList.contains('hide') && els.p5.classList.contains('hide'), 'the last pane shown');
     console.log(fails ? fails + ' FAILED' : `install_sim: OK (${size} bytes of flash.bin, area ${AREA.length})`);

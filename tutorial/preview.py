@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Teachie Peachie: hear a lesson's song before it goes on an FM-1. The simulated FM-1 plays it through SLOOP 3's
+"""Teachie Beachie: hear a lesson's song before it goes on an FM-1. The simulated FM-1 plays it through SLOOP 3's
 own sound engine and keeps the sound as a file.
     python3 tutorial/preview.py house-one [section] [seconds]   ->  build/tw/lesson/house-one.wav"""
 import importlib, os, sys, time

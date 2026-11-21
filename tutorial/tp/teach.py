@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
-"""Teachie Peachie: what a lesson is written with. A Teacher shows cards, points with lights, waits for a press,
+"""Teachie Beachie: what a lesson is written with. A Teacher shows cards, points with lights, waits for a press,
 plays a phrase, and keeps a log of what happened and when."""
 import time
 from .fm1 import BTN, BLINK, light_of_key
@@ -18,7 +18,7 @@ class Teacher:
         """the dry voice: a word or two, large, alone on the card"""
         self.fm1.lights({}, only=True); self.fm1.card(word, big=True); self.note("reply", word); self._shot(shot); time.sleep(hold)
     def strip(self, words, where=1, shot=None):
-        """a line or two over SLOOP's own screen, which stays live (where: 1 the top, 2 the bottom)"""
+        """a line or two over SLOOP's own screen, which stays live (where: 1 the top, 2 the bottom, 3 a tag in the top left corner)"""
         self.fm1.card(words, strip=where); self.note("strip", words.replace("\n", " / ")); self._shot(shot)
     def load_song(self, song):
         """a lesson's song put on the FM-1: each player's sound, level and notes, and the tempo"""
@@ -29,8 +29,10 @@ class Teacher:
             self.note("song", "%-9s %-10s %3d notes" % ("track %d" % tr["track"], tr["sound"], n))
     # lights and presses
     def point(self, lights, only=True): self.fm1.lights({l: BLINK for l in lights}, only=only)
-    def wait_for(self, want, timeout=120):
-        """wait for one of the presses in want, a set of (kind, which); the others are logged"""
+    def wait_for(self, want, timeout=None):
+        """wait for one of the presses in want, a set of (kind, which); the others are logged. A person may take as long as
+        they like (a card left up over lunch is still there afterwards); only the robot learner is given up on"""
+        if timeout is None: timeout = 120 if self.learner else 24 * 3600
         self.fm1.events(); t0 = time.time(); nudge = t0 + 0.4
         while time.time() - t0 < timeout:
             for ev in self.fm1.events():

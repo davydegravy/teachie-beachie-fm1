@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
-"""Teachie Peachie: the connector. Talks to an FM-1 running this firmware in the words of SLOOP 3's editor
+"""Teachie Beachie: the connector. Talks to an FM-1 running this firmware in the words of SLOOP 3's editor
 (app/edproto.h), plus the guide (ED_GUIDE, fw/main.c): cards, lights, the keys it takes, every press read back.
 
 Two links, the same messages on both:
@@ -8,7 +8,7 @@ Two links, the same messages on both:
 """
 import queue, subprocess, threading, time, zlib
 
-ED_SOUND, ED_READ, ED_WBEGIN, ED_WDATA, ED_WEND, ED_PATTERN, ED_NOTES, ED_LIVE, ED_NOTES2, ED_SONG, ED_NAMES, ED_GUIDE = 2, 5, 6, 7, 8, 10, 12, 15, 16, 18, 20, 21
+ED_SOUND, ED_READ, ED_WBEGIN, ED_WDATA, ED_WEND, ED_PATTERN, ED_NOTES, ED_SAMPLE, ED_LIVE, ED_NOTES2, ED_SONG, ED_NAMES, ED_GUIDE = 2, 5, 6, 7, 8, 10, 12, 13, 15, 16, 18, 20, 21
 K_KIT = 9                                   # a factory sound's kind: a drum kit
 
 class Refused(RuntimeError):
@@ -39,10 +39,11 @@ def parse(sx):
 
 class Twin:
     """The simulated FM-1. It runs in real time, as the FM-1 does."""
-    def __init__(self, out="build/tw/lesson", binary="build/twin"):
-        import os; os.makedirs(out, exist_ok=True)
+    def __init__(self, out="build/tw/lesson", binary="build/twin", flash=None):
+        """flash: a file of the whole flash to start from (a twin that ended leaves one, flash.bin, in its folder)"""
+        import os; os.makedirs(out, exist_ok=True); flash = flash or os.environ.get("TP_FLASH", "-")
         self.out = out
-        self.p = subprocess.Popen([binary, "serve", out, "-", "1"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
+        self.p = subprocess.Popen([binary, "serve", out, flash, "1"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
         self.frames, self.lines, self.sx = queue.Queue(), queue.Queue(), bytearray()
         threading.Thread(target=self._read, daemon=True).start()
         self._line("READY", 60)
@@ -113,7 +114,7 @@ class FM1:
             sx = self.link.recv(0)
             if not sx: return
             r = parse(sx)
-            if r and r[0] == ED_GUIDE and len(r[1]) >= 5: self._absorb(r[1])
+            if r and r[0] == ED_GUIDE and len(r[1]) >= 5 and r[1][0] != 6: self._absorb(r[1])
     def ask(self, cmd, raw=b"", timeout=1.5, tries=1):
         """tries: for a request that is safe to send twice (an answer can be late or lost), how often to ask"""
         for n in range(tries):
@@ -122,7 +123,7 @@ class FM1:
             while time.time() < end:
                 sx = self.link.recv(end - time.time())
                 r = parse(sx) if sx else None
-                if r and r[0] == ED_GUIDE and len(r[1]) >= 5: self._absorb(r[1])
+                if r and r[0] == ED_GUIDE and len(r[1]) >= 5 and r[1][0] != 6: self._absorb(r[1])
                 if r and r[0] == cmd: return r[1]
                 if r and r[0] == 0: raise Refused(cmd, r[1][0] if r[1] else -1)
             if n + 1 < tries: self.lost += 1
@@ -131,13 +132,16 @@ class FM1:
     def guide(self, op, payload=b""): self.ask(ED_GUIDE, bytes([op]) + bytes(payload), 0.4, 4)
     def off(self): return self.guide(0)
     def card(self, words, left="", right="", big=False, strip=0):
-        """strip: 0 a whole card, 1 a band at the top, 2 at the bottom (the page stays live around it)"""
+        """strip: 0 a whole card, 1 a band at the top, 2 at the bottom, 3 a tag in the top left corner (the page stays live around it)"""
         t = lambda s: s.upper().encode("ascii", "replace") + b"\0"
         return self.guide(1, bytes([1 | (2 if big else 0) | strip << 2]) + t(words) + t(left) + t(right))
     def no_card(self): return self.guide(1, bytes([0, 0, 0, 0]))
     def lights(self, how=None, only=False):
-        """how: {light number: 1..4 or BLINK}; nothing: the guide's lights off"""
-        return self.guide(2, bytes([int(only)]) + bytes(x for kv in (how or {}).items() for x in kv))
+        """how: {light number: 1..4 or BLINK}; nothing: the guide's lights off. only: SLOOP's own lights dark too, but the
+        fourteen buttons keep a faint glow (level 1: as bright as HOME > LIGHTS says), so their names can still be read"""
+        how = dict(how or {})
+        if only: how = {**{b: 1 for b in range(14)}, **how}
+        return self.guide(2, bytes([int(only)]) + bytes(x for kv in how.items() for x in kv))
     def take(self, keys=(), buttons=(), knobs=()):
         km = sum(1 << k for k in keys); bm = sum(1 << b for b in buttons); em = sum(1 << e for e in knobs)
         return self.guide(3, km.to_bytes(4, "little") + bm.to_bytes(2, "little") + bytes([em]))
@@ -227,6 +231,26 @@ class FM1:
         r = self.ask(ED_SONG, bytes([0]), 0.5, 3); total = r[2] | r[3] << 8
         at = [r[7 + 8 * i] | r[8 + 8 * i] << 8 for i in range(r[6])]
         return [(at[i], list(r[10 + 8 * i: 15 + 8 * i]), (at[i + 1] if i + 1 < len(at) else total) - at[i]) for i in range(len(at))]
+    # the course on the FM-1 itself (fw/course.inc): its lessons kept in a user sample slot
+    def slots(self):
+        """what each user sample slot holds: [(how many samples, its name, its size in KB)]"""
+        r = self.ask(ED_SAMPLE, bytes([0]), 1.0, 3)
+        return [(r[3 + 11 * i], r[4 + 11 * i: 12 + 11 * i].split(b"\0")[0].decode("ascii", "replace"), r[12 + 11 * i] | r[13 + 11 * i] << 8) for i in range(r[1])]
+    def write_slot(self, k, head, data):
+        """a user sample slot written: its 480 bytes of header, and the data behind it (the FM-1 checks its length and CRC)"""
+        def job(raw, wait=30.0):
+            end = time.time() + wait
+            while True:
+                try: return self.ask(ED_SAMPLE, raw, 8.0)
+                except Refused as e:
+                    if e.reason != 2 or time.time() > end: raise
+                    time.sleep(0.05)
+        job(bytes([1, k])); off = 0
+        while off < len(data): c = data[off:off + 400]; job(bytes([2, k]) + off.to_bytes(4, "little") + c); off += len(c)
+        return job(bytes([3, k]) + head)
+    def course(self):
+        """the FM-1's own course: (its phase, the lesson's number, the step from 0, how many lessons it holds)"""
+        r = self.ask(ED_GUIDE, bytes([6]), 0.4, 4); return r[1], r[2], r[3], r[4]
     # the whole project, out and back in
     def read_project(self):
         data, total = b"", None

@@ -27,7 +27,7 @@ void vis_frame(uint8_t *mem, const vis_in *in);   /* a new picture: worked out o
 void vis_draw(void);                              /* into the tile (gfx.h) */
 void vis_splash(uint32_t ms, const char *ver, const uint16_t *col);   /* the start: the SLOOP logo drawn in, at ms (col: the 5 tracks') */
 void vis_splash_draw(void);
-/* Teachie Peachie's two colours: the paper of its cards and of the start screen, the ink of its words */
+/* Teachie Beachie's two colours: the paper of its cards and of the start screen, the ink of its words */
 #define TP_PAPER RGB(0xFF, 0xCB, 0xA4)       /* #FFCBA4, a creamy peach */
 #define TP_INK RGB(0x96, 0x00, 0x00)         /* #960000, a dark red */
 #define VIS_SPLASH_MS 2600u

@@ -702,7 +702,7 @@ static double play_rms(int eng, int e0, int t, int note, int blocks)
 /* 3.3.6: a note's pitch, from the output's autocorrelation (the strongest lag past the first dip) */
 static double pitch_of(int eng, int e0, int note)
 {
-    static float o[72 * GB_BLOCK];       /* (Teachie Peachie: 72, not 64: the lags below read up to block 16 + 32 + 1199 samples) */
+    static float o[72 * GB_BLOCK];       /* (Teachie Beachie: 72, not 64: the lags below read up to block 16 + 32 + 1199 samples) */
     reset(); sm_jump(&S.master, 1.0f); sm_jump(&S.trk[1].level, 1.0f);
     gb_patch *p = &S.trk[1].patch; gb_patch_default(p, eng); gb_patch_set(p, SP_E0, e0); gb_patch_set(p, SP_SUS, 127);
     snd_note_on(&S, GB_OWNER(OWN_KEY, 0), 1, note, 1.0f);

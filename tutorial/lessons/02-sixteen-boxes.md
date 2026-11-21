@@ -24,28 +24,28 @@
    - **Until:** page is STEPS
 6. **Card:** 16 BOXES ACROSS. / THAT IS ONE BAR OF MUSIC. / HOLD [SEQ], AND THE 16 WHITE KEYS ARE THE 16 BOXES.
    - **OCT+:** NEXT
-7. **Strip:** PLAY THE LOWEST WHITE KEY: THE KICK.
+7. **Strip:** PLAY [KEY 1], THE LOWEST WHITE KEY: THE KICK.
    - **Do:** tap box 1
    - **Page:** STEPS
-8. **Strip:** NOW HOLD [SEQ] AND TAP BOX 1.
+8. **Strip:** NOW HOLD [SEQ] AND TAP [1].
    - **Do:** hold SEQ, tap box 1
    - **Until:** drums has KICK on box 1
-   - **Hint:** KEEP [SEQ] DOWN AND / TAP THE BLINKING KEY.
+   - **Hint:** KEEP HOLDING [SEQ]. / TAP THE BLINKING KEY.
 9. **Strip:** PRESS [PLAY]. / WATCH THE LIGHT WALK.
    - **Do:** press PLAY
    - **Until:** playing
    - **Wait:** 2 bars
-10. **Strip:** ONE KICK IS LONELY. / HOLD [SEQ] AND FILL / BOXES 5, 9 AND 13.
+10. **Strip:** ONE KICK IS LONELY. / HOLD [SEQ] AND TAP / [5], [9] AND [13].
     - **Do:** hold SEQ, tap box 5 9 13
     - **Until:** drums has KICK on boxes 1 5 9 13
     - **Hint:** HOLD [SEQ] AND TAP / EACH BLINKING KEY.
 11. **Reply:** GOOD.
 12. **Card:** KICK ON 1, 5, 9, 13. / FOUR ON THE FLOOR. / THIS IS THE BEAT OF HOUSE MUSIC.
     - **OCT+:** NEXT
-13. **Strip:** CHANGE IT. A FULL BOX EMPTIES. / [OCT+] WHEN DONE.
+13. **Strip:** ADD KICKS, OR TAP A FULL BOX: IT EMPTIES. / [OCT+] WHEN DONE.
     - **OCT+:** DONE
     - **Robot:** hold SEQ, tap box 7, let go
-14. **Setup:** unmute
+14. **Setup:** unmute; play
 15. **Strip:** YOUR KICK. / NOW WITH THE BAND.
     - **Wait:** 4 bars
 16. **Strip:** PRESS [PLAY] TO STOP.
@@ -69,3 +69,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Tester notes
 
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- Keys have framed names now (`[KEY 1]`, then `[5], [9] AND [13]`); "box" is only the square on the screen.
+- The free step says what can be done: `ADD KICKS, OR TAP A FULL BOX: IT EMPTIES.`

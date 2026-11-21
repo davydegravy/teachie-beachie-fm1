@@ -18,10 +18,10 @@
 5. **Strip:** PRESS [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-6. **Strip:** PLAY ALONG. TRY KEY 4, THE CLAP. / [OCT+] WHEN DONE.
+6. **Strip:** PLAY ALONG. TRY [KEY 4], THE CLAP. / [OCT+] WHEN DONE.
    - **OCT+:** DONE
    - **Until:** played 4 keys
-   - **Hint:** PLAY A FEW DRUMS FIRST.
+   - **Hint:** NOT YET. PLAY A FEW DRUMS FIRST.
    - **Robot:** tap box 4 10 11 4
 7. **Card:** SLOOP HAS MANY KITS. / EACH ONE PUTS 16 NEW SOUNDS ON THE SAME KEYS. / YOUR BEAT STAYS THE SAME.
    - **OCT+:** NEXT
@@ -31,7 +31,7 @@
 9. **Strip:** TRY MORE KITS. / [OCT+] ON ONE YOU LIKE.
    - **OCT+:** THIS ONE
    - **Robot:** turn PRESETS right 2
-10. **Setup:** unmute
+10. **Setup:** unmute; play
 11. **Strip:** THE WHOLE BAND, / WITH YOUR KIT.
     - **Wait:** 4 bars
 12. **Strip:** PRESS [PLAY] TO STOP.
@@ -56,3 +56,15 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Tester notes
 
+2026-11-19, on the real FM-1.
+
+- **Maybe say that the picked drum's notes are orange in the grid.** At `PLAY ALONG. TRY KEY 4, THE CLAP`: "when
+  the instrument is selected and notes are in the sequencer it turns orange. Maybe this is too hard to say in
+  short words so we should keep it the same." A wording that fits a strip in three lines: `THE DRUM YOU PLAYED
+  LAST IS ORANGE IN THE GRID.` It could also go on lesson 3's card about the grid's rows, where there is more
+  room. Not changed; left as it is unless decided otherwise.
+
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- The note above is left as it is ("maybe we should keep it the same"). The step's "not yet" now says so: `NOT YET.
+  PLAY A FEW DRUMS FIRST.`

@@ -1,6 +1,6 @@
 # The PC side: tests and the demo render (the FM-1 build comes with hal/fm1)
 CC ?= cc
-# the sanitizers of the twin and the fuzzer (Teachie Peachie: on macOS 26, Apple clang 17's AddressSanitizer hangs as it
+# the sanitizers of the twin and the fuzzer (Teachie Beachie: on macOS 26, Apple clang 17's AddressSanitizer hangs as it
 # starts, before main: there the undefined-behaviour checks only; SAN=... to choose)
 ifeq ($(shell uname),Darwin)
 SAN ?= -fsanitize=undefined
@@ -57,7 +57,7 @@ build/fuzz: $(FUZZSRC)
 TWINSRC = host/twin.c host/hal.c app/project.c app/psound.c app/presets.c app/preset_data.c app/sloopimport.c app/sloop_kinds.c app/usersnd.c app/xbank.c app/edproto.c app/store.c app/ui.c app/gfx.c app/vis.c app/fonts.c app/harmony.c app/midi.c app/arp.c app/engdesc.c app/demo_song.c seq/seq.c $(ENGINE)
 twin: build/twin build/fw/fw.area
 	sh host/twin.sh 60 "1 2"
-build/twin: $(TWINSRC) fw/main.c host/twin.h
+build/twin: $(TWINSRC) fw/main.c fw/course.inc app/tp_course.h app/tp_logo.h host/twin.h
 	mkdir -p build && gcc -DHOST -O1 -g -std=gnu11 -w -ffp-contract=off $(SAN) -fno-omit-frame-pointer -pthread -o $@ $(TWINSRC) -lm
 demo: build/demo
 	./build/demo build/demo.wav

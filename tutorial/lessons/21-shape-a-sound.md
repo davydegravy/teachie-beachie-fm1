@@ -33,29 +33,31 @@
    - **Do:** turn KNOB 4 right 5
    - **Until:** lead REL above 70
    - **Page:** ENV
-10. **Card:** NOW BRIGHTNESS. THAT IS THE FILTER. / TAP [EDIT] UNTIL THE SCREEN SAYS FLT.
+10. **Card:** NOW BRIGHTNESS. THAT IS THE FILTER. / ITS PAGE IS CALLED FLT. / [EDIT] GOES FROM PAGE TO PAGE.
+    - **OCT+:** NEXT
+11. **Strip top:** TAP [EDIT] UNTIL FLT.
     - **Do:** press EDIT
     - **Until:** page is FILTER
     - **Robot:** press EDIT, press EDIT, press EDIT, press EDIT, press EDIT, press EDIT
-11. **Strip top:** KNOB 1, CUT: DOWN.
+12. **Strip top:** KNOB 1, CUT: DOWN.
     - **Do:** turn KNOB 1 left 5
     - **Until:** lead E4 below 45
     - **Page:** FILTER
-12. **Reply:** DARKER.
-13. **Strip top:** KNOB 1, CUT: UP HIGH.
+13. **Reply:** DARKER.
+14. **Strip top:** KNOB 1, CUT: UP HIGH.
     - **Do:** turn KNOB 1 right 5
     - **Until:** lead E4 above 95
     - **Page:** FILTER
-14. **Reply:** BRIGHTER.
-15. **Strip:** PRESS [HOME], THEN [PLAY].
+15. **Reply:** BRIGHTER.
+16. **Strip:** PRESS [HOME], THEN [PLAY].
     - **Do:** press HOME, press PLAY
     - **Until:** page is TRACKS and playing
-16. **Strip:** PLAY YOUR SOUND OVER THE SONG. / [OCT+] WHEN DONE.
+17. **Strip:** PLAY YOUR SOUND OVER THE SONG. / [OCT+] WHEN DONE.
     - **OCT+:** DONE
-17. **Strip:** PRESS [PLAY] TO STOP.
+18. **Strip:** PRESS [PLAY] TO STOP.
     - **Do:** press PLAY
     - **Until:** stopped
-18. **Card:** [ENV]: KNOB 1 THE START, KNOB 4 THE END. / [EDIT], FLT: KNOB 1 THE BRIGHTNESS.
+19. **Card:** [ENV]: KNOB 1 THE START, KNOB 4 THE END. / [EDIT], FLT: KNOB 1 THE BRIGHTNESS.
     - **OCT+:** DONE
 
 ## Screens

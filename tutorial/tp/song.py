@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
-"""Teachie Peachie: a lesson's song, read from a song spec (tutorial/songs/*.json). The spec has the same form as
+"""Teachie Beachie: a lesson's song, read from a song spec (tutorial/songs/*.json). The spec has the same form as
 the FM-1 song library's, with one more track for SLOOP 3: five tracks (bass, lead, chords, pad, drums), sections A-D with each track's notes as
 [pitch, start beat, length in beats, velocity], and the SLOOP sound of each track. The same file builds the song
 in Ableton Live (the library's tools/build_song.py) and feeds the lessons."""

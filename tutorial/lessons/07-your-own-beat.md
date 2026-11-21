@@ -12,12 +12,12 @@
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; mute bass lead chords pad; track drums; page STEPS
 2. **Card:** YOUR TURN. / AN EMPTY DRUM TRACK AND NO BLINKING LIGHTS. / MAKE A BEAT OF YOUR OWN.
    - **OCT+:** GO
-3. **Card:** PLAY A DRUM KEY TO PICK IT. / HOLD [SEQ] AND TAP BOXES. / [PLAY] TO HEAR IT. / [EDIT] AND [OCT-]: UNDO.
+3. **Card:** PICK A DRUM: PLAY ITS KEY. / [SEQ] + A KEY: A BOX FILLS. AGAIN: IT EMPTIES. / [PLAY]: HEAR IT. / [EDIT] + [OCT-]: UNDO.
    - **OCT+:** START
 4. **Strip:** MAKE YOUR BEAT. / [OCT+] WHEN IT IS READY.
    - **OCT+:** READY
    - **Until:** drums has 6 notes or more
-   - **Hint:** A BEAT NEEDS AT LEAST 6 HITS. KEEP GOING.
+   - **Hint:** NOT YET. A BEAT NEEDS 6 HITS OR MORE.
    - **Page:** STEPS
    - **Robot:** tap box 1, hold SEQ, tap box 1 5 9 13, let go, tap box 3, hold SEQ, tap box 5 13, let go
 5. **Setup:** unmute; play
@@ -48,3 +48,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Tester notes
 
+2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
+
+- The card of moves says a full box empties (`[SEQ] + A KEY: A BOX FILLS. AGAIN: IT EMPTIES.`), and the "not yet"
+  reads `NOT YET. A BEAT NEEDS 6 HITS OR MORE.`

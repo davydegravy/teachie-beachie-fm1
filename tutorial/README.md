@@ -1,6 +1,6 @@
-# Teachie Peachie: the tutorial
+# Teachie Beachie: the tutorial
 
-Teachie Peachie teaches the FM-1 and SLOOP 3 on the FM-1 itself. This folder holds the plan, the lessons, their
+Teachie Beachie teaches the FM-1 and SLOOP 3 on the FM-1 itself. This folder holds the plan, the lessons, their
 songs, and the programs that run them.
 
 ## Where to look
@@ -12,9 +12,10 @@ songs, and the programs that run them.
 | `lessons/` | The thirty lessons, one Markdown file each. `lessons/README.md` says how to go through them on the FM-1, how to leave notes, and how a lesson file is written. |
 | `songs/` | The songs the lessons use. So far: HOUSE ONE. |
 | `run.py` | The waiting program: it waits for START on the FM-1 and plays the lessons. |
+| `device.py` | The course on the FM-1 alone: puts the packed lessons on the FM-1, and tests them on a simulated FM-1 that leads itself. |
 | `check.py` | Reads every lesson, measures its words against the FM-1's screen, and plays it on the simulated FM-1. |
 | `tp/` | The connector to the FM-1 (`fm1.py`), the lesson reader and player (`lesson.py`), cards and the robot learner (`teach.py`), and the song reader (`song.py`). |
-| `logbook/`, `seachest/`, `progress.json` | Kept on this computer only: each run's log, a copy of what was on the FM-1 before each lesson, and where the learner has got to. |
+| `logbook/`, `backups/`, `progress.json` | Kept on this computer only: each run's log, a copy of what was on the FM-1 before each lesson, and where the learner has got to. |
 
 ## What works now
 
@@ -33,6 +34,9 @@ songs, and the programs that run them.
 - **The lesson player:** cards, strips, questions on the OCT buttons, steps that are done when the FM-1 is in the
   right state, hints when a step takes long, an offer to show the move, phrases to play back, lights to play
   along with in time, a quiz, and the list of lessons on a lesson's first card.
+- **The course on the FM-1 alone:** `tools/mkcourse.py` packs the lessons, the firmware plays them itself
+  (`fw/course.inc`), and START with no computer answering begins it. All thirty play through on the simulated
+  FM-1; none has been tried on a real one yet.
 - **The song HOUSE ONE:** original music, five tracks, sections A to D.
 
 ## The songs
@@ -68,4 +72,4 @@ python3 tutorial/preview.py house-one C   # a section of the song recorded throu
 - The FM-1 telling the lesson its key, scale, chord, arpeggiator and cursor. Until then a few steps count clicks.
 - Recording the FM-1's sound to a file from a lesson.
 - The other songs. Every lesson uses HOUSE ONE for now.
-- The lessons packed onto the FM-1, and the lesson player inside the firmware, for the version with no cable.
+- On the FM-1 alone: remembering the next lesson after it is switched off, and SHOW ME pressing the buttons one by one.
