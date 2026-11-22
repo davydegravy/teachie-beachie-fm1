@@ -60,8 +60,9 @@ The unchanged v3.3.7 built this way is byte-for-byte the firmware inside SLOOP's
   - Its own look, added after SLOOP's styles (SLOOP's markup and script untouched): the FM-1 cards' two colors,
     peach paper `#FFCBA4` and dark red ink `#960000` (`app/vis.h`), and the lessons' font, Google Sans, inside the
     page (`assets/fonts/page-font.woff`, made by `tools/mkpagefont.py`; the page still loads nothing from the web).
-    No bar or menu at the top: SLOOP's is hidden, not removed, since its script still uses it; the language follows
-    the browser.
+    No bar or menu at the top: SLOOP's is hidden, not removed, since its script still uses it.
+  - English only: SLOOP's French words are taken out, and the page no longer follows the browser's language.
+    `tests/installer_e2e.js` goes through it in English only.
   - At the top only the logo, the title, a short introduction and the browser's checks. SLOOP's beta badge, its
     three facts and its 3D picture are hidden.
   - No author's name on the page. The GPL needs the license named and the source reachable, not a name; the

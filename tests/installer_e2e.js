@@ -2,7 +2,8 @@
  * SLOOP 3's installer page in Chromium, as a user goes through it, against a fake m-bootloader in MIDI MODE (Web MIDI
  * replaced in the page): the beta's agreement, m-bootloader there, Connect while the FM-1 is not plugged yet (it is
  * found by itself when it appears), the backup (1 MB read, a file downloaded), the install (the package read twice),
- * the end. In English, then in French. Pictures of each step: OUT/installer-*.png.
+ * the end. In English (Teachie Beachie's page has no French; SLOOP's ran it in French too). Pictures of each step:
+ * OUT/installer-*.png.
  *   node tests/installer_e2e.js PAGE.html OUT */
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
@@ -59,7 +60,7 @@ const FAKE = () => {
 
 (async () => {
   const b = await chromium.launch();
-  for (const lang of ['en', 'fr']) {
+  for (const lang of ['en']) {
     const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, locale: lang === 'fr' ? 'fr-FR' : 'en-US', acceptDownloads: true });
     const pg = await ctx.newPage();
     const errs = []; pg.on('pageerror', e => errs.push(e.message));
@@ -109,6 +110,6 @@ const FAKE = () => {
     await ctx.close();
   }
   await b.close();
-  console.log(fails ? fails + ' FAILED' : 'installer_e2e: OK (en, fr: agreement, m-bootloader, connect when plugged, backup, install, done)');
+  console.log(fails ? fails + ' FAILED' : 'installer_e2e: OK (en: agreement, m-bootloader, connect when plugged, backup, install, done)');
   process.exit(fails ? 1 : 0);
 })();

@@ -3,8 +3,8 @@
 # Teachie Beachie: SLOOP's installer page (tools/mkpage.py's output) under TEACHIE BEACHIE's name, in place. Run by fw/build.sh
 # after mkpage.py, so web/installer.tmpl.html stays exactly SLOOP's and a merge of a new SLOOP never clashes there.
 #   teachie_page.py PAGE.html
-# What it does: Teachie Beachie where the page names the firmware it installs; SLOOP 3 credited in the title, the beta note
-# and the footer (English and French); bug reports to Teachie Beachie's; the version shown as Teachie Beachie's, then
+# What it does: the page in English only (SLOOP's French left out); Teachie Beachie where the page names the firmware it
+# installs; SLOOP 3 credited in the title, the beta note and the footer; bug reports to Teachie Beachie's; the version shown as Teachie Beachie's, then
 # SLOOP's; Teachie Beachie's logo above the title and as the tab's icon (the two pictures are made by
 # tools/mkpagelogo.py); and its own look: the FM-1 cards' two colors (peach paper, dark red ink, app/vis.h) and the
 # lessons' font (assets/fonts/page-font.woff, tools/mkpagefont.py), with no bar or menu at the top and a short
@@ -29,6 +29,12 @@ if held: t = t.replace(pkg, "\0FWPKG\0")
 t, renamed = re.subn(r"SLOOP 3(?!\.\d|\d)", "TEACHIE BEACHIE", t)
 if held: t = t.replace("\0FWPKG\0", pkg)
 
+# 1b. English only: SLOOP's page is in English and French, chosen by the browser's language. Teachie Beachie's is in
+#     English: the French words are taken out (the script falls back to the English for every one) and the page no
+#     longer looks at the browser's language
+t, nfr = re.subn(r"\nfr: \{\n.*?\n\}\};", "\nfr: {}};", t, count=1, flags=re.S)
+t, nlang = re.subn(r"setLang\(saved \|\| \(/\^fr/i\.test\(navigator\.language \|\| ''\) \? 'fr' : 'en'\)\);", "setLang('en');", t)
+
 # 2. the sentences that need SLOOP 3 named, or TEACHIE BEACHIE's own words
 RULES = [
     ('content="Install TEACHIE BEACHIE, the free groovebox firmware for the M-VAVE FM-1,',
@@ -37,55 +43,35 @@ RULES = [
     # that does not break the line, keeps M-VAVE and FM-1 whole on a phone)
     ('TEACHIE BEACHIE turns the M-VAVE FM-1 into a complete groovebox: drums, bass, chords, melodies and effects, with a '
      'sequencer that loops it all. This page installs it for you, step by step, right from your browser.',
-     'Teachie Beachie is a tutorial for beginners and people new to the M&#8209;VAVE FM&#8209;1. Thirty short lessons, on the '
-     'FM-1 itself, guide you step by step from a first beat to a whole song of your own. Built on SLOOP 3, a complete '
-     'groovebox that stays when the lessons are done.'),
-    ("TEACHIE BEACHIE fait du M-VAVE FM-1 une groovebox complète : batterie, basse, accords, mélodies et effets, avec un "
-     "séquenceur qui boucle le tout. Cette page l\\'installe pour toi, étape par étape, depuis ton navigateur.",
-     "Teachie Beachie est un tutoriel pour les débutants et pour qui découvre le M&#8209;VAVE FM&#8209;1. Trente courtes leçons, "
-     "sur le FM-1 lui-même, te guident pas à pas d\\'un premier rythme à un morceau entier bien à toi. Construit sur "
-     "SLOOP 3, une groovebox complète qui reste une fois les leçons finies."),
+     'Teachie Beachie is a tutorial for beginners and people new to the M&#8209;VAVE FM&#8209;1 and SLOOP. Its simple, '
+     'intuitive lessons, on the FM-1 itself, guide you step by step from a first beat to a whole song of your own. '
+     'Teachie Beachie can light up the FM-1\'s buttons and keys, notices when you are stuck and offers a hint, and can '
+     'even complete steps when you ask it to. It\'s the best way to learn the basics of sequencers and grooveboxes as '
+     'well as specific workflows in SLOOP.'),
     ('The FM-1 running TEACHIE BEACHIE (3D render)', 'The M-VAVE FM-1, with SLOOP 3 on its screen (3D render)'),
-    ('Le FM-1 avec TEACHIE BEACHIE (rendu 3D)', "Le M-VAVE FM-1, avec SLOOP 3 à l\\'écran (rendu 3D)"),
     ('The M-VAVE FM-1 running TEACHIE BEACHIE', 'The M-VAVE FM-1'),
-    ('Le M-VAVE FM-1 avec TEACHIE BEACHIE', 'Le M-VAVE FM-1'),
     # after the install: the peach and the start card, not SLOOP's sailboat; and where the lessons come from
     ('The FM-1 restarts on TEACHIE BEACHIE and the sailboat logo draws itself in. Turn <b>MASTER</b> up gently, and have fun.',
      'The FM-1 restarts on Teachie Beachie: the peach logo, then a card that asks "Ready for a lesson?" <kbd>OCT+</kbd> starts '
      'a lesson, <kbd>OCT-</kbd> goes straight to SLOOP 3. Turn <b>MASTER</b> up gently, and have fun. The thirty lessons are a '
      'small pack of their own, which this page does not install yet: <a href="' + HOME + '">the project\'s page</a> says how '
      'to put it on the FM-1.'),
-    ("Le FM-1 redémarre sur TEACHIE BEACHIE et le voilier se dessine. Monte <b>MASTER</b> doucement, et amuse-toi bien.",
-     "Le FM-1 redémarre sur Teachie Beachie : la pêche, puis une carte qui demande « Ready for a lesson? ». <kbd>OCT+</kbd> lance une "
-     "leçon, <kbd>OCT-</kbd> va droit à SLOOP 3. Monte <b>MASTER</b> doucement, et amuse-toi bien. Les trente leçons sont un "
-     "petit paquet à part, que cette page n\\'installe pas encore : <a href=\"" + HOME + "\">la page du projet</a> explique "
-     "comment le mettre sur le FM-1."),
     # the first start: TEACHIE BEACHIE leaves out SLOOP 3's opening of a SLOOP 2.8 project (TP_SLOOP28_PROJECT in fw/main.c)
     ("At its first start, TEACHIE BEACHIE opens what SLOOP 2.8 left: your sections become patterns, and your presets, "
      "favourites, samples, SYN kits, FM6 bank and settings come along. SLOOP 2.8's data is only read, never written.",
      "TEACHIE BEACHIE does not open the project SLOOP 2.8 left (SLOOP 3 does; TEACHIE BEACHIE leaves that out to make room "
      "for its lessons). Your presets, favorites, samples, SYN kits, FM6 bank and settings come along. SLOOP 2.8's data is "
      "only read, never written."),
-    ("Au premier démarrage, TEACHIE BEACHIE ouvre ce que SLOOP 2.8 a laissé : tes sections deviennent des patterns, et tes "
-     "presets, favoris, samples, kits SYN, banque FM6 et réglages suivent. Les données de SLOOP 2.8 sont seulement lues, "
-     "jamais écrites.",
-     "TEACHIE BEACHIE n\\'ouvre pas le projet que SLOOP 2.8 a laissé (SLOOP 3 le fait ; TEACHIE BEACHIE s\\'en passe pour "
-     "faire de la place à ses leçons). Tes presets, favoris, samples, kits SYN, banque FM6 et réglages suivent. Les données "
-     "de SLOOP 2.8 sont seulement lues, jamais écrites."),
     ('data-t="betaT">TEACHIE BEACHIE is a public beta', 'data-t="betaT">TEACHIE BEACHIE runs SLOOP 3, a public beta'),
-    ("betaT: 'TEACHIE BEACHIE est une bêta publique'", "betaT: 'TEACHIE BEACHIE fait tourner SLOOP 3, une bêta publique'"),
     ('<p data-t="foot1"><b>TEACHIE BEACHIE</b> is free software (GPL-3.0) by the SLOOP project: '
      '<a href="https://github.com/isod89/sloop3-fm1">github.com/isod89/sloop3-fm1</a>.',
      '<p data-t="foot1"><b>Teachie Beachie</b> is free software (GPL-3.0), built on <b>SLOOP 3</b> by the '
      'SLOOP project (<a href="https://github.com/isod89/sloop3-fm1">github.com/isod89/sloop3-fm1</a>). '
      'The SLOOP project does not make or support TEACHIE BEACHIE.'),
-    ("foot1: '<b>TEACHIE BEACHIE</b> est un logiciel libre (GPL-3.0) du projet SLOOP : "
-     "<a href=\"https://github.com/isod89/sloop3-fm1\">github.com/isod89/sloop3-fm1</a>.",
-     "foot1: '<b>Teachie Beachie</b> est un logiciel libre (GPL-3.0), construit sur <b>SLOOP 3</b> du "
-     "projet SLOOP (<a href=\"https://github.com/isod89/sloop3-fm1\">github.com/isod89/sloop3-fm1</a>). "
-     "Le projet SLOOP ne fait ni ne prend en charge TEACHIE BEACHIE."),
 ]
 missed = []
+if not nfr: missed.append("SLOOP's French words")
+if not nlang: missed.append("the language chosen from the browser's")
 for old, new in RULES:
     if old in t: t = t.replace(old, new)
     else: missed.append(old[:70])
@@ -94,7 +80,7 @@ for old, new in RULES:
 #    cannot install, left out (it would show the author's account name: "open this page in Chrome or Edge" says enough)
 t = t.replace("https://github.com/isod89/sloop3-fm1/issues/new/choose", HOME + "/issues")
 t, naddr = re.subn(r" ?: <code>https://isod89\.github\.io/sloop3-fm1/</code>", ".", t)
-if naddr != 2: missed.append("the page's own address, when a browser cannot install (%d of 2)" % naddr)
+if naddr != 1: missed.append("the page's own address, when a browser cannot install (%d of 1)" % naddr)
 
 # 4. the version shown: TEACHIE BEACHIE's, then SLOOP's (the badge at the top and the summary before installing)
 shown = "v%s · SLOOP %s" % (TP_VERSION, sloop_ver)
@@ -204,7 +190,7 @@ cased = t.count("TEACHIE BEACHIE"); t = t.replace("TEACHIE BEACHIE", "Teachie Be
 
 open(path, "w", encoding="utf-8").write(t)
 for s in missed: print("teachie_page: not found (SLOOP reworded it?):", s, file=sys.stderr)
-credited = "built on <b>SLOOP 3</b>" in t and "construit sur <b>SLOOP 3</b>" in t
+credited = "built on <b>SLOOP 3</b>" in t
 print("%s: Teachie Beachie %s on SLOOP %s, %d names, %d versions, %d logos, its look %s, %s" % (path, TP_VERSION, sloop_ver, renamed, nver,
       logos, "added" if looks else "MISSING", "SLOOP credited" if credited else "SLOOP NOT CREDITED"))
 if not credited or "<title>Install Teachie Beachie" not in t: sys.exit("teachie_page: the page lacks its name or the credit to SLOOP")
