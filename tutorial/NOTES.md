@@ -658,7 +658,9 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
      for suggestions. Not chosen yet. All fit one small line (212 px): `How to read the cards` (186), `Reading the
      cards` (151), `How the cards work` (169), `Buttons and keys` (146), `Good to know` (121), `Conventions`
      (108). The card has 6 lines and an answer; with the heading 7, its limit.
-  3. **"Border", not "frame".** Step 3 to say `A name with a border / is a button: [OCT+]`. Step 4 the same way,
+  3. **"Border", not "frame".** Step 3 to say `A name with a border / is a button: [OCT+]`; then, with the knobs
+     in borders (item 39), "is a button or a knob". `a button or a knob: [OCT+]` is 224 px, too wide, so: `A name
+     with a border is / a button or knob: [OCT+]` (197, 210). Still 7 lines with the heading. Step 4 the same way,
      asked too ("please change that to A number with a border is a white key"): `A number with a border / is a
      white key.` (199 px, fits). My suggestion, not asked: the word "frame" in `lessons/README.md` where it means
      this border.
@@ -769,8 +771,94 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
       changes / the drum kit.` The others: `37 drum kits, / 16 sounds each, / one on each white key. / [PRESETS]
       changes / the drum kit.` and `37 drum kits. / 16 sounds in each, / one per white key. / Turn [PRESETS] / to
       change the drum kit.`
-  21. **Lesson 5:** shown, nothing asked ("Lets move on"). Left as it is for now; my note for later: step 18's
-      groovebox card could build on lesson 1's new SLOOP card instead of saying it again.
+  21. **Lesson 5:** shown, nothing asked at first ("Lets move on"); my note for later: step 18's groovebox card
+      could build on lesson 1's new SLOOP card instead of saying it again.
+  22. **Lesson 5, step 2.** Today: `Five tracks. / Five instruments. / Today you meet each one, by taking it away.`
+      Asked, then "one at a time" moved to its own line, 5 lines: `Five tracks. / Five instruments. / Now let's
+      focus on / each track, / one at a time.`
+  23. **Lesson 5, step 9.** Today: `Only bass and drums now. / They are the rhythm section. Every band leans on
+      them.` The tester did not like "Every band leans on them". Three endings offered; chosen, 5 lines: `You can now
+      hear only / the bass and drums. / They are the rhythm / section. They keep the / beat for the others.`
+  24. **Lesson 5, step 11: light keys 6 to 10 while the card names them.** Asked; the words stay (`Solo is the
+      opposite of mute: only that track plays. / [6] to [10] are the five solos.`). Lit steady and faint, not
+      blinking, since a blink means "press this". The lesson format has it already: `- **Lights:** box 6 7 8 9 10`
+      (README, "Keys lit faintly, as part of the picture"; no lesson uses it yet). The computer's lesson program
+      draws it (`tp/lesson.py`, level 2) and `tools/mkcourse.py` puts it in the pack (`LIGHTS`), but the FM-1's own
+      player never reads it: `CT_LIGHTS` is in `app/tp_course.h` and nowhere in `fw/course.inc`. To make: in
+      `course.inc`'s `PH_ANSWER`/`PH_DO` case, next to the Follow light, `G.led[14 + key] = 2` for each key of
+      `c_field(CT_LIGHTS, ...)`. A few lines; the flash has 344 bytes left. Check it on a card and on a strip.
+  25. **Lesson 6, step 2.** Today: `Tempo is how fast the light walks. / It is counted in beats per minute: BPM.`
+      Asked, then a last line added on my offer ("Yes, add it"), to tie BPM to lesson 3's "Every 4 boxes is a beat".
+      7 lines, the card's limit, all fit: `Tempo is the speed / of the song. It's / how fast the light / walks in the
+      sequencer. / It is counted in beats / per minute: BPM. / A beat is 4 boxes.`
+  26. **Lesson 6, step 8.** Today: `Now the oops. / Make a mess on purpose. / Then take it back.` Asked, 4 lines,
+      all fit: `Now the oops. / We will make a mess / on purpose. / Then take it back.`
+  27. **Lesson 6, step 12.** Today: `Undo takes back your last move. / It is [EDIT] and [OCT-] together.` Asked, 4
+      lines, all fit: `Undo takes back your / last move. To undo / hold [EDIT] and press / [OCT-] together.`
+  28. **Lesson 6, step 16.** Today: `Undo remembers your last 8 moves. / Went too far? [EDIT] and [OCT+] is redo.`
+      Asked, 5 lines, all fit: `Undo will remember / your last 8 moves. / Went too far? / To redo hold [EDIT] /
+      and press [OCT+].`
+  29. **Lesson 6, step 21 (its last card).** Today: `Tempo: [SELECT]. / Undo: [EDIT] and [OCT-]. / Save: [SAVE]
+      twice. / Now nothing can go wrong.` The tester's first version, with "Hold ... press" and a redo line, was 8
+      lines, one over. Chosen, 6 lines, all fit: `Tempo: [SELECT]. / Undo: [EDIT] + [OCT-]. / Redo: [EDIT] +
+      [OCT+]. / Save: [SAVE] twice. / Now nothing can / go wrong.`
+  30. **Lesson 7, step 3.** Today: `Pick a drum: play its key. / [SEQ] + a key: a box fills. Again: it empties. /
+      [PLAY]: hear it. / [EDIT] + [OCT-]: undo.` Asked, 5 lines, all fit (the first is 205 px): `Pick a drum: play
+      its key. / [SEQ] + a key: a box fills. / Press again: it empties. / [PLAY]: hear it. / [EDIT] + [OCT-]:
+      undo.`
+  31. **Lesson 7, step 10 (its last card).** Today: `Part 1 is done. / You can make a beat. / Next: the rest of the
+      band.` Asked, 5 lines, all fit; "band." would sit alone on the last line, so the break is mine, and "Now you
+      can" on my offer: `Part 1 is done. / Now you can make / a beat on your own. / Next: the rest / of the band.`
+  32. **Lesson 8, step 2.** Today: `Drums have boxes. So do the other tracks. / But their boxes hold notes.` Asked,
+      5 lines, all fit; "notes." would sit alone, so the last break is mine: `In the sequencer, / drums have boxes. /
+      So do the other tracks. / But their boxes / hold notes.`
+  33. **Lesson 8, step 11.** Today: `Let go of [SEQ]. Play the higher A.` Asked: name the key. Checked: the white
+      keys run F3 (1) to G5 (16), so the A of step 5 (A3) is key 3 and the higher A (A4, the step's `tap A4`) is
+      key 10. Strip, 2 lines, both fit: `Let go of [SEQ]. Play the / higher A: [KEY 10].`
+  34. **Lesson 8, step 14.** Today: `Make it your own. / Play a key to choose a note. / Hold [SEQ], tap a box: it
+      goes in. / Tap again: it goes out.` Asked: "it is added", "it is removed". Chosen, 5 lines, all fit, the note
+      line matching lesson 7 step 3's `Pick a drum: play its key.`: `Make it your own. / Pick a note: play its key.
+      / Hold [SEQ], tap a box: / it is added. / Tap again: it is removed.`
+  35. **Where the review stopped (2026-11-21):** lessons 1 to 8 gone through ("Done with Lesson 8"); lesson 8 step
+      19 left as it is. Next time: lesson 9, then on to 30. Nothing above is made yet. (Later the same day: lesson 9
+      begun, below.)
+  36. **Lesson 9, step 2.** Today: `Every track can play any instrument. / SLOOP has 153 of them.` Asked, 4 lines,
+      all fit; "instrument." would sit alone, so the first break is mine: `Every track can play / any instrument. /
+      SLOOP has 153 / different instruments.`
+  37. **Lesson 9, step 13.** Today: `Favorites live in the first family: FAVS. / Your best sounds, one tap away.`
+      Asked: `Your best sounds, are just one tap away.` The comma dropped, as the sentence now has its verb; the
+      first break mine, so "the first family" stays together. 4 lines, all fit: `Favorites live in / the first
+      family: FAVS. / Your best sounds are / just one tap away.`
+  38. **Lesson 9, step 15:** `The tune, in your sound.` The tester asked what it meant (the song plays 4 bars with
+      the lead in the sound just picked). Two clearer wordings offered; kept as it is ("lets just keep it").
+  39. **Knobs get a border: `[KNOB1]` to `[KNOB4]`.** Asked ("I think it should be [KNOB4]"), for lesson 9 steps
+      10, 12 and 17. Written as the FM-1's own labels have it, with no space (the tester: "there is no space so
+      knob 1 is [knob1]"); a key, with no label on the FM-1, keeps its space: `[KEY 10]`. Until now no lesson
+      framed the four knobs (`Knob 4`, plain), while `[SELECT]`, `[PRESETS]` and `[ALGORITHM]` had borders. Then
+      for every card ("can you put borders on all of the knobs and measure that they fit"): `Knob N` becomes
+      `[KNOBN]` in the words of every card, strip and hint (not in Do, Until or Robot, which say `KNOB 1` for the
+      lesson program). Measured on today's words (scratch script `knobs.py`): 56 texts in lessons 9 to 28, none
+      over its limit. Five grow a line:
+      - Lesson 9 step 17: rewritten anyway (item 42).
+      - Lesson 21 step 5 (card): 5 lines to 6, of 7. Fits; `hear it.` ends alone, for its own review.
+      - Three strips at the top go from one line to two, a word left alone. My one-line fixes, to make with the
+        borders: lesson 19 step 8 `Knob 4 down, below 30.` → `[KNOB4] down past 30.` (198 px); lesson 19 step
+        11 `Knob 1: the echo's time.` → `[KNOB1]: the echo time.` (200); lesson 28 step 4 `Knob 1, SWING: up to
+        50.` → `[KNOB1], SWING: to 50.` (199).
+      When the review reaches lessons 10 to 28, their new words get the border too, and are measured with it.
+      Lesson 1 step 3 says it: item 3.
+  40. **Lesson 9, step 10.** Today: `Knob 1 changes the family. Turn it.` With the border, 2 lines, both fit:
+      `[KNOB1] changes the / family. Turn it.`
+  41. **Lesson 9, step 12.** Today: `Knob 4 right: / now a favorite.` With the border, 2 lines, both fit: `[KNOB4]
+      right: / now a favorite.`
+  42. **Lesson 9, step 17 (its last card).** Today: `[PRESETS] steps through sounds. / The SOUNDS page shows a
+      family. / Knob 4 keeps a favorite.` Asked: directions to the SOUNDS page (it is the last of [EDIT]'s six
+      pages on a melody track, so up to 6 taps from wherever the learner was). Their words, fitted: "to get to
+      the" became "for the" (too wide even alone), and the knob line takes two with its border. 7 lines, the
+      card's limit: `[PRESETS] steps through / different sounds. / Tap [EDIT] several times / for the SOUNDS page.
+      / It shows a whole family. / [KNOB4] keeps / a favorite.`
+  43. **Where the review stopped (2026-11-21, evening):** lessons 1 to 9 gone through. Next time: lesson 10, "Record
+      it live", then on to 30. Nothing above is made yet.
 
 ## To do next
 

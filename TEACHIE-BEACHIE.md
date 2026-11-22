@@ -55,8 +55,18 @@ The unchanged v3.3.7 built this way is byte-for-byte the firmware inside SLOOP's
   `app/tp_logo.h`, about 2.1 KB. The twin's start scenario saves pictures of the screen (`host/twin.c`).
 - **Installer page:** `web/installer.tmpl.html` stays exactly SLOOP's, so a merge never clashes there. During the
   build, `tools/teachie_page.py` rewrites the finished page (`fw/build.sh` runs it after `mkpage.py`):
-  - Teachie Beachie wherever the page names the firmware it installs, with SLOOP 3 credited in the title, the beta
-    note and the footer.
+  - Teachie Beachie wherever the page names the firmware it installs (in sentence case, as on the FM-1), with SLOOP 3
+    credited in the title, the beta note and the footer.
+  - Its own look, added after SLOOP's styles (SLOOP's markup and script untouched): the FM-1 cards' two colors,
+    peach paper `#FFCBA4` and dark red ink `#960000` (`app/vis.h`), and the lessons' font, Google Sans, inside the
+    page (`assets/fonts/page-font.woff`, made by `tools/mkpagefont.py`; the page still loads nothing from the web).
+    No bar or menu at the top: SLOOP's is hidden, not removed, since its script still uses it; the language follows
+    the browser.
+  - At the top only the logo, the title, a short introduction and the browser's checks. SLOOP's beta badge, its
+    three facts and its 3D picture are hidden.
+  - No author's name on the page. The GPL needs the license named and the source reachable, not a name; the
+    copyright notices are in the source files. The page's own web address, which shows the account name, is left
+    out of the message for a browser that cannot install.
   - Bug reports point to Teachie Beachie, not to SLOOP's tracker.
   - It shows version `0.1 · SLOOP 3.3.7`, with Teachie Beachie's version set at the top of the script.
   - If SLOOP rewords the page, the script names each sentence it no longer finds. It stops the build if the
