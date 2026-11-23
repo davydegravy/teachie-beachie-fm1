@@ -1,6 +1,6 @@
 # Lesson 9: Pick your sound
 
-- **Part:** 2, add the band
+- **Part:** 2, notes and chords
 - **The idea:** each track can play any instrument.
 - **The learner does:** steps through sounds with PRESETS, opens the SOUNDS page, picks by family, and keeps a
   favorite.
@@ -11,7 +11,7 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track lead; page TRACKS
-2. **Card:** Every track can play any instrument. / SLOOP has 153 of them.
+2. **Card:** Every track can play / any instrument. // SLOOP has 153 / different instruments.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY]. Track 2 plays the tune.
    - **Do:** press PLAY
@@ -34,18 +34,18 @@
    - **Do:** tap box 3
    - **Until:** lead sound changed
    - **Page:** SOUNDS
-10. **Strip:** Knob 1 changes the family. Turn it.
+10. **Strip:** [KNOB1] changes the / family. Turn it.
     - **Do:** turn KNOB 1 right 1
     - **Page:** SOUNDS
 11. **Strip:** Find your sound. / [OCT+] when done.
     - **OCT+:** This one
     - **Page:** SOUNDS
     - **Robot:** tap box 2
-12. **Strip:** Knob 4 right: / now a favorite.
+12. **Strip:** [KNOB4] right: / now a favorite.
     - **Do:** turn KNOB 4 right 1
     - **Until:** says FAV
     - **Page:** SOUNDS
-13. **Card:** Favorites live in the first family: FAVS. / Your best sounds, one tap away.
+13. **Card:** Favorites live in / the first family: FAVS. // Your best sounds are / just one tap away.
     - **OCT+:** Next
 14. **Strip:** Press [HOME].
     - **Do:** press HOME
@@ -55,7 +55,7 @@
 16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** [PRESETS] steps through sounds. / The SOUNDS page shows a family. / Knob 4 keeps a favorite.
+17. **Card:** [PRESETS] steps through / different sounds. / Tap [EDIT] several times / for the SOUNDS page. / It shows a whole family. / [KNOB4] keeps / a favorite.
     - **OCT+:** Done
 
 ## Screens

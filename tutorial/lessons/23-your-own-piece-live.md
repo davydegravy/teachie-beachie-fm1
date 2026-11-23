@@ -1,6 +1,6 @@
 # Lesson 23: Your own piece, live
 
-- **Part:** 3, make it move (the piece of the learner's own)
+- **Part:** 3, effects and sound (the piece of the learner's own)
 - **The idea:** everything from part 3, with no blinking lights, played as a performance.
 - **The learner does:** builds a second page and a fill, then plays live: page changes, fills and effects.
 - **Got it when:** they play for a minute without stopping, and change something on purpose at least three times.
@@ -10,33 +10,33 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; track drums; page STEPS
-2. **Card:** Part 3 ends with a show. / You build a second page and a fill. / Then you play it all live.
+2. **Card:** Part 3 ends with a show. // You build a second page / and a fill. / Then you play it all live.
    - **OCT+:** Go
-3. **Card:** Go to a page: [SAVE] + a key. / A fill note: [SEQ] + a key + [OCT+]. / A fill: [GLO] + [KEY 12]. / Effects: [FX] + a key.
+3. **Card:** _Your show controls / Page: [SAVE] + a key. / Fill note: / [SEQ] + a key + [OCT+]. / Fill: [GLO] + [12]. / Effects: [FX] + a key.
    - **OCT+:** Start
-4. **Strip:** Hold [SAVE], hold [2]. / Let go when the top / says COPY.
+4. **Strip:** Hold [SAVE], hold [2]. / Let go when / the top says COPY.
    - **Do:** hold SAVE, long box 2
    - **Until:** 2 patterns or more
-   - **Hint:** A short tap only goes to page 2. Hold both longer.
+   - **Hint:** A short tap only goes / to page 2. Hold longer.
    - **Robot:** hold SAVE, long box 2, let go, wait 1.5
 5. **Strip:** You are on page 2. Change it. / [OCT+] when ready.
    - **OCT+:** Ready
    - **Robot:** tap box 1, hold SEQ, tap box 3, let go
-6. **Strip:** Now mark one note as a fill note.
+6. **Strip:** Now mark one note / as a fill note.
    - **Until:** drums has 1 fill notes or more
    - **Hint:** Hold [SEQ] + hold a key, then press [OCT+] once.
    - **Robot:** tap box 11, hold SEQ, hold box 12, press OCT+, let go
-7. **Card:** Now play it live. / Change pages, drop in fills, play the effects. / A minute or so, like a show.
+7. **Card:** Now play it live. // Change pages, drop in / fills, play the effects. / A minute or so, / like a show.
    - **OCT+:** Go
 8. **Setup:** play
-9. **Strip:** You are on. / [OCT+] when the show is over.
+9. **Strip:** Play your live show. / [OCT+] when it's over.
    - **OCT+:** The end
 10. **Setup:** stop
-11. **Strip:** Save it: press [SAVE] twice.
+11. **Strip:** Save it: / press [SAVE] twice.
     - **Do:** press SAVE twice
     - **Until:** says PROJECT SAVED
 12. **Setup:** page TRACKS
-13. **Card:** Part 3 is done. / You can play the FM-1 live.
+13. **Card:** Part 3 is done. // Now you can play / the FM-1 live. // Next: make a song.
     - **OCT+:** Done
 
 ## Screens

@@ -285,7 +285,7 @@ drafted in `lessons/`.
 | 6 | Faster, slower, oops | Tempo is how fast the light walks. Undo takes a mistake back. | Changes the tempo with SELECT, makes a mess on purpose, undoes it (EDIT + OCT−), saves (SAVE twice). |
 | 7 | **Your own beat** | | Makes a beat on an empty drum track. The band joins in, and Claude says what it hears. |
 
-### Part 2: add the band
+### Part 2: notes and chords
 
 | # | Lesson | The one idea | What the learner does |
 |---|---|---|---|
@@ -298,7 +298,7 @@ drafted in `lessons/`.
 | 14 | Mix the tracks | If everyone shouts, nobody is heard. | Sets the level of each track (KNOB 2 on the TRACKS page), first with a target and then by ear. |
 | 15 | **Your own loop** | | Drums, bass, chords and a melody. The learner makes at least two of the parts and may ask for the rest. |
 
-### Part 3: make it move
+### Part 3: effects and sound
 
 | # | Lesson | The one idea | What the learner does |
 |---|---|---|---|

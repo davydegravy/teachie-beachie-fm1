@@ -82,7 +82,7 @@ Each file also has a picture of the lesson's screens, in order, taken from the r
 | 6 | [Faster, slower, oops](06-faster-slower-oops.md) | Tempo, undo and save. |
 | 7 | [Your own beat](07-your-own-beat.md) | A beat made alone. |
 
-### Part 2: add the band
+### Part 2: notes and chords
 
 | # | Lesson | The one idea |
 |---|---|---|
@@ -95,7 +95,7 @@ Each file also has a picture of the lesson's screens, in order, taken from the r
 | 14 | [Mix the tracks](14-mix-the-tracks.md) | If everyone shouts, nobody is heard. |
 | 15 | [Your own loop](15-your-own-loop.md) | A loop made alone. |
 
-### Part 3: make it move
+### Part 3: effects and sound
 
 | # | Lesson | The one idea |
 |---|---|---|
@@ -160,15 +160,28 @@ the numbered list under `## Steps`.
 ### A step
 
 One numbered line: the kind of step in bold, then its words. In the words, ` / ` (a slash with a space on each
-side) starts a new line on the screen; a slash inside a word, as in `LFO 1/3`, is printed. A button's name in
-`[ ]` is drawn in a frame.
+side) starts a new line on the screen; a slash inside a word, as in `LFO 1/3`, is printed. A button's or knob's
+name in `[ ]` is drawn in a thin border, as the cards say it (`A name with a border is a button or knob`). A line
+that starts with `_` is a heading: small, and underlined (`_Repeat after me`); on a Big card, a line that starts
+with `^` is small without the line. The mark itself is not drawn.
+
+Two more marks, for a card (2026-11-22):
+- **A gap, ` // `** (two slashes, a space on each side): a new line with a little air before it, where a second
+  thought begins (`This tune has / one wrong note. // No need to start over.`). The FM-1 draws it 8 px high, and 16
+  on a card of 4 lines or fewer; it is not one of the card's lines. With its gaps a card has to end above the
+  answers: 7 lines take one gap, 6 take two. `check.py` says when it does not fit.
+- **A line in the middle, `~`** at its start (`~Each lesson teaches`): centered, as a big card's lines are.
+
+The last card of a lesson is a cheat sheet where there is something to look up: `Tempo: [SELECT].`, one line for
+each thing, under an underlined heading when it has room.
 
 **The words are written as sentences,** as they will show: the FM-1 draws the lessons in a font of their own, with
-small letters (Google Sans SemiBold, kept in the lesson pack). Capitals are for three things only: a name in a frame
+small letters (Google Sans SemiBold, kept in the lesson pack). Capitals are for three things only: a name in a border
 (`[PLAY]`, `[KEY 12]`), a word quoted from SLOOP's own screen (`until FILT says OFF`, `the SONG page`, `the top says
-COPY`), and names (SLOOP, FM-1, A minor). A line goes on in small letters after a colon. The four knobs are `Knob 1`
-to `Knob 4`. A step marked `*(beginners only)*` is left out on the
-path for people who know grooveboxes.
+COPY`), and names (SLOOP, FM-1, A minor). A line goes on in small letters after a colon. The four knobs are `[KNOB1]`
+to `[KNOB4]`, with no space, as the FM-1's own labels have them (a key has no label: `[KEY 12]` keeps its space); in
+Do, Until and Robot they stay `KNOB 1` to `KNOB 4`. One shout is allowed: lesson 1's `Faster / Faster / FASTER`.
+A step marked `*(beginners only)*` is left out on the path for people who know grooveboxes.
 
 | Kind | What the learner gets |
 |---|---|

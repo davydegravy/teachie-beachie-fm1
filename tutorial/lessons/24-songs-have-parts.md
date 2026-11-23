@@ -13,23 +13,23 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section A; patterns A B C D; song lines 1 2 3 3 4 3; track bass; page TRACKS
-2. **Card:** A song is not one loop. / It has parts: an intro, a verse, a chorus, a break.
+2. **Card:** A song is not one loop. // It has parts: / an intro, a verse, / a chorus, and a break.
    - **OCT+:** Go
-3. **Card:** First, listen to a whole song. / The strip names each part as it comes.
+3. **Card:** First, listen to / a whole song. // The strip names / each part as it comes.
    - **OCT+:** Play it
 4. **Setup:** song mode on; play
-5. **Strip:** Intro. / Only the beat and the bass.
+5. **Strip:** Intro. / Only beat and bass.
    - **Wait:** until bar 5
-6. **Strip:** Verse. / The piano and the pad come in.
+6. **Strip:** Verse. / In come the piano / and the pad.
    - **Wait:** until bar 9
-7. **Strip:** Chorus. / The whole band, with the tune.
+7. **Strip:** Chorus. / The whole band, / with the tune.
    - **Wait:** until bar 17
 8. **Strip:** Break. / The bass drops out.
    - **Wait:** until bar 21
 9. **Strip:** Chorus again. / Everyone is back.
    - **Wait:** until bar 25
 10. **Setup:** stop
-11. **Card:** Now you name them. / The song plays again. / At each part, answer with [OCT-] or [OCT+].
+11. **Card:** Now you name them. / The song plays again. // At each part, answer / with [OCT-] or [OCT+].
     - **OCT+:** Go
 12. **Setup:** play
 13. **Card:** Which part is this?
@@ -56,16 +56,16 @@
     - **OCT-:** Verse → wrong
     - **OCT+:** Break → right
     - **Right:** Yes.
-    - **Wrong:** No. The bass left: that is the break.
+    - **Wrong:** No. The bass left: / that is the break.
 20. **Wait:** until bar 22
 21. **Card:** Last one.
     - **OCT-:** Chorus → right
     - **OCT+:** Break → wrong
     - **Right:** Yes.
-    - **Wrong:** No. Everyone is back: the chorus.
+    - **Wrong:** No. Everyone is back: / the chorus.
     - **Robot:** answer left
 22. **Setup:** stop; song mode off
-23. **Card:** Intro, verse, chorus, break, chorus. / Each part changes something. That keeps a listener listening.
+23. **Card:** Intro, verse, chorus, / break, and chorus. // Each part changes / something, and that / keeps people listening.
     - **OCT+:** Done
 
 ## Screens

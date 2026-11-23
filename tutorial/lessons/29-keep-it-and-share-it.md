@@ -11,36 +11,36 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track drums; page TRACKS
-2. **Card:** A finished song deserves to be kept. / The FM-1 holds one project: all your pages, your sounds and the song.
+2. **Card:** A finished song / deserves to be kept. // The FM-1 holds one / project: all your pages, / sounds and the song.
    - **OCT+:** Go
-3. **Card:** Hold [HOME]: the PROJECT page. / [KEY 1]: OPEN. / [3]: NEW. / [5]: SAVE.
+3. **Card:** Hold [HOME]: / the PROJECT page. // [1]: OPEN. / [3]: NEW. / [5]: SAVE.
    - **OCT+:** Next
-4. **Strip:** Hold [HOME] and tap [5]: SAVE.
+4. **Strip:** Hold [HOME], / tap [5]: SAVE.
    - **Do:** hold HOME, tap box 5
    - **Until:** says PROJECT SAVED
 5. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-6. **Card:** Saved. Now see what that is worth. / We wreck it on purpose: / the drums get erased.
+6. **Card:** Saved. Now let's see / what that is worth. // We wreck it on purpose: / the drums get erased.
    - **OCT+:** Next
-7. **Strip:** Hold [REC] for two seconds.
+7. **Strip:** Hold [REC] for 2 seconds.
    - **Do:** hold REC, wait 2.5
    - **Until:** drums is empty
-8. **Strip:** No drums. They are gone.
+8. **Strip:** No drums. / They are gone.
    - **Wait:** 2 bars
-9. **Card:** OPEN brings back what you saved. / It asks if you are sure, / so you tap twice.
+9. **Card:** OPEN brings back / what you saved. // It asks if you are sure, / so you tap twice.
    - **OCT+:** Next
 10. **Strip:** Hold [HOME]: [1], / then [1] again.
     - **Do:** hold HOME, tap box 1, tap box 1
     - **Until:** drums has 4 notes or more
 11. **Reply:** All back.
-12. **Card:** The FM-1 also saves by itself when the music is stopped. / So save on purpose before you try something risky, and keep playing.
+12. **Card:** The FM-1 also saves / by itself when the / music is stopped. // So save before you / try something risky.
     - **OCT+:** Next
-13. **Card:** A copy on the computer is safer still. / Teachie Beachie keeps one before every lesson, in its backups folder. *(connected only)*
+13. **Card:** The FM-1 holds one / song at a time. // Working on more? / Keep each one as a file / on a computer, with / SLOOP's web editor. *(connected only)*
     - **OCT+:** Next
-14. **Card:** To share a song, record it as sound. / The FM-1 sends its sound down the USB cable. A computer can record it. Ask a grown-up.
+14. **Card:** To share a song, / record it as sound. // The FM-1 sends its sound / down the USB cable / to a computer. / Ask a grown-up.
     - **OCT+:** Next
-15. **Card:** [HOME] and [5]: save. / [HOME] and [1], twice: open what you saved. / [SAVE] twice saves too.
+15. **Card:** _Keep your song / Save: hold [HOME] + [5], / or [SAVE] twice. / Open: hold [HOME] + [1], / then [1] again. // More songs: as files, / with the web editor.
     - **OCT+:** Done
 
 ## Screens

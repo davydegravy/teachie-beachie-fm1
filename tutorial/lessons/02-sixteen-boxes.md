@@ -11,9 +11,9 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; mute bass lead chords pad; track bass; page TRACKS
-2. **Card:** In lesson 1 the FM-1 played a run too fast for hands. / A sequencer did that. / Today you get one. *(beginners only)*
+2. **Card:** In lesson 1 the FM-1 / played a sequence / too fast for hands. / A sequencer played it. // Let's learn how / to use a sequencer. *(beginners only)*
    - **OCT+:** Go
-3. **Card:** A sequencer is a row of boxes. / A light walks along them. / When it steps on a full box, that box plays. *(beginners only)*
+3. **Card:** A sequencer is / a row of boxes. / A light walks along them. / When it steps on a box / with a sound in it, / the sound plays. *(beginners only)*
    - **OCT+:** Next
 4. **Strip:** Turn [ALGORITHM] to track 5: the drums.
    - **Do:** turn ALGORITHM right 4
@@ -22,7 +22,7 @@
 5. **Strip:** Press [SEQ] to open / the drum grid.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-6. **Card:** 16 boxes across. / That is one bar of music. / Hold [SEQ], and the 16 white keys are the 16 boxes.
+6. **Card:** 16 boxes across. / That is one bar of music. // Hold [SEQ], and the / 16 white keys are / the 16 boxes.
    - **OCT+:** Next
 7. **Strip:** Play [KEY 1], the lowest white key: the kick.
    - **Do:** tap box 1
@@ -40,9 +40,9 @@
     - **Until:** drums has KICK on boxes 1 5 9 13
     - **Hint:** Hold [SEQ] and tap / each blinking key.
 11. **Reply:** Good.
-12. **Card:** Kick on 1, 5, 9, 13. / Four on the floor. / This is the beat of house music.
+12. **Card:** Kick on 1, 5, 9, 13. // They call this / four on the floor. // This is the beat / of house music.
     - **OCT+:** Next
-13. **Strip:** Add kicks, or tap a full box: it empties. / [OCT+] when done.
+13. **Strip:** Hold [SEQ] and tap a box / to add or remove a kick. / [OCT+] when done.
     - **OCT+:** Done
     - **Robot:** hold SEQ, tap box 7, let go
 14. **Setup:** unmute; play
@@ -51,7 +51,7 @@
 16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** A sequencer: boxes, and a light that walks. / You just programmed one.
+17. **Card:** That's a sequencer: / boxes, and a light / that walks along them. // You just programmed / your first beat.
     - **OCT+:** Done
 
 ## Screens

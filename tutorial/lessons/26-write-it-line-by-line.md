@@ -12,61 +12,61 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section A; patterns A B C D; track drums; page TRACKS
-2. **Card:** A song can also be written down, line by line: / which page, and for how many bars.
+2. **Card:** A song can also be / written down, / line by line. // Each line: a page, / and how many bars.
    - **OCT+:** Go
-3. **Strip:** Press [SAVE] once: the SONG page.
+3. **Strip:** Press [SAVE] once: / the SONG page.
    - **Do:** press SAVE
    - **Until:** page is SONG
    - **Hint:** One tap only.
-4. **Strip:** Turn [SELECT] one click right: the lines.
+4. **Strip:** [SELECT] one click right: / the lines.
    - **Do:** turn SELECT right 1
    - **Until:** page is SONG 2
-5. **Card:** Four knobs: / LINE: which line. / PAT: its page. / BARS: how long. / LINES: how many.
+5. **Card:** _Four knobs / LINE: which line. / PAT: its page. / BARS: how long. / LINES: how many.
    - **OCT+:** Next
-6. **Strip top:** Knob 4, LINES: 4.
+6. **Strip top:** [KNOB4], LINES: 4.
    - **Do:** turn KNOB 4 right 1
    - **Until:** song has 4 lines or more
    - **Page:** SONG 2
-7. **Card:** Four lines, all playing page 1. / You are on line 4. Make it the break: page 4.
+7. **Card:** Four lines, / all playing page 1. // You are on line 4. / Make it page 4, / the break.
    - **OCT+:** Next
-8. **Strip top:** Knob 2, PAT: P4.
+8. **Strip top:** [KNOB2], PAT: P4.
    - **Do:** turn KNOB 2 right 1
    - **Until:** song line 4 is pattern 4
    - **Page:** SONG 2
    - **Hint:** LINE must say 4/4.
-9. **Strip top:** Knob 1: back to line 3.
+9. **Strip top:** [KNOB1]: back to line 3.
    - **Do:** turn KNOB 1 left 1
    - **Page:** SONG 2
-10. **Strip top:** Knob 2, PAT: P3.
+10. **Strip top:** [KNOB2], PAT: P3.
     - **Do:** turn KNOB 2 right 1
     - **Until:** song line 3 is pattern 3
     - **Page:** SONG 2
     - **Hint:** LINE must say 3/4.
-11. **Strip top:** Knob 3, BARS: 8.
+11. **Strip top:** [KNOB3], BARS: 8.
     - **Do:** turn KNOB 3 right 1
     - **Until:** song line 3 has 8 bars
     - **Page:** SONG 2
-12. **Strip top:** Knob 1: back to line 2.
+12. **Strip top:** [KNOB1]: back to line 2.
     - **Do:** turn KNOB 1 left 1
     - **Page:** SONG 2
-13. **Strip top:** Knob 2, PAT: P2.
+13. **Strip top:** [KNOB2], PAT: P2.
     - **Do:** turn KNOB 2 right 1
     - **Until:** song line 2 is pattern 2
     - **Page:** SONG 2
     - **Hint:** LINE must say 2/4.
-14. **Card:** Your song, written down: / intro, verse, a long chorus, break.
+14. **Card:** Your song, written out: // intro, verse, / a long chorus, break.
     - **OCT+:** Next
 15. **Strip:** [SELECT] one click left: the SONG page.
     - **Do:** turn SELECT left 1
     - **Until:** page is SONG
-16. **Strip:** Tap [KEY 13], then press [PLAY].
+16. **Strip:** Tap [13], then [PLAY].
     - **Do:** tap box 13, press PLAY
     - **Until:** song playing and playing
     - **Page:** SONG
-17. **Strip:** Your song. / [OCT+] when you have heard it.
+17. **Strip:** Your song. / [OCT+] when it's done.
     - **OCT+:** Done
 18. **Setup:** stop; song mode off; page TRACKS
-19. **Card:** SONG page, [SELECT] right: the lines. / A line is a page and a number of bars.
+19. **Card:** _Song lines / Get there: [SAVE], / then [SELECT] right. // Each line is a part: / a page and its bars.
     - **OCT+:** Done
 
 ## Screens

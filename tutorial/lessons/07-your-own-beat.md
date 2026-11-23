@@ -10,9 +10,9 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; mute bass lead chords pad; track drums; page STEPS
-2. **Card:** Your turn. / An empty drum track and no blinking lights. / Make a beat of your own.
+2. **Card:** Your turn. // An empty drum track / and no blinking lights. // Make a beat / of your own.
    - **OCT+:** Go
-3. **Card:** Pick a drum: play its key. / [SEQ] + a key: a box fills. Again: it empties. / [PLAY]: hear it. / [EDIT] + [OCT-]: undo.
+3. **Card:** Pick a drum: play its key. / [SEQ] + a key: a box fills. / Press again: it empties. / [PLAY]: hear it. / [EDIT] + [OCT-]: undo.
    - **OCT+:** Start
 4. **Strip:** Make your beat. / [OCT+] when it is ready.
    - **OCT+:** Ready
@@ -30,7 +30,7 @@
    - **Do:** press SAVE twice
    - **Until:** says PROJECT SAVED
 9. **Setup:** page TRACKS; stop
-10. **Card:** Part 1 is done. / You can make a beat. / Next: the rest of the band.
+10. **Card:** Part 1 is done. // Now you can make / a beat on your own. // Next: the rest / of the band.
     - **OCT+:** Done
 
 ## Screens

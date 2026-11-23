@@ -1,6 +1,6 @@
 # Lesson 13: The piano roll
 
-- **Part:** 2, add the band
+- **Part:** 2, notes and chords
 - **The idea:** a note can be moved, stretched or removed after it is written.
 - **The learner does:** opens the piano roll, fixes a wrong note, makes one longer and deletes one.
 - **Got it when:** they find a note with KNOB 1 and change it, without being told which knob.
@@ -12,41 +12,41 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; lead empty; lead E5 on 1; lead D5 on 4; lead C#5 on 7; lead A4 on 9; lead F#4 on 13; track lead; page TRACKS
-2. **Card:** One note in this tune is wrong. / You don't start over. / You fix that note.
+2. **Card:** This tune has / one wrong note. // No need to start over. / Just fix that note.
    - **OCT+:** Go
-3. **Strip:** Press [PLAY]. Hear the wrong one?
+3. **Strip:** Press [PLAY]. / Hear the wrong one?
    - **Do:** press PLAY
    - **Until:** playing
    - **Wait:** 2 bars
-4. **Strip:** Press [SEQ] twice: the piano roll.
+4. **Strip:** Press [SEQ] twice: / the piano roll.
    - **Do:** press SEQ, press SEQ
    - **Until:** page is NOTES
    - **Robot:** press SEQ, wait 0.3, press SEQ
-5. **Card:** The piano roll. / Every bar is a note. / Left to right is time. / Higher up is a higher note.
+5. **Card:** _The Piano Roll / It shows your notes / as green lines. / Left to right is time. / Higher up: a higher note. / The longer the line, / the longer the note.
    - **OCT+:** Next
-6. **Card:** Knob 1 walks along the steps. Its dial says where you are. / The wrong note is at step 7.
+6. **Card:** [KNOB1] walks left and / right along the steps. / Its dial says which / step you are on. // The wrong note is / at step 7.
    - **OCT+:** Next
-7. **Strip top:** Knob 1 to step 7.
+7. **Strip top:** [KNOB1] to step 7.
    - **Do:** turn KNOB 1 right 6
    - **Page:** NOTES
-8. **Strip top:** Knob 2: one click left.
+8. **Strip top:** [KNOB2]: one click left.
    - **Do:** turn KNOB 2 left 1
    - **Until:** lead has C5 on box 7
    - **Page:** NOTES
    - **Hint:** Step 7 must say C5.
 9. **Reply:** Fixed.
-10. **Card:** Knob 2 changed which note it is. / Knob 3 changes how long it lasts. / The last note is at step 9.
+10. **Card:** [KNOB2] is NOTE: / higher or lower. / [KNOB3] is LEN: / how long a note lasts. // Let's make the last note / longer. It's at step 9.
     - **OCT+:** Next
-11. **Strip top:** Knob 1 to step 9.
+11. **Strip top:** [KNOB1] to step 9.
     - **Do:** turn KNOB 1 right 2
     - **Page:** NOTES
-12. **Strip top:** Knob 3 right: longer.
-    - **Do:** turn KNOB 3 right 4
+12. **Strip top:** Turn [KNOB3] right / until LEN says 5.
+    - **Do:** turn KNOB 3 right 3
     - **Until:** lead longest note above 4.5
     - **Page:** NOTES
-13. **Card:** One note does not belong at all. It is at step 13. / Go there, then press [EDIT] to delete it.
+13. **Card:** One note sounds wrong, / it doesn't belong. // It is at step 13. // Go there, then press / [EDIT] to delete it.
     - **OCT+:** Next
-14. **Strip top:** Knob 1 to step 13.
+14. **Strip top:** [KNOB1] to step 13.
     - **Do:** turn KNOB 1 right 4
     - **Page:** NOTES
 15. **Strip top:** Press [EDIT].
@@ -63,7 +63,7 @@
 19. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-20. **Card:** [SEQ] twice: the piano roll. / Knob 1 where. Knob 2 which note. Knob 3 how long. / [EDIT] deletes.
+20. **Card:** Piano roll page: / [SEQ] twice. / STEP: [KNOB1]. / NOTE: [KNOB2]. / LEN: [KNOB3]. / Delete: [EDIT].
     - **OCT+:** Done
 
 ## Screens

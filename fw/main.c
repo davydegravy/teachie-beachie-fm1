@@ -1635,7 +1635,7 @@ COLD static void guide_wrap(void)                   /* the words cut into lines:
     const char *t = G.text; int i = 0; G.nl = 0;
     if (!tp_fonts) for (char *p = G.text; p < G.right + sizeof G.right; p++) if (*p >= 'a' && *p <= 'z') *p -= 32;   /* (text, left, right: one after the other in G) */
     while (t[i] && G.nl < 8) {
-        const gfx_font *f = G.big && t[i] != '^' ? GF_L : GF_S;   /* (a large card's line that starts with ^: small, a heading) */
+        const gfx_font *f = G.big && (t[i] | 1) != '_' ? GF_L : GF_S;   /* (a large card's line that starts with ^ or _: small, a heading) */
         int s = i, e = i, last = -1, in = 0;
         while (t[e] && t[e] != '\n') {
             if (t[e] == '[') in = 1; else if (t[e] == ']') in = 0;
@@ -1665,9 +1665,12 @@ COLD static int guide_seg(const gfx_font *f, int x, int y, const char *s, int n,
 }
 COLD static void guide_line(const gfx_font *f, int x, int y, const char *s, int n, int centre)
 {
-    if (n && *s == '^') { s++; n--; }                 /* (a heading's mark, not drawn) */
+    int u = n && *s == '_';                           /* (_: a heading underlined; ^: without the line) */
+    if (n && (*s | 1) == '_') { s++; n--; }           /* (a heading's mark, not drawn) */
+    if (n && *s == '~') { s++; n--; centre = 1; x = GFX_W / 2; }   /* (~: this line in the middle, on any card) */
     if (centre) x -= guide_seg(f, 0, y, s, n, 0) / 2;
-    guide_seg(f, x, y, s, n, 1);
+    int e = guide_seg(f, x, y, s, n, 1);
+    if (u) gfx_fill(x, y + f->cap + 3, e - x, 2, G_INK);
 }
 COLD static void guide_draw(void)                   /* the card, over whatever the page drew in this tile */
 {
@@ -1684,8 +1687,9 @@ COLD static void guide_draw(void)                   /* the card, over whatever t
     const gfx_font *f = G.big ? GF_L : GF_S; int step = G.big ? 36 : 23;
     int y = G.big ? (GFX_H - 30 - G.nl * step) / 2 + 6 : 18;
     for (int k = 0; k < G.nl; k++) {
-        int sm = G.big && G.text[G.ls[k]] == '^';     /* (a heading: small) */
-        if (sm && k && G.text[G.ls[k - 1]] != '^') y += 6;   /* (small words under large ones: a little air) */
+        if (!G.ll[k]) { y += 8; continue; }           /* (an empty line: a gap of 8 px between two thoughts, not a line) */
+        int sm = G.big && (G.text[G.ls[k]] | 1) == '_';   /* (a heading, ^ or _: small) */
+        if (sm && k && (G.text[G.ls[k - 1]] | 1) != '_') y += 6;   /* (small words under large ones: a little air) */
         guide_line(sm ? GF_S : f, G.big ? GFX_W / 2 : 12, y, G.text + G.ls[k], G.ll[k], G.big);
         y += sm ? 28 : step;
     }

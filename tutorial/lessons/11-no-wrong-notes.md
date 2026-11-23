@@ -1,6 +1,6 @@
 # Lesson 11: No wrong notes
 
-- **Part:** 2, add the band
+- **Part:** 2, notes and chords
 - **The idea:** a key is a family of notes that sound good together.
 - **The learner does:** hears notes that clash and notes that fit, tells SLOOP the song's key, and plays a tune
   that cannot go wrong.
@@ -12,38 +12,38 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; mute lead; track lead; page TRACKS
-2. **Card:** Some notes fit a song. Some don't. / The ones that fit are called its key.
+2. **Card:** Some notes fit a song. / Some don't. // The ones that fit are / called its key.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** Play only black keys for a while.
+4. **Strip:** Play only black keys / for a while.
    - **Until:** played 4 keys
    - **Robot:** tap F#3 G#3 A#3 C#4
 5. **Reply:** Sour.
 6. **Strip:** Now only white keys. Any of them.
    - **Until:** played 4 keys
    - **Robot:** tap A4 C5 D5 E5
-7. **Card:** They all fit. / This song is in the key of A minor, and A minor is exactly the white keys.
+7. **Card:** They all fit. // This song is in the key / of A minor, and A minor / is exactly the white keys.
    - **OCT+:** Next
-8. **Card:** SLOOP can lock the keyboard to a key. / First tell it which key.
+8. **Card:** SLOOP can lock the / keyboard to a key. // First tell it which key.
    - **OCT+:** Next
-9. **Strip:** Hold [SEL] and tap an A.
+9. **Strip:** Hold [SEL] and tap / the A: [KEY 10].
    - **Do:** hold SEL, tap A4
    - **Until:** says KEY A
-10. **Strip:** Press [SEL]: the KEY page.
+10. **Strip:** Press [SEL]: / the KEY page.
     - **Do:** press SEL
     - **Until:** page is KEY
-11. **Strip top:** Knob 2 right until / SCALE says MIN.
+11. **Strip top:** [KNOB2] right until / SCALE says MIN.
     - **Do:** turn KNOB 2 right 2
     - **Page:** KEY
     - **Hint:** Two clicks right. SCALE is the 2nd dial.
-12. **Strip top:** Knob 4: one click right. SNAP.
+12. **Strip top:** [KNOB4]: one click right. SNAP.
     - **Do:** turn KNOB 4 right 1
     - **Page:** KEY
-13. **Card:** MIN is the minor scale. / SNAP pulls every key onto it. / The black keys can't go wrong now.
+13. **Card:** MIN is the minor scale. / With SNAP, a note that / doesn't fit moves down / to one that does. / The black keys can't / go wrong now.
     - **OCT+:** Next
-14. **Strip:** Play the black keys again.
+14. **Strip:** Play the black / keys again.
     - **Until:** played 4 keys
     - **Robot:** tap F#3 G#3 A#3 C#4
 15. **Reply:** No sour notes.
@@ -57,7 +57,7 @@
 19. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-20. **Card:** A key is a family of notes. / [SEL] and a key sets it. / SNAP keeps you inside it.
+20. **Card:** A song's key is the family / of notes that fit it. / Hold [SEL] and tap a note / to set the key. / With SNAP on, every / note you play fits.
     - **OCT+:** Done
 
 ## Screens

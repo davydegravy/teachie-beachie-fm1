@@ -11,7 +11,7 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track drums; pick KICK; page TRACKS
-2. **Card:** Tempo is how fast the light walks. / It is counted in beats per minute: BPM.
+2. **Card:** Tempo is the speed / of the song. It's / how fast the light / walks in the sequencer. / It is counted in beats / per minute: BPM. / A beat is 4 boxes.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
@@ -27,7 +27,7 @@
 7. **Strip:** Back to about 122, where this song lives.
    - **Do:** turn SELECT right 3
    - **Until:** tempo above 117 and tempo below 127
-8. **Card:** Now the oops. / Make a mess on purpose. / Then take it back.
+8. **Card:** Now the oops. // We will make a mess / on purpose. / Then take it back.
    - **OCT+:** Next
 9. **Strip:** Press [SEQ] for the drum grid.
    - **Do:** press SEQ
@@ -37,7 +37,7 @@
     - **Until:** drums has KICK on boxes 2 6 10
 11. **Strip:** Kicks in the wrong places. Ouch.
     - **Wait:** 2 bars
-12. **Card:** Undo takes back your last move. / It is [EDIT] and [OCT-] together.
+12. **Card:** Undo takes back / your last move. // To undo, hold [EDIT] / and press [OCT-].
     - **OCT+:** Next
 13. **Strip:** Hold [EDIT] and press [OCT-].
     - **Do:** hold EDIT, press OCT-
@@ -47,7 +47,7 @@
     - **Until:** drums has no KICK on boxes 2 6 10
     - **Hint:** Hold [EDIT], press [OCT-]. Once for each kick.
 15. **Reply:** All back.
-16. **Card:** Undo remembers your last 8 moves. / Went too far? [EDIT] and [OCT+] is redo.
+16. **Card:** Undo will remember / your last 8 moves. / Went too far? / To redo hold [EDIT] / and press [OCT+].
     - **OCT+:** Next
 17. **Card:** Save keeps your work when the FM-1 is switched off.
     - **OCT+:** Next
@@ -59,7 +59,7 @@
 20. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-21. **Card:** Tempo: [SELECT]. / Undo: [EDIT] and [OCT-]. / Save: [SAVE] twice. / Now nothing can go wrong.
+21. **Card:** Tempo: [SELECT]. / Undo: [EDIT] + [OCT-]. / Redo: [EDIT] + [OCT+]. / Save: [SAVE] twice. // Now nothing can / go wrong.
     - **OCT+:** Done
 
 ## Screens

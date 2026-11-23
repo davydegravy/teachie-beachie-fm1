@@ -23,7 +23,7 @@ from tp.fm1 import FM1, Twin, Midi, BTN, KNOB
 from tp.teach import Robot
 from tp import lesson as L
 
-PH = dict(OFF=0, BEGIN=1, LIST=2, STEP=3, PLAY=4, ECHO=5, DO=6, ANSWER=7, WAIT=8, MSG=9, STUCK=10, END=11)
+PH = dict(OFF=0, BEGIN=1, LIST=2, STEP=3, PLAY=4, ECHO=5, DO=6, ANSWER=7, WAIT=8, MSG=9, STUCK=10, END=11, BYE=12, TOC=13)
 OUT = os.path.join("build", "tw", "device")
 clumsy = "--clumsy" in sys.argv
 sticky = "--sticky" in sys.argv
@@ -53,12 +53,14 @@ def play(lesson, index, seed):
         time.sleep(3.2)                                             # (the logo, then the start card)
         tap(link, "button", BTN["OCT_UP"])                          # START: nobody answers, so the FM-1's own course begins
         end = time.time() + 6
-        while f.course()[0] != PH["BEGIN"]:
+        while f.course()[0] != PH["TOC"]:                           # (the card of the whole course)
             if time.time() > end: return False, ["START did not begin the FM-1's own course"], time.time() - t0
             time.sleep(0.1)
-        if index:                                                   # the list of lessons: SELECT to this one
+        if not index and not os.listdir(out).count("00-course.ppm"): time.sleep(0.3); link.shot("00-course")
+        if index:                                                   # LESSONS: the list of lessons, SELECT to this one
             tap(link, "button", BTN["OCT_DOWN"])
             for _ in range(index): link.knob(KNOB["SELECT"], 1); time.sleep(0.12)
+        else: tap(link, "button", BTN["OCT_UP"])                    # BEGIN: the lesson's first card
         tap(link, "button", BTN["OCT_UP"])                          # BEGIN
         last, since, tries, shot, down = None, time.time(), 0, 0, []
         while True:

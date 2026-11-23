@@ -8,7 +8,7 @@
 #include "../app/tp_course.h"
 /* (CCOLD, fw/main.c: in the flash window, and as small as it can be made: it runs once a round, with time to spare) */
 #define C_DRUM 3                                    /* the drum track */
-enum { PH_OFF, PH_BEGIN, PH_LIST, PH_STEP, PH_PLAY, PH_ECHO, PH_DO, PH_ANSWER, PH_WAIT, PH_MSG, PH_STUCK, PH_END, PH_BYE };
+enum { PH_OFF, PH_BEGIN, PH_LIST, PH_STEP, PH_PLAY, PH_ECHO, PH_DO, PH_ANSWER, PH_WAIT, PH_MSG, PH_STUCK, PH_END, PH_BYE, PH_TOC };   /* (PH_TOC: the card of the whole course, after START) */
 static const uint8_t *tpc;                          /* the pack, read through the flash window; 0: none found */
 static struct {
     uint8_t ph, ret, les, nstep, step, hint, at, turned, need, kplay, lastb, ev_r, gen, clip, go, said, turnedk, reshow, bar, held;
@@ -39,7 +39,7 @@ CCOLD static int course_find(void)                   /* the pack, in whichever s
     tpc = 0;
     for (int i = SMP_NUSR - 1; i >= 0 && flash_ok; i--) {
         const uint8_t *h = (const uint8_t *)(uintptr_t)(FLASH_WIN + SLOT_AT[i] - 0x4000u);
-        if (h[0] == 'T' && h[1] == 'P' && h[2] == 'C' && h[3] == 'O' && h[512] == 'T' && h[513] == 'P' && h[514] == 'C' && h[515] == '2' && h[518]) {
+        if (h[0] == 'T' && h[1] == 'P' && h[2] == 'C' && h[3] == 'O' && h[512] == 'T' && h[513] == 'P' && h[514] == 'C' && h[515] == '3' && h[518]) {
             tpc = h + 512;
             for (int k = 0; k < 2; k++) {                /* its two fonts, after the lessons and the clips: 6 bytes, the glyphs, the bits */
                 const uint8_t *b = tpc + c_u16(tpc + 8 + 2 * (tpc[6] + tpc[7] + k));
@@ -287,7 +287,7 @@ CCOLD static void c_lesson_card(int list)           /* a lesson's first card, or
     const uint8_t *l = c_lesson(C.les); char b[72], *p;
     c_leds(); G.cap_keys = 0; G.cap_btn = 1u << BTN_OCT_UP | 1u << BTN_OCT_DOWN; G.cap_enc = list ? 1u << ENC_SELECT : 0;
     G.led[BTN_OCT_UP] = G.led[BTN_OCT_DOWN] = 5; G.only = 1;
-    p = put_s(b, list ? "^< Turn [SELECT] >\n^Lesson " : "^Lesson "); p = put_u(p, l[0]); p = put_s(p, "\n");   /* (the heading has to fit one small line, 212 px: a part that wraps is drawn large) */
+    p = put_s(b, list ? "^< Turn [SELECT] >\n_Lesson " : "_Lesson "); p = put_u(p, l[0]); p = put_s(p, "\n");   /* (the heading has to fit one small line, 212 px: a part that wraps is drawn large) */
     for (const uint8_t *s = l + 2; *s && p < b + sizeof b - 1; s++) *p++ = (char)*s;
     *p = 0; c_say(CK_BIG, b, list ? "Home" : "Lessons", "Begin");
     C.ph = list ? PH_LIST : PH_BEGIN;
@@ -298,7 +298,9 @@ CCOLD static void course_start(void)                 /* START, and no computer a
     if (!course_find()) return;
     if (C.les >= tpc[6]) C.les = 0;
     C.ms = 0; C.last = time_ticks(); C.ev_r = G.ev_w; C.gen = (uint8_t)msg_gen; G.home = 0; G.ask = 0;
-    c_lesson_card(0);
+    c_lesson_card(0);                                /* (its lights and buttons: the course's card has the same two answers) */
+    const uint8_t *t = tpc + c_u16(tpc + 8 + 2 * (tpc[6] + tpc[7] + 2));   /* the card of the whole course: after the fonts in the pack, its length first */
+    c_show(CK_CARD, t + 1, t[0], "Lessons", "Begin"); C.ph = PH_TOC;
 }
 CCOLD static void c_after(int from);
 CCOLD static void c_to_step(void);
@@ -352,7 +354,7 @@ CCOLD static void c_to_step(void)                    /* step number C.step under
     G.cap_keys = G.cap_btn = 0; G.cap_enc = 0; c_leds();
     if (C.step >= C.nstep) {
         if (Q.playing) transport(0);
-        char b[24], *p = put_s(b, "^Lesson "); p = put_u(p, c_lesson(C.les)[0]); *put_s(p, "\nDone") = 0;   /* (the number small, as on the list) */
+        char b[24], *p = put_s(b, "_Lesson "); p = put_u(p, c_lesson(C.les)[0]); *put_s(p, "\nDone") = 0;   /* (the number small, as on the list) */
         G.cap_btn = 1u << BTN_OCT_UP | 1u << BTN_OCT_DOWN; G.led[BTN_OCT_UP] = G.led[BTN_OCT_DOWN] = 5; G.only = 1;
         c_say(CK_BIG, b, "Replay", "Next"); C.ph = PH_END; return;
     }
@@ -392,10 +394,11 @@ CCOLD static void c_event(int kind, int id)          /* a press or a turn, as th
     if (kind == 1) C.lastb = 255;
     if (kind >= 5) C.turnedk |= (uint8_t)(1u << id);
     switch (C.ph) {
-    case PH_BEGIN: case PH_LIST: case PH_END: case PH_STUCK: case PH_ANSWER:
+    case PH_BEGIN: case PH_LIST: case PH_END: case PH_STUCK: case PH_ANSWER: case PH_TOC:
         if (C.ph == PH_LIST && kind >= 5 && id == ENC_SELECT) { int k = C.les + (kind == 5 ? 1 : -1); if (k >= 0 && k < tpc[6]) { C.les = (uint8_t)k; c_lesson_card(1); } }
         if (kind != 3 || (id != BTN_OCT_UP && id != BTN_OCT_DOWN) || !((G.cap_btn >> id) & 1u)) break;
         if (C.ph == PH_ANSWER) { c_answered(id == BTN_OCT_UP); break; }
+        if (C.ph == PH_TOC) { c_lesson_card(id != BTN_OCT_UP); break; }   /* BEGIN: the lesson's first card; LESSONS: the list */
         if (C.ph == PH_STUCK) {
             G.cap_btn = 0; c_leds(); c_words(); C.t_hint = C.ms + 25000u; C.hint = 0;
             if (id == BTN_OCT_UP) { c_fix(); c_after(PH_DO); } else C.ph = PH_DO;
@@ -489,6 +492,7 @@ CCOLD static void course_tick(void)                  /* each round of the interf
             while (!any && 3 * C.at < dn && d[3 * C.at] == CD_HOLD && (held_btn >> d[3 * C.at + 1]) & 1u) C.at++;
         }
         if (f && fn) G.led[14 + f[Q.playing ? (uint32_t)(Q.pos / ((uint64_t)SEQ_BAR << 16)) % (uint32_t)fn : 0]] = 5;
+        { int ln; const uint8_t *lt = c_field(CT_LIGHTS, 0, &ln); for (int i = 0; lt && i < ln; i++) if (!G.led[14 + lt[i]]) G.led[14 + lt[i]] = 2; }   /* Lights: keys lit faintly, part of the picture (not blinking: that means press) */
         {   /* wandered to another page: brought back */
             int pn; const uint8_t *pg = c_field(CT_PAGE, 0, &pn);
             if (pg && sticky != pg[0] && !(held_btn & LAYER_BITS)) { if (!C.t_off) C.t_off = C.ms | 1u; else if (C.ms - C.t_off > 2500u) { c_goto(pg[0]); C.t_off = 0; } }

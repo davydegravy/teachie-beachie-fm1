@@ -672,9 +672,17 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
      Piano, strings and horns / are real recordings.` The facts: 153 sounds (`docs/sloop/facts.json`); 37 drum
      kits ready to play, ACOUSTIC to JAZZ (SLOOP's own count, 46, adds the 9 slots for kits of your own); the
      factory samples are a piano, vibes, a bass, horns, strings, a flute, a scratch and percussion
-     (`assets/CREDITS-SAMPLES.txt`). The 5 tracks leave this card: the strip two steps later says `Five tracks. /
+     (`assets/CREDITS-SAMPLES.txt`). Asked later ("aren't some of the drums real recordings too?"): yes, PERC is
+     VCSL's recorded acoustic drum kit, and 5 of the 37 kits play it (ACOUSTIC, and DEEP, TIGHT, BRIGHT, DUST: the
+     same kit treated, `engine/drum.h` `GB_KIT_SAMPLED`); the rest are synthesized. The last sentence then, 3
+     lines, the card 7 (its limit): `Piano, strings, horns / and acoustic drums / are real recordings.` The 5 tracks
+     leave this card: the strip two steps later says `Five tracks. /
      One song.` Lesson 5 (step 18) says what a groovebox is in full, with the sequencer, and lesson 9 (step 2)
-     says 153 again; both stay as they are.
+     says 153 again; both stay as they are. Then, on 2026-11-22: "I don't think 'Piano, strings and horns are real
+     recordings.' is the most important thing", and "just say what it is don't use weird vague stuff, say the
+     sequencer and what you can do, lets call out tracks and not use band in a box". Chosen ("yeah that is good"),
+     their two lines in it, 6 lines, the widest 211: `SLOOP is a groovebox: / 5 tracks, a sequencer, / synths,
+     effects, a mixer. / 153 sounds, 37 drum kits. / Write beats, record live, / add effects, mix, save.`
   5. **Lesson 1, step 7: one line, a smaller strip.** Asked: "This is SLOOP / Press [PLAY]" on one line, so the
      strip covers less of the screen (one line: 35 px high instead of 58). As written it does not fit: `This is
      SLOOP. Press [PLAY].` is 233 px of 212. Wordings that fit: `SLOOP! Press [PLAY].` (178, my pick: it still
@@ -859,6 +867,537 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
       / It shows a whole family. / [KNOB4] keeps / a favorite.`
   43. **Where the review stopped (2026-11-21, evening):** lessons 1 to 9 gone through. Next time: lesson 10, "Record
       it live", then on to 30. Nothing above is made yet.
+  44. **Lesson 10, step 2.** Today: `Boxes are one way to write music. / The other way: just play, and the FM-1 writes
+      it down.` Asked, then "just" put back before "play", 5 lines, all fit: `Boxes are one way to / write music. /
+      The other way is to / just play, and the FM-1 / writes it down.`
+  45. **Lesson 10, step 10.** Today: `Not happy with a take? / Undo takes the whole take back.` The second sentence
+      redone ("we need to improve this"). Chosen, 3 lines, all fit: `Not happy with a take? / One undo removes / the
+      whole take.`
+  46. **Lesson 10, step 19 (its last card).** Today: `[REC] writes down what you play. / Undo takes a take back. /
+      [REC] held: the track is erased.` Redone as a cheat sheet like lesson 6's last card, with redo added (taught in
+      step 12). The tester's words, 5 lines, all fit: `Record: [REC], then play. / Undo: [EDIT] + [OCT-]. / Redo:
+      [EDIT] + [OCT+]. / Erase track: hold [REC] / for 2 seconds.`
+  47. **Lesson 10: a new card on recording in a loop.** The tester: "I wonder if we should say how it records in a
+      loop." What SLOOP does (docs/GUIDE.md, Recording): while REC is on, the bar keeps looping, and each pass adds the
+      notes played (a note played again where it already is takes its place). The lesson never says it. In the
+      words they liked best ("the bar keeps looping, and each time round, what you play is added on top ... builds
+      up a tune bit by bit"), a card with `[OCT+] Next`, 6 lines, all fit: `While [REC] is on, / the bar keeps
+      looping. / Each time round, what / you play is added on top. / That's how you build up / a tune, bit by bit.`
+      Where: just before step 15 (`Record your own tune.`), the first free recording; my placement. The steps after
+      it move up by one.
+  48. **Lesson 10 done** ("thats good"). On to lesson 11.
+  49. **Lesson 11, step 9: name the A.** Today: `Hold [SEL] and tap an A.` The step's Do is `tap A4`, which is white
+      key 10 (lesson 8's count). Asked (my note: "it could name it like lesson 8 does"). Strip, 2 lines, both fit:
+      `Hold [SEL] and tap / the A: [KEY 10].` (Its Until stays `says KEY A`: any A still counts.)
+  50. **Lesson 11, step 13: "note", not "key".** Today: `MIN is the minor scale. / SNAP pulls every key onto it. /
+      The black keys can't go wrong now.` "Key" means the song's key in this lesson (step 2) and the keys pressed;
+      "pulls every key onto it" mixes them. Asked: "every note" (5 lines: `MIN is the minor scale. / SNAP pulls
+      every / note onto it. / The black keys / can't go wrong now.`). Then, once SNAP was explained (KNOB4 on the
+      KEY page, KEYS: OFF / SNAP / WHITE; with SNAP a key outside the scale plays the nearest scale note below it,
+      app/harmony.c), redone to say what it does. Chosen, 6 lines, all fit: `MIN is the minor scale. / With SNAP, a
+      note that / doesn't fit moves down / to one that does. / The black keys can't / go wrong now.`
+  51. **Lesson 11: line breaks only, the words kept.** So no word sits alone on a strip's last line: step 4 `Play
+      only black keys / for a while.`; step 10 `Press [SEL]: / the KEY page.`; step 14 `Play the black / keys
+      again.` (the tester kept "the": `Play the black keys again.` is 214 px, 2 over one line). Step 12 stays
+      (`[KNOB4]: one click right. SNAP.`: SNAP alone is the word on the screen).
+  52. **Lesson 11, step 20 (its last card).** Today: `A key is a family of notes. / [SEL] and a key sets it. / SNAP
+      keeps you inside it.` "[SEL] and a key sets it" used a key (the keyboard's) to set a key (the song's). Chosen,
+      the tester's last two lines, 6 lines, all fit: `A song's key is the family / of notes that fit it. / Hold
+      [SEL] and tap a note / to set the key. / With SNAP on, every / note you play fits.`
+
+- **2026-11-22: lessons 1 to 11 made** ("can you make the changes for lessons 1 to 11 now"), items 1 to 52 above.
+  The open choices took my picks: lesson 1's heading `How to read the cards` (item 2), step 7 `SLOOP! Press [PLAY].`
+  and steps 8 and 9 on one line, `5 tracks, 1 song. Listen.` and `Press [PLAY] to stop.` (item 5).
+  - **The underline** (item 1): a line that starts with `_` is small and underlined, on any card (`fw/main.c`,
+    `guide_wrap`, `guide_line`, `guide_draw`; `^` and `_` differ by one bit, so one test finds both). `Lesson N` is
+    underlined on a lesson's first card, the list and the Done card, in the firmware and in the lesson program
+    (`run.py`, `tp/lesson.py`). Lesson 1's headings use it: steps 3, 11, 13, 15 and 16.
+  - **Lights** (item 24): the FM-1's own player now reads them (`fw/course.inc`, the PH_ANSWER/PH_DO tick): each key
+    lit faintly (level 2), unless the step already lights it. Lesson 5 step 11 has `box 6 7 8 9 10`.
+  - **The knobs in borders** (item 39): 57 in lessons 9 to 28, with the three one-line fixes.
+  - **Lesson 10's new card** (item 47) is step 15; the steps after it moved up by one (20 steps now).
+  - `lessons/README.md`: "border", not "frame"; the `_` and `^` marks; `[KNOB1]` to `[KNOB4]`; `Faster / Faster /
+    FASTER`.
+- **Waiting again, to be made all at once** (from looking at lessons 1 to 11 on the FM-1, 2026-11-22):
+  53. **Lesson 2, step 13: say to hold [SEQ].** Today: `Tap a box to add a kick. / Tap it again to remove it. /
+      [OCT+] when done.` The tester: "you can't just press you need to hold [seq] then tap a box. this is on a strip
+      so there is limited space." Chosen, my pick ("Those look good"), 3 lines, all fit (207, 201, 163): `Hold [SEQ] and tap a box / to add or
+      remove a kick. / [OCT+] when done.` The other: `Hold [SEQ], tap a box: / a kick. Tap again: gone. / [OCT+]
+      when done.`
+  54. **Lesson 3, step 17: the same.** Today: `Wrong box? Tap it again. / [OCT+] when done.` Chosen too, 3 lines, all
+      fit (196, 134): `Wrong box? Hold [SEQ] / and tap it again. / [OCT+] when done.`
+  55. **Lesson 3, step 8: the last sentence.** Today (item 14): `... / the backbeat. / Most songs you know / have one.`
+      Asked: "Most songs you know have a backbeat." Four endings shown; chosen, theirs ("lets do option 1"), 6
+      lines, all fit (the last two 185, 143): `Every 4 boxes is a beat. / Kick on every beat. / Snare on beats 2 and
+      4: / the backbeat. / Most songs you know / have a backbeat.`
+  56. **Lesson 12, step 2.** Today: `A chord is several notes played together, usually three. / SLOOP can play a
+      whole chord from one key.` Asked: "SLOOP has a mode that can play a whole chord with one key" ("with", not
+      "from": one key is what you play it with). The first sentence cut at my breaks, so `three.` is not left alone;
+      6 lines, all fit (the widest 200): `A chord is several notes / played together, / usually three. / SLOOP has a
+      mode that / can play a whole chord / with one key.`
+  57. **Lesson 12, step 3: a line break only,** as lesson 11 step 10 (item 51): `Press [SEL]: / the KEY page.` (asked:
+      "yes for step 3 fix it"). The rest of lesson 12 stays as it is.
+  58. **Lesson 13, step 2.** Today: `One note in this tune is wrong. / You don't start over. / You fix that note.`
+      (`wrong.` alone on its line). The tester's gist: "One note in this tune is wrong. But you don't want to start
+      over, you just fix that note." Three shown; chosen, mine ("option 2"), 4 lines, all fit (the widest 183):
+      `This tune has / one wrong note. / No need to start over. / Just fix that note.`
+  59. **Lesson 13, step 5: the piano roll, with a heading.** Today: `The piano roll. / Every bar is a note. / Left to
+      right is time. / Higher up is a higher note.` (`note.` alone; and "bar" is 16 boxes since lesson 2, while the
+      roll draws each note as a short green line). Asked: the heading underlined and capitalized, `The Piano Roll`,
+      and options for the rest. Chosen ("lets go with option 3"), 7 lines with the heading, the card's limit, all fit
+      (the widest 207): `_The Piano Roll / It shows your notes / as green lines. / Left to right is time. / Higher
+      up: a higher note. / The longer the line, / the longer the note.` (Capitals in a heading: a name, as the
+      README allows.)
+  60. **Lesson 13, step 6.** Today: `[KNOB1] walks along the steps. Its dial says where you are. / The wrong note is
+      at step 7.` (`7.` alone). Asked: fix the breaks, and say it walks left and right. Chosen, my pick ("Option 1"),
+      6 lines, all fit (the widest 191): `[KNOB1] walks left and / right along the steps. / Its dial says which /
+      step you are on. / The wrong note is / at step 7.`
+  61. **Lesson 13, step 10.** Today: `[KNOB2] changed which note it is. / [KNOB3] changes how long it lasts. / The
+      last note is at step 9.` Asked to improve it. Chosen, my pick ("Option 2"): the knobs tied to the words the
+      piano roll prints under them (STEP, NOTE, LEN, FORCE), and why step 9. 6 lines, all fit (the widest 199):
+      `[KNOB2] is NOTE: / higher or lower. / [KNOB3] is LEN: / how long a note lasts. / Let's make the last note /
+      longer. It's at step 9.`
+  62. **Lesson 13, step 13.** Today: `One note does not belong at all. It is at step 13. / Go there, then press [EDIT] to
+      delete it.` (`13.` alone). Asked, 5 lines, all fit (the widest 209): `One note sounds wrong, / it doesn't belong. /
+      It is at step 13. / Go there, then press / [EDIT] to delete it.`
+  63. **Lesson 13, step 12: name the length.** Today: `[KNOB3] right: longer.` Asked: "tell them the length we want".
+      What the FM-1 does: the note at step 9 starts at LEN 2, a click adds a step (`fw/main.c`, the piano roll's
+      KNOB 3), and the step's Until (`lead longest note above 4.5`) is met at LEN 5, three clicks. Chosen, my pick
+      ("Option 1"), 2 lines, both fit (160, 135): `Turn [KNOB3] right / until LEN says 5.` With it, the Do becomes
+      `turn KNOB 3 right 3` (today 4, which would leave LEN at 6 when the FM-1 does the step for the learner).
+  64. **Lesson 13, step 20 (its last card): a cheat sheet,** as lessons 6 and 10, with the knobs named as the screen
+      names them (item 61). Today: `[SEQ] twice: the piano roll. / [KNOB1] where. [KNOB2] which note. [KNOB3] how long. /
+      [EDIT] deletes.` The tester's words; `(left/right)` after STEP made that line too wide, so taken out ("lets just
+      remove the left/ right"). 6 lines, all fit: `Piano roll page: / [SEQ] twice. / STEP: [KNOB1]. / NOTE: [KNOB2]. /
+      LEN: [KNOB3]. / Delete: [EDIT].`
+  65. **Lesson 13, steps 3 and 4: line breaks only** ("Yes, note them"): `Press [PLAY]. / Hear the wrong one?` and
+      `Press [SEQ] twice: / the piano roll.`
+  66. **Lesson 14, step 4.** Today: `The pad is a cushion. It belongs at the back. / Choose it, then turn [KNOB2]: its
+      level.` The tester does not like the cushion ("I don't like the cushion reference"). Chosen, my pick ("Option 1"),
+      5 lines, all fit (the widest 206): `The pad plays soft, long / notes behind the others. / It belongs at the back, /
+      so let's turn it down. / [KNOB2] sets the level.` (Picking the track is the next strip's: `[ALGORITHM] to track
+      4: / the pad.`) Lesson 5 step 8 says `A soft cushion.` too: first "Leave it", then "actually lets change that to [4]: the pad.
+      Soft, long notes." On one line with `Mute it.` it is too wide (243 px) and would leave `notes.` alone, so at my
+      breaks, 2 lines, both fit (101, 206): `[4]: the pad. / Soft, long notes. Mute it.`
+  67. **Lesson 14, step 3.** Today: `Press [PLAY]. Every track is at full.` (it breaks after "track"). Asked: the level
+      as the screen shows it, `Every track's level is at 100.` (229 px, too wide). Chosen, my pick ("Option 1"), 2
+      lines, both fit (112, 196): `Press [PLAY]. / Every track's level: 100.` (The setup puts every level at 100; the
+      TRACKS page shows LEVEL 100.)
+  68. **Lesson 14, step 2.** Today: `If everyone shouts, nobody is heard. / A mix gives each track its own loudness.`
+      (`own loudness.` cut off from "its"). Asked, 4 lines, all fit: `If everyone shouts, / nobody is heard. / A mix
+      gives each track / its own volume level.`
+  69. **Lesson 14, step 11 (its last card).** Today: `A good mix: drums and bass strong, the tune clear, chords and pad
+      behind.` Liked: an underlined heading and the cheat sheet's two lines, but not "behind", nor `Drums and bass:
+      strong. / The tune: clear.` (not "lead" either: track 2 is the lead). Chosen ("Option A"), 6 lines, all fit (the
+      widest 191): `_A good mix / Loud drums and bass, / a tune that stands out, / softer chords and pad. / Track:
+      [ALGORITHM]. / Level: [KNOB2].`
+  70. **Lesson 14, step 9.** Today: `Set all five by ear. / [OCT+] when it sounds right.` (`right.` alone). The
+      controls named in it did not fit a strip's 3 lines with [OCT+]; the last card names them. Asked, 2 lines, both
+      fit (145, 188): `Set all five by ear. / [OCT+] when it's right.`
+  71. **A card for the whole course, after the start card.** Asked: "we don't really have a table of contents like card
+      in the beginning ... right after the teachie beachie ready for a lesson card ... [oct-] lessons and [oct+] begin
+      (which would lead to the lesson 1 card) ... the parts and lessons numbers--it should fit on one page." START,
+      then this card; [OCT-] Lessons opens the list, [OCT+] Begin goes on to the lesson's first card. Part 3 renamed
+      on the way: "make it move" was vague ("what does make it move mean?"), now **Effects and sound** (asked), in the
+      eight lesson files (16 to 23), `lessons/README.md` and `PLAN.md`. Part 2, "add the band", renamed too: **Notes and
+      chords** (asked), in lessons 8 to 15 and the same two files. Mocks drawn on the simulated FM-1 and compared:
+      the part numbers first needs "&" to fit (`3. Effects & sound: 16-23`), so the lesson numbers first; the last
+      sentence asked for ("something that it teaches you how to use Sloop"), chosen from three, `Each lesson teaches /
+      one part of SLOOP.`; not under the heading ("too much prominence"); set apart from the list by a gap, 8 px (a
+      whole line would run into [OCT-]; 12 px nearly touches it), and centered ("Centered"). The card, 7 lines, the
+      card's limit, all fit (the widest 208): `_30 lessons in 4 parts / 1-7: Your first beat / 8-15: Notes and chords /
+      16-23: Effects and sound / 24-30: Make a song /` an 8 px gap `/ Each lesson teaches / one part of SLOOP.` (the
+      last two centered). To build:
+      - Two small marks in the firmware's card drawing (`fw/main.c`): an empty line draws as an 8 px gap, not a whole
+        line, and does not count as one of the 7; a line starting with a mark of its own (my plan: `~`) is centered
+        on a normal card, as on a big one. `check.py` measures both the same way; `lessons/README.md` says so.
+      - The card's words in the lesson pack, not the firmware (244 bytes free); the computer-led program (`run.py`)
+        shows it too. [OCT-] Lessons opens the list, [OCT+] Begin the lesson's first card.
+  72. **The 8 px gap on the long cards** (item 71's gap; the sheets of every card of 5 lines or more in lessons 1 to 14,
+      drawn on the simulated FM-1). Asked, a gap before the line that starts:
+      - lesson 1: step 3 `Press it.`; step 4 `Tap it.`; step 6 `Write beats, ...`; step 20 `But a sequencer can.`
+      - lesson 2: step 2 `Let's learn how`; step 6 `Hold [SEQ], ...`; step 12 `They call this` and `This is the beat`;
+        step 17 `You just programmed`
+      - lesson 3: step 2 `Now let's take a look`; step 13 `Write them, ...`
+      - lesson 4: step 7 `Each one puts 16 new` and `Your programmed beat`; step 13 `SLOOP has 37 of them.` and
+        `[PRESETS] changes`
+      - lesson 5: step 11 `[6] to [10] ...`
+      - lesson 6: step 21 `Now nothing can`
+      - lesson 7: step 2 `An empty drum track ...` and `Make a beat ...`; step 10 `Now you can make` and `Next: the rest`
+      - lesson 10: step 2 `The other way is to`; step 13 `Hold [REC] ...` and `Undo brings it back.`; step 15 `That's how
+        you build up`
+      - lesson 12: step 2 `SLOOP has a mode that`; step 16 `Four chords in a loop:`
+      - lesson 13: step 6 `The wrong note is`; step 10 `Let's make the last note`; step 13 `It is at step 13.` and `Go
+        there, then press`
+      Every one found at the start of a line, with the cards as the notes have them. Every card still fits: the lowest
+      is lesson 1 step 3 (7 lines and a gap), its words ending at y 181, the buttons' frames at 188. In the lesson files
+      the gap needs a way to be written (my plan: ` // `, as ` / ` is a new line).
+  73. **Better breaks on four of those cards** (asked: "suggest better breaks for those"; "Yes, all four"). The gaps of
+      item 72 stay where asked (`//` here):
+      - lesson 2 step 6, words unchanged: `16 boxes across. / That is one bar of music. // Hold [SEQ], and the / 16
+        white keys are / the 16 boxes.`
+      - lesson 3 step 13, words unchanged: `More hats? / One in every odd box / makes it rush along. // Write them, or /
+        have them written.`
+      - lesson 5 step 11, the colon after "mute" a full stop (with it, "only that / track plays." breaks mid-phrase):
+        `Solo is the opposite / of mute. / Only that track plays. // [6] to [10] are / the five solos.`
+      - lesson 10 step 13, "two" as "2" (as its last card says; `Hold [REC] for 2 seconds:` is 212 px, exactly the
+        width): `There is a bigger eraser. // Hold [REC] for 2 seconds: / the whole track is empty. // Undo brings it
+        back.`
+  74. **The gap on the shorter cards too** ("I just think the gap makes it more legible"; mocks of 19 cards of fewer
+      than 5 lines; "All 19"). A gap before the line that starts:
+      - lesson 1: step 2 `Try it now.`; step 11 `The blinking key shows`
+      - lesson 3: step 12 `The keys for the selected`; step 19 `And you made it.`
+      - lesson 4: step 2 `Together they are a kit.`
+      - lesson 6: step 8 `We will make a mess`; step 12, new breaks, "together" dropped (it would sit alone): `Undo
+        takes back / your last move. // To undo, hold [EDIT] / and press [OCT-].`
+      - lesson 8: step 10 `Now a second note.`; step 19 `[SEQ] and a box writes it.`
+      - lesson 9: step 2 `SLOOP has 153`; step 13 `Your best sounds are`
+      - lesson 10: step 9 `That is called quantize.`; step 10 `One undo removes`
+      - lesson 11: step 2 `The ones that fit are`; step 7, new breaks: `They all fit. // This song is in the key / of A
+        minor, and A minor / is exactly the white keys.`; step 8 `First tell it which key.`
+      - lesson 12: step 6 `One for each bar.`
+      - lesson 13: step 2 `No need to start over.`
+      - lesson 14: step 2 `A mix gives each track`
+      From now on, the review offers a gap wherever a card has two thoughts.
+  75. **Lesson 15, all my suggestions** ("Those are great lets go with your suggestions"); `//` is the gap. All fit:
+      - step 2: `Part 2 ends with a loop / of your own. // Drums first, then / at least one more track.`
+      - step 4 (strip): `Drums first. / [OCT+] when ready.`
+      - step 5 (strip): `Now add a bass line, / chords or a tune. / [OCT+] when ready.`
+      - step 6: `Want the rest / of the band? // Empty tracks can be / filled in for you.`
+      - step 10 (strip): `Save it: / press [SAVE] twice.`
+      - step 12 (its last card), as lesson 7's end of part 1, and naming part 3: `Part 2 is done. // Now you can build
+        / a whole loop: / drums, bass, chords / and a tune. // Next: effects and sound.`
+      Steps 3, 8 and 9 stay as they are.
+  76. **Lesson 16, all my suggestions** ("This all look good lets go with your suggestions"); `//` is the gap. All fit:
+      - step 2: `So far your music is / one bar, on a loop. / A song needs more. // Each track has 8 pages / to write on.`
+      - step 3 (strip): `Press [PLAY]. / This is page 1.`
+      - step 4: `Hold [SAVE]: [1] to [8] / are the pages. // Tap one to go there. / Hold one to copy / this page onto
+        it.` (`[KEY 1]` as `[1]`: with it the first line is 215 px)
+      - step 7: `You are on page 2 now. / It is a copy of page 1. // Change it, and page 1 / stays as it was.`
+      - step 8 (strip): `Press [SEQ] for / the drum grid.`
+      - step 11: `Two pages. // Page 1: the beat. / Page 2: the same beat / with a push.`
+      - step 12 (strip): `Hold [SAVE], tap [1]. / It comes on the next bar.`
+      - step 13 (strip): `And back: [SAVE] + [2].`
+      - step 16 (its last card), a cheat sheet: `A page is also called / a pattern. // Go to a page: / [SAVE] + a key. /
+        Copy this page: / [SAVE] + hold a key.` Asked: "is there a paste step?" No: holding the key copies the page
+        onto that one and goes there, in one move (`fw/main.c`, `pat_go`: the top says `PATTERN 2: COPY OF 1 ON THE BAR`).
+      Steps 5, 9, 10, 14 and 15 stay as they are.
+  77. **Lesson 17, all my suggestions** ("lets go with those"); `//` is the gap. All fit:
+      - step 2: `A fill is a short / burst of drums. // It says: something / new is coming.`
+      - step 4: `This beat hides / four snares. // They only play / when you ask.`
+      - step 5 (strip): `Hold [GLO] and hold [11].`
+      - step 6 (strip): `Again. Aim for / the end of the bar.`
+      - step 7: `[12] is easier. // It plays the fill for / one whole bar, then / stops by itself.`
+      - step 9: `Now a fill note / of your own. // A note can be marked / to play only in a fill.`
+      - step 11: `The next move takes / three fingers. // Hold two things, / then press a third.`
+      - step 14: `FILL. It worked. / Let go of everything. // The tom now plays / only in a fill.`
+      - step 16: `A roll is one drum, / repeated fast. // Hold [ARP] and hold / a drum key.`
+      - step 17 (strip): `Hold [ARP], hold [5]: / a hat roll.`
+      - step 20 (its last card), a cheat sheet: `Fill: [GLO] + [11] or [12]. / Fill note: / [SEQ] + a key + [OCT+]. /
+        Roll: [ARP] + a key.`
+      Steps 8, 10, 12, 13, 15, 18 and 19 stay as they are.
+  78. **The gap's size: 16 px on short cards** ("so if we wanted to on all cards that have 4 lines or less we could make
+      each gap a double gap?"; mocks of 8 and 16 px; "Yes, 16 px"). A card of 4 lines or fewer draws each gap 16 px
+      high; 5 lines or more, 8 px. The FM-1 decides it from the card's own line count, so the lesson files keep one
+      mark (`//`). Even 4 lines and two 16 px gaps end well above the buttons (y 136 of 184).
+  79. **Lesson 18, my suggestions, step 11 in the tester's words**; `//` is the gap. All fit:
+      - step 2: `Some effects are / played like notes. // Hold [FX], and every key / is an effect for as long / as you
+        hold it.`
+      - step 4 (strip): `Hold [FX], hold [7]: STOP.`
+      - step 5: `While [FX] is held, / the screen is a map. // 4 bright rows of 4: / the 16 white keys. / The dim names
+        between / the rows: the black keys.`
+      - step 11: `Tired of holding [FX]? / Lock it, and the keys / stay effects. // To lock: [FX] + [HOME].` ("To lock",
+        asked, for my "The lock")
+      - step 14 (strip): `Press [FX] once / to unlock.`
+      - step 16 (its last card), a cheat sheet: `Effect: hold [FX] + a key. / Lock: [FX] + [HOME]. / Unlock: [FX]
+        again.`
+      Steps 3, 6 to 10, 12, 13 and 15 stay as they are.
+  80. **Lesson 19, my suggestions** ("Lets go with all of these"), steps 2 and 14 still being worked on; `//` is the
+      gap. All fit:
+      - step 4 (strip): `Tap [FX] until / the screen says SENDS.`
+      - step 7: `Too much of both / turns to mud. // Pull the reverb back / until the tune is clear.`
+      - step 9: `The echo has a page / of its own. // It is called DELAY.`
+      - step 10 (strip): `Tap [FX] until / the screen says DELAY.`
+      - step 13: `One more trick: a throw. // Hold [FX] and [OCT+]: / everything echoes / while you hold.`
+      - step 17 (its last card), a cheat sheet: `Sends page: [FX]. / Echo: [KNOB3]. / Reverb: [KNOB4]. // A little
+        goes a long way.`
+      Steps 3, 5, 6, 8, 11, 12, 15 and 16 stay as they are.
+  81. **Lesson 19, steps 2 and 14.** Step 2, my option 1 (a picture for each, which children know), 6 lines, two gaps,
+      all fit (the widest 203): `Echo repeats a sound, / like a shout in a canyon. // Reverb puts it in a room, / like
+      singing in a church. // You decide how much / each track sends.` Step 14 (strip), asked ("They need to hold
+      both"), 1 line, 201 px: `Hold [FX] + hold [OCT+].`
+  82. **Lesson 20, my suggestions** ("lets go with all of these suggestions"), step 2 still being talked over; `//` is
+      the gap. All fit:
+      - step 3 (strip), as lesson 19's: `Press [PLAY]. Track 1, / the bass, is chosen.`
+      - step 4 (strip): `Tap [FX] until / the screen says INSERT.`
+      - step 10: `Now a filter, / on the whole song. // Hold [FX], and [KNOB1] / is the filter knob.`
+      - step 11, an underlined heading: `_The filter knob / Left is LP: only / the low sounds stay. / Right is HP: only /
+        the high sounds stay. / Middle is OFF.`
+      - step 12's hint: `Hold [FX]. FILT is / the first dial below.`
+      - step 18 (its last card), a cheat sheet: `Insert page: [FX]. / It colors one track. // Filter: [FX] + [KNOB1]. /
+        It colors the whole song.`
+      Steps 5 to 9 and 13 to 17 stay as they are.
+  83. **Lesson 20: two cards, the insert and the filter,** each saying what it does and why musicians use it ("Let's do
+      two cards one for the insert and one for the filter ... I just think filters are a big deal but kids wont know
+      that"). Both fit:
+      - step 2, the insert (the tester's first lines, "like distortion from a rock guitar pedal", cut to fit): `An
+        insert changes / one track's sound, / like a rock guitar pedal. // It makes a bass growl / or a beat crunch: /
+        fuzz, crush and more.`
+      - a new card just before step 10 (where the filter part begins), with `[OCT+] Next`: `A filter is a DJ's /
+        favorite trick. // Close it: the song sinks / underwater. Open it: / it bursts back to life.` (Chosen from two;
+        the other added "DJs use it to build up to the drop", which is lesson 27's.) The steps after it move up by one;
+        item 82 names them as they are numbered today.
+  84. **Lesson 21, my suggestions** ("lets go with all of these"), steps 10 and 19 still being worked on; `//` is the
+      gap. All fit:
+      - step 2: `Every sound has a shape: / how it starts, / how long it rings, / how bright it is. // You can change
+        all three.`
+      - step 3 (strip): `Play a few keys. / A plain, sharp sound.`
+      - step 5: `ATK is the attack: / how fast a note starts. // Turn [KNOB1] up and / keep playing to hear it.`
+      - step 8: `REL is the release: / how long a note rings / after you let go.`
+      - step 16 (strip): `Press [HOME]. / Then [PLAY].`
+      - step 17 (strip): `Play your sound / over the song. / [OCT+] when done.`
+      Steps 4, 6, 7, 9, 11 to 15 and 18 stay as they are.
+  85. **Lesson 21, step 19 (its last card), a cheat sheet.** Asked: make the brightness line clear, since [EDIT] pages
+      through to the filter. What the FM-1 does: [EDIT] steps through the sound's six pages, OSC, FLT, VOICE, PLAY,
+      USER, SOUNDS (`fw/main.c`, `EDIT_PG`), and opens on the one used last, so "until FLT", not a number of taps.
+      Chosen ("Option 1"), 6 lines, all fit: `Start: [ENV], [KNOB1]. / End: [ENV], [KNOB4]. // Brightness: / tap [EDIT]
+      until FLT, / then turn [KNOB1].`
+  86. **Lesson 21, step 10.** Today: `Now brightness. That is the filter. / Its page is called FLT. / [EDIT] goes from
+      page to page.` Redone ("I still don't like it I prefer Option 2 but can we make it better"); the paging left to
+      step 11's strip (`Tap [EDIT] until FLT.`). Chosen ("Option 1"), 5 lines, two gaps, all fit (the widest 202):
+      `Brightness comes from / the sound's own filter. // Turn it down: dark, soft. / Turn it up: bright, sharp. // Its
+      page is called FLT.`
+  87. **Lesson 22, my suggestions** ("lets go with all of these suggestions"), steps 2 and 22 still being worked on;
+      `//` is the gap. All fit:
+      - step 4 (strip): `Tap [LFO] until / it says LFO DEST.`
+      - step 7 (strip): `Tap [LFO] until / it says LFO 1/3.`
+      - step 9: `Now the arpeggiator. // Hold a chord, and it plays / its notes one by one. // It's the sparkle in /
+        video-game music.`
+      - step 13 (strip): `Hold the three / blinking keys together.`
+      - step 14: `Remember the run / from lesson 1, too / fast for hands? // Make the arp / faster and wider.`
+      - step 17 (strip): `Hold the same / three keys again.`
+      - step 18: `Nobody can play that / by hand. // You just did.`
+      - step 19 (strip): `Hold other keys. / Try chords. / [OCT+] when done.`
+      Steps 3, 5, 6, 8, 10 to 12, 15, 16, 20 and 21 stay as they are.
+  88. **Lesson 22, step 2.** The tester's version (my first suggestion and "It makes pads breathe / and basses wobble.")
+      is 7 lines; with two gaps its words would end at y 189, on the buttons' frame (188). Chosen ("Option 2"): "slow
+      wave" and "for you" left out, 6 lines, two gaps, all fit: `The FM-1 can move / a sound by itself. // An LFO
+      turns a knob / up and down, forever. // It makes pads breathe / and basses wobble.`
+  89. **Lesson 22, step 22 (its last card), a cheat sheet.** Asked: "do musicians call it anything other than wobble?"
+      The general word is modulation (or movement); on the pitch it is vibrato, on the volume tremolo, on the filter
+      wobble (as here: the LFO moves the pad's filter). Kept ("Lets keep Wobble"), 4 lines, all fit: `Wobble: [LFO]. /
+      Arpeggio: [ARP]. // A sequencer never / gets tired.`
+  90. **Lesson 23, my suggestions** ("Lets go with these"), steps 3 and 9 still being talked over; `//` is the gap.
+      All fit:
+      - step 2: `Part 3 ends with a show. // You build a second page / and a fill. / Then you play it all live.`
+      - step 4 (strip): `Hold [SAVE], hold [2]. / Let go when / the top says COPY.`; its hint: `A short tap only goes
+        / to page 2. Hold longer.`
+      - step 6 (strip): `Now mark one note / as a fill note.`
+      - step 7: `Now play it live. // Change pages, drop in / fills, play the effects. / A minute or so, / like a show.`
+      - step 11 (strip), as lesson 15's: `Save it: / press [SAVE] twice.`
+      - step 13 (its last card), as lesson 15's, naming part 4: `Part 3 is done. // Now you can play / the FM-1 live. //
+        Next: make a song.`
+      Step 5 stays as it is.
+  91. **Lesson 23, step 9 (strip, while the learner plays).** Today: `You are on. / [OCT+] when the show is over.`
+      ("You are on" may not be clear to children). Asked, 2 lines, both fit: `Play your live show. / [OCT+] when it's
+      over.`
+  92. **Lesson 23, step 3 (the cheat sheet before the show), with an underlined heading** ("Lets go with the heading
+      version"), 6 lines, all fit: `_Your show controls / Page: [SAVE] + a key. / Fill note: / [SEQ] + a key + [OCT+]. /
+      Fill: [GLO] + [12]. / Effects: [FX] + a key.`
+  93. **Lesson 24, my suggestions, steps 2 and 23 in the tester's words**; `//` is the gap. All fit:
+      - step 2 (asked): `A song is not one loop. // It has parts: / an intro, a verse, / a chorus, and a break.`
+      - step 3: `First, listen to / a whole song. // The strip names / each part as it comes.`
+      - step 5 (strip), as step 13's answer says it: `Intro. / Only beat and bass.`
+      - step 6 (strip): `Verse. / In come the piano / and the pad.`
+      - step 7 (strip): `Chorus. / The whole band, / with the tune.`
+      - step 11: `Now you name them. / The song plays again. // At each part, answer / with [OCT-] or [OCT+].`
+      - step 19's wrong answer: `No. The bass left: / that is the break.`; step 21's: `No. Everyone is back: / the
+        chorus.`
+      - step 23 (its last card, asked): `Intro, verse, chorus, / break, and chorus. // Each part changes / something,
+        and that / keeps people listening.`
+      Steps 8, 9 and the other questions stay as they are.
+  94. **Lesson 25, my suggestions, step 2 in the tester's words**; `//` is the gap. All fit:
+      - step 2 (asked): `You have four pages: / intro, verse, chorus, / and break. // Played in a row, / the pages make
+        a song.`
+      - step 3 (strip): `Press [SAVE] once: / the SONG page.`; its hint: `One tap only. / Two quick taps save.`
+      - step 7: `A chain plays pages / in a row by itself. // Tap [15], then / the pages in order.`
+      - step 9 (strip): `Now [1], [2], [3], / in that order.`
+      - step 10 (strip): `The chain plays: / 1, 2, 3, round and round.`
+      - step 11 (strip): `[15] again: / the chain ends.`
+      - step 12: `A chain is gone / once you end it. // To keep an order, / record it. / [14] is SONG REC.`
+      - step 13 (strip): `Tap [14]. / It starts on the bar.`
+      - step 15 (strip): `[14] again: / the song is kept.`
+      - step 16 (strip): `[13] plays the song / you recorded.`
+      - step 18 (strip): `[13] again: / back to looping.`
+      - step 19 (strip): `Press [HOME], / then [PLAY] to stop.`
+      - step 20 (its last card), a cheat sheet: `SONG page: [SAVE]. / Chain: [15]. / Record a song: [14]. / Play it:
+        [13].`
+      Steps 4 to 6, 8, 14 and 17 stay as they are.
+  95. **Lesson 26, my suggestions** ("Lets go with all of these suggestions"); `//` is the gap. All fit:
+      - step 2: `A song can also be / written down, / line by line. // Each line: a page, / and how many bars.`
+      - step 3 (strip), as lesson 25's: `Press [SAVE] once: / the SONG page.`
+      - step 4 (strip): `[SELECT] one click right: / the lines.`
+      - step 5, an underlined heading: `_Four knobs / LINE: which line. / PAT: its page. / BARS: how long. / LINES: how
+        many.`
+      - step 7: `Four lines, / all playing page 1. // You are on line 4. / Make it page 4, / the break.`
+      - step 14: `Your song, written out: // intro, verse, / a long chorus, break.` (`written down:` is 213 px)
+      - step 16 (strip): `Tap [13], then [PLAY].`
+      - step 17 (strip): `Your song. / [OCT+] when it's done.`
+      - step 19 (its last card), a cheat sheet with an underlined heading (asked), each line named as a part of the
+        song (lesson 24's parts; "Option 2"): `_Song lines / Get there: [SAVE], / then [SELECT] right. // Each line is a
+        part: / a page and its bars.`
+      Steps 6, 8 to 13 and 15 stay as they are.
+  96. **Lesson 27, step 2**, the tester's words, 7 lines, one gap, all fit (the widest 197): `A build-up adds / a little
+      at a time. / A drop is when / it all arrives. // Taking tracks away can / be just as powerful / as adding them.`
+  97. **Lesson 27, step 15 (its last card), a cheat sheet with an underlined heading, without the gap** ("lets remove
+      the gap if its not defined appropriately it will confuse the user"; the card never said what a gap is), then the
+      idea said plainly, with no name for it (the tester's words). 6 lines, one gap, all fit: `_Build-ups and drops /
+      Build: a little at a time. / Drop: all at once. // Mute a track, / then bring it back / with a bang.` (Steps 10
+      to 12 take the drums out and bring them back; step 2 says why.)
+  98. **Lesson 27, my suggestions for the other steps** ("yes go with your suggestions"); `//` is the gap. All fit:
+      - step 3 (strip), as lesson 20's filter card says it: `Press [PLAY]. / Bass and drums, / underwater.`
+      - step 4's hint, as lesson 20's: `Hold [FX]. FILT is / the first dial below.`
+      - step 5 (strip): `Bring in the pad: / [GLO] and [4].`
+      - step 6 (strip): `The chords: / [GLO] and [3].`
+      - step 9 (reply): `That is / a drop.`
+      - step 10: `Now the other way. // Take the drums out / for a moment, then / bring them back / on a strong beat.`
+      - step 12 (strip): `Wait for it ... / then [5] again.`
+      Steps 4, 7, 8, 11, 13 and 14 stay as they are. "Gap" was only on the last card (and in the lesson's own
+      description at the top, "then tries a gap", for Claude, not shown): with it gone, no card says it.
+  99. **Lesson 28, my suggestions** ("I like all of the other suggestions"), steps 2, 7 and 17 still being worked on;
+      `//` is the gap. All fit:
+      - step 3 (strip): `Press [PLAY]. / Straight, like a march.`
+      - step 8 (strip), as lesson 16's: `Press [SEQ] for / the drum grid.`
+      - step 9 (strip): `Play [5]: the hat.`
+      - step 11's hint: `[SEQ], hold the box, / [KNOB2] right. / One box at a time.`
+      - step 13: `Playing by hand has / soft and hard too. // Hold [OCT-] and play / a drum: soft. / Hold [OCT+]: hard.`
+      - step 15 (strip): `Now hold [OCT+], / play it again.`
+      Steps 4 to 6, 10, 12, 14 and 16 stay as they are.
+  100. **Lesson 28, step 2.** Today: `The same beat can march or dance. / Swing plays every second box a little late.`
+       Worked over: what swing is, how, and why; not "swung" ("I just don't like the word swung"). Chosen, 6 lines,
+       two gaps, all fit (the widest 207): `A straight beat marches. / With swing, it dances. // Swing plays every /
+       second box a little late. // It's the bounce in / hip-hop and jazz.`
+  101. **Lesson 28, step 7.** Today: `Feel also comes from soft and hard hits. / Hats that are all the same sound like a
+       machine.` Not "Feel also comes from" (asked); the robot line tweaked (asked). Chosen, 6 lines, two gaps, all
+       fit (the widest 192): `Soft and hard hits / make a beat groove. // A drummer never hits / twice the same way. //
+       If every hit is the same, / it sounds like a robot.`
+  102. **Lesson 28, step 17 (its last card), a cheat sheet with an underlined heading** ("groove", as step 7, not
+       "feel"; "Levels" as what it is for). Chosen ("Option 1"), 7 lines, all fit (the widest 197): `_Swing and groove /
+       Swing: [KNOB1] on / the TRACKS page. / Loud or soft box: / [SEQ] + a box, [KNOB2]. / Soft hit: hold [OCT-]. /
+       Hard hit: hold [OCT+].`
+  103. **Lesson 29, step 13: SLOOP's web editor, not Teachie Beachie's backups.** Today: `A copy on the computer is
+       safer still. / Teachie Beachie keeps one before every lesson, in its backups folder.` That backup is made only
+       when the computer runs the lessons (`run.py`), never with the FM-1 alone. Asked: "If you are working on multiple
+       songs you should save it to your computer ... remove any reference to Teachie Beachie ... how sloop manages
+       songs on a computer." What SLOOP does: the FM-1 keeps one project; the web editor's Projects tab saves it as a
+       file on the computer and puts any file back (`docs/GUIDE.md`, The web editor). Chosen ("option 2"), 6 lines,
+       all fit: `The FM-1 holds one / song at a time. // Working on more? / Keep each one as a file / on a computer, with
+       / SLOOP's web editor.`
+  104. **Lesson 29, my suggestions for the other steps** ("go with the rest of your suggestions"); `//` is the gap. All
+       fit:
+       - step 2: `A finished song / deserves to be kept. // The FM-1 holds one / project: all your pages, / sounds and
+         the song.`
+       - step 3: `Hold [HOME]: / the PROJECT page. // [1]: OPEN. / [3]: NEW. / [5]: SAVE.`
+       - step 4 (strip): `Hold [HOME], / tap [5]: SAVE.`
+       - step 6: `Saved. Now let's see / what that is worth. // We wreck it on purpose: / the drums get erased.`
+       - step 7 (strip), as lesson 10's: `Hold [REC] for 2 seconds.`
+       - step 8 (strip): `No drums. / They are gone.`
+       - step 9: `OPEN brings back / what you saved. // It asks if you are sure, / so you tap twice.`
+       - step 12: `The FM-1 also saves / by itself when the / music is stopped. // So save before you / try something
+         risky.`
+       - step 14: `To share a song, / record it as sound. // The FM-1 sends its sound / down the USB cable / to a
+         computer. / Ask a grown-up.`
+       - step 15 (its last card), a cheat sheet with an underlined heading, "hold" [HOME] as it works, and the web
+         editor of step 13 ("Option 1"), 7 lines, one gap: `_Keep your song / Save: hold [HOME] + [5], / or [SAVE]
+         twice. / Open: hold [HOME] + [1], / then [1] again. // More songs: as files, / with the web editor.`
+       Steps 5, 10 and 11 stay as they are.
+  105. **Lesson 30: a cheat sheet of four cards** ("we should put in a comprehensive cheat sheet in the beginning maybe
+       even two cards ... on step 3 at the bottom the right is continue and the left is Cheat Sheet"; "Yes this looks
+       good"). Step 3 (the goals) gets `[OCT-] Cheat sheet` and `[OCT+] Next`; Cheat sheet goes to four new cards, one
+       per part of the course (as the course card, item 71), each `[OCT-] Back` and `[OCT+] Next`, the last `[OCT+]
+       Start` (to step 4); Next on step 3 skips them. Step 6's `Not yet` goes back to step 3 (today to step 5), so the
+       cheat sheet is one press away whenever they are stuck. Each card 7 lines, all fit:
+       - `_Your first beat / Play, stop: [PLAY]. / Pick a drum: play its key. / Boxes: [SEQ] + a key. / Tempo:
+         [SELECT]. / Undo: [EDIT] + [OCT-]. / Mute: [GLO] + [1] to [5].`
+       - `_Notes and chords / Track: [ALGORITHM]. / Sound: [PRESETS]. / Record live: [REC]. / Key and chords: [SEL]. /
+         Piano roll: [SEQ] twice. / Level: [KNOB2].`
+       - `_Effects and sound / Effects: hold [FX] + a key. / Filter: [FX] + [KNOB1]. / Echo, reverb: [FX]. / Fill:
+         [GLO] + [12]. / Wobble: [LFO]. / Arpeggio: [ARP].`
+       - `_Make a song / Page: [SAVE] + a key. / Copy: [SAVE], hold a key. / SONG page: [SAVE]. / Chain: [15]. / Record
+         a song: [14]. / Play the song: [13].`
+       Saving is left off (step 4 and the corner tag say it); left out for room: redo, solo, erasing a track, the
+       insert, rolls, swing, [ENV].
+  106. **Lesson 30, my suggestions for its cards** (taken as yes with the cheat sheet; to check with the tester);
+       `//` is the gap. All fit:
+       - step 2: `_The final test / An empty project. / No blinking lights. / No hints.`
+       - step 3: `Make a whole song: / 3 pages or more. / 4 tracks or more. / Some effects. / A song that plays / 3 pages
+         in a row.`
+       - step 4: `When your song is done, / press [SAVE] twice. // The corner of the / screen reminds you: / [SAVE] x2`
+       - step 6: `Is your song finished? // The goal: 3 pages, / 4 tracks, some effects, / and 3 pages in a row. // You
+         decide.`
+       - step 8 (strip), as lesson 26's: `Your song. / [OCT+] when it's done.`
+       - step 10 (the course's last card), as the ends of parts 1 to 3: `The course is done. // Now you can make / a
+         song from nothing, / on your own. // The FM-1 is yours now.`
+       Step 5 (the corner tag) stays as it is.
+  107. **The review is done (2026-11-22):** all thirty lessons gone through. Next: make items 53 to 106 (with the gap,
+       the centered line and the course card in the firmware), build, check, and put it on the FM-1.
+- **2026-11-22, evening: the second round made** ("yes make them"), items 53 to 106.
+  - **The gap** (items 71, 72 to 74, 78): in a lesson file ` // `; `words()` (`tp/lesson.py`) turns it into an empty
+    line, two on a card of 4 lines or fewer; the FM-1 draws an empty line 8 px high (`fw/main.c`, `guide_draw`). So the
+    16 px is decided by the tools, not the firmware as first planned: fewer bytes. `check.py` counts gaps apart from
+    lines and says when a card would end on its answers.
+  - **A centered line** (item 71): `~` at its start (`guide_line`).
+  - **The course's card** (item 71): after START, before the lesson's first card; its words are `COURSE` in
+    `tp/lesson.py`, packed after the fonts (`tools/mkcourse.py`); the pack is `TPC3` now, so a firmware and a pack
+    must again be from the same build. A new phase in `fw/course.inc`, PH_TOC (13): BEGIN goes to the lesson's first
+    card, LESSONS to the list. The computer-led program shows it too (`run.py`, `begin`).
+  - **The lessons:** every card of items 53 to 106, lesson 20's filter card (19 steps now) and lesson 30's cheat sheet
+    (14 steps: the goals' card has `Cheat sheet` and `Next`, four cards with `Back` and `Next`, `Not yet` goes back
+    to the goals). The last cheat card says `Next`, not `Start`: the card after it says `Start`. Lesson 7 step 2's
+    last line cut in two (`Make a beat / of your own.`: it wrapped). Parts 2 and 3 renamed in the lesson files,
+    `lessons/README.md` and `PLAN.md`; the README has the two new marks.
+  - **Sizes:** the firmware 278,148 bytes (152 more; 92 free), the pack 53,850.
+  - **Checked:** the build and its own checks; the lint of the thirty lessons; every break where it was written; on the
+    simulated FM-1 leading itself, START to the course's card, to lesson 1 and to the list, and lesson 30's cheat
+    sheet walked forward and back (pictures looked at); all thirty lessons replayed on simulated FM-1s that lead themselves: 30 played through, none stopped.
+  - **Left as they are, seen on the way** (old cards that still wrap on their own, not in the notes): lesson 4 step
+    6, lesson 5 steps 4, 7 (`piano.` alone) and 14 (`like.` alone), lesson 9 step 6, lesson 10 step 12 (`[OCT+].`
+    alone), lesson 12 step 8.
+- **2026-11-22: room in the firmware, and what could come out one day** ("Sloop is in beta, its highly likely it will end
+  up taking more space so we should think about what we want to trim"; "don't actually trim anything now we just
+  might want to identify it"). Nothing trimmed. The firmware's code is 278,148 bytes of 278,240: 92 free. Teachie
+  Beachie's own part of it is small: about 6.2 KB of code (the guide and the course in `fw/main.c` and `fw/course.inc`)
+  and the 2.1 KB logo. The lessons' words are in the pack, not there. The sizes below are each part's object file
+  (`build/fw/o/*.o`), before the build packs it: what a cut really frees has to be measured by building without it.
+  - **SLOOP parts the lessons never use, most promising first:**
+    - What is left of `sloopimport.o`, about 2.4 KB (not the 6.6 KB of its object file, as first said here): the
+      import of a SLOOP 2.8 project at the first start is out already, since 2026-11-19 (`TP_SLOOP28_PROJECT` in
+      `fw/main.c`; the tester remembered it: "I thought we removed that"). Still in: SLOOP 2.8's settings, favorites,
+      user sounds, SYN kits and MIDI settings brought over (`sloop_upreset`, `sloop_synkits`, `sloop_midi`,
+      `sloop_settings`, `sloop_favs`, `sloop_theme`; measured in `build/fw/ram.elf`). A new FM-1 owner never has
+      those. The cleanest cut. And the lesson for the rest of this list: an object file's size says more than is
+      really in the firmware.
+    - `slice.o` and `slice_scan.o`, 5.0 KB: the SLICE engine (a drum break cut into slices, made with the web editor).
+    - `grain.o` 5.7 KB and `texture.o` 4.1 KB: the granular and texture sound engines. Some of SLOOP's 153 sounds use
+      them (STR CLOUD is granular), so the count on lesson 1's card would change.
+    - `fm6.o` and `fm6_patches.o`, 8.3 KB: the six-operator engine and its DX7 bank.
+    - `phys.o`, 29.3 KB: the physical-modelling engine, the biggest single part after the main program. Its sounds
+      would go.
+    - `vis.o`, 9.0 KB: the 3D picture of the sound on the start page (the logo, 2.1 KB of it, is ours and stays).
+    - Small ones: `midi.o` 1.6 KB, `usersnd.o` 1.6 KB, `demo_song.o` 1.5 KB.
+  - **On our own side:** the logo and the built-in cards' words could move into the lesson pack, as the course's card
+    did (about 2.5 KB); a card's words there cost the firmware nothing.
+  - **Not to touch:** `edproto.o` and the editor's part of the main program (the lessons are sent to the FM-1 that
+    way), the fonts SLOOP's own pages use, the sequencer, the drums.
+  - **How, when it is needed:** merge the new SLOOP, build, read how many bytes it is over, then cut from this list
+    in order, each behind a switch of our own in the build, so SLOOP's files stay as they are and the next merge
+    stays easy. The recorded samples (the drum kits spoken of before) sit outside this code, with their own room:
+    whether cutting them helps the code has to be checked first.
+- **2026-11-21, lesson 12 on the real FM-1: "Again" once seemed to go to the end.** At `Keep them?` (step 13), the tester
+  saw `Press [PLAY] to stop` and then the last card, which is the Keep path; Again should go back to `Press [REC]`
+  (step 9). Not reproduced on the simulated FM-1: Again, and Replay on the Done card, worked every time, and every
+  lesson replayed from its Done card showed all its steps again (scratch scripts `again.py`, `sweep.py`). Working on
+  the FM-1 again afterwards; perhaps the other button. Left as it is ("lets not worry about it").
 
 ## To do next
 

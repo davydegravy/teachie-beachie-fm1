@@ -1,6 +1,6 @@
 # Lesson 20: Color a track
 
-- **Part:** 3, make it move
+- **Part:** 3, effects and sound
 - **The idea:** an insert changes one track, and a filter makes sound dark or bright.
 - **The learner does:** puts FUZZ and then CRUSH on the bass, and sweeps a filter over the whole song.
 - **Got it when:** they can dirty one track on purpose, and open and close the filter in time.
@@ -10,54 +10,56 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track bass; page TRACKS
-2. **Card:** An insert changes the sound of one track: fuzz, crush and more. / A filter makes sound dark or thin.
+2. **Card:** An insert changes / one track's sound, / like a rock guitar pedal. // It makes a bass growl / or a beat crunch: / fuzz, crush and more.
    - **OCT+:** Go
-3. **Strip:** Press [PLAY]. Track 1, the bass, is chosen.
+3. **Strip:** Press [PLAY]. Track 1, / the bass, is chosen.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** Tap [FX] until the screen says INSERT.
+4. **Strip:** Tap [FX] until / the screen says INSERT.
    - **Do:** press FX
    - **Until:** page is INSERT
    - **Robot:** press FX, press FX, press FX, press FX, press FX, press FX, press FX
-5. **Strip top:** Knob 1 is the TYPE. / Turn it to FUZZ.
+5. **Strip top:** [KNOB1] is the TYPE. / Turn it to FUZZ.
    - **Do:** turn KNOB 1 right 1
    - **Until:** bass insert is FUZZ
    - **Page:** INSERT
 6. **Reply:** Dirty.
-7. **Strip top:** Knob 2 is drive: / more dirt or less.
+7. **Strip top:** [KNOB2] is drive: / more dirt or less.
    - **Do:** turn KNOB 2 right 5
    - **Page:** INSERT
-8. **Strip top:** Knob 1, one more click: CRUSH.
+8. **Strip top:** [KNOB1], one more click: CRUSH.
    - **Do:** turn KNOB 1 right 1
    - **Until:** bass insert is CRUSH
    - **Page:** INSERT
 9. **Strip top:** Pick the TYPE you like. OFF is fine. / [OCT+] when done.
    - **OCT+:** Done
    - **Page:** INSERT
-10. **Card:** Now a filter, on the whole song. / Hold [FX], and Knob 1 is the filter knob.
+10. **Card:** A filter is a DJ's / favorite trick. // Close it: the song sinks / underwater. Open it: / it bursts back to life.
     - **OCT+:** Next
-11. **Card:** The filter knob: / Left is LP: only the low sounds stay. / Right is HP: only the high sounds stay. / Middle is OFF.
+11. **Card:** Now a filter, / on the whole song. // Hold [FX], and [KNOB1] / is the filter knob.
     - **OCT+:** Next
-12. **Strip top:** [FX] and Knob 1 left: / FILT goes past LP 40.
+12. **Card:** _The filter knob / Left is LP: only / the low sounds stay. / Right is HP: only / the high sounds stay. / Middle is OFF.
+    - **OCT+:** Next
+13. **Strip top:** [FX] and [KNOB1] left: / FILT goes past LP 40.
     - **Do:** hold FX, turn KNOB 1 left 5
     - **Until:** master filter below -40
-    - **Hint:** Hold [FX]. FILT is the first dial below.
-13. **Strip top:** [FX] and Knob 1 right / until FILT says OFF.
+    - **Hint:** Hold [FX]. FILT is / the first dial below.
+14. **Strip top:** [FX] and [KNOB1] right / until FILT says OFF.
     - **Do:** hold FX, turn KNOB 1 right 3
     - **Until:** master filter is 0
-14. **Strip top:** Keep turning right: / FILT goes past HP 40.
+15. **Strip top:** Keep turning right: / FILT goes past HP 40.
     - **Do:** hold FX, turn KNOB 1 right 5
     - **Until:** master filter above 40
-15. **Strip top:** [FX] and Knob 1 left / until FILT says OFF.
+16. **Strip top:** [FX] and [KNOB1] left / until FILT says OFF.
     - **Do:** hold FX, turn KNOB 1 left 3
     - **Until:** master filter is 0
-16. **Strip:** Press [HOME].
+17. **Strip:** Press [HOME].
     - **Do:** press HOME
     - **Until:** page is TRACKS
-17. **Strip:** Press [PLAY] to stop.
+18. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-18. **Card:** Insert: one track's color. / [FX] and Knob 1: a filter on everything.
+19. **Card:** Insert page: [FX]. / It colors one track. // Filter: [FX] + [KNOB1]. / It colors the whole song.
     - **OCT+:** Done
 
 ## Screens

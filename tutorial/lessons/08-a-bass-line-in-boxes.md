@@ -1,6 +1,6 @@
 # Lesson 8: A bass line in boxes
 
-- **Part:** 2, add the band
+- **Part:** 2, notes and chords
 - **The idea:** the other tracks put notes in boxes too, and low notes are the bass.
 - **The learner does:** on track 1, plays a key, then holds SEQ and taps a box to drop that note in.
 - **Got it when:** they write a note into a box without help, and change which note it is.
@@ -11,7 +11,7 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; bass empty; mute lead chords pad; track bass; page TRACKS
-2. **Card:** Drums have boxes. So do the other tracks. / But their boxes hold notes.
+2. **Card:** In the sequencer, / drums have boxes. / So do the other tracks. / But their boxes / hold notes.
    - **OCT+:** Go
 3. **Strip:** Track 1 is the bass. Play a few keys.
    - **Do:** tap A3 C4 E4
@@ -33,9 +33,9 @@
    - **Do:** hold SEQ, tap box 4 7 11 14
    - **Until:** bass has notes on boxes 1 4 7 11 14
 9. **Reply:** Good.
-10. **Card:** One note in five boxes is already a bass line. / Now a second note.
+10. **Card:** One note in five boxes is / already a bass line. // Now a second note.
     - **OCT+:** Next
-11. **Strip:** Let go of [SEQ]. Play the higher A.
+11. **Strip:** Let go of [SEQ]. Play the / higher A: [KEY 10].
     - **Do:** tap A4
     - **Page:** STEPS
 12. **Strip:** Hold [SEQ]. Put it on [16].
@@ -43,7 +43,7 @@
     - **Until:** bass has notes on box 16
 13. **Card:** Listen for where the bass and the kick meet, and where the bass slips between.
     - **OCT+:** Next
-14. **Card:** Make it your own. / Play a key to choose a note. / Hold [SEQ], tap a box: it goes in. / Tap again: it goes out.
+14. **Card:** Make it your own. / Pick a note: play its key. / Hold [SEQ], tap a box: / it is added. / Tap again: it is removed.
     - **OCT+:** Start
 15. **Strip:** Your bass line. / [OCT+] when done.
     - **OCT+:** Done
@@ -54,7 +54,7 @@
 18. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-19. **Card:** A key picks the note. / [SEQ] and a box writes it.
+19. **Card:** A key picks the note. // [SEQ] and a box writes it.
     - **OCT+:** Done
 
 ## Screens

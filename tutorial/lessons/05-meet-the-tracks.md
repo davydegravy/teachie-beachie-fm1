@@ -11,7 +11,7 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track bass; page TRACKS
-2. **Card:** Five tracks. / Five instruments. / Today you meet each one, by taking it away.
+2. **Card:** Five tracks. / Five instruments. / Now let's focus on / each track, / one at a time.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
@@ -29,16 +29,17 @@
 7. **Strip:** [3]: the chords, on a piano. / Mute them too.
    - **Do:** hold GLO, tap box 3
    - **Until:** chords is muted
-8. **Strip:** [4]: the pad. A soft cushion. / Mute it.
+8. **Strip:** [4]: the pad. / Soft, long notes. Mute it.
    - **Do:** hold GLO, tap box 4
    - **Until:** pad is muted
-9. **Card:** Only bass and drums now. / They are the rhythm section. Every band leans on them.
+9. **Card:** You can now hear only / the bass and drums. / They are the rhythm / section. They keep the / beat for the others.
    - **OCT+:** Next
 10. **Strip:** Bring them back: / [GLO] and [4], [3], [2].
     - **Do:** hold GLO, tap box 4 3 2
     - **Until:** nothing muted
-11. **Card:** Solo is the opposite of mute: only that track plays. / [6] to [10] are the five solos.
+11. **Card:** Solo is the opposite / of mute. / Only that track plays. // [6] to [10] are / the five solos.
     - **OCT+:** Next
+    - **Lights:** box 6 7 8 9 10
 12. **Strip:** Hold [GLO], tap [10]: / only the drums.
     - **Do:** hold GLO, tap box 10
     - **Until:** drums is solo

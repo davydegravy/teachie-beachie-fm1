@@ -12,12 +12,12 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; drums KICK on 1 5 9 13; mute bass lead chords pad; track drums; page STEPS
-2. **Card:** Last time: four kicks. / A beat has three layers: kick, snare and hat. / Today: the other two.
+2. **Card:** Last lesson had / four kicks. / A beat has three layers: / kick, snare and hat. // Now let's take a look / at the other two.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY]. / Your four kicks.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Card:** Playing a drum's key picks that drum. / The boxes then write it. / So first pick the snare.
+4. **Card:** Each key is / a different drum. / Play one to pick it. / The selected drum / can then be put / into the boxes.
    - **OCT+:** Next
 5. **Strip:** Pick the snare: / play [KEY 3].
    - **Do:** tap box 3
@@ -27,7 +27,7 @@
    - **Until:** drums has SNARE on boxes 5 13
    - **Hint:** If the top says KICK, play [3] first.
 7. **Reply:** Good.
-8. **Card:** Kick on every beat. / Snare on beats 2 and 4. / That snare is the backbeat. Most songs you know have it. *(beginners only)*
+8. **Card:** Every 4 boxes is a beat. / Kick on every beat. / Snare on beats 2 and 4: / the backbeat. / Most songs you know / have a backbeat. *(beginners only)*
    - **OCT+:** Next
 9. **Strip:** Now pick the hat: / play [5].
    - **Do:** tap box 5
@@ -37,9 +37,9 @@
     - **Until:** drums has HAT on boxes 3 7 11 15
     - **Hint:** If the top does not say HAT, play [5] first.
 11. **Reply:** Nice.
-12. **Card:** The grid has a row for each drum. / The keys light up only for the drum you picked last.
+12. **Card:** The grid has a row / for each drum. // The keys for the selected / drum will light up.
     - **OCT+:** Next
-13. **Card:** More hats? One in every odd box makes it rush along. / Write them, or have them written.
+13. **Card:** More hats? / One in every odd box / makes it rush along. // Write them, or / have them written.
     - **OCT-:** I will
     - **OCT+:** Finish it → drums HAT on 1 5 9 13
 14. **Strip:** Hold [SEQ]. Hats on [1], [5], [9], [13] too.
@@ -50,12 +50,12 @@
 15. **Setup:** unmute; play
 16. **Strip:** Kick, snare, hat. / And the band.
     - **Wait:** 4 bars
-17. **Strip:** Wrong box? Tap it again. / [OCT+] when done.
+17. **Strip:** Wrong box? Hold [SEQ] / and tap it again. / [OCT+] when done.
     - **OCT+:** Done
 18. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-19. **Card:** Three layers: kick, snare, hat. / That is a drum beat.
+19. **Card:** Kick, snare, hat. / Three layers, / one drum beat. // And you made it.
     - **OCT+:** Done
 
 ## Screens

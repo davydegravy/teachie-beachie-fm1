@@ -1,6 +1,6 @@
 # Lesson 18: Play the effects
 
-- **Part:** 3, make it move
+- **Part:** 3, effects and sound
 - **The idea:** some effects are played like notes.
 - **The learner does:** holds FX and plays the punch-in effects on the keys, then locks them on so both hands are
   free.
@@ -11,16 +11,16 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track lead; page TRACKS
-2. **Card:** Some effects are played like notes. / Hold [FX], and every key is an effect for as long as you hold it.
+2. **Card:** Some effects are / played like notes. // Hold [FX], and every key / is an effect for as long / as you hold it.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** Hold [FX] and hold [KEY 7]: STOP.
+4. **Strip:** Hold [FX], hold [7]: STOP.
    - **Do:** hold FX, long box 7
    - **Until:** punch on
    - **Hint:** Keep holding [FX], then hold the blinking key.
-5. **Card:** While [FX] is held, / the screen is a map. / 4 bright rows of 4: / the 16 white keys. / The dim names / between the rows: / the black keys.
+5. **Card:** While [FX] is held, / the screen is a map. // 4 bright rows of 4: / the 16 white keys. / The dim names between / the rows: the black keys.
    - **OCT+:** Next
 6. **Strip:** Hold [FX] + [3]: 1/16. / A stutter.
    - **Do:** hold FX, long box 3
@@ -38,7 +38,7 @@
     - **Until:** punch on
     - **Hint:** CRUSH is in row 3, the last one: hold [FX] + [12].
     - **Robot:** hold FX, long box 12
-11. **Card:** Tired of holding [FX]? / Lock it: the keys stay effects and you can let go. / The lock is [FX] and [HOME].
+11. **Card:** Tired of holding [FX]? / Lock it, and the keys / stay effects. // To lock: [FX] + [HOME].
     - **OCT+:** Next
 12. **Strip:** Hold [FX], tap [HOME], / then let go of both.
     - **Do:** hold FX, press HOME
@@ -46,13 +46,13 @@
 13. **Strip:** Play the effects. / [OCT+] when done.
     - **OCT+:** Done
     - **Robot:** long box 4, long box 14
-14. **Strip:** Press [FX] once to unlock.
+14. **Strip:** Press [FX] once / to unlock.
     - **Do:** press FX
     - **Until:** pressed FX
 15. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-16. **Card:** [FX] and a key: an effect while you hold it. / [FX] and [HOME]: locked. / [FX] again: unlocked.
+16. **Card:** Effect: hold [FX] + a key. / Lock: [FX] + [HOME]. / Unlock: [FX] again.
     - **OCT+:** Done
 
 ## Screens

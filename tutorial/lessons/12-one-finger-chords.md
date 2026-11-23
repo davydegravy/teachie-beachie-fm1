@@ -1,6 +1,6 @@
 # Lesson 12: One-finger chords
 
-- **Part:** 2, add the band
+- **Part:** 2, notes and chords
 - **The idea:** a chord is several notes at once, and four chords in a loop carry a whole song.
 - **The learner does:** turns chords on, plays the song's four chords with one finger each, and records them.
 - **Got it when:** they can play the four chords in time, one for each bar.
@@ -11,17 +11,17 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; chords empty; key A minor; track chords; page TRACKS
-2. **Card:** A chord is several notes played together, usually three. / SLOOP can play a whole chord from one key.
+2. **Card:** A chord is several notes / played together, / usually three. // SLOOP has a mode that / can play a whole chord / with one key.
    - **OCT+:** Go
-3. **Strip:** Press [SEL]: the KEY page.
+3. **Strip:** Press [SEL]: / the KEY page.
    - **Do:** press SEL
    - **Until:** page is KEY
-4. **Strip top:** Knob 3: 1 click right. / Tiles show chords.
+4. **Strip top:** [KNOB3]: 1 click right. / Tiles show chords.
    - **Do:** turn KNOB 3 right 1
    - **Page:** KEY
 5. **Strip:** One key, one chord. Play the blinking keys.
    - **Echo:** C4 A4 E4 B4
-6. **Card:** Those four are this song's chords: A minor, F, C and G. / One for each bar.
+6. **Card:** Those four are this / song's chords: A minor, / F, C and G. // One for each bar.
    - **OCT+:** Next
 7. **Strip:** Press [PLAY].
    - **Do:** press PLAY
@@ -48,7 +48,7 @@
 15. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-16. **Card:** [SEL], then Knob 3: one-finger chords. / Four chords in a loop: most pop songs work this way.
+16. **Card:** [SEL], then [KNOB3]: / one-finger chords. // Four chords in a loop: / most pop songs work / this way.
     - **OCT+:** Done
 
 ## Screens

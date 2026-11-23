@@ -1,6 +1,6 @@
 # Lesson 10: Record it live
 
-- **Part:** 2, add the band
+- **Part:** 2, notes and chords
 - **The idea:** REC writes down what you play.
 - **The learner does:** presses REC and plays over the loop, undoes a take and brings it back, erases the track,
   and records again.
@@ -11,7 +11,7 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; lead empty; mute chords; track lead; page TRACKS
-2. **Card:** Boxes are one way to write music. / The other way: just play, and the FM-1 writes it down.
+2. **Card:** Boxes are one way to / write music. // The other way is to / just play, and the FM-1 / writes it down.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY]. Track 2 is empty.
    - **Do:** press PLAY
@@ -31,9 +31,9 @@
    - **Until:** not recording
 8. **Strip:** It plays what you played.
    - **Wait:** 2 bars
-9. **Card:** It also pulls each note onto the nearest box, so you sound in time. / That is called quantize. *(beginners only)*
+9. **Card:** It also pulls each note / onto the nearest box, so / you sound in time. // That is called quantize. *(beginners only)*
    - **OCT+:** Next
-10. **Card:** Not happy with a take? / Undo takes the whole take back.
+10. **Card:** Not happy with a take? // One undo removes / the whole take.
     - **OCT+:** Next
 11. **Strip:** Hold [EDIT], press [OCT-].
     - **Do:** hold EDIT, press OCT-
@@ -41,24 +41,26 @@
 12. **Strip:** Redo brings it back: / hold [EDIT], press [OCT+].
     - **Do:** hold EDIT, press OCT+
     - **Until:** lead has 3 notes or more
-13. **Card:** There is a bigger eraser. / Hold [REC] for two seconds: the whole track is empty. / Undo brings it back.
+13. **Card:** There is a bigger eraser. // Hold [REC] for 2 seconds: / the whole track is empty. // Undo brings it back.
     - **OCT+:** Next
 14. **Strip:** Hold [REC] for two seconds.
     - **Do:** hold REC, wait 2.5
     - **Until:** lead is empty
     - **Hint:** Keep holding [REC] until the top says TRACK ERASED.
-15. **Strip:** Record your own tune. / [OCT+] when done.
+15. **Card:** While [REC] is on, / the bar keeps looping. / Each time round, what / you play is added on top. // That's how you build up / a tune, bit by bit.
+    - **OCT+:** Next
+16. **Strip:** Record your own tune. / [OCT+] when done.
     - **OCT+:** Done
     - **Until:** lead has 3 notes or more and not recording
     - **Hint:** Not yet. Record 3 notes or more, then stop [REC].
     - **Robot:** press REC, tap A4, wait 0.3, tap C5, wait 0.3, tap E5, wait 0.3, press REC, wait 0.3
-16. **Setup:** unmute; play
-17. **Strip:** Your tune, with the band.
+17. **Setup:** unmute; play
+18. **Strip:** Your tune, with the band.
     - **Wait:** 4 bars
-18. **Strip:** Press [PLAY] to stop.
+19. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-19. **Card:** [REC] writes down what you play. / Undo takes a take back. / [REC] held: the track is erased.
+20. **Card:** Record: [REC], then play. / Undo: [EDIT] + [OCT-]. / Redo: [EDIT] + [OCT+]. / Erase track: hold [REC] / for 2 seconds.
     - **OCT+:** Done
 
 ## Screens

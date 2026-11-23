@@ -1,6 +1,6 @@
 # Lesson 22: Wobble and arps
 
-- **Part:** 3, make it move
+- **Part:** 3, effects and sound
 - **The idea:** the FM-1 can move a sound by itself, and play a chord's notes one by one.
 - **The learner does:** adds a wobble to the pad with the LFO, then holds a chord and lets the arpeggiator play
   it. The arpeggiator plays the run from lesson 1.
@@ -12,29 +12,29 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; mute lead; track pad; page TRACKS
-2. **Card:** The FM-1 can move a sound by itself. / An LFO is a slow wave that turns a knob for you, up and down, forever.
+2. **Card:** The FM-1 can move / a sound by itself. // An LFO turns a knob / up and down, forever. // It makes pads breathe / and basses wobble.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY]. Track 4, the pad, is chosen.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** Tap [LFO] until the screen says LFO DEST.
+4. **Strip:** Tap [LFO] until / it says LFO DEST.
    - **Do:** press LFO
    - **Until:** page is LFO 2
    - **Robot:** press LFO, press LFO, press LFO
-5. **Strip top:** Knob 2, FLT: up.
+5. **Strip top:** [KNOB2], FLT: up.
    - **Do:** turn KNOB 2 right 5
    - **Until:** pad LFLT above 30
    - **Page:** LFO 2
 6. **Reply:** It wobbles.
-7. **Strip:** Tap [LFO] until the screen says LFO 1/3.
+7. **Strip:** Tap [LFO] until / it says LFO 1/3.
    - **Do:** press LFO
    - **Until:** page is LFO
    - **Robot:** press LFO, press LFO, press LFO
-8. **Strip top:** Knob 1, RATE: try it.
+8. **Strip top:** [KNOB1], RATE: try it.
    - **Do:** turn KNOB 1 right 5
    - **Until:** pad LRATE changed
    - **Page:** LFO
-9. **Card:** Now the arpeggiator. / Hold a chord, and it plays the notes one by one, in time.
+9. **Card:** Now the arpeggiator. // Hold a chord, and it plays / its notes one by one. // It's the sparkle in / video-game music.
    - **OCT+:** Next
 10. **Strip:** [ALGORITHM] to track 2.
     - **Do:** turn ALGORITHM left 2
@@ -42,28 +42,28 @@
 11. **Strip:** Press [ARP].
     - **Do:** press ARP
     - **Until:** page is ARP
-12. **Strip top:** Knob 1: 3 clicks. UPDN.
+12. **Strip top:** [KNOB1]: 3 clicks. UPDN.
     - **Do:** turn KNOB 1 right 3
     - **Page:** ARP
-13. **Strip:** Hold the three blinking keys together.
+13. **Strip:** Hold the three / blinking keys together.
     - **Do:** hold A3, hold C4, hold E4
     - **Until:** played 3 keys
     - **Page:** ARP
-14. **Card:** Remember the run from lesson 1, too fast for hands? / Make the arp faster and wider.
+14. **Card:** Remember the run / from lesson 1, too / fast for hands? // Make the arp / faster and wider.
     - **OCT+:** Next
-15. **Strip top:** Knob 2: 2 clicks. 1/32.
+15. **Strip top:** [KNOB2]: 2 clicks. 1/32.
     - **Do:** turn KNOB 2 right 2
     - **Page:** ARP
-16. **Strip top:** Knob 3: 1 click. OCT 2.
+16. **Strip top:** [KNOB3]: 1 click. OCT 2.
     - **Do:** turn KNOB 3 right 1
     - **Page:** ARP
-17. **Strip:** Hold the three keys again.
+17. **Strip:** Hold the same / three keys again.
     - **Do:** hold A3, hold C4, hold E4
     - **Until:** played 3 keys
     - **Page:** ARP
-18. **Card:** Nobody can play that by hand. / You just did.
+18. **Card:** Nobody can play that / by hand. // You just did.
     - **OCT+:** Next
-19. **Strip:** Hold other keys. Try chords. / [OCT+] when done.
+19. **Strip:** Hold other keys. / Try chords. / [OCT+] when done.
     - **OCT+:** Done
 20. **Strip:** Press [HOME].
     - **Do:** press HOME
@@ -71,7 +71,7 @@
 21. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-22. **Card:** [LFO]: a sound that moves. / [ARP]: a chord played note by note. / A sequencer never gets tired.
+22. **Card:** Wobble: [LFO]. / Arpeggio: [ARP]. // A sequencer never / gets tired.
     - **OCT+:** Done
 
 ## Screens

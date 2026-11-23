@@ -121,7 +121,42 @@ class Lesson:
                 else: where[1] = txt
         if [s.n for s in self.steps] != list(range(1, len(self.steps) + 1)): raise Bad("%s: the steps should be numbered 1, 2, 3 ... in order" % self.name)
 
-def words(text): return re.sub(r"\s+/\s+", "\n", text.strip())                         # " / " in the file: a new line on the screen
+def advances(k):
+    """the width of each letter of one of the lessons' fonts (0 the small one, 1 the large), from assets/fonts/lessons-font.bin
+    (tools/mklessonfont.py): the fonts the FM-1 draws the lessons with, from the pack"""
+    b = open(os.path.join(HERE, "..", "..", "assets", "fonts", "lessons-font.bin"), "rb").read()
+    at = b[4 + 2 * k] | b[5 + 2 * k] << 8; n = b[at]
+    return [b[at + 6 + 8 * i + 4] for i in range(n)]
+ADV = dict(s=advances(0), l=advances(1))
+
+def width(font, text): return sum(ADV[font][ord(c) - 32] if 32 <= ord(c) < 127 else ADV[font][31] for c in text)
+
+def wrap(text, font):
+    """the words cut into lines as the FM-1 does it (fw/main.c guide_wrap): at a new line, and at a space before the edge.
+    An empty line (a gap) comes back as an empty line"""
+    lines, i = [], 0
+    while i < len(text) and len(lines) < 99:
+        s = e = i; last = -1; frame = False
+        while e < len(text) and text[e] != "\n":
+            if text[e] == "[": frame = True
+            elif text[e] == "]": frame = False
+            if text[e] == " " and not frame: last = e
+            if last > s and width(font, text[s:e + 1]) > 240 - 28: e = last; break
+            e += 1
+        lines.append(text[s:e]); i = e
+        if i < len(text) and text[i] in " \n": i += 1
+    return lines
+
+def words(text):
+    """the words as the FM-1 gets them. In the file " / " is a new line on the screen and " // " a gap between two thoughts:
+    an empty line, which the FM-1 draws 8 px high and does not count as a line. On a card of 4 lines or fewer each gap is
+    two of them, 16 px (2026-11-22)"""
+    w = re.sub(r"\s+/\s+", "\n", re.sub(r"\s+//\s+", "\n\n", text.strip()))
+    if "\n\n" in w and len([x for x in wrap(w, "s") if x]) <= 4: w = w.replace("\n\n", "\n\n\n")
+    return w
+
+# the card of the whole course, shown after START (in the lesson pack for the FM-1's own course; tutorial/run.py shows it too)
+COURSE = "_30 lessons in 4 parts / 1-7: Your first beat / 8-15: Notes and chords / 16-23: Effects and sound / 24-30: Make a song // ~Each lesson teaches / ~one part of SLOOP."
 
 def lessons(folder=None):
     """every lesson in the folder, in order"""
@@ -784,5 +819,5 @@ class Player:
                 else: self.setup(e[6:].strip() if e.startswith("setup:") else e)
         f.take(); f.lights()
         if f.status()["playing"] and (lesson.head.get("Ends") or "").lower() != "playing": f.live(5, 0)
-        got = t.ask("^Lesson %d\nDone" % lesson.number, "Replay", "Next", big=True)
+        got = t.ask("_Lesson %d\nDone" % lesson.number, "Replay", "Next", big=True)
         return "replay" if got == "left" else "next"

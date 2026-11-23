@@ -10,7 +10,7 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; mute lead chords pad; track drums; page STEPS
-2. **Card:** The drum track has 16 sounds. / One on each white key. / Together they are a kit.
+2. **Card:** The drum track has 16 / different drum sounds. / One on each white key. // Together they are a kit.
    - **OCT+:** Go
 3. **Strip:** Play every white key. The top names each drum.
    - **Echo:** box 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
@@ -23,21 +23,21 @@
    - **Until:** played 4 keys
    - **Hint:** Not yet. Play a few drums first.
    - **Robot:** tap box 4 10 11 4
-7. **Card:** SLOOP has many kits. / Each one puts 16 new sounds on the same keys. / Your beat stays the same.
+7. **Card:** SLOOP has 37 drum kits. // Each one puts 16 new / sounds on the keys. // Your programmed beat / stays the same.
    - **OCT+:** Next
-8. **Strip:** Turn [PRESETS] one click. / A new kit.
+8. **Strip:** Turn [PRESETS] one click. / A new drum kit.
    - **Do:** turn PRESETS right 1
    - **Until:** drums sound changed
-9. **Strip:** Try more kits. / [OCT+] on one you like.
+9. **Strip:** Try more drum kits. / [OCT+] on one you like.
    - **OCT+:** This one
    - **Robot:** turn PRESETS right 2
 10. **Setup:** unmute; play
-11. **Strip:** The whole band, / with your kit.
+11. **Strip:** The whole band, / with your drum kit.
     - **Wait:** 4 bars
 12. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-13. **Card:** 16 sounds on 16 white keys. / [PRESETS] changes the kit.
+13. **Card:** A drum kit: 16 sounds, / one on each white key. // SLOOP has 37 of them. // [PRESETS] changes / the drum kit.
     - **OCT+:** Done
 
 ## Screens

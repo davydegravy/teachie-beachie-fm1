@@ -1,6 +1,6 @@
 # Lesson 14: Mix the tracks
 
-- **Part:** 2, add the band
+- **Part:** 2, notes and chords
 - **The idea:** if everyone shouts, nobody is heard.
 - **The learner does:** sets the level of each track, first with a target and then by ear.
 - **Got it when:** they can make one track quieter on purpose, and say why.
@@ -10,35 +10,35 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; bass level 100; lead level 100; chords level 100; pad level 100; drums level 100; track bass; page TRACKS
-2. **Card:** If everyone shouts, nobody is heard. / A mix gives each track its own loudness.
+2. **Card:** If everyone shouts, / nobody is heard. // A mix gives each track / its own volume level.
    - **OCT+:** Go
-3. **Strip:** Press [PLAY]. Every track is at full.
+3. **Strip:** Press [PLAY]. / Every track's level: 100.
    - **Do:** press PLAY
    - **Until:** playing
    - **Wait:** 2 bars
-4. **Card:** The pad is a cushion. It belongs at the back. / Choose it, then turn Knob 2: its level.
+4. **Card:** The pad plays soft, long / notes behind the others. / It belongs at the back, / so let's turn it down. / [KNOB2] sets the level.
    - **OCT+:** Next
 5. **Strip:** [ALGORITHM] to track 4: the pad.
    - **Do:** turn ALGORITHM right 3
    - **Until:** track is pad
-6. **Strip top:** Knob 2 down to 40.
+6. **Strip top:** [KNOB2] down to 40.
    - **Do:** turn KNOB 2 left 5
    - **Until:** pad level below 46
    - **Page:** TRACKS
 7. **Strip:** [ALGORITHM] to track 3: the chords.
    - **Do:** turn ALGORITHM left 1
    - **Until:** track is chords
-8. **Strip top:** Knob 2 down to 70.
+8. **Strip top:** [KNOB2] down to 70.
    - **Do:** turn KNOB 2 left 5
    - **Until:** chords level below 76
    - **Page:** TRACKS
-9. **Strip:** Set all five by ear. / [OCT+] when it sounds right.
+9. **Strip:** Set all five by ear. / [OCT+] when it's right.
    - **OCT+:** Done
    - **Robot:** turn KNOB 2 left 3
 10. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-11. **Card:** A good mix: drums and bass strong, the tune clear, chords and pad behind.
+11. **Card:** _A good mix / Loud drums and bass, / a tune that stands out, / softer chords and pad. / Track: [ALGORITHM]. / Level: [KNOB2].
     - **OCT+:** Done
 
 ## Screens

@@ -226,12 +226,15 @@ def build(first=1, last=99):
     fb = open(os.path.join(HERE, "..", "assets", "fonts", "lessons-font.bin"), "rb").read()      # the lessons' two fonts
     if fb[:4] != b"TPF1": raise Cant("assets/fonts/lessons-font.bin is not a font file of tools/mklessonfont.py")
     o = struct.unpack("<HH", fb[4:8]); fonts = [fb[o[0]:o[1]], fb[o[1]:]]
-    head = 8 + 2 * (len(lessons) + len(p.clips) + len(fonts)); at = head; offs = []
+    toc = L.words(L.COURSE).encode("ascii"); toc = bytes([len(toc)]) + toc     # the card of the whole course, after START: its length, its words
+    head = 8 + 2 * (len(lessons) + len(p.clips) + len(fonts) + 1); at = head; offs = []
     for b in lessons + p.clips: offs.append(at); at += len(b)
+    at_toc = at; at += len(toc)
     pad = at & 1; at += pad                                                   # (a glyph holds a 16-bit number: the fonts from an even byte)
     for b in fonts: offs.append(at); at += len(b)
+    offs.append(at_toc)                                                       # (its offset after the fonts': the firmware of TPC2 read the fonts there)
     if at > 0xFFFF: raise Cant("the pack is %d bytes: more than its offsets can say" % at)
-    pack = b"TPC2" + struct.pack("<HBB", at, len(lessons), len(p.clips)) + b"".join(struct.pack("<H", o) for o in offs) + b"".join(lessons + p.clips) + bytes(pad) + b"".join(fonts)
+    pack = b"TPC3" + struct.pack("<HBB", at, len(lessons), len(p.clips)) + b"".join(struct.pack("<H", o) for o in offs) + b"".join(lessons + p.clips) + toc + bytes(pad) + b"".join(fonts)
     return pack, [len(b) for b in lessons], [len(b) for b in p.clips]
 
 def slot_image(pack):

@@ -12,12 +12,12 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; track drums; pick HAT; page TRACKS
-2. **Card:** The same beat can march or dance. / Swing plays every second box a little late.
+2. **Card:** A straight beat marches. / With swing, it dances. // Swing plays every / second box a little late. // It's the bounce in / hip-hop and jazz.
    - **OCT+:** Go
-3. **Strip:** Press [PLAY]. Straight, like a march.
+3. **Strip:** Press [PLAY]. / Straight, like a march.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip top:** Knob 1, SWING: up to 50.
+4. **Strip top:** [KNOB1], SWING: to 50.
    - **Do:** turn KNOB 1 right 3
    - **Until:** swing above 45
    - **Page:** TRACKS
@@ -25,33 +25,33 @@
 6. **Strip top:** Set it by ear. / [OCT+] when done.
    - **OCT+:** Done
    - **Page:** TRACKS
-7. **Card:** Feel also comes from soft and hard hits. / Hats that are all the same sound like a machine.
+7. **Card:** Soft and hard hits / make a beat groove. // A drummer never hits / twice the same way. // If every hit is the same, / it sounds like a robot.
    - **OCT+:** Next
-8. **Strip:** Press [SEQ] for the drum grid.
+8. **Strip:** Press [SEQ] for / the drum grid.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-9. **Strip:** Play [KEY 5]: the hat.
+9. **Strip:** Play [5]: the hat.
    - **Do:** tap box 5
    - **Page:** STEPS
-10. **Strip top:** Hold [SEQ] + [4]: / Knob 2 to HARD.
+10. **Strip top:** Hold [SEQ] + [4]: / [KNOB2] to HARD.
     - **Do:** hold SEQ, hold box 4, turn KNOB 2 right 2
     - **Until:** drums has 1 hard notes or more
     - **Hint:** Keep holding both. LEVEL is the 2nd dial.
 11. **Strip top:** Now [8], [12], [16].
     - **Do:** hold SEQ, hold box 8, turn KNOB 2 right 2, let go, hold SEQ, hold box 12, turn KNOB 2 right 2, let go, hold SEQ, hold box 16, turn KNOB 2 right 2
     - **Until:** drums has 4 hard notes or more
-    - **Hint:** [SEQ], hold the box, Knob 2 right. One box at a time.
+    - **Hint:** [SEQ], hold the box, / [KNOB2] right. / One box at a time.
 12. **Reply:** It breathes.
-13. **Card:** Playing by hand has soft and hard too. / Hold [OCT-] and play a drum: soft. / Hold [OCT+]: hard.
+13. **Card:** Playing by hand has / soft and hard too. // Hold [OCT-] and play / a drum: soft. / Hold [OCT+]: hard.
     - **OCT+:** Next
 14. **Strip:** Hold [OCT-], play [3].
     - **Do:** hold OCT-, tap box 3
-15. **Strip:** Now hold [OCT+], play it again.
+15. **Strip:** Now hold [OCT+], / play it again.
     - **Do:** hold OCT+, tap box 3
 16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** Swing: Knob 1 on the TRACKS page. / Levels: [SEQ], a box, Knob 2. / By hand: [OCT-] soft, [OCT+] hard.
+17. **Card:** _Swing and groove / Swing: [KNOB1] on / the TRACKS page. / Loud or soft box: / [SEQ] + a box, [KNOB2]. / Soft hit: hold [OCT-]. / Hard hit: hold [OCT+].
     - **OCT+:** Done
 
 ## Screens

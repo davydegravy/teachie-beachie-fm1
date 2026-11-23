@@ -1,6 +1,6 @@
 # Lesson 19: Echo and space
 
-- **Part:** 3, make it move
+- **Part:** 3, effects and sound
 - **The idea:** a delay repeats a sound, and a reverb puts it in a room.
 - **The learner does:** sends the tune to the echo and the reverb, finds out what too much sounds like, and
   changes the echo itself.
@@ -11,44 +11,44 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C; track lead; page TRACKS
-2. **Card:** An echo repeats a sound. / A reverb puts it in a room. / Each track sends as much as you like to both.
+2. **Card:** Echo repeats a sound, / like a shout in a canyon. // Reverb puts it in a room, / like singing in a church. // You decide how much / each track sends.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY]. Track 2, the tune, is chosen.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** Tap [FX] until the screen says SENDS.
+4. **Strip:** Tap [FX] until / the screen says SENDS.
    - **Do:** press FX
    - **Until:** page is SENDS
    - **Robot:** press FX, press FX, press FX, press FX, press FX, press FX, press FX
-5. **Strip top:** Knob 3, echo: up.
+5. **Strip top:** [KNOB3], echo: up.
    - **Do:** turn KNOB 3 right 5
    - **Until:** lead delay above 50
    - **Page:** SENDS
-6. **Strip top:** Knob 4, reverb: up.
+6. **Strip top:** [KNOB4], reverb: up.
    - **Do:** turn KNOB 4 right 5
    - **Until:** lead reverb above 55
    - **Page:** SENDS
-7. **Card:** Too much of both turns to mud. / Pull the reverb back until the tune is clear again.
+7. **Card:** Too much of both / turns to mud. // Pull the reverb back / until the tune is clear.
    - **OCT+:** Next
-8. **Strip top:** Knob 4 down, below 30.
+8. **Strip top:** [KNOB4] down past 30.
    - **Do:** turn KNOB 4 left 5
    - **Until:** lead reverb below 30
    - **Page:** SENDS
-9. **Card:** The echo has a page of its own. / It is called DELAY.
+9. **Card:** The echo has a page / of its own. // It is called DELAY.
    - **OCT+:** Next
-10. **Strip:** Tap [FX] until the screen says DELAY.
+10. **Strip:** Tap [FX] until / the screen says DELAY.
     - **Do:** press FX
     - **Until:** page is DELAY
     - **Robot:** press FX, press FX, press FX, press FX
-11. **Strip top:** Knob 1: the echo's time.
+11. **Strip top:** [KNOB1]: the echo time.
     - **Do:** turn KNOB 1 left 1
     - **Page:** DELAY
-12. **Strip top:** Knob 2: more repeats.
+12. **Strip top:** [KNOB2]: more repeats.
     - **Do:** turn KNOB 2 right 5
     - **Page:** DELAY
-13. **Card:** One more trick: a throw. / Hold [FX] and [OCT+]: everything echoes while you hold.
+13. **Card:** One more trick: a throw. // Hold [FX] and [OCT+]: / everything echoes / while you hold.
     - **OCT+:** Next
-14. **Strip:** Hold [FX] and hold [OCT+].
+14. **Strip:** Hold [FX] + hold [OCT+].
     - **Do:** hold FX, press OCT+
 15. **Strip:** Press [HOME].
     - **Do:** press HOME
@@ -56,7 +56,7 @@
 16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** [FX]: the sends. Knob 3 echo, Knob 4 reverb. / A little goes a long way.
+17. **Card:** Sends page: [FX]. / Echo: [KNOB3]. / Reverb: [KNOB4]. // A little goes a long way.
     - **OCT+:** Done
 
 ## Screens

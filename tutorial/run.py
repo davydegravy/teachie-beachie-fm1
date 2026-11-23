@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from tp.fm1 import FM1, Twin, Midi, BTN, KNOB, BLINK
 from tp.teach import Teacher, Robot
-from tp.lesson import Player, lessons as read_lessons
+from tp.lesson import Player, lessons as read_lessons, words, COURSE
 
 args = [a for a in sys.argv[1:] if not a.startswith("--")]
 twin, wait, fast = "--fm1" not in sys.argv, "--wait" in sys.argv, "--fast" in sys.argv
@@ -41,16 +41,19 @@ def progress(i=None):
     try: return find(str(json.load(open(PROGRESS))["next"]))
     except Exception: return 0
 
-def begin(teacher, fm1, i):
+def begin(teacher, fm1, i, toc=False):
     """a lesson's first card. OCT+ begins it; OCT- opens the list, where SELECT chooses. Returns the lesson to play, or
-    None to go back to the start card"""
+    None to go back to the start card. toc: first the card of the whole course (after START): BEGIN goes on to the
+    lesson's card, LESSONS straight to the list"""
+    skip = toc and teacher.ask(words(COURSE), "Lessons", "Begin") != "right"
     while True:
         l = LESSONS[i]
-        if teacher.ask("^Lesson %d\n%s" % (l.number, l.title), "Lessons", "Begin", big=True) == "right": return i
+        if not skip and teacher.ask("_Lesson %d\n%s" % (l.number, l.title), "Lessons", "Begin", big=True) == "right": return i
+        skip = False
         fm1.take(buttons=[BTN["OCT_DOWN"], BTN["OCT_UP"]], knobs=[KNOB["SELECT"]]); fm1.lights({BTN["OCT_DOWN"]: BLINK, BTN["OCT_UP"]: BLINK}, only=True)
         shown = None
         while True:
-            if shown != i: l = LESSONS[i]; fm1.card("^< Turn [SELECT] >\n^Lesson %d\n%s" % (l.number, l.title), "Home", "Begin", big=True); shown = i
+            if shown != i: l = LESSONS[i]; fm1.card("^< Turn [SELECT] >\n_Lesson %d\n%s" % (l.number, l.title), "Home", "Begin", big=True); shown = i
             got = None
             for kind, which in fm1.events():
                 if kind in ("knob_right", "knob_left") and which == KNOB["SELECT"]: i = max(0, min(len(LESSONS) - 1, i + (1 if kind == "knob_right" else -1)))
@@ -89,9 +92,10 @@ def lesson(fm1, link, i):
 
 def course(fm1, link, i):
     """from a lesson's first card on: the lesson, then the next one's first card, until the learner goes home"""
+    first = True
     while True:
         teacher = Teacher(fm1, learner=Robot(link) if twin else None)
-        i = begin(teacher, fm1, i)
+        i = begin(teacher, fm1, i, toc=first); first = False
         if i is None: return
         progress(i); lesson(fm1, link, i)
         if "--once" in sys.argv: return

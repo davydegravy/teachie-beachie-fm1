@@ -18,30 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from tp import lesson as L
 
-def advances(k):
-    """the width of each letter of one of the lessons' fonts (0 the small one, 1 the large), from assets/fonts/lessons-font.bin
-    (tools/mklessonfont.py): the fonts the FM-1 draws the lessons with, from the pack"""
-    b = open(os.path.join(HERE, "..", "assets", "fonts", "lessons-font.bin"), "rb").read()
-    at = b[4 + 2 * k] | b[5 + 2 * k] << 8; n = b[at]
-    return [b[at + 6 + 8 * i + 4] for i in range(n)]
-ADV = dict(s=advances(0), l=advances(1))
-
-def width(font, text): return sum(ADV[font][ord(c) - 32] if 32 <= ord(c) < 127 else ADV[font][31] for c in text)
-
-def wrap(text, font):
-    """the words cut into lines as the FM-1 does it (fw/main.c guide_wrap): at a new line, and at a space before the edge"""
-    lines, i = [], 0
-    while i < len(text) and len(lines) < 99:
-        s = e = i; last = -1; frame = False
-        while e < len(text) and text[e] != "\n":
-            if text[e] == "[": frame = True
-            elif text[e] == "]": frame = False
-            if text[e] == " " and not frame: last = e
-            if last > s and width(font, text[s:e + 1]) > 240 - 28: e = last; break
-            e += 1
-        lines.append(text[s:e]); i = e
-        if i < len(text) and text[i] in " \n": i += 1
-    return lines
+advances, ADV, width, wrap = L.advances, L.ADV, L.width, L.wrap      # the screen's measuring: with the lessons' own words (tp/lesson.py)
 
 KEYS = {"OCT-", "OCT+", "Do", "Until", "Hint", "Play", "Echo", "Wait", "Keys", "Lights", "Page", "Robot", "Follow", "Right", "Wrong"}
 
@@ -53,8 +30,13 @@ def lint(lesson):
         for c in w:
             if c != "\n" and not 32 <= ord(c) < 127: say(step, "the screen has no letter %r (in \"%s\")" % (c, text[:40]))
         if len(w) > 175: say(step, "%d letters, and the screen's card holds 175: \"%s...\"" % (len(w), text[:40]))
-        lines = wrap(w, font); room = 4 if font == "l" else 3 if kind.startswith("strip") else 7 if answers else 8
+        every = wrap(w, font); lines = [x for x in every if x]; gaps = len(every) - len(lines)       # (an empty line: a gap, 8 px)
+        room = 4 if font == "l" else 3 if kind.startswith("strip") else 7 if answers else 8
         if len(lines) > room: say(step, "%d lines on the screen, and a %s holds %d: %s" % (len(lines), kind, room, " | ".join(lines)))
+        if gaps and kind != "card": say(step, "a gap (\" // \") is for a card, not a %s" % kind)
+        if len(every) > 8: say(step, "%d lines and gaps, and the FM-1 keeps 8: %s" % (len(every), " | ".join(every)))
+        low = 18 + 23 * (len(lines) - 1) + 8 * gaps + 17                                           # where the last line's letters end
+        if gaps and low > (184 if answers else 236): say(step, "with its gaps the card ends at y %d, on the answers (188): one gap fewer, or one line" % low)
         for ln in lines:
             if width(font, ln) > 240 - 20: say(step, "a line too wide for the screen: \"%s\"" % ln)
     for step in lesson.steps:
