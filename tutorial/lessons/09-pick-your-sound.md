@@ -64,7 +64,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/09-pick-your-sound.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - Turning PRESETS opens the SOUNDS page by itself for four seconds, then it closes. Tapping EDIT up to SOUNDS
   keeps it open, and there the white keys choose.

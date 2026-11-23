@@ -74,7 +74,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/24-songs-have-parts.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The questions are timed to the song. If the learner takes long over one, the next can arrive late in its part
   or just after it. Nothing breaks; say which part they were hearing.

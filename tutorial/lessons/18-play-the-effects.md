@@ -61,7 +61,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/18-play-the-effects.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - While FX is held the screen shows all 27 effects by name, in the keys' order. The white keys, low to high: 1/4,
   1/8, 1/16, 1/32 (repeats), STUT, REV, STOP, HALF, LP, HP, PHONE, CRUSH, ALIAS, GATE, ECHO, WOBBL. The black keys

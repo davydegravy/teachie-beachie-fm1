@@ -248,7 +248,7 @@ Noted as they come. Nothing here is done until it is marked done.
 - **No way back to the lessons from SLOOP.** After JUST PLAY (to change LIGHTS in SLOOP's menu): "I can adjust it
   in SLOOP, but I can't get back to the lesson from there. I feel like we need to have a button that users can
   press to go back to the lesson menu." Today the start card comes only at power-on, or when the computer's
-  program asks for it (done by hand for him this time). On the plane that means switching off and on.
+  program asks for it (done by hand for them this time). With no computer that means switching off and on.
   Idea, not built: both OCT buttons held two seconds brings the start card back from anywhere in SLOOP. It is
   already the way out of a lesson on the FM-1 alone, so one move would mean "to the lessons" everywhere. A tap
   of both stays SLOOP's own (the octave back to 0). A few dozen bytes of firmware; 448 are free.
@@ -344,8 +344,8 @@ Noted as they come. Nothing here is done until it is marked done.
 
 ## 2026-11-19: the course on the FM-1 alone
 
-Asked for the same day: "I was hoping we could try to have it on the FM-1 only", for two children to try on a
-flight on 2026-11-23.
+Asked for the same day: "I was hoping we could try to have it on the FM-1 only", for two children to try with no
+computer.
 
 - **The lessons already ran with no AI and no internet;** what they needed was the computer, as the thing that
   plays them. That part is now inside the firmware too.
@@ -554,7 +554,7 @@ Still SLOOP's: the Guide and Web editor links, the steps of the install itself, 
 - Lesson 17: marking box 12 also marks the hat that is in it (SLOOP's rule; a setup cannot take one note out yet).
 - The same slip on the bass track (a key played with SEQ not held changes the note that boxes write).
 - The FM-1 alone does not remember the next lesson after it is switched off (the list of lessons is the way).
-  Writing that to flash is not something to add two days before it has to work on a plane.
+  Writing that to flash is not something to add two days before it has to work.
 - A way to rejoin a lesson without losing what is on the FM-1.
 
 **Checked the same evening, on this round's build.**
@@ -1393,6 +1393,199 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
     in order, each behind a switch of our own in the build, so SLOOP's files stay as they are and the next merge
     stays easy. The recorded samples (the drum kits spoken of before) sit outside this code, with their own room:
     whether cutting them helps the code has to be checked first.
+- **2026-11-22, late: the installer page sends the lessons** ("how are we going to make it easy for others to get the
+  lessons when my github page is made public?", then "Yes, build it").
+  - **Before:** the page installed the firmware only. The lessons went on with `tutorial/device.py --install`, which
+    needs Python and this whole project: nobody else could do it.
+  - **Now:** the page's sixth step is "Lessons", with one button, **Send the lessons**. After the install the FM-1
+    restarts on Teachie Beachie; the page finds it by itself (it waits up to 30 seconds for it), sends the thirty
+    lessons, and checks that the FM-1 finds all of them. The FM-1 says LESSONS RECEIVED and shows its start card.
+  - **Where they go:** the last sample slot that holds no samples (USR4 on an FM-1 with no samples of its own),
+    the same rule as `device.py`. If all four slots hold samples, the page lists the four and asks which one to
+    replace; nothing is written before a yes.
+  - **The lessons alone:** in step 1, "Teachie Beachie already on your FM-1? ... send the lessons only" opens the
+    last step by itself. This is how newer lessons go on later, without installing again.
+  - **What the page says when something is wrong:** no FM-1 found; the FM-1 is still in MIDI MODE; the FM-1 runs
+    SLOOP 3 without Teachie Beachie; the FM-1 took the lessons but cannot read them (an older Teachie Beachie:
+    install from this page first).
+  - **How it is made:** `tools/teachie_page.py` packs the lessons (`tools/mkcourse.py`) and puts them inside the
+    page with `web/teachie_lessons.js`, which sends them the way SLOOP's web editor sends samples. So one page
+    always holds a firmware and lessons of the same build. SLOOP's own page template is untouched. **Nothing in the
+    firmware changed:** it is byte for byte what was installed this evening, and its 92 bytes are still free.
+  - **Checked:** a new test in the build, `tests/lessons_sim.js`: a fake FM-1 (the last empty slot, a busy FM-1
+    asked again, a full one, each thing that can be wrong, the lessons alone), then the simulated FM-1 with the real
+    firmware: thirty lessons in 2 seconds, found by the FM-1, its flash byte for byte the pack, sent twice into the
+    same slot. In a real browser with a pretend FM-1 inside the page: sending, the full-FM-1 choice and the
+    messages, with no error.
+  - **Not checked yet:** a real FM-1 in Chrome. `tests/installer_e2e.js` (it needs Playwright, which is not on this
+    computer) was not run either.
+  - **To know:** the lessons alone work as long as the FM-1's firmware reads this pack's format (its mark is TPC3).
+    When the format changes the mark must change too: an older firmware then finds no lessons and the page says to
+    install first.
+  - **Before the repository is public** ("Is there any risk to just making it public?"). Looked through every file
+    and the whole history: no real name, email or home folder in any file or picture; every commit of ours under
+    the project's name and GitHub's no-reply address; the logs, backups and progress file are not in the
+    repository.
+    - **Done:** a README of Teachie Beachie's own ("can you create a new readme"; before, it was SLOOP 3's and
+      pointed to SLOOP's page), with a picture of the course's card and lesson 1's
+      (`docs/teachie-beachie-lessons.png`). A personal detail about the first deadline is taken out of these
+      notes and the plan, as asked.
+    - **Left:** old commits still hold those lines, and one old line with the computer's home folder in a path;
+      only rewriting the history removes them, which is to be asked for first. The README's install link is the
+      GitHub Pages address, which works only once Pages serves the installer page there. The page tried on a real
+      FM-1.
+    - **Who it was made for stays, and goes on the page** ("its fine to say that I made this as part of a
+      Christmas present, and that I made it for kids. I think we should probably mention on the website that it
+      was made for kids because I think other people will want their kids to use this tutorial"). Option 1 of
+      three: the page's introduction now begins `Teachie Beachie is a tutorial made for kids, and for any beginner
+      new to the M-VAVE FM-1 and SLOOP.` and ends `I made it for my own kids, as part of a Christmas present.`; the
+      rest is as it was. The same two sentences are in the README, and the page's description for search engines
+      says `made for kids and beginners`. No names and no ages, as before.
+    - **The introduction from the left** ("I don't like how it is centered can we make it left aligned without it
+      looking too weird"). The logo and the title stay in the middle. The words under them, and the three checks,
+      now start at the title's left edge and are exactly as wide as the title, at every width (on a phone, the
+      whole width). Looked at in a browser at three widths, and with the "this browser can't install" box shown.
+      Seen in passing: on a phone the title broke as `FM-` / `1`, and so did `FM-1's` in the words. Fixed ("yes fix
+      it"): every FM-1 in the title and the introduction has the hyphen that does not break.
+    - **Two paragraphs** ("can you start a new paragraph at Teachie Beachie can light up the FM-1's buttons and
+      keys ..."): the introduction's second paragraph starts there, on the page and in the README.
+    - **A third paragraph, in the author's words** ("can you separate the last sentence about making it for my kids
+      into a new paragraph and fix it up"). Given: "I made Teachie Beachie for my kids, nieces and nephews as part
+      of a Christmas present. If you have kids that would like to learn how to use a groovebox and the FM-1 I'd
+      encourage you to give Teachie Beachie a try." On the page and in the README, with two commas added and
+      "kids that" made "kids who": `I made Teachie Beachie for my kids, nieces and nephews, as part of a Christmas
+      present. If you have kids who would like to learn how to use a groovebox and the FM-1, I'd encourage you to
+      give Teachie Beachie a try.` It replaces `I made it for my own kids, as part of a Christmas present.`
+- **2026-11-22, late: the installer page for a newcomer** ("if you have any other suggestions on how to make this
+  look better or the content more compelling please let me know", then of the eight offered: "Lets do all of those
+  things"). All in `tools/teachie_page.py`; SLOOP's template is untouched.
+  1. **What a lesson looks like.** Six screens in a row between the introduction and the steps (three across on a
+     tablet, two on a phone): the course's card, then lessons 3 (drums), 13 (the piano roll), 20 (a filter), 27
+     (the drop) and 30 (Done). They are from the run on the simulated FM-1, kept in `assets/shots/`. The README's
+     picture is the same six.
+  2. **Step 1 for a newcomer.** The beta note in plain words: `SLOOP 3 is new and still being tested on real FM-1s,
+     and so is Teachie Beachie, so you may meet bugs. This page backs up your FM-1 before it changes anything, so
+     you can always go back.` SLOOP's two notes for its own users (the tried and tested version; updating from 3.0
+     to 3.3.4) are folded into one closed section, `Already use SLOOP?`.
+  3. **What the learner ends up with**, under the six screens: `Thirty lessons in four parts: Your first beat,
+     Notes and chords, Effects and sound, Make a song.` / `By lesson 7 you have made a beat of your own. By lesson
+     30, a whole song.`
+  4. **Free, and no computer afterwards**, in the second paragraph: `It is free, and once it is installed no
+     computer is needed.`
+  5. **A fact where the page sounded like an ad:** `It's the best way to learn the basics of sequencers and
+     grooveboxes as well as specific workflows in SLOOP.` is now `Each lesson takes a few minutes and builds on the
+     one before.`
+  6. **The steps are counted to 6** (`Step 1 of 6` ...), and the lessons' step says `Step 6 of 6`.
+  7. **The browser's three checks** (and what the page says when a browser cannot install) moved from the top into
+     step 1, so the top ends on the author's words.
+  8. **A line under the title:** `Thirty lessons that teach the FM-1, on the FM-1 itself.` Because of it, `on the
+     FM-1 itself` came out of the first paragraph, which said it too.
+  - Looked at in a browser at desktop, tablet and phone widths; both page tests pass.
+  - **The six screens in dark frames** ("do you think we should change the website background so it doesn't
+    conflict with the screenshots?"). A peach card on the peach page was lost: only a thin line set it apart. The
+    page keeps its color; each screen now sits in a near-black frame with round corners and a soft shadow, as the
+    FM-1's screen sits in its black panel ("Yes, frame them").
+  - **Fatter, gray frames; the four parts in the introduction; the introduction rewritten** ("Can you make the
+    frames even fatter so they are closer to an FM-1 maybe make them a little bit gray. Can you move Thirty Lessons
+    in four parts into the intro paragraphs. can you rewrite the intro paragraphs so they are more compelling?").
+    - The frames: a fat dark gray edge, the FM-1's body, with the screen's black edge inside it.
+    - The introduction, five short paragraphs now (the last is the author's own, unchanged), on the page and in the
+      README:
+      `Teachie Beachie teaches kids, and any beginner, to make music on the M-VAVE FM-1. You don't need to read
+      music or open a manual: every lesson shows you what to press, right on the FM-1's screen.`
+      `A lesson puts a short card on the screen, lights up the button or key to press, and waits while you try it.
+      If you get stuck it offers a hint, and it can even do the step for you. Each lesson takes a few minutes and
+      builds on the one before.`
+      `There are thirty lessons in four parts: Your first beat, Notes and chords, Effects and sound, Make a song.
+      By lesson 7 you have made a beat of your own. By lesson 30, a whole song.`
+      `Teachie Beachie is free, and once it is installed no computer is needed. It is built on SLOOP 3, a complete
+      groovebox, which stays when the lessons are done.`
+      `I made Teachie Beachie for my kids, nieces and nephews, as part of a Christmas present. If you have kids who
+      would like to learn how to use a groovebox and the FM-1, I'd encourage you to give Teachie Beachie a try.`
+    - The line under the six screens is gone: its words are the third paragraph.
+  - **A section about an AI assistant, under the six screens** ("Can you add a section under the screenshots for
+    the AI connected functionality?").
+    - First written as two boxes: the program on the computer that leads the lessons (`Works today`), and an AI
+      tutor that joins in, marked `Not built yet` from the plan's own words ("Claude does not cut in yet"). The
+      tester: "Why is that not built? I have been doing that for a week now". Both were true, of two things: an
+      assistant open on this project beside a lesson works and was used all week; an assistant joining in by
+      itself, with its own words on the FM-1's screen (`PLAN.md`, section 9), is not built.
+    - Then, the tester's direction: "Can you not make it specific to Claude. As far as the computer leads the
+      lesson, I don't think we want to include that because it doesn't really add value over the on device
+      lessons. as far as the AI, we don't need it to answer on the FM-1 I don't even know if thats a good idea
+      really. can you rewrite this section based on what is possible now don't have a section that says not built
+      yet and don't make it specific to claude. if we don't have any documentation that is specifically for AI can
+      you write some."
+    - **The section now:** `Take it further with an AI assistant`, a few words (the lessons are plain text files,
+      written for people and for AI; a tutor for the learner and a lesson writer for you; built and tested this
+      way), then three boxes: `Ask about any step`, `Change a lesson`, `Write your own`, and a link to the new
+      guide. No assistant is named, nothing is marked as not built, and the program that leads lessons from the
+      computer is not on the page (it stays in `tutorial/README.md`). The README has the same section.
+    - **New documentation, for any assistant:** `tutorial/AI.md` for the person (what is needed, how to start,
+      what to ask, what the assistant sets up, what it cannot do: see the screen, hear the FM-1) and `AGENTS.md`
+      at the top for the assistant itself (where things are, how to be a tutor, how to change and check a lesson,
+      what to ask before doing). Its commands were tried: the lesson check, and the connector's reads on the
+      simulated FM-1.
+    - **The lesson files' notes renamed** ("Yes, rename them"): `## Notes for Claude` is `## Notes for the AI
+      assistant` in all thirty. Four notes that spoke of the lesson waiting for Claude (lessons 7, 15, 23, 30) now
+      speak of a moment for the assistant, and say to read the FM-1 or to ask, since it cannot hear. No program
+      reads that heading: the packed lessons are byte for byte as before.
+    - **The assistant controls the FM-1** ("The part that is missing is AI can control the device"). The guides
+      had it reading the FM-1 only. On the cable it can also put a lesson's song on the FM-1 (a lesson's Setup
+      line, run by hand), play and stop, set the tempo and the mix, choose sounds, write notes, turn a knob, light
+      a button and put words on the screen; and it can save the project and put it back. All of it is in the
+      connector already: this is how the lessons were first built. Now in `AGENTS.md` ("The FM-1 on its cable":
+      how to connect, read, control, and the rules: say what is about to happen and wait for a yes, save a copy
+      before the song is replaced, show and do not do the learner's work, leave no card or light behind), in
+      `AI.md` with things to ask, in the plan, and on the page and the README as a fourth box, `Control the FM-1`.
+      Tried on the simulated FM-1: the copy saved, a song set up and played, stop, the tempo, notes written, a
+      light and a strip, a knob, a key, the copy put back. Not tried from these guides on a real FM-1.
+    - **The plan brought up to date** ("Yes, update it"): `PLAN.md` names no assistant now. Section 3 is the
+      course on the FM-1 with an assistant beside it, in place of two ways to take the course; section 9 is what
+      an assistant beside a lesson does, and records that an assistant cutting in by itself was set aside on
+      2026-11-22, never built. The program that leads lessons from the computer is kept as a tool for building
+      and testing. The tutorial's README no longer lists the cutting in as not built yet.
+  - **The top as wide as the sections under it** ("Is there any way we can redesign the top section (above the
+    screenshots) so that it has the width of the sections below. but do it in a way so its not spread all the way
+    across the screen ... it just doesn't look that good right now"). It was a narrow column in the middle, over
+    wide sections. Tried in turn, each looked at on the page:
+    - two columns, the words at the left and a large logo at the right, level with the middle of the words;
+    - the logo moved to the top of its column ("can you move the logo up");
+    - the logo at the left and the words at the right ("can I see what it looks like if the logo is on the left");
+    - the logo small at the top left, the words under it, and six more screens filling the right column ("what
+      if we put it at the top put the text back on the left and filled the other column with 6 more screenshots
+      you can make the logo smaller");
+    - **and the one kept** ("I think the logo should be on top of everything then below it in the two columns on
+      the left is the text, then the column on the right should be the screenshots but they need to be the same
+      size as the ones below ... can you make it so the screenshots on the top go in order top is first then the
+      next six are after don't use the ready for a lesson slide don't use faster faster faster I like shots that
+      use the overlays in a smart way"):
+      - the logo (124 px) on a row of its own, above everything, at the left edge;
+      - under it, on the six columns of the screens below: the title, the line and the five paragraphs over the
+        first four columns, and six screens over the last two, two across. So each of those is exactly as large
+        as the six under them, and stands right over the fifth and sixth of them;
+      - twelve screens in the lessons' order, most of them a strip or a tag of the lesson's words over SLOOP's
+        own page. First chosen with no plain cards at all; then ("can you put the course one in first ... you can
+        remove the pluck one to fit it in. put lesson 20 filter one back in, remove the fx one. keep everything in
+        order"): beside the words the course's card, then lessons 1 (the five tracks), 3 (the drum grid), 8 (the
+        bass line's boxes), 12 (chords on the keys), 13 (the piano roll); under them, after one more change ("remove
+        the last lesson 27 screenshot and the current lesson 30 one and put in lesson 14 the mix that we had
+        before and the done slide from lesson 30. keep everything in order"): first lesson 14's card about the mix;
+        then a cheat sheet in its place ("can you find a 'Cheat Sheet' between lesson 13 and lesson 20 and swap it
+        for the mix one?"), lesson 14's `A good mix` offered and lesson 16's chosen ("can you use the page is
+        called a pattern one instead"): `A page is also called / a pattern. // Go to a page: / [SAVE] + a key. /
+        Copy this page: / [SAVE] + hold a key.`; then 20 (the card about the filter), 21 (a sound's envelope), 22 (a slow wave), 25 (the song page) and the last card,
+        `Lesson 30 Done`. `assets/shots/`; the README's picture is the same twelve.
+    - On a tablet the same, smaller. On a phone: the logo and the title in the middle as before, the words under
+      them, and the six screens beside them left out (the six below follow at once). The title breaks only
+      between `Install`, `Teachie Beachie` and `on your FM-1`.
+    - The `AI assistant` boxes' order is Ask, Control, Change, Write ("can you put control the FM-1 after Ask about
+      any step").
+  - **A short film of a lesson, for the page: wanted, not tonight** ("we can do the clip but not tonight. I guess
+    we should find a compelling part to film"). Candidates: the end of lesson 1 (the repeat-after-me game with its
+    lit keys, then `Faster / Faster / FASTER` and `Ha, sorry, I'm just messing with you`), which works without
+    sound; lesson 27's build-up and drop, or lesson 20's filter (`the song sinks underwater`), which need sound.
+    A real FM-1 filmed from above shows the lit keys, which the simulated FM-1's screen does not.
 - **2026-11-21, lesson 12 on the real FM-1: "Again" once seemed to go to the end.** At `Keep them?` (step 13), the tester
   saw `Press [PLAY] to stop` and then the last card, which is the Keep path; Again should go back to `Press [REC]`
   (step 9). Not reproduced on the simulated FM-1: Again, and Replay on the Done card, worked every time, and every

@@ -55,7 +55,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/01-hello.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The first two keys of the fast run are real: the learner plays them and hears them. From FASTER on, the keys are
   silent and any key sets the run off, so it sounds as if the learner played it.

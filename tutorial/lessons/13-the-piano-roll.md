@@ -72,7 +72,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/13-the-piano-roll.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The strips are at the top and one line long here, so the four dials at the bottom stay in view: STEP, NOTE,
   LEN, FORCE. The learner needs them.

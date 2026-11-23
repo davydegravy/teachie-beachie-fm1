@@ -58,7 +58,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/16-eight-pages.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - "Page" is our word and "pattern" is SLOOP's. The screen says PATTERN 2: COPY OF 1. From here on, use both.
 - A page change waits for the end of the bar, so nothing ever jumps out of time.

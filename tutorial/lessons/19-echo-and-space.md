@@ -65,7 +65,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/19-echo-and-space.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The sends belong to the track that is chosen. ALGORITHM changes track without leaving the page, so the learner
   can go round all five.

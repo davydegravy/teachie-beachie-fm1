@@ -39,10 +39,11 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/07-your-own-beat.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
-- This is the first place the lesson waits for Claude: while the loop plays in step 6, say one true thing about
-  the beat (where the kick sits, whether there is a backbeat, how busy the hats are). No grades.
+- A moment for the assistant: when the loop plays in step 6, say one true thing about the beat (where the kick
+  sits, whether there is a backbeat, how busy the hats are). Read the drum pattern from the FM-1 if it is plugged
+  in, or ask what they put in. No grades.
 - No lights on purpose. If the learner is stuck for long, remind them of the card in step 3 before offering more.
 - If the beat is very sparse or very full, that is their choice. Ask what they would change, don't tell them.
 

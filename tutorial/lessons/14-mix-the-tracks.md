@@ -47,7 +47,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/14-mix-the-tracks.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - On the TRACKS page KNOB 2 is the level of the track that is chosen. Holding GLO shows SLOOP's MIX page, where
   KNOB 1 is the level and KNOBS 2 to 4 are pan, delay and reverb, for the same track.

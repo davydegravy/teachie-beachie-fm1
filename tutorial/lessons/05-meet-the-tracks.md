@@ -67,7 +67,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/05-meet-the-tracks.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - While GLO is held, SLOOP shows its MIX page: tiles 1 to 5 for the mutes, S1 to S5 for the solos. The learner
   can read the state there.

@@ -69,7 +69,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/17-fills-and-rolls.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - A fill does nothing unless some notes are marked FILL. That is why the lesson hides four snares in the beat
   first.

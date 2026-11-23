@@ -57,7 +57,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/12-one-finger-chords.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The lesson cannot read the CHORD setting from the FM-1 yet. After step 4 the tiles should show chord names
   (Am, F, C, G ...) and the CHORD dial says TRIAD. The strip is at the top so that dial is in view. If they show single notes, KNOB 3 has to go one more click.

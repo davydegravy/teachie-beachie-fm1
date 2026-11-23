@@ -79,7 +79,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/25-chain-the-pages.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - On the SONG page the keys work with no button held. The same keys work anywhere while SAVE is held.
 - A page change always waits for the bar. With four-bar pages the learner has time; tell them to tap during a

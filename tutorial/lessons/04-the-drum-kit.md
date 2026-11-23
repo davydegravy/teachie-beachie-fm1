@@ -46,7 +46,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/04-the-drum-kit.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - Turning PRESETS opens SLOOP's SOUNDS page for a few seconds: every kit as a tile. It closes by itself. That is
   SLOOP, not the lesson; say so if the learner asks where the grid went.

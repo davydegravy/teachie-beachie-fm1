@@ -125,8 +125,8 @@ Each file also has a picture of the lesson's screens, in order, taken from the r
 - **Every lesson uses HOUSE ONE.** Each file says which style its song is meant to have in the end, and what in
   the lesson is tied to the song (usually a few box numbers). Swapping the song later means changing those lines.
 - **HOUSE ONE has not been approved by ear yet.**
-- **Claude does not cut in yet.** The lessons run by themselves. Where Claude will have something to say is
-  written in each file's "Notes for Claude".
+- **The lessons run by themselves.** An AI assistant beside them (`../AI.md`) finds what it should know about a
+  lesson in the file's "Notes for the AI assistant".
 - **A few steps count clicks instead of checking the result,** because the FM-1 cannot yet tell the lesson its
   key, scale, chord, arpeggiator or cursor. Lessons 11, 12, 13, 22 and 26 say where.
 - **The path for people who know grooveboxes** leaves out the steps marked *(beginners only)*. So far only a few

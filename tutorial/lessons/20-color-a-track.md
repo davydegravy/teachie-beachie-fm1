@@ -68,7 +68,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/20-color-a-track.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The insert types in order on KNOB 1: OFF, SOFT, HARD, FOLD, FUZZ, CRUSH, PHASR, FLANG, CHOR. The other three
   knobs change meaning with the type; the screen names them.

@@ -80,7 +80,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/22-wobble-and-arps.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - This is the payoff of lesson 1's joke. If the learner remembers the impossible run, let them enjoy step 18. If
   they don't, play it up a little.

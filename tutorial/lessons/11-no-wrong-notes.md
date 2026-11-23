@@ -66,7 +66,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/11-no-wrong-notes.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The lesson cannot read the scale or the KEYS setting from the FM-1 yet, so steps 11 and 12 only count clicks.
   If the SCALE dial does not say MIN afterwards, help the learner turn KNOB 2 until it does, and KNOB 4 until

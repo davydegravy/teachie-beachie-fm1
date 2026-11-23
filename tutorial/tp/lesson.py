@@ -3,7 +3,7 @@
 
 The file is written to be read by a person first. The player reads only two things in it: the list at the top
 (the lesson's number and title come from the heading) and the numbered list under "## Steps". Everything else,
-such as "## Notes for Claude" and "## Tester notes", is for people. The format is described in
+such as "## Notes for the AI assistant" and "## Tester notes", is for people. The format is described in
 tutorial/lessons/README.md.
 
 A step is one numbered line, "N. **Kind:** words", with what goes with it as bullets under it:

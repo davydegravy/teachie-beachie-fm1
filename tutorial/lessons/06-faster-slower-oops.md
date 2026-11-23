@@ -68,7 +68,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/06-faster-slower-oops.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The point of the mess is safety: the learner should leave knowing that nothing they do is permanent. If they
   seem nervous about pressing things, come back to this.

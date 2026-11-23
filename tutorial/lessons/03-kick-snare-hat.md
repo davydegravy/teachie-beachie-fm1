@@ -64,7 +64,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/03-kick-snare-hat.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The one trap: the drum that boxes write is the drum played last. If the learner plays the kick key and then taps
   box 5 with SEQ held, the kick in box 5 is removed. The hints say how to get back; if kicks have gone missing,

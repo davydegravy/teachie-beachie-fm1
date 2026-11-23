@@ -55,7 +55,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/27-build-ups-and-drops.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - Timing is the whole lesson. The moves are ones the learner knows; what is new is when to make them. Suggest
   counting bars: a change every four or eight.

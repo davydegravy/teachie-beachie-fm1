@@ -66,7 +66,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/21-shape-a-sound.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The learner should keep playing keys while they turn: the change is only heard on a new note.
 - The other two ENV knobs: DEC (how fast it falls after the start) and SUS (the level it holds while a key is

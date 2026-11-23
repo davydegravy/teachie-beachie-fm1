@@ -45,10 +45,10 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/23-your-own-piece-live.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
-- The third place the lesson waits for Claude: after the show, say one true thing about what they did (when the
-  page changed, where the fill landed, which effect they leaned on).
+- A moment for the assistant: after the show, ask what they did and say one true thing about it (when the page
+  changed, where the fill landed, which effect they leaned on).
 - OCT+ ends the show, so the echo throw (FX held with OCT+) is not there in step 9. Everything else is.
 - The copy is a step of its own (step 4) and ends when page 2 exists. A short tap on key 2 only goes to the empty
   page: both have to stay down until the top says COPY.

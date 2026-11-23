@@ -63,7 +63,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/08-a-bass-line-in-boxes.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - Same trap as the drums: the note that goes into a box is the key played last. The grid shows each box's note by
   name (A2, C3 and so on).

@@ -9,6 +9,7 @@ songs, and the programs that run them.
 |---|---|
 | `PLAN.md` | The plan: the goal, every decision, the course, the order of work. |
 | `NOTES.md` | What was tried and what the tester noticed, day by day. |
+| `AI.md` | Teachie Beachie with an AI assistant: asking about a lesson, changing one, writing a new one. `AGENTS.md`, at the top of the project, is what the assistant itself reads first. |
 | `lessons/` | The thirty lessons, one Markdown file each. `lessons/README.md` says how to go through them on the FM-1, how to leave notes, and how a lesson file is written. |
 | `songs/` | The songs the lessons use. So far: HOUSE ONE. |
 | `run.py` | The waiting program: it waits for START on the FM-1 and plays the lessons. |
@@ -67,7 +68,6 @@ python3 tutorial/preview.py house-one C   # a section of the song recorded throu
 
 ## Not built yet
 
-- Claude cutting in during a lesson.
 - `MORE`, "I'm stuck" on both OCT buttons, and the skip menu on the FM-1.
 - The FM-1 telling the lesson its key, scale, chord, arpeggiator and cursor. Until then a few steps count clicks.
 - Recording the FM-1's sound to a file from a lesson.

@@ -31,13 +31,15 @@ child sees it.
   repository is `davydegravy/teachie-beachie-fm1`, named the way SLOOP's own are.
 - **SLOOP 3 only, for now.** The course uses as much of SLOOP 3 as it can. Other FM-1 firmware is left for
   later (section 15).
-- **One course, two ways to take it** (section 3):
-  - **Connected, with Claude.** Built first, and the way the author's family will take it.
-  - **On its own, on the FM-1, with no cable.** It matters at least as much, because most of the community
-    will take it this way.
-- **Keep it simple.** A feature that adds a way to fail needs a strong reason. Claude teaches; it doesn't
+- **The course is taken on the FM-1 itself, with no cable** (section 3). An AI assistant can sit beside it on a
+  computer, as a tutor and a lesson writer. It is any assistant that works with the project's files, and it is
+  asked: it does not cut in (section 9).
+  - Until 2026-11-22 the plan had two ways to take the course, one of them led from the computer with an
+    assistant cutting in. The lessons were built that way first. The program that leads from the computer stays,
+    as a tool for building and testing lessons.
+- **Keep it simple.** A feature that adds a way to fail needs a strong reason. An assistant teaches; it doesn't
   compose.
-- **The lesson never waits for Claude,** except in four cases (section 9).
+- **The lesson never waits for an assistant.** It runs by itself (section 9).
 - **The character is a musician, not a mascot,** and nothing about it is cute or childish (section 5).
 - **The look:** peach cards with dark red words, button names in a thin frame, and no pictures on cards in the
   first version. The logo shows only at the start (section 5).
@@ -50,31 +52,37 @@ child sees it.
 - **Lessons are built on the computer first,** where changes are quick. The lesson player moves into the
   firmware once the lesson format has settled.
 - **A lesson is a Markdown file,** written to be read by a person: its steps as a numbered list, with notes for
-  Claude and the tester's notes under them (`lessons/README.md`).
+  an AI assistant and the tester's notes under them (`lessons/README.md`).
 
-## 3. One course, two ways to take it
+## 3. On the FM-1, and an assistant beside it
 
-The same lessons, songs and firmware serve both.
+The course is whole on the FM-1. An AI assistant on a computer adds to it and replaces nothing.
 
-| | Connected, with Claude | On its own, on the FM-1 |
+| | On the FM-1 | With an AI assistant beside it |
 |---|---|---|
-| **What it needs** | The FM-1 on the USB cable, and the waiting program on the computer | Only the FM-1 |
-| **Status** | All thirty lessons run, with no Claude yet | Built on 2026-11-19: all thirty play through on the simulated FM-1. Not yet tried on a real one. |
-| **Lit buttons, cards, questions, the melody game** | Yes | Yes |
-| **Checks the learner's work** | Yes | Yes |
-| **Do it for me, all three sizes** | Yes, from the song as written | Yes, from the song as written |
-| **Hints** | The written hints, plus one made for what the learner just did | The written hints, in order |
-| **`MORE`: a fuller explanation** | Claude explains, on the computer | Written text, on the computer if connected, or a longer card |
-| **Talks about the learner's own music** | Yes | No |
-| **Answers questions** | Yes | No |
+| **What it needs** | Only the FM-1 | This project on a computer, and an assistant that works with its files (`AI.md`) |
+| **Status** | Built on 2026-11-19. All thirty play through on the simulated FM-1, and the course is on a real FM-1, being played through. | How the course was built and tested from the start. Its guides were written on 2026-11-22. |
+| **Lit buttons, cards, questions, the melody game** | Yes | The lesson's own, on the FM-1 |
+| **Checks the learner's work** | Yes | The lesson's own, on the FM-1 |
+| **Do it for me** | Yes, from the song as written | The lesson's own, on the FM-1 |
+| **Hints** | The written hints, in order | Another way of saying it, when asked |
+| **A fuller explanation** | A longer card (`MORE`, not built) | The assistant explains, on the computer, when asked |
+| **Talks about the learner's own music** | No | Yes: with the FM-1 on its cable it reads the notes, the sounds and the mix. It cannot hear. |
+| **Answers questions** | No | Yes |
+| **Controls the FM-1** | The lesson's own setups and "do it for me" | Yes, when asked: on the cable it loads a song, plays, sets the tempo and the mix, writes notes, lights buttons |
+| **Changes a lesson, writes a new one** | No | Yes: written, checked, tested on the simulated FM-1, sent to the FM-1 |
+
+The program that leads lessons from the computer (`run.py`) is where the lessons were built first, and the
+computer's own tests still play them that way. It is not offered to learners: next to the FM-1 alone it adds
+nothing a learner would notice.
 
 ### Four rules that keep the version on its own strong
 
 1. **Every lesson has a complete written path:** every word, light, check and hint. Nothing a learner needs
-   lives only in Claude's head.
-2. **Claude starts from the written path** and leaves it only when the learner needs something else.
-3. **What works goes back into the lesson.** When Claude explains a step another way and it lands, that
-   becomes a written hint. Every connected session improves the version on its own.
+   lives only in an assistant's head.
+2. **An assistant starts from the written path** and leaves it only when the learner needs something else.
+3. **What works goes back into the lesson.** When an assistant explains a step another way and it lands, that
+   becomes a written hint. Every session with an assistant improves the course for those who have none.
 4. **The written path is tested with no AI,** on the simulated FM-1, by a robot learner (section 11).
 
 ## 4. Lesson 1, as it runs today
@@ -247,23 +255,26 @@ built in Ableton, and not yet approved by ear.
 
 SLOOP already has drum kits named for most of these (HOUSE, BOOMBAP, DISCO, LO-FI, TRAP, SYNTHWV, CHIP).
 
-## 9. Claude in a lesson
+## 9. An AI assistant beside a lesson
 
-- **The written lesson runs by itself at full speed.** A program on the computer follows it, so every press
-  gets an answer at once.
-- **Claude watches and cuts in when it has something to add.** A remark that arrives too late is dropped.
-- **The lesson waits for Claude in four cases only,** where its answer is clearly better than anything written
-  beforehand:
-  1. the learner chose `MORE`;
-  2. the learner is stuck and the written hints have run out;
-  3. the learner has just made something of their own, and the loop is playing while Claude listens;
-  4. the learner typed or said a question.
-- **Claude teaches; it doesn't compose.** During a lesson all music comes from the song as written and
-  approved. Claude changes only the words, the lights and the pace.
-- **Whether Claude helps is measured.** The logbook records each time it cut in and what happened next. If it
-  doesn't help, it is turned down, and the lesson is still good without it.
-
-Not built yet: in lesson 1 the lesson runs, but Claude doesn't cut in.
+- **The lesson runs by itself, on the FM-1.** It never waits for an assistant.
+- **The assistant is beside it, on a computer, and is asked.** It is any assistant that can read this project's
+  files, change them and run commands. `AGENTS.md`, at the top of the project, is what it reads first; `AI.md` is
+  the guide for the person.
+- **As a tutor** it answers a question about a step, or explains an idea another way. With the FM-1 on its
+  cable it reads the notes, the sounds and the mix, and says one true thing about them. It cannot see the screen
+  or hear the music, so it asks which lesson and step the learner is on.
+- **It can control the FM-1,** on its cable and when asked: put a lesson's song on it, play and stop, set the
+  tempo and the mix, choose sounds, write notes, light a button, put a line of words on the screen. It says what
+  it is about to do first, and saves a copy before it replaces the song (`AGENTS.md`).
+- **As a lesson writer** it changes a lesson or writes a new one, checks that the words fit the screen, plays the
+  lesson on the simulated FM-1, and sends the lessons to the FM-1 when told to.
+- **An assistant teaches; it doesn't compose.** All music in a lesson comes from the song as written and
+  approved.
+- **What works goes back into the lesson** (section 3, rule 3).
+- **Set aside on 2026-11-22: an assistant that cuts in by itself.** Until then the plan had an assistant watching
+  every press and speaking on the FM-1's screen, with four cases where the lesson would wait for it. It was never
+  built. The author: "we don't need it to answer on the FM-1 I don't even know if thats a good idea really."
 
 ## 10. The course
 
@@ -283,7 +294,7 @@ drafted in `lessons/`.
 | 4 | The drum kit | The drums' 16 sounds are on the white keys. | Plays along on the keys, tries other kits with PRESETS. |
 | 5 | Meet the tracks | Each track plays its own instrument. | Holds GLO and taps keys 1 to 5 to silence each track, then solos one. |
 | 6 | Faster, slower, oops | Tempo is how fast the light walks. Undo takes a mistake back. | Changes the tempo with SELECT, makes a mess on purpose, undoes it (EDIT + OCT−), saves (SAVE twice). |
-| 7 | **Your own beat** | | Makes a beat on an empty drum track. The band joins in, and Claude says what it hears. |
+| 7 | **Your own beat** | | Makes a beat on an empty drum track. The band joins in. |
 
 ### Part 2: notes and chords
 
@@ -321,7 +332,7 @@ drafted in `lessons/`.
 | 27 | Build-ups and drops | Taking tracks away is as strong as adding them. | Arranges with mutes, fills and filter sweeps: a quiet intro, a build, a drop. |
 | 28 | Swing and feel | The same beat can march or dance. | Adds swing, makes some hats louder than others, plays soft and hard hits (OCT− and OCT+ while drumming). |
 | 29 | Keep it and share it | A finished song deserves to be kept. | Saves the project, wrecks it on purpose and opens the saved one again. Recording the song as a sound file is only described so far. |
-| 30 | **The final test** | | An empty project and no lights. A whole song: three parts or more, four tracks or more, effects, saved. Claude helps only when asked. |
+| 30 | **The final test** | | An empty project and no lights. A whole song: three parts or more, four tracks or more, effects, saved. Help comes only when asked. |
 
 ### After the course: deeper series, in any order
 
@@ -340,9 +351,9 @@ Each is a short series of lessons inside SLOOP 3, covering what the thirty lesso
   A step where the author sat for forty seconds is a step to rewrite.
 - **Two questions when a lesson ends,** answered with the OCT buttons: `TOO EASY` or `TOO HARD`, and
   `PLAY IT AGAIN` or `NEXT ONE`. (Not built.)
-- **Notes in plain words.** After a session the author tells Claude what felt wrong, and Claude proposes
+- **Notes in plain words.** After a session the author tells an assistant what felt wrong, and it proposes
   changes from the notes and the logbook. `NOTES.md` holds these.
-- **What Claude tried goes into the lesson,** when it worked (section 3, rule 3).
+- **What an assistant tried goes into the lesson,** when it worked (section 3, rule 3).
 - **Every lesson is tested with no person at all.** The simulated FM-1 runs the real firmware on the computer,
   and a robot learner presses whatever blinks, from the first card to the last. SLOOP's own tests run too.
   When SLOOP 3 changes a button, the lesson that breaks is found the same day.
@@ -355,8 +366,8 @@ Each is a short series of lessons inside SLOOP 3, covering what the thirty lesso
 | **The guide** | The addition to SLOOP 3's firmware: cards, strips, framed button names, lights at four levels or the double blink, buttons and keys the lesson takes for itself, every press and turn reported. | Built |
 | **The start** | The logo on the cards' peach, then the start card with START and JUST PLAY. | Built |
 | **The connector** | The computer's side of the USB link: SLOOP's own editor commands plus the guide. | Built |
-| **The waiting program** | Waits for START on the FM-1, plays the lessons from where the learner is, then waits again. It finds the FM-1 again after it is unplugged. | Built; runs while a terminal or a Claude session keeps it running |
-| **The lessons** | Thirty Markdown files, read by a person, by Claude and by the lesson player on the computer (`tp/lesson.py`). | Drafted; to be packed for the FM-1 later |
+| **The waiting program** | Waits for START on the FM-1, plays the lessons from where the learner is, then waits again. It finds the FM-1 again after it is unplugged. | Built; runs while a terminal or an assistant's session keeps it running |
+| **The lessons** | Thirty Markdown files, read by a person, by an AI assistant and by the lesson player on the computer (`tp/lesson.py`). | Drafted; to be packed for the FM-1 later |
 | **The checker** | Reads every lesson, measures its words against the FM-1's screen, and plays it on the simulated FM-1 with the robot learner (`check.py`). | Built |
 | **The songs** | Spec files in the song library's form. | HOUSE ONE written |
 | **The logbook and the copies** | Folders on the computer, kept out of the repository. | Built |
@@ -389,12 +400,12 @@ the begin card, and first drafts of all thirty lessons, each played through on t
    that is picked, and where the cursor is. Then the steps that only count clicks can check the result.
 5. **What the lessons still lack:** `MORE`, "I'm stuck" on both OCT buttons, the skip menu on the FM-1, and the
    two questions at a lesson's end.
-6. **Claude cutting in,** first in lesson 7, where the learner makes a beat of their own.
+6. **(Set aside on 2026-11-22:** an assistant cutting in during a lesson. Section 9.)
 7. **The course on the FM-1 alone, on a real FM-1.** It is built and passes on the simulated FM-1 (2026-11-19);
-   it has to be installed and played by a person. Wanted for a flight on 2026-11-23.
+   it has to be installed and played by a person.
 8. **What the FM-1 alone still lacks:** remembering the next lesson after it is switched off, and room to spare
    in the firmware.
-9. **The first young learner** plays the course from lesson 1, connected.
+9. **The first young learner** plays the course from lesson 1, on the FM-1.
 10. **Going public:** the public repository, the installer page and the lessons. Then showing it to SLOOP's
     developer, and offering the guide to SLOOP itself.
 
@@ -431,8 +442,8 @@ Set aside to keep the first version simple:
 
 ## 16. Questions to settle
 
-1. **Is the computer screen part of the lesson?** Today: everything needed is on the FM-1, and the computer
-   holds `MORE` and questions to Claude.
+1. **Is the computer screen part of the lesson?** Settled on 2026-11-22: no. Everything needed is on the FM-1. A
+   computer is only where an assistant is asked.
 2. **Does the learner already know the names of the notes, or play the piano?** That sets the pace of part 2.
 3. **Which kinds of music does the learner like most?** The songs can lean that way.
 4. **Is thirty lessons in four parts the right size?**

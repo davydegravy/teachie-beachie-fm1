@@ -60,7 +60,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/02-sixteen-boxes.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The picture to keep using: a step is a "box", and the light "walks". Don't switch to "step" or "playhead" yet.
 - The white keys mean two things, and this is the first place it shows: drums when played, boxes while SEQ is

@@ -46,10 +46,10 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/15-your-own-loop.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
-- The second place the lesson waits for Claude: while the loop plays in step 8, say one true thing about how the
-  parts fit (does the bass meet the kick, does the tune leave room).
+- A moment for the assistant: when the loop plays in step 8, say one true thing about how the parts fit (does the
+  bass meet the kick, does the tune leave room). Read the patterns from the FM-1 if it is plugged in, or ask.
 - No lights on purpose. The card in step 3 is the only reminder.
 - BRING THEM fills only tracks with nothing on them, from the song as written. It never touches what the learner
   wrote.

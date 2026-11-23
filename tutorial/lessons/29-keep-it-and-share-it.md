@@ -49,7 +49,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/29-keep-it-and-share-it.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The wreck in step 7 is done while the song plays, on purpose: SLOOP saves by itself only when stopped, so the
   saved project cannot be overwritten by the wrecked one.

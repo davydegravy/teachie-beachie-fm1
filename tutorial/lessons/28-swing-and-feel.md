@@ -60,7 +60,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/28-swing-and-feel.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - Swing is easiest to hear on the hats. At 50 the beat lilts; near 70 it limps. House barely swings, hip-hop
   swings a lot.

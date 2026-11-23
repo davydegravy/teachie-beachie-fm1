@@ -50,13 +50,13 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/30-the-final-test.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - Help only when asked, and then with a question back before an answer.
 - Step 5 ends on the learner's own two quick taps of SAVE. Copying a page also saves, and that does not end it.
 - The lesson checks nothing. The question card names the goal (three pages, four tracks, a song of three lines)
   and the learner says whether the song is finished. A YES is taken as it is, and the course's last card
-  congratulates either way. Claude can listen in step 8 and say one true thing about the song.
+  congratulates either way. The assistant can read the song from the FM-1 after step 8 and say one true thing about it.
 - The empty project has SLOOP's own starting sounds and a tempo of 92. Choosing sounds and a tempo is part of the
   test.
 - With an empty project, REC pressed while stopped starts SLOOP's free take, which sets the tempo from what is

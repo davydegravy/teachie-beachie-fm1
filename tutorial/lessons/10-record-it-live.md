@@ -69,7 +69,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/10-record-it-live.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - REC pressed while the song plays records at once. Pressed while stopped, it waits (REC READY) and the first
   note starts everything. If the learner ends up there, PLAY or a note gets them going.

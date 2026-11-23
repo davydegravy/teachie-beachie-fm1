@@ -60,6 +60,9 @@ cp web/editor.html $O/editor-sloop3.html
 python3 tools/teachie_page.py $O/installer-fm1.html
 # the page against a simulated m-bootloader: the package it serves, decrypted, is fw.area (tests/install_sim.js)
 node tests/install_sim.js $O/installer-fm1.html $O/fw.area | tail -1
+# (Teachie Beachie: the page's last step, the lessons, against a fake FM-1 and the PC twin; the pack inside is tools/mkcourse.py's)
+python3 tools/mkcourse.py build/course.bin > /dev/null
+node tests/lessons_sim.js $O/installer-fm1.html build/course.bin | tail -1
 # the web editor's FM6 bank and SYN kits (tests/editor_test.js)
 node tests/editor_test.js web/editor.html | tail -1
 # the whole editor in Chromium against the PC twin (tests/editor_e2e.js; EDITOR_E2E=0 to skip)

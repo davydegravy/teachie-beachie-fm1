@@ -75,7 +75,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ![The screens of this lesson](screens/26-write-it-line-by-line.png)
 
-## Notes for Claude
+## Notes for the AI assistant
 
 - The strips are at the top and one line long, so the list of lines and the four dials stay in view.
 - New lines start as page 1 for four bars. The cursor sits on the newest line, which is why the lesson works
