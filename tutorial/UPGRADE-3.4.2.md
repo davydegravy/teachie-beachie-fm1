@@ -53,12 +53,39 @@ EOF
 4. **A first look on the simulated FM-1** (no lessons yet): it starts, the start card shows, a card of the guide
    shows, PLAY plays, a pattern is read back, the course reports no lessons (none are in its flash).
 
+## The 30-lesson run (2026-11-24)
+
+`python3 tutorial/device.py` on the merged firmware (the stand-in `fw.area` above), the lessons as the FM-1 plays
+them alone. **21 played through, 9 stopped.**
+
+- **Played through:** 1 to 5, 9 to 12, 14, 17 to 22, 24, 27 to 30. Lessons 9 (EDIT to SOUNDS) and 18 to 22 (the FX,
+  LFO and ARP pages) were expected to break and did not.
+- **Stopped, because [SAVE] works differently** (SLOOP 3.4.0):
+  - lesson 6, step 18, `Press [SAVE] twice, quickly.`: no PROJECT SAVED (saving is on the PROJECT page now);
+  - lesson 16, step 6, and lesson 23, step 4, the copy of a page (`[SAVE]` + `[2]` held): no copy is made (a key
+    held with SAVE saves into that pattern after 1.5 s; the eight patterns change only when saved);
+  - lessons 25 and 26, step 3, `Press [SAVE] once: the SONG page.`: SAVE on the tracks page opens SONG 2/3
+    (`PG_SONG2`), not the page the step waits for (`PG_SONG`).
+- **Stopped, because [SEQ] works differently on a synth track** (SLOOP 3.4.0: NOTES, then PATTERN, then SONG):
+  - lesson 8, step 4, `Press [SEQ]. The same 16 boxes.`: SEQ opens the piano roll; the page of boxes is the
+    drums' only. STUCK? came up;
+  - lesson 13, step 8: "[SEQ] twice" now lands on PATTERN (LEN, DIV, SWG, GATE), not the piano roll, so the knobs
+    do something else (the screen says `PATTERN 2/2`).
+- **Stopped, cause not found yet:** lessons 7 and 15, step 4, a beat of one's own on the drum grid (`[OCT+] when
+  ready`). The grid stays empty through the robot's moves, and each OCT+ gives "not yet", round and round, until
+  the run's limit. Lessons 2 and 3 write drums with `[SEQ]` + a key and pass, so the difference is to be found:
+  perhaps the drum key tapped first (to pick the kick), without SEQ, does something else on 3.4's drum grid.
+
+**How long it took:** the first run (16:58 to 17:15) stopped at lesson 6's report after 16 min 39 s: lessons 7
+and 15 went round and round, and `device.py` had no limit for that. It now stops a lesson after 300 s (committed
+on this branch). The rerun of lessons 6 to 30 took **5 min 58 s** (17:15:23 to 17:21:21). A whole run with the
+limit: about 7 minutes, more if several lessons stop at the limit.
+
 ## Not done
 
-- **The 30-lesson run** (stopped before it, as asked). From the trial's folder, with the stand-in `fw.area` above:
-  `python3 tutorial/device.py` (the lessons as the FM-1 plays them alone; about six minutes) and
-  `python3 tutorial/check.py --run` (as the computer's program plays them). Each lesson says "played through" or
-  where it stopped.
+- **The cause in lessons 7 and 15,** and the fixes for the nine stopped lessons: firmware (the lesson player and
+  the guide) or the lessons' words and steps, case by case.
+- **`python3 tutorial/check.py --run`** (the lessons as the computer's program plays them): not run.
 - **Making the firmware fit** (below).
 - **The installer page:** the build stops before it, so `tools/teachie_page.py` has not met SLOOP's new page
   template yet. Its rules report any sentence they no longer find.
