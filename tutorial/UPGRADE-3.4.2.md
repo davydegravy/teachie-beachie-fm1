@@ -86,6 +86,20 @@ them alone. **21 played through, 9 stopped.**
   On 3.4.2's drum grid (`docs/GUIDE.md`, "DRUMS grid"; `fw/main.c`, `grid_on`, `drum_black`): **the white keys are
   the 16 boxes, with or without [SEQ]** (each tap sets or clears that box), **the black keys pick the drum** (each
   black key between two drums), and so does KNOB 1 (SOUND). Playing a drum's white key no longer picks it.
+- **The tracks page has not changed.** Tested on both firmwares (a second script, `trk.py`: a key tapped, its
+  sound measured from the simulated FM-1's audio, the drum pattern read, the grid's header shown after):
+
+  | | 3.3.7 | 3.4.2 |
+  |---|---|---|
+  | tracks page, a white key | sounds; picks that drum (the grid then says SNARE) | the same |
+  | tracks page, a black key | sounds; picks a drum | the same |
+  | drum grid, a white key | sounds; picks that drum | silent; sets or clears that box for the drum picked |
+  | drum grid, a black key | silent; picks a drum | the same |
+
+  So a drum picked by playing it on the tracks page is still the one the grid writes; only the grid's white keys
+  changed. The grid's knobs changed too: SOUND, STEP, HIT, LEVEL (3.3.7: SOUND, QUANT, GATE, STEPS).
+- **Lesson 4 is affected as well:** `Play every white key. The top names each drum.` is on the grid (`Page:
+  STEPS`). On 3.4.2 that writes sixteen silent boxes. Its echo step checks keys, not sounds, so the robot passed.
 - **Lessons that passed may have passed by accident.** Every lesson that picks a drum by playing its key does it on
   the grid, where that key now writes a box: lesson 2 step 7 (`Play [KEY 1]... the kick`), lesson 3 steps 4, 5 and
   9 (`Each key is a different drum. Play one to pick it.`, `Pick the snare: play [KEY 3].`, `Now pick the hat:
