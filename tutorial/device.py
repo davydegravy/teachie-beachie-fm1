@@ -25,6 +25,7 @@ from tp import lesson as L
 
 PH = dict(OFF=0, BEGIN=1, LIST=2, STEP=3, PLAY=4, ECHO=5, DO=6, ANSWER=7, WAIT=8, MSG=9, STUCK=10, END=11, BYE=12, TOC=13)
 OUT = os.path.join("build", "tw", "device")
+LIMIT = 300                                                         # a lesson going round and round (a "not yet", again and again) stops here
 clumsy = "--clumsy" in sys.argv
 sticky = "--sticky" in sys.argv
 
@@ -79,6 +80,7 @@ def play(lesson, index, seed):
             if ph == PH["OFF"]: return False, log + ["the course stopped"], now - t0
             if ph == PH["STUCK"]: return False, log + ["STUCK? at step %d" % (step + 1)], now - t0
             if now - since > 45: return False, log + ["step %d never ended (phase %d)" % (step + 1, ph)], now - t0
+            if now - t0 > LIMIT: return False, log + ["no end after %d s: at step %d (phase %d), going round" % (LIMIT, step + 1, ph)], now - t0
             if step >= len(lesson.steps): time.sleep(0.05); continue
             s = lesson.steps[step]
             if ph == PH["ECHO"]: robot.act(); time.sleep(0.15); continue
