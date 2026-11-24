@@ -86,7 +86,7 @@ them alone. **21 played through, 9 stopped.**
   On 3.4.2's drum grid (`docs/GUIDE.md`, "DRUMS grid"; `fw/main.c`, `grid_on`, `drum_black`): **the white keys are
   the 16 boxes, with or without [SEQ]** (each tap sets or clears that box), **the black keys pick the drum** (each
   black key between two drums), and so does KNOB 1 (SOUND). Playing a drum's white key no longer picks it.
-- **The tracks page has not changed.** Tested on both firmwares (a second script, `trk.py`: a key tapped, its
+- **The tracks page has not changed.** Tested on both firmwares (a second script, `tutorial/upgrade/drumkeys.py OUTDIR`: a key tapped, its
   sound measured from the simulated FM-1's audio, the drum pattern read, the grid's header shown after):
 
   | | 3.3.7 | 3.4.2 |
@@ -117,8 +117,8 @@ limit: about 7 minutes, more if several lessons stop at the limit.
 
 - **The fixes** for the nine stopped lessons and the drum lessons above: mostly the lessons' words and steps
   (SAVE, SEQ, the drum grid), and in a few places what the lesson player checks (the SONG page's number, STEPS).
-- **How the replay was done,** to repeat it on another step: a script kept outside the project
-  (`replay.py LESSON STEP OUTDIR`, run from a copy's top folder). It plays the lesson as `device.py` does up to the
+- **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
+  from a copy's top folder. It plays the lesson as `device.py` does up to the
   step, then makes that step's robot moves exactly as `L.moves()` gives them (presses, releases, timing), and after
   each release prints the FM-1's phase, step and drum notes (`f.pattern(3)`), with a screenshot. The control ran
   on today's 3.3.7 build through a folder of links to the main copy. Running moves one at a time through
