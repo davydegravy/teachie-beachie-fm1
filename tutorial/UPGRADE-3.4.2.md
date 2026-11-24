@@ -71,10 +71,28 @@ them alone. **21 played through, 9 stopped.**
     drums' only. STUCK? came up;
   - lesson 13, step 8: "[SEQ] twice" now lands on PATTERN (LEN, DIV, SWG, GATE), not the piano roll, so the knobs
     do something else (the screen says `PATTERN 2/2`).
-- **Stopped, cause not found yet:** lessons 7 and 15, step 4, a beat of one's own on the drum grid (`[OCT+] when
-  ready`). The grid stays empty through the robot's moves, and each OCT+ gives "not yet", round and round, until
-  the run's limit. Lessons 2 and 3 write drums with `[SEQ]` + a key and pass, so the difference is to be found:
-  perhaps the drum key tapped first (to pick the kick), without SEQ, does something else on 3.4's drum grid.
+- **Stopped, because the drum grid works differently** (SLOOP 3.4: SLOOP 2.8.5's grid): lessons 7 and 15, step
+  4, a beat of one's own. Found by replaying the robot's presses one by one on both firmwares, reading the drums
+  after each release (the script is below):
+
+  | The robot's press | 3.3.7 | 3.4.2 |
+  |---|---|---|
+  | white key 1 alone, to pick the kick | picks the kick, writes nothing | writes a kick on box 1 |
+  | [SEQ] + 1, 5, 9, 13 | four kicks | box 1 toggled off; 5, 9, 13 on |
+  | white key 3 alone, to pick the snare | picks the snare | writes a kick on box 3: still the kick |
+  | [SEQ] + 5, 13 | two snares | takes the kicks on 5 and 13 out |
+  | in the end | 6 notes: through | 2 notes (lesson 15: 3): "not yet" again and again |
+
+  On 3.4.2's drum grid (`docs/GUIDE.md`, "DRUMS grid"; `fw/main.c`, `grid_on`, `drum_black`): **the white keys are
+  the 16 boxes, with or without [SEQ]** (each tap sets or clears that box), **the black keys pick the drum** (each
+  black key between two drums), and so does KNOB 1 (SOUND). Playing a drum's white key no longer picks it.
+- **Lessons that passed may have passed by accident.** Every lesson that picks a drum by playing its key does it on
+  the grid, where that key now writes a box: lesson 2 step 7 (`Play [KEY 1]... the kick`), lesson 3 steps 4, 5 and
+  9 (`Each key is a different drum. Play one to pick it.`, `Pick the snare: play [KEY 3].`, `Now pick the hat:
+  play [5].`), lesson 16 step 10, lesson 17 step 10 (`Pick the high tom: [11]`), lesson 28 step 9 (`Play [5]: the
+  hat.`), and the cards of lessons 7 and 30 (`Pick a drum: play its key.`). The robot reaches their checks anyway,
+  with stray boxes written on the way; a learner would be told the wrong thing. They all need rewriting for the new
+  grid: pick with a black key or KNOB 1, and tap a white key for a box.
 
 **How long it took:** the first run (16:58 to 17:15) stopped at lesson 6's report after 16 min 39 s: lessons 7
 and 15 went round and round, and `device.py` had no limit for that. It now stops a lesson after 300 s (committed
@@ -83,8 +101,14 @@ limit: about 7 minutes, more if several lessons stop at the limit.
 
 ## Not done
 
-- **The cause in lessons 7 and 15,** and the fixes for the nine stopped lessons: firmware (the lesson player and
-  the guide) or the lessons' words and steps, case by case.
+- **The fixes** for the nine stopped lessons and the drum lessons above: mostly the lessons' words and steps
+  (SAVE, SEQ, the drum grid), and in a few places what the lesson player checks (the SONG page's number, STEPS).
+- **How the replay was done,** to repeat it on another step: a script kept outside the project
+  (`replay.py LESSON STEP OUTDIR`, run from a copy's top folder). It plays the lesson as `device.py` does up to the
+  step, then makes that step's robot moves exactly as `L.moves()` gives them (presses, releases, timing), and after
+  each release prints the FM-1's phase, step and drum notes (`f.pattern(3)`), with a screenshot. The control ran
+  on today's 3.3.7 build through a folder of links to the main copy. Running moves one at a time through
+  `device.hands()` is wrong: it lets go of what is held between them.
 - **`python3 tutorial/check.py --run`** (the lessons as the computer's program plays them): not run.
 - **Making the firmware fit** (below).
 - **The installer page:** the build stops before it, so `tools/teachie_page.py` has not met SLOOP's new page
