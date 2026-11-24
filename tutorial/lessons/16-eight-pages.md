@@ -12,44 +12,46 @@
 ## Steps
 
 1. **Setup:** song HOUSE ONE section C, 1 bar; track drums; page TRACKS
-2. **Card:** So far your music is / one bar, on a loop. / A song needs more. // Each track has 8 pages / to write on.
+2. **Card:** So far your music is / one bar, on a loop. / A song needs more. // You have 8 pages. / Each page holds / all five tracks.
    - **OCT+:** Go
-3. **Strip:** Press [PLAY]. / This is page 1.
+3. **Strip:** Press [PLAY]. This is / page 1: P1, top right.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Card:** Hold [SAVE]: [1] to [8] / are the pages. // Tap one to go there. / Hold one to copy / this page onto it.
+4. **Card:** _Pages: hold [SAVE] / Keys [1] to [8] / are the 8 pages. // Tap a key: go there. / Hold a key: copy / this page onto it.
    - **OCT+:** Next
-5. **Strip:** Hold [SAVE], then hold [2] for a second.
+5. **Card:** _Why copy a page? / A new page is empty. / A copy starts with / your music on it. // Then change a little: / a new part of the song.
+   - **OCT+:** Next
+6. **Strip:** Hold [SAVE] + [2] until / the top says COPY.
    - **Do:** hold SAVE, long box 2
    - **Until:** drums pattern 2 has notes and drums on pattern 2
    - **Hint:** Keep holding both until the top says COPY.
-6. **Reply:** Copied.
-7. **Card:** You are on page 2 now. / It is a copy of page 1. // Change it, and page 1 / stays as it was.
+7. **Reply:** Copied.
+8. **Card:** You are on page 2: / see P2, top right. / It is a copy of page 1. // Change page 2. / Page 1 stays as it was.
    - **OCT+:** Next
-8. **Strip:** Press [SEQ] for / the drum grid.
+9. **Strip:** Press [SEQ] for / the drum grid.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-9. **Strip:** Play [1]: the kick.
-   - **Do:** tap box 1
-   - **Page:** STEPS
-10. **Strip:** Hold [SEQ]. Extra kicks on [8] and [16].
+10. **Strip:** Play [1]: the kick.
+    - **Do:** tap box 1
+    - **Page:** STEPS
+11. **Strip:** Hold [SEQ]. Extra kicks on [8] and [16].
     - **Do:** hold SEQ, tap box 8 16
     - **Until:** drums has KICK on boxes 8 16
     - **Hint:** If the top does not say KICK, play [1].
-11. **Card:** Two pages. // Page 1: the beat. / Page 2: the same beat / with a push.
+12. **Card:** _Two pages / Page 1: the beat. / Page 2: the beat, plus / kicks on [8] and [16]. // Switch between them: / [SAVE] + [1] or [2].
     - **OCT+:** Next
-12. **Strip:** Hold [SAVE], tap [1]. / It comes on the next bar.
+13. **Strip:** Hold [SAVE], tap [1]. / It waits for the bar's end.
     - **Do:** hold SAVE, tap box 1
     - **Until:** drums on pattern 1
-13. **Strip:** And back: [SAVE] + [2].
+14. **Strip:** And back: [SAVE] + [2].
     - **Do:** hold SAVE, tap box 2
     - **Until:** drums on pattern 2
-14. **Strip:** Switch pages as you like. / [OCT+] when done.
+15. **Strip:** Switch pages as you like. / [OCT+] when done.
     - **OCT+:** Done
-15. **Strip:** Press [PLAY] to stop.
+16. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-16. **Card:** A page is also called / a pattern. // Go to a page: / [SAVE] + a key. / Copy this page: / [SAVE] + hold a key.
+17. **Card:** A page is also called / a pattern. // Go to a page: / [SAVE] + a key. / Copy this page: / [SAVE] + hold a key.
     - **OCT+:** Done
 
 ## Screens

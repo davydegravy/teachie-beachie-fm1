@@ -46,7 +46,7 @@
 13. **Strip:** [10] again: / everyone back.
     - **Do:** hold GLO, tap box 10
     - **Until:** nothing solo
-14. **Strip:** Mute and solo as you like. / [OCT+] when done.
+14. **Strip:** Mute/solo as you like. / [OCT+] when done.
     - **OCT+:** Done
     - **Until:** nothing muted and nothing solo
     - **Hint:** Not yet. Bring every track back first.

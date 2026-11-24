@@ -137,7 +137,7 @@ cannot end) are still open.
     while (`CRUSH IS IN ROW 3, THE LAST ONE: [FX] AND [12].`). The lesson cannot tell which effect was played, so
     any effect ends the step.
   16 steps: the lock's card is step 11 now.
-- Two more of his notes on the new steps, applied at once:
+- Two more of their notes on the new steps, applied at once:
   - "I think it should say hold or held because that is the language we used before. If you press FX it cycles
     through the effects [pages]." The card says `WHILE [FX] IS HELD`, and the four strips say `HOLD [FX] + [3]: 1/16.`
     and so on. The same was done wherever a lesson said DOWN for holding (lessons 2, 5, 8, 10, 16, 17, 23, 28):

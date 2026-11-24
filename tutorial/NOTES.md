@@ -202,7 +202,7 @@ Noted as they come. Nothing here is done until it is marked done.
 - **Lesson 17 (fills and rolls) is the most confusing so far; to revisit.** Played twice on 2026-11-19. Its
   step 10, the fill note (`HOLD [SEQ], HOLD BOX 12, PRESS [OCT+]`), took 134 and 154 seconds, with the hint and
   `STUCK?` twice each time. The hint `KEEP [SEQ] AND THE BOX DOWN. THE TOP SAYS FILL.` was not understood
-  ("what does the box down mean?"). His wording: `HOLD [SEQ] + HOLD KEY 12 + PRESS [OCT+]`. His idea: teach
+  ("what does the box down mean?"). Their wording: `HOLD [SEQ] + HOLD KEY 12 + PRESS [OCT+]`. Their idea: teach
   that some moves mean holding two buttons and then pressing a third. Also seen on the FM-1: marking a box
   marks every drum in it, and one press too many gives NO FILL. The whole account and a sketch are in the
   lesson's own tester notes. **Done 2026-11-20** from the sketch: see "The round from the
@@ -256,7 +256,7 @@ Noted as they come. Nothing here is done until it is marked done.
   bring the start card back.
 - **A lesson's cards switched the glow off.** In lesson 18, on its first card (`HOLD [FX], AND EVERY KEY IS AN
   EFFECT ...`): "I can't see the keys, I'm trying to see the FX key but it is very dark. I need the lights to
-  stay on." His settings read from the FM-1: LIGHTS HIGH, KEYS ALL. The cause: a card asks the guide for "only
+  stay on." Their settings read from the FM-1: LIGHTS HIGH, KEYS ALL. The cause: a card asks the guide for "only
   these lights", which puts out SLOOP's own lights and the glow with them; a strip does not.
   - **Done at once, in the computer's program** (`tutorial/tp/fm1.py`, `lights`): with "only", the fourteen
     buttons are asked for at level 1, the glow, as bright as HOME > LIGHTS says. No firmware change.
@@ -439,7 +439,7 @@ computer.
     congratulate them even if the song is not all there. The card is now `IS YOUR SONG FINISHED? / THE GOAL WAS
     3 PAGES, 4 TRACKS AND A SONG OF 3 LINES. / YOU DECIDE.` with no check. With no chain, `song mode on; play`
     loops the page that is up (tried on the simulated FM-1).
-  - Seen on the way: to let the tester carry on with the song he had, lesson 30 was started once more with its
+  - Seen on the way: to let the tester carry on with the song they had, lesson 30 was started once more with its
     first step changed so that it did not make a new project. A way to rejoin a lesson without losing what is on
     the FM-1 does not exist yet.
   - The new ending was played on the real FM-1 the same day, with the tester's song: no fault. On the simulated
@@ -453,18 +453,18 @@ After the thirtieth lesson: "go back and make adjustment based on all of the not
 is all of the lessons on device, unplugged. Please run the robot replay after the changes have been made. When
 everything passes I want to put the updated firmware back on my FM-1 and try it again."
 
-**What was asked and answered.** Four questions went to him; he answered with one message: "Yes I like that I think
+**What was asked and answered.** Four questions went to them; they answered with one message: "Yes I like that I think
 in the very beginning we should have one card that explains the buttons and holding and pressing and also what we
-are going to call them." Taken as: framed key names, and the new card. The three questions he did not answer
-were settled as follows, and said to him at once:
-- the way back to the lessons: built (it was his own wish of 2026-11-19);
+are going to call them." Taken as: framed key names, and the new card. The three questions they did not answer
+were settled as follows, and said to them at once:
+- the way back to the lessons: built (it was their own wish of 2026-11-19);
 - lesson 30's tag: left in the top left corner, as built;
-- of the extras, the three that come from his notes are in (`3 PAGES IN A ROW`, the erase step in lesson 10,
+- of the extras, the three that come from their notes are in (`3 PAGES IN A ROW`, the erase step in lesson 10,
   large names in the list of lessons); when `STUCK?` comes up is left as it was.
 
 **The lessons.**
 - **Two cards about names, at the very start** (lesson 1, steps 3 and 4). The first try was one card (`[PLAY] IS A
-  BUTTON. / [KEY 5] OR JUST [5]: ...`); he found it confusing so early and asked for key 5 to blink. Now: `A NAME IN
+  BUTTON. / [KEY 5] OR JUST [5]: ...`); they found it confusing so early and asked for key 5 to blink. Now: `A NAME IN
   A FRAME / IS A BUTTON: [OCT+] / PRESS: DOWN AND UP. / HOLD: KEEP IT DOWN. / [OCT+] IS BLINKING. / PRESS IT.`, then
   `A NUMBER IN A FRAME / IS A WHITE KEY. / COUNT FROM THE LEFT. / [KEY 5], OR JUST [5], / IS BLINKING. / TAP IT.` Each
   has something to press at once, so a blinking light still means "press this". No firmware change: the key card
@@ -492,7 +492,7 @@ were settled as follows, and said to him at once:
   go with nothing changed empties.
 - **Lesson 18:** the unlock step ends on FX pressed, locked or not. The four effects can no longer go by unseen
   (the engines, below).
-  Later the same evening, at his word, the lesson teaches the screen that FX brings up: a card says it is a map of
+  Later the same evening, at their word, the lesson teaches the screen that FX brings up: a card says it is a map of
   the keys (big names the white keys, four in a row; small names the black keys), the effect strips name what the
   map says (`[FX] AND [3]: 1/16. / A STUTTER.`), and one step asks the learner to find CRUSH alone. 16 steps.
   Asked on the way: SLOOP has no help page on the FM-1; the screens that held buttons bring up are its only guide.
@@ -534,7 +534,7 @@ the title. `tools/mkpagelogo.py` cuts the logo out of its paper once (`assets/lo
 **The installer page's words** ("The copy for the install page does not match what Teachie Beachie is. We need to
 update that"). The page was SLOOP's with the name changed, so it described a groovebox and things Teachie Beachie
 does not do. Changed in `tools/teachie_page.py`, in English and French, first drafts:
-- what it is, in his own voice ("I want it to say that I built this tutorial for my children. The intent is for
+- what it is, in their own voice ("I want it to say that I built this tutorial for my children. The intent is for
   them to learn about sequencers and groove box and be able to make their own songs on an FM-1 (which will be a
   Christmas gift)"): `I built TEACHIE BEACHIE for my children, so they can learn what a sequencer and a groovebox
   are and make their own songs on an FM-1, their Christmas gift. It teaches the M-VAVE FM-1 on the FM-1 itself:
@@ -583,12 +583,12 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
   FM-1's size (`tutorial/card-looks.png`, `card-looks-modern.png`, `card-looks-stylish.png`).
   - Tried and set aside: today's capitals with filled buttons; Clean (the family the FM-1 uses now); Round;
     Modern bolder; Geometric (its a looks like an o); Technical; Soft; Retro; Typewriter; Tech.
-  - Filled buttons (a solid dark-red tab) were in every first mock-up; he was not convinced, and side by side the
+  - Filled buttons (a solid dark-red tab) were in every first mock-up; they were not convinced, and side by side the
     outlined ones are calmer on a card with two or three names. Outlined it is.
 - **The mock-ups use typefaces that come with the Mac** (Modern is Avenir Next Demi Bold). Those cannot go into the
   project. The real one has to be a free, open typeface that looks the same; none is on this Mac yet, and
   SLOOP's own Inter is not here either (its tool points at a Linux path).
-- **Two open typefaces downloaded at his word** ("can you download Google Sans and Lato"), from Google Fonts'
+- **Two open typefaces downloaded at their word** ("can you download Google Sans and Lato"), from Google Fonts'
   repository on GitHub (`github.com/google/fonts`, folder `ofl`), each with its license, into `assets/fonts/`:
   Google Sans (one file with every weight, 5 MB) and Lato in Medium, SemiBold and Bold (about 650 KB each). Not
   committed yet.
@@ -1586,6 +1586,204 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
     lit keys, then `Faster / Faster / FASTER` and `Ha, sorry, I'm just messing with you`), which works without
     sound; lesson 27's build-up and drop, or lesson 20's filter (`the song sinks underwater`), which need sound.
     A real FM-1 filmed from above shows the lit keys, which the simulated FM-1's screen does not.
+- **2026-11-24: notes after two play-throughs on the FM-1 alone.** The first young learner played lessons 1 to 13,
+  and the tester played all thirty again. To be made all at once, when the notes are all in ("Lets add these notes
+  once we have all the notes we can implement them").
+  108. **Lesson 1: a short word about the FM-1 itself.** "Maybe I should give a short overview of the FM-1, the two
+       things that I think we should mention is master is the volume. And we recommend using headphones, the FM-1
+       has good sound but the speaker is not great." No card says either today: MASTER is on the installer page
+       only, and the speaker only in lesson 14's notes for the assistant. Suggested: one new card after `Good.`
+       (step 5) and before `SLOOP is a groovebox` (step 6), so it is read before the first sound (step 7). No step
+       in lesson 1 jumps to a number, so adding one is safe. Measured, both fit (5 lines and a gap):
+       - `_Your FM-1 / [MASTER] is the volume. // Headphones are best. / The FM-1 sounds good, / but its speaker
+         is small.`
+       - nearer the tester's words: `_Your FM-1 / [MASTER] is the volume. // Use headphones. / The sound is good.
+         / The speaker is not great.`
+       `We recommend headphones.` does not fit on one line.
+       The tester's own card: `_Your FM-1 / [MASTER] is the volume. // We recommend using / headphones. / The FM-1
+       has good sound. / but the speaker is not great.` Its last two lines are too wide (221 and 236 of 212), so
+       the screen would break them and the card would run to 8 lines and a gap, too tall with an answer under it.
+       Nearest that fit, 7 lines and a gap or fewer: `... / We recommend using / headphones. / The FM-1 sounds
+       good, / but the speaker / is not great.`; with the exact words, `... / The FM-1 has good / sound, but the
+       speaker / is not great.`; one line shorter, `... / The sound is good. / The speaker is not great.`
+       **Chosen** ("Option 2", the tester's exact words): `_Your FM-1 / [MASTER] is the volume. // We recommend
+       using / headphones. / The FM-1 has good / sound, but the speaker / is not great.` 7 lines and a gap, the
+       most a card with an answer holds; its answer `OCT+: Next`.
+  109. **Lesson 5, step 14 (a strip): it wraps.** The tester (who named it lesson 4): "Mute and solo as you like.
+       It's wrapping. Maybe: Mute/solo as you like." Today the screen breaks it as `Mute and solo as you` / `like.`
+       / `[OCT+] when done.` (it was on the list of old cards that still wrap awkwardly). Measured:
+       - the tester's: `Mute/solo as you like. / [OCT+] when done.` 2 lines, 181 px of 212: fits;
+       - keeping "and": `Mute and solo / as you like. / [OCT+] when done.` 3 lines, the most a strip holds: fits.
+       **Chosen** ("Option 1", the tester's): `Mute/solo as you like. / [OCT+] when done.`
+  110. **Lesson 8, step 13 (a card): what is it for?** The tester: "'Listen for where the bass and the kick meet and
+       where the bass slips between', what is the intent of this card?" The intent: the song plays while the card
+       is up, and it points at why the bass line grooves. The kick is on boxes 1, 5, 9 and 13; the learner's bass is
+       on 1, 4, 7, 11, 14 and 16. They hit together on box 1 only, and the rest of the bass lands between the
+       kicks. That is the push of funk and disco, the style the lesson names. But the card says it in the abstract
+       ("meet", "slips between"), gives the learner nothing to listen for, and is one sentence the screen breaks
+       on its own. Suggested, all measured and fitting:
+       - `The bass and the kick / hit together on [1]. / The rest of the bass / lands between kicks. // That is
+         the groove.`
+       - `_Bass and kick / The kick is on / 1, 5, 9 and 13. / Your bass is on 1 too, / then lands in between. //
+         That is what makes / it groove.`
+       - `Listen. The bass hits / with the kick on [1], / then lands between / the kicks. // That bounce is / the
+         groove.`
+       **Chosen** ("Option 2"): `_Bass and kick / The kick is on / 1, 5, 9 and 13. / Your bass is on 1 too, /
+       then lands in between. // That is what makes / it groove.` 7 lines and a gap; its answer `OCT+: Next`.
+  111. **Lesson 9, steps 8 and 9: the SOUNDS page does not always show 16 sounds.** The tester: "Instrument select
+       step can go weird because it references 16 sounds and some families don't have 16 sounds." True: the page
+       shows a family 16 at a time, and the families hold 10 to 38 sounds, so a family's last page is part empty,
+       and FAVS holds only the learner's favorites (none, at first). The learner arrives on whatever family their
+       PRESETS clicks (steps 4 and 5) left the lead in. Step 8 tells them to tap EDIT "until you see 16 sound
+       names": on a short page they keep tapping past it. Step 9 says "Each white key is a sound": on a short page
+       some are not. Suggested, measured (a strip holds 3 lines):
+       - step 8: `Tap [EDIT] until you see / sound names.` (today `Tap [EDIT] until you see / 16 sound names.`)
+       - step 9: `Each name is on / a white key. Tap one.` (today, as the screen breaks it, `Each white key is a /
+         sound. Tap one.`)
+       **Chosen** ("Yes, use them"): both, as suggested.
+  112. **Lesson 14, step 9: the strip covers the levels.** The tester: "it says set all five by ear [oct+] when it's
+       right. But the strip is at the bottom covering up the levels. I think the strip should be at the top. Would
+       be best if it was all one line." Steps 6 and 8, just before it, are at the top for that reason already.
+       Suggested: `Strip top`, one line. Today `Set all five by ear. / [OCT+] when it's right.` (2 lines); on one
+       line it is 333 px of 212. Measured, one line each:
+       - `Mix by ear, then [OCT+].` (202 px)
+       - `Mix all five, then [OCT+].` (203 px)
+       - `Set all five, then [OCT+].` (201 px)
+       **Chosen** ("Option 1"): `Strip top: Mix by ear, then [OCT+].`
+  113. **Lesson 15, step 5: a smaller strip.** The tester: "'Now add a bass line chords or a tune [oct+] when ready.'
+       would be better if this was smaller. Now add another track or something." Today 3 lines, the most a strip
+       holds, over the page being written on: `Now add a bass line, / chords or a tune. / [OCT+] when ready.`
+       Suggested, 2 lines, in the tester's words and the same shape as step 4 (`Drums first. / [OCT+] when
+       ready.`): `Now add another track. / [OCT+] when ready.` (199 px). Shorter still: `Add another track. /
+       [OCT+] when ready.` **Chosen** ("Option 1"): `Now add another track. / [OCT+] when ready.`
+  114. **Lesson 16, the whole lesson** ("Lesson 16 is rough I think maybe we need one more card to explain what is
+       happening, I'd like to go through the whole lesson because I think of all of the lessons this is the most
+       confusing"). What is hard in it, from its screens and the firmware:
+       - step 2 says "Each track has 8 pages", but `[SAVE]` + a key moves all five tracks to that page together,
+         and a copy copies all five (`pat_go` in `fw/main.c`): a page is really the whole band's;
+       - nothing says where to see which page is playing: `P1` / `P2` at the top right of the tracks page;
+       - a copy sounds exactly like the page it came from, so after it nothing seems to have happened, and nothing
+         says why one would copy at all (a short tap goes to an empty page instead: the trap of lesson 23);
+       - on the drum grid there is no `P1` / `P2`; the only sign of the page is the extra kicks on 8 and 16;
+       - a page change waits for the bar to end (`PATTERN 1 ON THE BAR`), so a press seems to do nothing at first.
+       Suggested, every one measured and fitting (no step of the lesson jumps to a number, so a new card is safe):
+       - step 2: `So far your music is / one bar, on a loop. / A song needs more. // You have 8 pages. / Each page
+         holds / all five tracks.`
+       - step 3: `Press [PLAY]. This is / page 1: P1, top right.`
+       - step 4: `_Pages: hold [SAVE] / Keys [1] to [8] / are the 8 pages. // Tap a key: go there. / Hold a key:
+         copy / this page onto it.`
+       - a new card after step 4, the one more card asked for: `_Why copy a page? / A new page is empty. / A copy
+         starts with / your music on it. // Then change a little: / a new part of the song.`
+       - step 5, the same words as lesson 23's copy: `Hold [SAVE], hold [2]. / Let go when / the top says COPY.`
+       - step 7: `You are on page 2: / see P2, top right. / It is a copy of page 1. // Change page 2. / Page 1
+         stays as it was.`
+       - step 11: `_Two pages / Page 1: the beat. / Page 2: the beat, plus / kicks on [8] and [16]. // Switch
+         between them: / [SAVE] + [1] or [2].`
+       - step 12: `Hold [SAVE], tap [1]. / It waits for the bar / to end, to stay in time.`
+       - unchanged: steps 6 (`Copied.`), 8, 9, 10, 13, 14, 15, and the last card (the one on the installer page).
+       **Chosen:** all of these except steps 5 and 12 ("I like all of your suggestions except for Step 5 and Step
+       12--I don't like increasing the lines. can we make them clearer and keep them on two lines"). Two lines
+       each, measured:
+       - step 5: `Hold [SAVE] + [2] until / the top says COPY.` or `Keep [SAVE] + [2] down / until the top says
+         COPY.`
+       - step 12: `Hold [SAVE], tap [1]. / Wait for the bar to end.` or `Hold [SAVE], tap [1]. / It waits for the
+         bar's end.`
+       **Chosen** ("For Step 5 lets do option 1 for step 12 Option 2"): step 5 `Hold [SAVE] + [2] until / the top
+       says COPY.`; step 12 `Hold [SAVE], tap [1]. / It waits for the bar's end.`
+       Then lesson 17, gone through the same way ("Lesson 17 is the lesson that I remember being really rough").
+  115. **A card before every three-at-once move** ("For Lesson 23 its a 3 button press these are difficult so
+       whenever there is a 3 button or 2 buttons and a knob we should have a card that warns them and suggests a
+       strategy"). Found in the course, by the lessons' `Do` lines and words:
+       - lesson 17, steps 12 and 13: hold `[SEQ]`, hold `[12]`, press `[OCT+]` (a fill note);
+       - lesson 23, step 6: the same move, on a key of the learner's choosing (the one the tester means);
+       - lesson 28, steps 10 and 11: hold `[SEQ]`, hold a box, turn `[KNOB2]` (a hard hit);
+       - perhaps lesson 17, step 18: `[ARP]` + `[KNOB1]` sets how fast a roll goes, and hearing it while turning
+         means a drum key held too;
+       - not counted: lesson 22's three keys held together (a chord, one hand), and moves of two.
+       Suggested, one card before each, the same shape every time, measured: `_Three at once / Hold [SEQ], hold
+       [12], / then press [OCT+]. // Use both hands. Keep / the first two down.` (lesson 23: `hold a key`; lesson
+       28: `Hold [SEQ], hold [4], / then turn [KNOB2].`). Lesson 17's is chosen with item 116 (its step 11), and
+       its step 18 is split into two moves of two there, so it needs no card. Lessons 23 and 28 take the same card,
+       in the same shape, before their moves.
+  117. **Lesson 27, step 12: name [GLO] again.** The tester: "Wait for it then [5] again. I think this should be [Glo]
+       + [5]". Today `Wait for it ... / then [5] again.`: the learner has let go of [GLO] since step 11, and [5]
+       alone plays a drum. **Chosen:** `Wait for it ... / then [GLO] + [5].` (2 lines, as today; measured.)
+  118. **The FM-1 remembering the lesson after it is switched off** ("how hard is it for us to save what lesson they
+       are on. so if they turn off the FM-1 it will come back on the lesson they were on"). Today the lesson
+       number lives in RAM only (`C.les`, `fw/course.inc`), and after a power-off START begins at lesson 1. Looked
+       at, nothing built:
+       - **Not through the project.** HOME's settings are kept in the project (`x.home`, 80 bytes, some free), but
+         the project is written only when it is saved: keeping the lesson there means saving the lesson's song over
+         the learner's own saved song.
+       - **Next to the lessons instead.** In the sample slot that holds the pack, the rest of the pack's last 4 KB
+         sector is blank (about 3 KB after today's pack). Blank flash can be written a byte at a time without
+         erasing anything: each lesson's start writes its number into the next blank byte, and at START the FM-1
+         reads the last one written. The learner's song is not touched. Sending lessons again rewrites the slot, so
+         the course starts from lesson 1 again.
+       - **The cost:** a new firmware, perhaps 70 to 100 bytes of code, and 92 are free: it may need room made
+         first (the start card's words could move into the pack, as the course's card did). The write runs the way
+         the editor's sample writes run, while the music plays; the simulated FM-1 can test it, power cuts
+         included.
+       Set for its own session, on 2026-11-25 ("I will have more fable tomorrow at noon").
+- **2026-11-24: the third round made** ("All of my notes are in"), items 108 to 117, in eleven lessons:
+  - lesson 1: the card `_Your FM-1` after `Good.` (21 steps);
+  - lesson 5, step 14; lesson 8, step 13 (`_Bass and kick`); lesson 9, steps 8 and 9; lesson 14, step 9 (a strip
+    at the top, one line); lesson 15, step 5; lesson 27, step 12;
+  - lesson 16: steps 2, 3, 4, 5, 7, 11 and 12, and the card `_Why copy a page?` after step 4 (17 steps);
+  - lesson 17: steps 4, 5, 6, 7, 10, 11 (`_Three at once`), 18 (the roll's speed as two moves of two) and 20;
+  - lessons 23 and 28: the card `_Three at once` before their three-at-once moves (14 and 18 steps).
+  - No step of these lessons jumps to a number, so the steps after a new card were simply renumbered.
+  - In the notes and the lessons' tester notes the tester is now "they" everywhere (some places said "he").
+  - The chip ("I think we might want to add something that says I have never tested this on a new chip--mine has
+    the old chip. the developer for Sloop says something similar"): a note in the installer page's first step,
+    after the beta note, and in the README's warning: `Tested on the original flash chip only. Teachie Beachie has
+    been tested on one FM-1, which has the original flash chip. FM-1s sold since fall 2026 have a newer chip, the
+    UCUN UC25HQ80, and neither Teachie Beachie nor SLOOP 3 has been tried on one yet. If yours is one of them, you
+    would be among the first: keep the backup this page makes.` SLOOP's own note on the chip is in step 2, seen only
+    by those who set up m-bootloader. Then "one FM-1" became "my FM-1", in the author's voice ("can you just change
+    the wording to my fm-1 instead of one FM-1"). And: "have a newer chip" became "can have a newer chip", and the
+    page's ": keep the backup this page makes" came out (the tester's own edits). A stronger note, warning of the
+    one new-chip FM-1 that did not start after m-bootloader was installed (m-bootloader's release notes, 1.3 to
+    3.0, which still list the chip as not tested), was offered and not wanted.
+  - The page installed on the real FM-1 and sent the lessons ("It is installed and it says the lessons are on it").
+    Then: "I don't like how it says installed before the lessons are on there. I basically want to give it less of
+    an emphasis on success until the lessons are one there", and of the step's words "the peach logo, then a card
+    that asks 'Ready for a lesson?' OCT+ starts a lesson, OCT- goes straight to SLOOP 3. One step is left: the
+    thirty lessons, just below. can we remove that". Step 6 now has two states:
+    - before the lessons: no check mark, `One step left: the lessons`, `The firmware is installed. Now send the
+      thirty lessons: it takes a few seconds.`, the two things to do and the button; SLOOP's tips, its links and
+      "Coming from SLOOP 2.8?" wait; the step is still the current one in the list at the left (SLOOP's page marked
+      it done when the install ended);
+    - once the FM-1 finds the lessons: the check mark, `Teachie Beachie is ready`, `The thirty lessons are on your
+      FM-1. Turn MASTER up gently, and have fun.`, what was sent, then the tips and links; the step marked done.
+    `tests/lessons_sim.js` checks that it says ready only then. Looked at in a browser, both states.
+  - **Public** ("ok lets make my github repo public and turn on github pages so I can send it to my friend"),
+    after a full install from the page on the real FM-1. The page is `docs/index.html` (and `docs/.nojekyll`, so
+    GitHub serves the folder as it is); `fw/build.sh` copies it there at each build. GitHub Pages serves `docs/` of
+    `main` at davydegravy.github.io/teachie-beachie-fm1. SLOOP's own page, `index.html` at the top, is left as it
+    is. Still SLOOP's: the issue templates in `.github/ISSUE_TEMPLATE/` (a bug report form for SLOOP 3, a help
+    link to SLOOP's page).
+  - The tester on what goes public: "Whatever I'm fine with those notes. and my github is davydegravy so david is
+    fine." So the history is left as it is: the old commits keep the trip's lines and the home folder's path.
+  116. **Lesson 17, the whole lesson** ("Lesson 17 is the lesson that I remember being really rough ... I'd like to go
+       over all of Lesson 17 like we just did for 16"). The fill note was rebuilt on 2026-11-20 (steps 10 to 15);
+       what is still hard, from its screens: the same keys mean three things by the button held ([GLO] + [11] a
+       fill while held, [GLO] + [12] a fill for a bar, [SEQ] + [12] + [OCT+] a fill note); "aim for the end of the
+       bar" gives nothing to aim at; step 10's `play [11]` comes right after [GLO] + [11] meant a fill; and the
+       roll's speed (step 18) is three at once if it is to be heard while turning. Suggested, all measured:
+       - step 4: `This beat hides four / snares, on [13] to [16]. // They only play / in a fill.`
+       - step 5: `Hold [GLO] and hold [11]: / the snares play.`
+       - step 6: `Again, when the light / reaches [13].`
+       - step 7: `[GLO] + [12] is easier. // It plays the fill for / one whole bar, then / stops by itself.`
+       - step 10: `Let go of [GLO]. / Pick the high tom: [11].`
+       - step 11, the three-fingers card, as item 115: `_Three at once / Hold [SEQ], hold [12], / then press
+         [OCT+]. // Use both hands. Keep / the first two down.`
+       - step 18, two moves of two in place of one of three: `Speed: [ARP] + [KNOB1]. / Hear it: [ARP] + [5]. /
+         [OCT+] when done.`
+       - step 20, a heading as the other cheat sheets have: `_Fills and rolls / Fill: [GLO] + [11] or [12]. /
+         Fill note: / [SEQ] + a key + [OCT+]. / Roll: [ARP] + a key.`
+       - unchanged: steps 2, 3, 8, 9, 12, 13, 14, 15, 16, 17, 19.
+       **Chosen:** all of them ("Yes, all of them").
 - **2026-11-21, lesson 12 on the real FM-1: "Again" once seemed to go to the end.** At `Keep them?` (step 13), the tester
   saw `Press [PLAY] to stop` and then the last card, which is the Keep path; Again should go back to `Press [REC]`
   (step 9). Not reproduced on the simulated FM-1: Again, and Replay on the Done card, worked every time, and every

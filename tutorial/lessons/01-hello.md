@@ -17,36 +17,38 @@
 4. **Card:** A number with a border / is a white key. / Count from the left. / [KEY 5], or just [5], / is blinking. // Tap it.
    - **Echo:** box 5
 5. **Reply:** Good.
-6. **Card:** SLOOP is a groovebox: / 5 tracks, a sequencer, / synths, effects, a mixer. / 153 sounds, 37 drum kits. // Write beats, record live, / add effects, mix, save.
+6. **Card:** _Your FM-1 / [MASTER] is the volume. // We recommend using / headphones. / The FM-1 has good / sound, but the speaker / is not great.
    - **OCT+:** Next
-7. **Strip:** SLOOP! Press [PLAY].
+7. **Card:** SLOOP is a groovebox: / 5 tracks, a sequencer, / synths, effects, a mixer. / 153 sounds, 37 drum kits. // Write beats, record live, / add effects, mix, save.
+   - **OCT+:** Next
+8. **Strip:** SLOOP! Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-8. **Strip:** 5 tracks, 1 song. Listen.
+9. **Strip:** 5 tracks, 1 song. Listen.
    - **Wait:** 4 bars
-9. **Strip:** Press [PLAY] to stop.
-   - **Do:** press PLAY
-   - **Until:** stopped
-10. **Reply:** Good.
-11. **Card:** _Repeat after me / Listen. Then play it back. // The blinking key shows / which key to press next.
+10. **Strip:** Press [PLAY] to stop.
+    - **Do:** press PLAY
+    - **Until:** stopped
+11. **Reply:** Good.
+12. **Card:** _Repeat after me / Listen. Then play it back. // The blinking key shows / which key to press next.
     - **Play:** A4 C5 E5
     - **Echo:** A4 C5 E5
-12. **Reply:** Good.
-13. **Card:** _Repeat after me / Listen. Then play it back.
+13. **Reply:** Good.
+14. **Card:** _Repeat after me / Listen. Then play it back.
     - **Play:** A4 B4 C5 D5 E5
     - **Echo:** A4 B4 C5 D5 E5
-14. **Reply:** Good.
-15. **Card:** _One more / Listen. / Then play it back.
+15. **Reply:** Good.
+16. **Card:** _One more / Listen. / Then play it back.
     - **Play:** RUN fast
-16. **Card:** _Your turn / Play it back.
+17. **Card:** _Your turn / Play it back.
     - **Echo:** A3 C4
-17. **Big:** Faster / Faster / FASTER
+18. **Big:** Faster / Faster / FASTER
     - **Keys:** silent
     - **Do:** tap E4 or any key
-18. **Play:** RUN fast
+19. **Play:** RUN fast
     - **Keys:** silent
-19. **Reply:** Nice.
-20. **Card:** Ha, sorry, I'm just / messing with you. / That was way too fast. / Nearly impossible / to play by hand. // But a sequencer can.
+20. **Reply:** Nice.
+21. **Card:** Ha, sorry, I'm just / messing with you. / That was way too fast. / Nearly impossible / to play by hand. // But a sequencer can.
     - **OCT+:** Next
 
 ## Screens

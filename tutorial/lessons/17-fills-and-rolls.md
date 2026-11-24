@@ -16,25 +16,25 @@
 3. **Strip:** Press [PLAY].
    - **Do:** press PLAY
    - **Until:** playing
-4. **Card:** This beat hides / four snares. // They only play / when you ask.
+4. **Card:** This beat hides four / snares, on [13] to [16]. // They only play / in a fill.
    - **OCT+:** Next
-5. **Strip:** Hold [GLO] and hold [11].
+5. **Strip:** Hold [GLO] and hold [11]: / the snares play.
    - **Do:** hold GLO, long box 11
    - **Until:** fill on
-6. **Strip:** Again. Aim for / the end of the bar.
+6. **Strip:** Again, when the light / reaches [13].
    - **Do:** hold GLO, long box 11
    - **Until:** fill on
-7. **Card:** [12] is easier. // It plays the fill for / one whole bar, then / stops by itself.
+7. **Card:** [GLO] + [12] is easier. // It plays the fill for / one whole bar, then / stops by itself.
    - **OCT+:** Next
 8. **Strip:** Hold [GLO], tap [12].
    - **Do:** hold GLO, tap box 12
    - **Wait:** 2 bars
 9. **Card:** Now a fill note / of your own. // A note can be marked / to play only in a fill.
    - **OCT+:** Next
-10. **Strip:** Pick the high tom: / play [11].
+10. **Strip:** Let go of [GLO]. / Pick the high tom: [11].
     - **Do:** tap box 11
     - **Page:** STEPS
-11. **Card:** The next move takes / three fingers. // Hold two things, / then press a third.
+11. **Card:** _Three at once / Hold [SEQ], hold [12], / then press [OCT+]. // Use both hands. Keep / the first two down.
     - **OCT+:** Next
 12. **Strip:** Hold [SEQ] + hold [12]. / The top says STEP 12.
     - **Do:** hold SEQ, hold box 12
@@ -54,13 +54,13 @@
     - **OCT+:** Next
 17. **Strip:** Hold [ARP], hold [5]: / a hat roll.
     - **Do:** hold ARP, long box 5
-18. **Strip top:** [ARP] + [KNOB1]: RATE, / how fast it rolls. / [OCT+] when done.
+18. **Strip top:** Speed: [ARP] + [KNOB1]. / Hear it: [ARP] + [5]. / [OCT+] when done.
     - **OCT+:** Done
     - **Robot:** hold ARP, turn KNOB 1 right 1, long box 5, let go
 19. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-20. **Card:** Fill: [GLO] + [11] or [12]. / Fill note: / [SEQ] + a key + [OCT+]. / Roll: [ARP] + a key.
+20. **Card:** _Fills and rolls / Fill: [GLO] + [11] or [12]. / Fill note: / [SEQ] + a key + [OCT+]. / Roll: [ARP] + a key.
     - **OCT+:** Done
 
 ## Screens
@@ -108,16 +108,16 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 - **Second play, the same day: step 10 again, 154 seconds.** The hint, STUCK? twice (TRY AGAIN both times), then
   done by hand after the step was explained in chat. "What does the box down mean?" The words that failed are
   THE BOX (the two steps before call the same key KEY 12) and DOWN (for "still held").
-- **His wording:** "Hold Glo + key2 + Oct+", then "hold Glo+ Hold key12 + press OCT+". Read here as the form he
+- **Their wording:** "Hold Glo + key2 + Oct+", then "hold Glo+ Hold key12 + press OCT+". Read here as the form they
   wants for this step, with SEQ meant ("yes I meant seq"): each thing with its own verb, joined by +, and KEY 12
   where the strip says BOX 12. A strip in that form:
   `HOLD [SEQ] + / HOLD KEY 12 + / PRESS [OCT+] ONCE.` Not applied, not measured yet.
-  He wrote GLO both times. If GLO is what the hand goes to, that is a finding too: steps 5, 7 and 11 are all
+  They wrote GLO both times. If GLO is what the hand goes to, that is a finding too: steps 5, 7 and 11 are all
   [GLO] and key 12, and this one is [SEQ] and the same key, so the step could say "THIS TIME [SEQ], NOT [GLO]".
 - **After the step ended the note went on to NO FILL.** At the lesson's end boxes 11 and 12 (open hat, high tom,
   hat) all said NO FILL: OCT+ was pressed again after the step had ended, with key 11 held too at some point.
   The step ends the instant FILL is reached, while the fingers are still down, and nothing says to stop.
-- **To revisit: "it is still a bit confusing", the most confusing lesson so far.** His idea: "introduce the idea
+- **To revisit: "it is still a bit confusing", the most confusing lesson so far.** Their idea: "introduce the idea
   of holding multiple buttons, and that sometimes you might need to hold in two buttons and then press a
   third." This is the first move in the course that takes three fingers; everything before is one hold and
   one tap. A sketch, nothing applied:
@@ -144,7 +144,7 @@ fill note above is still open.
   - What the FM-1 held at that moment: box 12 with its hat only, nothing written. So SEQ was not down when key
     12 went down: the key then plays its drum, the crash, and the drum's name at the top right changes to
     CRASH.
-  - He was reading the top of the screen for FILL, as the hint says (`THE TOP SAYS FILL`), and saw CRASH there.
+  - They were reading the top of the screen for FILL, as the hint says (`THE TOP SAYS FILL`), and saw CRASH there.
     The hint never says that hearing a drum means SEQ is not held.
   - The steps before use the same key with GLO for a fill ("fill on 12"); here the word FILL is on the screen
     only after OCT+, and nothing says what the screen shows on the way (with SEQ and the key down, the top
@@ -153,14 +153,14 @@ fill note above is still open.
     sounds), then `KEEP BOTH DOWN. / PRESS [OCT+] ONCE.` (the top says FILL), and a hint for the wrong turn:
     `HEAR A CRASH? [SEQ] WAS NOT DOWN. HOLD [SEQ] FIRST.`
 - **The same play, what the log shows.** The first time through, the fill note took 292 seconds and was ended by
-  SHOW ME. He played the lesson again at once (AGAIN on the DONE card):
+  SHOW ME. They played the lesson again at once (AGAIN on the DONE card):
   - The fill note was done by hand in 40 seconds, after the order was spelled out in chat (SEQ first and kept
     down, then the key, then OCT+ once).
-  - He did not know it had worked: "I'm still having issues with the step when I am supposed to hold seq hold
+  - They did not know it had worked: "I'm still having issues with the step when I am supposed to hold seq hold
     key 12 and then press Oct+." The step ended the instant FILL was reached, with no word, and the next strip,
     `HEAR IT: [GLO] AND KEY 12.`, looks like the same move. That step then took 96 seconds and was ended by
     SHOW ME.
-  - He went on doing the move: box 13 was marked too (its kick, clap and snare all FILL), so the beat lost a
+  - They went on doing the move: box 13 was marked too (its kick, clap and snare all FILL), so the beat lost a
     kick outside the fill.
   - So the rework needs a plain stop after the mark (`FILL. LET GO NOW.` as a reply, or a card with an answer),
     and the next step has to say that the hand changes: `NOW [GLO], NOT [SEQ]: / HOLD [GLO], TAP KEY 12.`

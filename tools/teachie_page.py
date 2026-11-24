@@ -70,8 +70,13 @@ RULES = [
     ('The M-VAVE FM-1 running TEACHIE BEACHIE', 'The M-VAVE FM-1'),
     # after the install: the peach and the start card, not SLOOP's sailboat; and where the lessons come from
     ('The FM-1 restarts on TEACHIE BEACHIE and the sailboat logo draws itself in. Turn <b>MASTER</b> up gently, and have fun.',
-     'The FM-1 restarts on Teachie Beachie: the peach logo, then a card that asks "Ready for a lesson?" <kbd>OCT+</kbd> starts '
-     'a lesson, <kbd>OCT-</kbd> goes straight to SLOOP 3. One step is left: the thirty lessons, just below.'),
+     '<span class="tp-pend">The firmware is installed. Now send the thirty lessons: it takes a few seconds.</span>'
+     '<span class="tp-ok">The thirty lessons are on your FM&#8209;1. Turn <b>MASTER</b> up gently, and have fun.</span>'),
+    # its title: no "installed" until the lessons are on the FM-1 too
+    ('data-t="h6">TEACHIE BEACHIE is installed</h2>', 'data-t="h6"><span class="tp-pend">One step left: the lessons</span>'
+     '<span class="tp-ok">Teachie Beachie is ready</span></h2>'),
+    # the step, before the lessons: no check mark, no tips (the look, below, and web/teachie_lessons.js)
+    ('<section class="pane hide" id="p6"', '<section class="pane hide tp-pending" id="p6"'),
     # the sixth step in the list at the left: the lessons (SLOOP's: a first minute of play)
     ('data-t="r6">Play<small>Your first minute</small>', 'data-t="r6">Lessons<small>A few seconds</small>'),
     # the first start: TEACHIE BEACHIE leaves out SLOOP 3's opening of a SLOOP 2.8 project (TP_SLOOP28_PROJECT in fw/main.c)
@@ -231,6 +236,15 @@ details.more{background:var(--bg2);border-color:var(--line)}details.more>summary
 #p6.tp-only .big-ok,#p6.tp-only #h6,#p6.tp-only>.sub{display:none}
 #p6.tp-only .tp-les{border-top:0;margin-top:0;padding-top:0}
 #p6.tp-only #tpLesT{font-size:28px;font-weight:800;margin:6px 0 4px}
+/* step 6: until the lessons are on the FM-1 (tp-pending), no check mark, its title and words say what is left, and
+   SLOOP's tips and links wait; after, the check mark and "ready". After an install the step's title says it all, so
+   the lessons' own title and first words show only when the step is opened by itself (tp-only); once they are sent,
+   what to do to send them goes, and what was done stays */
+#p6 .tp-ok,#p6.tp-pending .tp-pend{display:inline}#p6.tp-pending .tp-ok,#p6:not(.tp-pending) .tp-pend{display:none}
+#p6.tp-pending .big-ok,#p6.tp-pending .cards,#p6.tp-pending>.buttons,#p6.tp-pending>.note.info{display:none!important}
+#p6:not(.tp-only) #tpLesT,#p6:not(.tp-only) .tp-les-intro,#p6:not(.tp-only) .tp-les .eyebrow{display:none}
+#p6:not(.tp-pending) .tp-les .steps,#p6:not(.tp-pending) .tp-les .buttons{display:none}
+#p6:not(.tp-only) .tp-les{border-top:0;margin-top:0;padding-top:0}
 /* help, the footer, the message that pops up */
 .faq details{background:var(--panel);border-color:var(--line)}.faq details>div{color:var(--ink)}
 footer{border-top-color:var(--line2);color:var(--dim)}footer a{color:var(--ink)}
@@ -257,7 +271,7 @@ js = js.replace("__TP_PACK__", base64.b64encode(data).decode()).replace("__TP_HE
 LESSONS = """<div class="tp-les" id="tpLes">
 <div class="eyebrow">Step 6 of 6</div>
 <h3 id="tpLesT">The lessons</h3>
-<p>The thirty lessons are a small pack of their own. Send them to the FM-1 now: it takes a few seconds.</p>
+<p class="tp-les-intro">The thirty lessons are a small pack of their own. Send them to the FM-1 now: it takes a few seconds.</p>
 <ol class="steps">
 <li>The FM-1 is on and plugged in. Its screen shows Teachie Beachie's card or SLOOP 3, not the menu with <b>MIDI MODE</b>.</li>
 <li>Click <b>Send the lessons</b>. If the browser asks to control your MIDI devices, click <b>Allow</b>.</li>
@@ -268,7 +282,6 @@ LESSONS = """<div class="tp-les" id="tpLes">
 <div class="hide" id="tpPick"><p><b>All four sample slots of this FM-1 hold samples.</b> The lessons need one of them. Choose the slot to replace:</p><div class="choices" id="tpSlots" role="group" aria-label="Sample slots"></div></div>
 <div class="device hide" id="tpDone"><div class="dot"></div><div><b>The lessons are on your FM-1</b><div class="meta" id="tpMeta"></div></div></div>
 <div class="note bad hide" id="tpErr"></div>
-<p>Then turn <b>MASTER</b> up gently, and have fun.</p>
 </div>
 """
 ONLY = """<div class="note info"><b>Teachie Beachie already on your FM-1?</b><span>To get this page's lessons without installing again, <a href="#p6" id="tpOnly">send the lessons only</a>.</span></div>
@@ -334,6 +347,16 @@ SHOW = '<section class="tp-show" aria-label="What the lessons look like">\n<div 
 
 """.replace("__HOME__", HOME)
 new = 0
+# the chip: tried on one FM-1 so far, which has the original flash chip (0x856014); FM-1s sold since fall 2026 have
+# another (SLOOP's own note says so in step 2, which only those setting up m-bootloader see). Said in step 1, after
+# the beta note, where everyone reads it
+CHIP = ('<div class="note warn"><b>Tested on the original flash chip only</b><span>Teachie Beachie has been tested on '
+        'my FM&#8209;1, which has the original flash chip. FM&#8209;1s sold since fall 2026 can have a newer chip, the '
+        '<b>UCUN UC25HQ80</b>, and neither Teachie Beachie nor SLOOP 3 has been tried on one yet. If yours is one of '
+        'them, you would be among the first.</span></div>\n')
+m = re.search(r'<div class="note warn"><b data-t="betaT">.*?</div>\n', t, flags=re.S)
+if m: t = t[:m.end()] + CHIP + t[m.end():]; new += 1
+else: missed.append("step 1's beta note, after which the chip's note goes")
 a = '<ul class="facts">'                                 # (in the top's own block, after the introduction: the second column)
 if a in t: t = t.replace(a, '<div class="tp-shots tp-side" aria-label="More of the lessons">\n' + figures(SIDE) + "</div>\n" + a, 1); new += 1
 else: missed.append("the top's facts, before which the six screens beside the introduction go")
@@ -353,7 +376,7 @@ else: missed.append("step 1's notes for SLOOP's users")
 t, n = re.subn(r'(data-t="e[1-5]">Step [1-5]) of 5<', r"\1 of 6<", t)
 if n == 5: new += 1
 else: missed.append("the steps' count (%d of 5)" % n)
-if new != 5: print("teachie_page: the page for a newcomer is not whole (%d of 5)" % new, file=sys.stderr)
+if new != 6: print("teachie_page: the page for a newcomer is not whole (%d of 6)" % new, file=sys.stderr)
 
 open(path, "w", encoding="utf-8").write(t)
 for s in missed: print("teachie_page: not found (SLOOP reworded it?):", s, file=sys.stderr)

@@ -119,6 +119,7 @@ async function tpSend(slot) {
     try { await tpTry(TP_GUIDE, [5]); } catch (e) {}    /* the start's card again, in the lessons' own letters now */
     $('tpMeta').textContent = TP_N + ' lessons, in sample slot USR' + (k + 1) + '. On the FM-1, press OCT+ to start.';
     show('tpDone', true); log(TP_N + ' lessons on the FM-1, in sample slot USR' + (k + 1) + '.', 'ok');
+    tpReady();
   } catch (e) {
     show('tpProg', false);
     problem('tpErr', (sent ? 'The lessons were not all sent: ' : 'The FM-1 did not answer: ') + (e && e.message || e) + '.', 'Leave the FM-1 on and plugged in, and click Send the lessons again.');
@@ -126,7 +127,14 @@ async function tpSend(slot) {
 }
 $('tpSend').onclick = () => { tpSend(); };
 /* the lessons alone, for a FM-1 that runs Teachie Beachie already: the last step opened, without its words about the install */
+/* the last step says "ready", and is marked done at the left, only once the lessons are on the FM-1 (SLOOP's page
+ * marks it done when the install ends: tpStep puts it back) */
+function tpReady() {
+  const p = $('p6'); if (p.classList) { p.classList.remove('tp-pending'); p.classList.remove('tp-only'); }
+  stepState(6, 'done'); if (p.scrollIntoView) p.scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+function tpStep() { const p = $('p6'); if (p.classList && p.classList.contains('tp-pending')) stepState(6, step === 6 ? 'now' : ''); }
 const tpGo = go;
-go = n => { const p = $('p6'); if (p.classList && (n !== 6 || done6)) p.classList.remove('tp-only'); tpGo(n); };
+go = n => { const p = $('p6'); if (p.classList && (n !== 6 || done6)) p.classList.remove('tp-only'); tpGo(n); tpStep(); setTimeout(tpStep, 0); };
 $('tpOnly').onclick = e => { if (e && e.preventDefault) e.preventDefault(); if (busy()) return; const p = $('p6'); if (p.classList) p.classList.add('tp-only'); go(6); };
 if (W.addEventListener) W.addEventListener('beforeunload', e => { if (TP.sending) { const s = 'The lessons are being sent. Leaving now interrupts it.'; e.preventDefault(); e.returnValue = s; return s; } });

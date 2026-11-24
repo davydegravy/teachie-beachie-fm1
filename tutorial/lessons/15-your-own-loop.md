@@ -20,7 +20,7 @@
    - **Until:** drums has 4 notes or more
    - **Hint:** Not yet. The beat needs 4 hits or more.
    - **Robot:** tap box 1, hold SEQ, tap box 1 5 9 13, let go
-5. **Strip:** Now add a bass line, / chords or a tune. / [OCT+] when ready.
+5. **Strip:** Now add another track. / [OCT+] when ready.
    - **OCT+:** Ready
    - **Until:** 2 tracks or more
    - **Hint:** Not yet. Write something on a second track first.

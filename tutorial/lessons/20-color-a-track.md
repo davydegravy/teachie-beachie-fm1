@@ -107,7 +107,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   just imagine my kids having no idea what is happening in this step." The strips name a target (`FILT GOES PAST
   LP 40`) without ever saying what LP and HP are or that OFF is the middle of one long scale. The knob really
   runs LP 100 .. OFF .. HP 100 (`S.mfilt`, -100 to 100).
-  Three cards drawn on the simulated FM-1 for him to choose from (`tutorial/lesson-20-filter-card-options.png`):
+  Three cards drawn on the simulated FM-1 for them to choose from (`tutorial/lesson-20-filter-card-options.png`):
   - A, the knob as a line: `THE FILTER KNOB: / LP 100 < OFF > HP 100 / LEFT IS LP: DARK. / MIDDLE IS OFF. / RIGHT
     IS HP: THIN.`
   - B, three places: `ONE KNOB, THREE PLACES: / FAR LEFT: LP 100, DARK. / MIDDLE: OFF, NORMAL. / FAR RIGHT: HP 100,
@@ -115,7 +115,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   - C, by what it sounds like: `LEFT IS LP: DARK, LIKE MUSIC NEXT DOOR. / RIGHT IS HP: THIN, LIKE A TINY SPEAKER. /
     IN THE MIDDLE IT IS OFF.`
   It would go after the card that says where the filter is (step 10) and before the first turn. Not applied.
-- **He chose C, to be made better:** "I think C is the most useful but lets try to make it better. They know we
+- **They chose C, to be made better:** "I think C is the most useful but lets try to make it better. They know we
   are talking about the filter knob?" The card before it does say so, but C alone did not. Second round, drawn
   the same way:
   - the card before it ends on the knob's name and no longer says dark and thin (C says that now):
@@ -124,7 +124,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
     THIN, LIKE A TINY SPEAKER. / MIDDLE IS OFF.`
   - the same with the numbers: `... / MIDDLE IS OFF. / 100 IS THE MOST.` (seven lines, the card is full)
   Other pictures for dark that fit: `LIKE UNDER WATER`. Not applied.
-- **Applied the same day.** His choices: the card without the numbers, and for the dark side "LEFT IS LP: ONLY THE
+- **Applied the same day.** Their choices: the card without the numbers, and for the dark side "LEFT IS LP: ONLY THE
   LOW SOUNDS STAY." The new card is step 11: `THE FILTER KNOB: / LEFT IS LP: ONLY THE LOW SOUNDS STAY. / RIGHT IS
   HP: THIN, LIKE A TINY SPEAKER. / MIDDLE IS OFF.` The card before it (step 10) ends `... KNOB 1 IS THE FILTER
   KNOB.` 18 steps; the four turns are steps 12 to 15. The HP line says the same thing the other way round

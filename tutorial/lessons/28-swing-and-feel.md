@@ -33,25 +33,27 @@
 9. **Strip:** Play [5]: the hat.
    - **Do:** tap box 5
    - **Page:** STEPS
-10. **Strip top:** Hold [SEQ] + [4]: / [KNOB2] to HARD.
+10. **Card:** _Three at once / Hold [SEQ], hold [4], / then turn [KNOB2]. // Use both hands. Keep / the first two down.
+    - **OCT+:** Next
+11. **Strip top:** Hold [SEQ] + [4]: / [KNOB2] to HARD.
     - **Do:** hold SEQ, hold box 4, turn KNOB 2 right 2
     - **Until:** drums has 1 hard notes or more
     - **Hint:** Keep holding both. LEVEL is the 2nd dial.
-11. **Strip top:** Now [8], [12], [16].
+12. **Strip top:** Now [8], [12], [16].
     - **Do:** hold SEQ, hold box 8, turn KNOB 2 right 2, let go, hold SEQ, hold box 12, turn KNOB 2 right 2, let go, hold SEQ, hold box 16, turn KNOB 2 right 2
     - **Until:** drums has 4 hard notes or more
     - **Hint:** [SEQ], hold the box, / [KNOB2] right. / One box at a time.
-12. **Reply:** It breathes.
-13. **Card:** Playing by hand has / soft and hard too. // Hold [OCT-] and play / a drum: soft. / Hold [OCT+]: hard.
+13. **Reply:** It breathes.
+14. **Card:** Playing by hand has / soft and hard too. // Hold [OCT-] and play / a drum: soft. / Hold [OCT+]: hard.
     - **OCT+:** Next
-14. **Strip:** Hold [OCT-], play [3].
+15. **Strip:** Hold [OCT-], play [3].
     - **Do:** hold OCT-, tap box 3
-15. **Strip:** Now hold [OCT+], / play it again.
+16. **Strip:** Now hold [OCT+], / play it again.
     - **Do:** hold OCT+, tap box 3
-16. **Strip:** Press [PLAY] to stop.
+17. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-17. **Card:** _Swing and groove / Swing: [KNOB1] on / the TRACKS page. / Loud or soft box: / [SEQ] + a box, [KNOB2]. / Soft hit: hold [OCT-]. / Hard hit: hold [OCT+].
+18. **Card:** _Swing and groove / Swing: [KNOB1] on / the TRACKS page. / Loud or soft box: / [SEQ] + a box, [KNOB2]. / Soft hit: hold [OCT-]. / Hard hit: hold [OCT+].
     - **OCT+:** Done
 
 ## Screens

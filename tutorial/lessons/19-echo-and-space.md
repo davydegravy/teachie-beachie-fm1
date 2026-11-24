@@ -81,7 +81,7 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 - **Step 9 cannot be done by looking: the card hides the page it asks for.** "The echo has a page of its own, tap
   [FX] until the screen says DELAY. There is no button to advance at the bottom of the page; when I press OCT+
   nothing happens, if I press FX nothing happens." 119 seconds, STUCK? twice, ended by SHOW ME. FX was working:
-  each tap went to the next effects page, behind a card that fills the screen. He could not see where he was,
+  each tap went to the next effects page, behind a card that fills the screen. They could not see where they were,
   nor when to stop, and a card with nothing at its bottom looks broken.
   The step has to be a strip, so the page's name shows: `TAP [FX] UNTIL THE / SCREEN SAYS DELAY.` Not applied.
 

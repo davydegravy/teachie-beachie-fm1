@@ -32,7 +32,7 @@
    - **Do:** turn KNOB 2 left 5
    - **Until:** chords level below 76
    - **Page:** TRACKS
-9. **Strip:** Set all five by ear. / [OCT+] when it's right.
+9. **Strip top:** Mix by ear, then [OCT+].
    - **OCT+:** Done
    - **Robot:** turn KNOB 2 left 3
 10. **Strip:** Press [PLAY] to stop.

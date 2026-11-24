@@ -63,6 +63,9 @@ node tests/install_sim.js $O/installer-fm1.html $O/fw.area | tail -1
 # (Teachie Beachie: the page's last step, the lessons, against a fake FM-1 and the PC twin; the pack inside is tools/mkcourse.py's)
 python3 tools/mkcourse.py build/course.bin > /dev/null
 node tests/lessons_sim.js $O/installer-fm1.html build/course.bin | tail -1
+# (Teachie Beachie: the page as GitHub Pages serves it, from docs/: davydegravy.github.io/teachie-beachie-fm1. SLOOP's
+# own page stays at the top, index.html, untouched, so a merge of a new SLOOP never clashes)
+cp $O/installer-fm1.html docs/index.html
 # the web editor's FM6 bank and SYN kits (tests/editor_test.js)
 node tests/editor_test.js web/editor.html | tail -1
 # the whole editor in Chromium against the PC twin (tests/editor_e2e.js; EDITOR_E2E=0 to skip)

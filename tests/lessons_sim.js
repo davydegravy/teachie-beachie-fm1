@@ -54,7 +54,7 @@ function open(ports, win) {
   const api = new Function('document', 'navigator', 'atob', 'window', js + '\nreturn { TP, send: tpSend };')(document, navigator, atob, win || {});
   const shown = id => !!els[id] && !els[id].classList.contains('hide');
   async function send() { els.tpSend.onclick(); await sleep(20); while (api.TP.busy) await sleep(20); }
-  return { els, logs, api, shown, send };
+  return { els, logs, api, shown, send, el: id => document.getElementById(id) };
 }
 
 /* a fake FM-1 running Teachie Beachie: its four sample slots (how many samples each holds), its course */
@@ -113,7 +113,9 @@ const said = (p, re) => p.logs.some(l => re.test(l));
 
   /* 1. a FM-1 with empty slots: the last one, the pack whole, the start's card before and after */
   let d = fm1(), p = open({ 'SLOOP 3': d });
+  p.el('p6').classList.add('tp-pending');                   /* (as the page has it: nothing says "ready" yet) */
   await p.send();
+  check(!p.el('p6').classList.contains('tp-pending') && p.el('st6').className === 'done', 'empty slots: the last step says ready, and is marked done, only now');
   check(p.shown('tpDone') && !p.shown('tpErr'), 'empty slots: done');
   check(d.written[3] && same(d.written[3].data, PACK) && same(d.written[3].head, HEAD), 'empty slots: the pack whole in the last slot');
   check(Object.keys(d.written).length === 1, 'empty slots: one slot written');

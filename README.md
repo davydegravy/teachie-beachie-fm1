@@ -24,6 +24,10 @@ like to learn how to use a groovebox and the FM-1, I'd encourage you to give Tea
 > **⚠ A beta, and unofficial.** Teachie Beachie runs SLOOP 3, which is a public beta, and adds new code of its own.
 > It is not made, endorsed or supported by M-VAVE or by the SLOOP project. Installing third-party firmware is at
 > your own risk. **Keep the backup the installer makes.**
+>
+> **Tested on the original flash chip only.** Teachie Beachie has been tested on my FM-1, which has the original
+> flash chip. FM-1s sold since fall 2026 can have a newer chip, the UCUN UC25HQ80, and neither Teachie Beachie nor
+> SLOOP 3 has been tried on one yet. If yours is one of them, you would be among the first.
 
 ![Twelve screens of the lessons, as the FM-1 shows them: the card of the whole course, then lessons 1 to 30, the lesson's words in a strip over SLOOP's own page](docs/teachie-beachie-lessons.png)
 

@@ -38,7 +38,7 @@
 11. **Strip:** [GLO] and [5]: no drums.
     - **Do:** hold GLO, tap box 5
     - **Until:** drums is muted
-12. **Strip:** Wait for it ... / then [5] again.
+12. **Strip:** Wait for it ... / then [GLO] + [5].
     - **Do:** hold GLO, tap box 5
     - **Until:** nothing muted
 13. **Strip top:** Mutes, fills, filter. / [OCT+] when done.

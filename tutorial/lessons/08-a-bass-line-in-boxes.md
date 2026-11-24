@@ -41,7 +41,7 @@
 12. **Strip:** Hold [SEQ]. Put it on [16].
     - **Do:** hold SEQ, tap box 16
     - **Until:** bass has notes on box 16
-13. **Card:** Listen for where the bass and the kick meet, and where the bass slips between.
+13. **Card:** _Bass and kick / The kick is on / 1, 5, 9 and 13. / Your bass is on 1 too, / then lands in between. // That is what makes / it groove.
     - **OCT+:** Next
 14. **Card:** Make it your own. / Pick a note: play its key. / Hold [SEQ], tap a box: / it is added. / Tap again: it is removed.
     - **OCT+:** Start

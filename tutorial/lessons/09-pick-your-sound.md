@@ -25,12 +25,12 @@
 6. **Card:** Sounds come in families: bass, keys, organ, pad, lead, pluck and more. / The SOUNDS page shows a whole family.
    - **OCT+:** Next
 7. **Setup:** page TRACKS
-8. **Strip:** Tap [EDIT] until you see 16 sound names.
+8. **Strip:** Tap [EDIT] until you see / sound names.
    - **Do:** press EDIT
    - **Until:** page is SOUNDS
    - **Hint:** It is the last of the edit pages. Keep tapping.
    - **Robot:** press EDIT, press EDIT, press EDIT, press EDIT, press EDIT, press EDIT
-9. **Strip:** Each white key is a sound. Tap one.
+9. **Strip:** Each name is on / a white key. Tap one.
    - **Do:** tap box 3
    - **Until:** lead sound changed
    - **Page:** SOUNDS

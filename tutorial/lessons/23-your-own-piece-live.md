@@ -22,21 +22,23 @@
 5. **Strip:** You are on page 2. Change it. / [OCT+] when ready.
    - **OCT+:** Ready
    - **Robot:** tap box 1, hold SEQ, tap box 3, let go
-6. **Strip:** Now mark one note / as a fill note.
+6. **Card:** _Three at once / Hold [SEQ], hold a key, / then press [OCT+]. // Use both hands. Keep / the first two down.
+   - **OCT+:** Next
+7. **Strip:** Now mark one note / as a fill note.
    - **Until:** drums has 1 fill notes or more
    - **Hint:** Hold [SEQ] + hold a key, then press [OCT+] once.
    - **Robot:** tap box 11, hold SEQ, hold box 12, press OCT+, let go
-7. **Card:** Now play it live. // Change pages, drop in / fills, play the effects. / A minute or so, / like a show.
+8. **Card:** Now play it live. // Change pages, drop in / fills, play the effects. / A minute or so, / like a show.
    - **OCT+:** Go
-8. **Setup:** play
-9. **Strip:** Play your live show. / [OCT+] when it's over.
-   - **OCT+:** The end
-10. **Setup:** stop
-11. **Strip:** Save it: / press [SAVE] twice.
+9. **Setup:** play
+10. **Strip:** Play your live show. / [OCT+] when it's over.
+    - **OCT+:** The end
+11. **Setup:** stop
+12. **Strip:** Save it: / press [SAVE] twice.
     - **Do:** press SAVE twice
     - **Until:** says PROJECT SAVED
-12. **Setup:** page TRACKS
-13. **Card:** Part 3 is done. // Now you can play / the FM-1 live. // Next: make a song.
+13. **Setup:** page TRACKS
+14. **Card:** Part 3 is done. // Now you can play / the FM-1 live. // Next: make a song.
     - **OCT+:** Done
 
 ## Screens
