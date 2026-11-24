@@ -81,10 +81,9 @@ CCOLD static void c_key(int k, int down)            /* a key played from here, a
 CCOLD static void c_goto(int pg)                     /* a page of SLOOP, as its button would open it */
 {
     if (pg == PG_NOTES) { ne_step = 0; ne_sub = 0; }
-    for (int i = 0; i < 6; i++) if (EDIT_PG[i] == pg) edit_page = i;
-    for (int i = 0; i < NFX_PG; i++) if (FX_PG[i] == pg) fx_page = i;
-    for (int i = 0; i < 3; i++) if (LFO_PG[i] == pg) lfo_page = i;
-    if (pg == PG_ENV || pg == PG_ENVDEST) env_page = pg - PG_ENV;
+    {   int b = group_of(pg); const uint8_t *l; int n = grp_of(b, &l);   /* (SLOOP 3.4: each button remembers its page among its own, grp_last) */
+        for (int i = 0; i < n; i++) if (l[i] == pg) grp_last[b] = (uint8_t)i;
+    }
     vis_on = 0; S.vis_ring = 0; sticky = pg;
 }
 CCOLD static void c_pick(int pad) { last_notes[C_DRUM] = pad; last_chord[C_DRUM][0] = (uint8_t)pad; last_chord_n[C_DRUM] = 1; }
