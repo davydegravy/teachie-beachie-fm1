@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Help installing SLOOP 3
-    url: https://isod89.github.io/sloop3-fm1/#help
-    about: The installer's help answers what can go wrong (no FM-1 found, a stopped install, the backup...).
-  - name: SLOOP 2.8 (the stable version)
-    url: https://github.com/isod89/sloop-fm1/issues
-    about: Problems with SLOOP 2.8 go to its own repository.
+  - name: Help installing Teachie Beachie
+    url: https://davydegravy.github.io/teachie-beachie-fm1/#help
+    about: The installer page's help answers what can go wrong (no FM-1 found, a stopped install, the backup...).

@@ -1,11 +1,11 @@
 name: Idea
-description: Something SLOOP 3 could do.
-labels: ["idea"]
+description: A lesson you'd like, a card that could be clearer, or something the course could do.
+labels: ["enhancement"]
 body:
   - type: textarea
     id: idea
     attributes:
       label: The idea
-      description: What you would like to do on the FM-1, and how you would expect it to work.
+      description: What you'd like a lesson to teach or do, or which card confused you and how it could read.
     validations:
       required: true

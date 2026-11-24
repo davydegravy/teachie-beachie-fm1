@@ -150,8 +150,8 @@ kbd{background:transparent;color:var(--ink);border:1.5px solid var(--ink);border
 /* (as wide as the sections under it, on the six columns of the screens below. The logo, small, on a row of its own
    above everything. Then two columns: the title, a line under it and the words over the first four; six screens of the
    lessons over the last two, two across, so each is exactly as large as the six under them and stands over them.
-   On a small screen: the logo and the title in the middle, the words under them, and the six screens beside them left
-   out: six more follow just below) */
+   On a small screen: the logo and the title in the middle, the words under them, then the twelve screens in order, the
+   six that were beside the words first, in one grid with the six below) */
 .hero>div{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));column-gap:12px;align-items:start}
 .hero .tp-logo{grid-column:1 / -1;grid-row:1;display:block;width:124px;height:124px;margin:0 0 14px -6px}
 .hero h1{grid-column:1 / span 4;grid-row:2;padding-right:44px;font-size:38px;font-weight:700;margin:0;letter-spacing:-.02em;text-wrap:balance}
@@ -182,14 +182,14 @@ kbd{background:transparent;color:var(--ink);border:1.5px solid var(--ink);border
 .tp-ai-more{font-size:15.5px;margin:12px 0 0}
 @media(max-width:1000px){.tp-three{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.tp-three{grid-template-columns:1fr}}
-@media(max-width:900px){.tp-shots{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:480px){.tp-shots{grid-template-columns:repeat(2,1fr)}.hero .tp-tag{font-size:19px}}
+@media(max-width:900px){.tp-shots,.tp-shots.tp-side{grid-template-columns:repeat(3,1fr);row-gap:12px}.tp-show{margin-top:2px}}
+@media(max-width:480px){.tp-shots,.tp-shots.tp-side{grid-template-columns:repeat(2,1fr)}.hero .tp-tag{font-size:19px}}
 details.tp-sloop{margin:16px 0}details.tp-sloop .note{margin:10px 0}
 .chk{background:var(--panel);border-color:var(--line2);color:var(--ink)}
 .chk i{background:var(--ink);color:var(--paper)}
 .chk.no{border-color:var(--ink);border-style:dashed;color:var(--ink)}.chk.no i{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
 .blocker{text-align:left;border:2px solid var(--ink);background:var(--panel)}.blocker b{color:var(--ink)}
-@media(max-width:900px){.hero{padding-top:26px;text-align:center}.hero>div{display:block}.hero h1{font-size:34px;margin-top:6px}.hero .tp-logo{width:160px;height:160px;margin:0 auto 4px}.hero h1,.hero .tp-tag,.hero .lead{padding-right:0}.hero .lead{text-align:left}.hero .tp-side{display:none}}
+@media(max-width:900px){.hero{padding-top:26px;text-align:center}.hero>div{display:block}.hero h1{font-size:34px;margin-top:6px}.hero .tp-logo{width:160px;height:160px;margin:0 auto 4px}.hero h1,.hero .tp-tag,.hero .lead{padding-right:0}.hero .lead{text-align:left}.hero .tp-side{margin-top:26px}}
 /* the steps */
 .wizard{margin-top:30px}
 .rail{background:var(--panel);border-color:var(--line);top:20px}

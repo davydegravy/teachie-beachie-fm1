@@ -1,47 +1,38 @@
-name: Bug report (SLOOP 3 beta)
-description: Something in SLOOP 3 doesn't work as it should.
-title: "[3.x.x] "
-labels: ["bug", "beta"]
+name: Bug report
+description: Something in Teachie Beachie doesn't work as it should, in a lesson or when installing.
+title: "[Lesson ] "
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for testing the SLOOP 3 public beta! A good report gets fixed fast.
-        Using **SLOOP 2.8**? Please report it in [its own repository](https://github.com/isod89/sloop-fm1/issues) instead.
-  - type: input
-    id: version
-    attributes:
-      label: SLOOP version
-      description: Tap HOME on the FM-1: the version is on the PROJECT page.
-      placeholder: "3.3.6"
-    validations:
-      required: true
+        Thank you for trying Teachie Beachie! The lesson, the step and the words on the screen are what help most.
   - type: dropdown
     id: area
     attributes:
       label: Where
       options:
+        - A lesson
         - The installer page
-        - The sound (engines, effects, kits)
-        - The sequencer (patterns, steps, recording, song)
-        - Saving and projects
-        - The panel (buttons, keys, knobs, lights)
-        - The screen
-        - The web editor
-        - MIDI or USB audio
-        - A freeze or a restart
+        - Sending the lessons
+        - SLOOP 3 itself, with no lesson running
         - Something else
     validations:
       required: true
+  - type: input
+    id: lesson
+    attributes:
+      label: Lesson and step
+      description: The lesson's number, and the step if you know it.
+      placeholder: "Lesson 16, the card that says: Why copy a page?"
   - type: textarea
     id: what
     attributes:
       label: What happened
-      description: What you did, step by step, what you expected, and what happened instead.
+      description: What you did, what you expected, and what happened instead.
       placeholder: |
-        1. ...
-        2. ...
-        Expected: ...
+        I did: ...
+        I expected: ...
         Instead: ...
     validations:
       required: true
@@ -49,19 +40,24 @@ body:
     id: screen
     attributes:
       label: What the screen showed
-      description: |
-        Any message, exactly as written. After a freeze or a restart, the first message says where it was (FROZE IN … / RESTART IN …): please copy it.
-        HOME also shows the load (CPU, PEAK, LATE). A photo helps.
+      description: The words on the card or strip, or any message, exactly as written. A photo helps.
   - type: dropdown
-    id: often
+    id: chip
     attributes:
-      label: How often
+      label: Your FM-1's flash chip
+      description: M-Flasher shows it as FLASH CHIP.
       options:
-        - Every time
-        - Sometimes
-        - Once
+        - I don't know
+        - The original (0x856014)
+        - The newer UCUN UC25HQ80 (0xB36014)
+  - type: input
+    id: version
+    attributes:
+      label: Teachie Beachie version
+      description: Shown in step 5 of the installer page, next to Firmware.
+      placeholder: "v0.1 · SLOOP 3.3.7"
   - type: input
     id: computer
     attributes:
-      label: Computer and browser (for the installer or the editor)
-      placeholder: "Windows 11, Chrome 131"
+      label: Computer and browser (for the installer page)
+      placeholder: "macOS, Chrome"

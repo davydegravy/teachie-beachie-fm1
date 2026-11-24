@@ -1761,8 +1761,14 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
     after a full install from the page on the real FM-1. The page is `docs/index.html` (and `docs/.nojekyll`, so
     GitHub serves the folder as it is); `fw/build.sh` copies it there at each build. GitHub Pages serves `docs/` of
     `main` at davydegravy.github.io/teachie-beachie-fm1. SLOOP's own page, `index.html` at the top, is left as it
-    is. Still SLOOP's: the issue templates in `.github/ISSUE_TEMPLATE/` (a bug report form for SLOOP 3, a help
-    link to SLOOP's page).
+    is. The issue forms were still SLOOP's; then ("yes make the bug report form go to Teachie Beachie") they are
+    Teachie Beachie's own: a bug report (where, lesson and step, what happened, the screen's words, the flash chip,
+    the version, the computer), an idea, and a help link to the page's own help. Nothing points people with an old
+    SLOOP 3.3.7 to SLOOP's issues.
+  - **All twelve screens on a phone** ("on Mobile it hides the first six screenshots. do we have to do that? I'd
+    prefer if we didnt"). On a phone and a tablet the six beside the words now come under them, in one grid with
+    the six below, in the lessons' order (two across on a phone, three on a tablet). Looked at in a browser at the
+    three widths.
   - The tester on what goes public: "Whatever I'm fine with those notes. and my github is davydegravy so david is
     fine." So the history is left as it is: the old commits keep the trip's lines and the home folder's path.
   116. **Lesson 17, the whole lesson** ("Lesson 17 is the lesson that I remember being really rough ... I'd like to go
