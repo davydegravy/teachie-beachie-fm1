@@ -160,10 +160,10 @@ int main(void)
     v.page = UI_OSC; v.trk = 1; snprintf(v.status, sizeof v.status, "P1"); v.status_col = 0;
     static const uint8_t PAD[16] = { 0, 58, 60, 40, 20, 15, 62, 30, 75, 0, 72, 60, 75, 68, 0, 60 };
     for (int i = 0; i < 16; i++) v.prm[i] = PAD[i];
-    snprintf(v.page_name, sizeof v.page_name, "OSC 1/5");
+    snprintf(v.page_name, sizeof v.page_name, "OSC 1/6");
     knob(&v, 0, "WAVE", "0", 0, 0); knob(&v, 1, "OSC2", "+2", 58, 0); knob(&v, 2, "FINE", "+10", 60, 0); knob(&v, 3, "MIX", "40", 40, 0);
     shoot(&v, "10-osc");
-    v.page = UI_FILTER; snprintf(v.page_name, sizeof v.page_name, "FILTER 2/5");
+    v.page = UI_FILTER; snprintf(v.page_name, sizeof v.page_name, "FILTER 2/6");
     knob(&v, 0, "CUT", "62", 62, 0); knob(&v, 1, "RESO", "30", 30, 0); knob(&v, 2, "TYPE", "LP", 0, 0); knob(&v, 3, "DRIVE", "0", 0, 0);
     shoot(&v, "11-filtre");
     v.page = UI_VOICE; snprintf(v.page_name, sizeof v.page_name, "VOICE 3/5");
@@ -281,6 +281,8 @@ int main(void)
     knob(&v, 0, "LINE", "MOVE", 60, 0); knob(&v, 1, "STEP", "9", 25, 0); knob(&v, 2, "OCT+", "--", -1, 0); knob(&v, 3, "OCT-", "CLOSE", -1, 0);
     v.knob[2].dial = v.knob[3].dial = 0;
     shoot(&v, "45b-notes-feuille"); v.nr_cols = 0;
+    /* 3.3.8: DIV 16T (24 steps a bar): a line every 6 steps (a beat), the bar darker */
+    v.nr_bar = 24; snprintf(v.page_name, sizeof v.page_name, "NOTES 1-16"); shoot(&v, "45c-notes-16t"); v.nr_bar = 0;
     /* SONG 2/2: the song by hand */
     v.page = UI_SONG; v.trk = 1; v.title_col = 0x07FF; snprintf(v.title, sizeof v.title, "SONG"); snprintf(v.sub, sizeof v.sub, "2/2 · SONG · ALL");
     { static const uint8_t P[] = { 0, 0, 1, 2, 1 }, F[] = { SR_PLAY, 0, SR_SEL | SR_MIX, SR_EMPTY, SR_MUTE }; static const uint16_t B[] = { 4, 8, 2, 64, 16 };

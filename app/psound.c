@@ -88,7 +88,7 @@ int ps_read(psounds *ps, int t, int pat, const uint8_t *in, uint32_t len, int ol
         pdrum *d = &ps->d[pat];
         for (int i = 0; i < 16; i++) {
             int a = (int8_t)in[n++], b = (int8_t)in[n++];
-            d->dtune[i] = (int8_t)(a < -8 ? -8 : a > 7 ? 7 : a); d->ddec[i] = (int8_t)(b < -4 ? -4 : b > 3 ? 3 : b);
+            d->dtune[i] = (int8_t)(a < -8 ? -8 : a > 7 ? 7 : a); d->ddec[i] = gb_dpack(GB_DDEC(b), gb_dlev((int8_t)b));
         }
         d->dmute = (uint16_t)(in[n] | in[n + 1] << 8); n += 2;
     }

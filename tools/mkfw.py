@@ -5,7 +5,7 @@
 #   +0x020  app.bin        attribute 0x82, address 0x120 (relative), its length and CRC16 (over the plain bytes)
 #   +0x040  0xFF up to 0x120: no more records (an 0xFF record fails its CRC, which ends the table)
 #   +0x120  app.bin: fw/xip.S then the firmware's RAM image; with a bank, padded to BANK_AT and the sample bank after
-#           (read in place through the flash window, flash 0x48000: engine/sample.h)
+#           (read in place through the flash window, flash 0x49400 (3.4.2): engine/sample.h)
 # Format facts: m-bootloader docs/SPEC.md 5.2 and 5.4 (records: CRC16/XMODEM of bytes 2..31 at 0).
 #   mkfw.py app.bin out.area [samples.bin]
 import struct, sys
@@ -21,7 +21,7 @@ def record(data_crc, address, length, attr, name, index=0):
     body = struct.pack("<HIIBBH", data_crc, address, length, attr, 0, index) + name.encode().ljust(16, b"\0")
     return struct.pack("<H", crc16(body)) + body
 
-BANK_AT = 0x44000                                  # the bank's place in the area (flash 0x48000; 3.3.1: the bank made right is larger; 0x47778 in 3.1.6..3.3)
+BANK_AT = 0x45400                                  # the bank's place in the area (flash 0x49400; 3.4.2: 3 KB later, its silent tails cut (tools/banktrim.py); 0x44800 in 4.0.1..3.4.1; 0x44000 in 3.3.1..4.0.0; 0x47778 in 3.1.6..3.3)
 AREA_END = 0x74000                                 # (flash 0x78000: SLOOP 3's FM6 bank and SYN kits, never reached)
 def main():
     app = open(sys.argv[1], "rb").read()

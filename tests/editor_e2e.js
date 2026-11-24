@@ -23,7 +23,7 @@ let fails = 0; const check = (c, w) => { console.log((c ? 'ok   ' : 'FAIL ') + w
   let sx = null;
   deliver = bytes => { for (const b of bytes) { if (b === 0xF0) sx = []; if (sx) { sx.push(b); if (b === 0xF7) { const m = sx; sx = null; pg.evaluate(m => window.__twinIn(m), m).catch(() => {}); } } } };
   await pg.addInitScript(() => {
-    const inp = { name: 'SLOOP 3 MIDI', onmidimessage: null }, out = { name: 'SLOOP 3 MIDI', send: d => window.twinSend(Array.from(d)) };
+    const inp = { name: 'Felucca', onmidimessage: null }, out = { name: 'Felucca', send: d => window.twinSend(Array.from(d)) };   /* (issue #2: the name a Mac kept from SLOOP 2.8) */
     window.__twinIn = m => { if (inp.onmidimessage) inp.onmidimessage({ data: Uint8Array.from(m) }); };
     navigator.requestMIDIAccess = async () => ({ inputs: new Map([['i', inp]]), outputs: new Map([['o', out]]), onstatechange: null });
     try { localStorage.clear(); } catch (e) {}
@@ -79,6 +79,11 @@ let fails = 0; const check = (c, w) => { console.log((c ? 'ok   ' : 'FAIL ') + w
   await pg.mouse.click(cb.x + 58 + 30, cb.y + 100); await pg.waitForTimeout(200); await pg.mouse.click(cb.x + 58 + 200, cb.y + 60); await pg.waitForTimeout(800);
   let P = await pg.evaluate(async () => (await patRead(R.t, 5)).notes.length); check(P === 2, 'SEQ: two notes drawn, on the FM-1 (' + P + ')');
   await pg.evaluate(() => { R.sel = new Set([R.P.notes[0]]); drawInspector(); });
+  /* (3.4.2, issue #31: the condition and ratchet lists closed at once) while it plays the roll is drawn again at each
+   * news from the FM-1: the inspector's lists stay the same elements (an open one stays open) */
+  { const same = await pg.evaluate(async () => { const s0 = R.insp.querySelector('select'); await live(5, 2); await new Promise(r => setTimeout(r, 1500));
+      const s1 = R.insp.querySelector('select'), playing = LV && LV.playing; await live(5, 2); return !!s0 && s0 === s1 && s0.isConnected; });
+    check(same, 'SEQ: the inspector\'s lists stay while it plays (#31)'); }
   await pg.evaluate(() => { const n = R.P.notes[0]; snapshot(); n.cond = 0x45; n.rat = 3 | SEQ_ACCENT; R.P.locks = [{ step: 1, param: 48, value: 99 }]; rollSend(true); }); await pg.waitForTimeout(900);
   P = await pg.evaluate(async () => await patRead(R.t, 5)); check(P.notes.some(n => n.cond === 0x45 && n.rat === (3 | 0x20)) && P.locks.length === 1 && P.locks[0].value === 99, 'SEQ: condition, ratchet, accent and a lock on the FM-1');
   await pg.evaluate(() => { snapshot(); R.P.notes = []; R.P.locks = []; rollSend(true); }); await pg.waitForTimeout(700);
@@ -95,6 +100,12 @@ let fails = 0; const check = (c, w) => { console.log((c ? 'ok   ' : 'FAIL ') + w
   await pg.evaluate(async m => { R.t = 1; R.pt = 4; await rollLoad(); await midiImport(Uint8Array.from(m), 'e2e.mid'); }, mid);   /* (its first track: tempo only; then track 1's) */
   await pg.waitForTimeout(800);
   P = await pg.evaluate(async () => (await patRead(1, 4)).notes.length); check(P >= 1, 'SEQ: a MIDI file read into a pattern (' + P + ')');
+  /* (3.4.0, Sam: imported notes all SOFT) a file at velocity 64 and 48: the loudest brought to NORM (100), the other with it */
+  await pg.evaluate(async () => { const tk = [0, 0x90, 60, 64, 0x81, 0x40, 0x80, 60, 0, 0, 0x90, 64, 48, 0x81, 0x40, 0x80, 64, 0, 0, 0xFF, 0x2F, 0];
+    const f = [0x4D, 0x54, 0x68, 0x64, 0, 0, 0, 6, 0, 0, 0, 1, 0, 96, 0x4D, 0x54, 0x72, 0x6B, 0, 0, 0, tk.length, ...tk];
+    R.t = 1; R.pt = 5; await rollLoad(); await midiImport(Uint8Array.from(f), 'soft.mid'); });
+  await pg.waitForTimeout(800);
+  P = await pg.evaluate(async () => (await patRead(1, 5)).notes.map(n => n.vel)); check(P.length === 2 && P[0] === 100 && P[1] === 75, 'SEQ: a soft MIDI file brought to NORM (' + JSON.stringify(P) + ')');
   /* SONG */
   await tab('song'); await pg.evaluate(async () => { SONG.e = [{ bar: 0, mute: 0, pat: [0, 1, 0, 0, 0] }, { bar: 4, mute: 2, pat: [1, 1, 0, 0, 0] }]; SONG.len = 8; await songSend(); }); await pg.waitForTimeout(800);
   check(await pg.evaluate(() => SONG.e.length === 2 && SONG.len === 8 && SONG.e[1].mute === 2), 'SONG: sent and read back'); await shot('song');
@@ -185,6 +196,40 @@ let fails = 0; const check = (c, w) => { console.log((c ? 'ok   ' : 'FAIL ') + w
   await tab('kits'); await pg.waitForTimeout(800);
   check(await pg.evaluate(() => KIT.btns.some(b => b.textContent.startsWith('AMEN TES') && !b.disabled)), 'DRUM KIT: YOUR KITS shows the break by its name');
   await shot('kits-yours');
+  /* 4.0.3: A KIT FROM SAMPLES (as SLOOP 2.8.5's Drum kit page): files onto the pads by their names, PITCH, MATCH LEVELS,
+   * USR3+4 over two slots, the drum track on it (KIT USR3+4), FIT THE SLOT for one slot, a ZIP out and back */
+  await tab('mkkit'); await pg.waitForTimeout(400);
+  const mk = await pg.evaluate(async () => {
+    const R = 22050, wav = (sec, f, amp, noise) => { const n = Math.round(sec * R), x = new Float32Array(n); let sd = 3;
+      for (let i = 0; i < n; i++) { const e = Math.exp(-i / (R * Math.min(sec, 0.3) / 3)); x[i] = amp * e * (noise ? ((sd = (sd * 16807) % 2147483647) / 2147483647 - 0.5) * 2 : Math.sin(2 * Math.PI * f * i / R)); }
+      const b = new Uint8Array(44 + 2 * n), dv = new DataView(b.buffer), w = (o, t) => { for (let i = 0; i < 4; i++) b[o + i] = t.charCodeAt(i); };
+      w(0, 'RIFF'); dv.setUint32(4, 36 + 2 * n, true); w(8, 'WAVE'); w(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+      dv.setUint32(24, R, true); dv.setUint32(28, 2 * R, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); w(36, 'data'); dv.setUint32(40, 2 * n, true);
+      for (let i = 0; i < n; i++) dv.setInt16(44 + 2 * i, Math.round(x[i] * 32000), true); return b; };
+    const fs = [['BD 808.wav', 0.6, 55, 1, 0], ['Snare_01.wav', 0.3, 200, 0.5, 1], ['hh closed.wav', 0.1, 0, 0.3, 1], ['OH open.wav', 0.5, 0, 0.3, 1], ['clap.wav', 0.3, 0, 0.8, 1],
+      ['pad one.wav', 5, 220, 0.6, 0], ['pad two.wav', 5, 330, 0.6, 0]].map(([n, s, f, a, z]) => new File([wav(s, f, a, z)], n, { type: 'audio/wav' }));
+    KD.pads = Array(16).fill(null); await kAdd(fs);
+    const at = KD.pads.map(p => p && p.fname);
+    const l0 = kLen(KD.pads[2]); KD.pads[2].tune = 12; const l1 = kLen(KD.pads[2]);
+    await kMatch(); const gains = KD.pads.filter(Boolean).map(p => p.gain);
+    KD.dest = 0; const over1 = kOver(); kFit(KD.pads, KROOM, 1); const over1b = kOver();
+    for (const p of KD.pads) if (p) p.len = 0;                      /* (back to whole, for the pair) */
+    KD.dest = KPAIR; KD.name = 'E2E KIT'; const split = kSplit(KD.pads);
+    window.confirm = () => true; await kSend(); await sleep(800); await kReadSlots();
+    await kUse(); await sleep(300); await live(0); const s = await getSound(DRUM_T);
+    const z = await zipIn(zipOut([{ name: 'K/01 KICK.wav', data: kWav(await kRender(KD.pads[0])) }, { name: 'K/03 SNARE.wav', data: kWav(await kRender(KD.pads[2])) }]));
+    const back = Array(16).fill(null), save_ = KD.pads; KD.pads = back; await kAdd(z.map(x => new File([x.data], x.name.split('/').pop()))); const zback = KD.pads.map(p => p && p.fname); KD.pads = save_; drawMkKit();
+    return { at, l0, l1, gains, over1, over1b, split, n3: KD.slots[2].nz, n4: KD.slots[3].nz, name3: KD.slots[2].name, pre: LV.t[DRUM_T].preset & 0x7FFF, kit: s.v[0], zn: z.length, zback };
+  });
+  console.log('  kit from samples:', JSON.stringify(mk));
+  check(mk.at[0] === 'BD 808.wav' && mk.at[2] === 'Snare_01.wav' && mk.at[4] === 'hh closed.wav' && mk.at[5] === 'OH open.wav' && mk.at[3] === 'clap.wav' && mk.at[1] === 'pad one.wav', 'KIT FROM SAMPLES: the files on the pads by their names');
+  check(Math.abs(mk.l1 - mk.l0 / 2) < 3, 'KIT FROM SAMPLES: PITCH +12, the sound half as long (' + mk.l0 + ' -> ' + mk.l1 + ')');
+  check(mk.gains.every(g => g <= 0 && g >= -24) && mk.gains.some(g => g === 0) && mk.gains.some(g => g < 0), 'KIT FROM SAMPLES: MATCH LEVELS (' + mk.gains.join(' ') + ')');
+  check(mk.over1 && !mk.over1b, 'KIT FROM SAMPLES: one slot too small, FIT THE SLOT');
+  check(mk.split && mk.n3 > 0 && mk.n4 > 0 && mk.n3 + mk.n4 === 7 && mk.name3 === 'E2E KIT', 'KIT FROM SAMPLES: USR3+4, the pads over the two slots (' + mk.n3 + ' + ' + mk.n4 + ')');
+  check(mk.pre === 3041 && mk.kit === 41, 'KIT FROM SAMPLES: the drum track on USR3+4 (' + mk.pre + ', kit ' + mk.kit + ')');
+  check(mk.zn === 2 && mk.zback[0] === '01 KICK.wav' && mk.zback[2] === '03 SNARE.wav', 'KIT FROM SAMPLES: a ZIP out and back on its pads');
+  await shot('mkkit');
   await tab('drumsynth'); await pg.click('#tab_drumsynth .tools .btn >> nth=0'); await pg.waitForTimeout(1200); check(await pg.evaluate(() => !!Y.img), 'DRUM SYNTH: the kits read'); await shot('drumsynth');
   await tab('fm6'); await pg.click('#tab_fm6 .tools .btn >> nth=0'); await pg.waitForTimeout(1500); check(await pg.evaluate(() => !!F.img), 'FM6: the bank read'); await shot('fm6');
   /* 3.2: a .syx loaded with the bank not read yet: read first, the file's voices put in B1.. at once; saved; then on
@@ -205,6 +250,20 @@ let fails = 0; const check = (c, w) => { console.log((c ? 'ok   ' : 'FAIL ') + w
     check(await pg.evaluate(() => LV && (LV.t[0].preset & 0x7FFF) === 2004 && soundName(LV.t[0]) === 'E2E VC 5'), 'FM6: voice 5 on track 1, named (' + await pg.evaluate(() => LV && LV.t[0].preset + ' ' + soundName(LV.t[0])) + ')');
   }
   await tab('theme'); await shot('theme');
+  /* 4.0.8: the 5 tracks' colours (synth 4 at bytes 34-35), sent and read back; the previews drawn */
+  const th = await pg.evaluate(async () => {
+    TH.trk = ['#ff0000', '#00ff00', '#0000ff', '#ff00ff', '#00ffff']; drawTheme();
+    await ask(ED.THEME, themeBytes()); await sleep(1500);
+    TH.trk = ['#000000', '#000000', '#000000', '#000000', '#000000'];
+    const b = await ask(ED.THEME, []); const t = b.slice(1, 41);
+    const got = TH_AT.map(a => from565(u16(t, a)));
+    TH.trk = ['#287cff', '#1ecc70', '#ffc618', '#f06ec8', '#ff621a'];   /* (the defaults again, for the picture) */
+    const cv = document.querySelectorAll('#tab_theme canvas');
+    return { got, cv: cv.length, w: cv[0] && cv[0].width };
+  });
+  console.log('  theme:', JSON.stringify(th));
+  check(th.got.join() === '#ff0000,#00ff00,#0000ff,#ff00ff,#00ffff' && th.cv === 2 && th.w === 480, 'THEME: the 5 tracks\' colours sent and read back, the 2 previews');
+  await pg.evaluate(() => drawTheme()); await pg.waitForTimeout(300); await shot('theme-5');
   /* the language, the views */
   await pg.click('#b_lang'); await pg.waitForTimeout(300); check(await pg.$eval('#tabs button[data-t="sound"] span', e => e.textContent) === (await pg.evaluate(() => lang === 'fr' ? 'Son' : 'Sound')), 'FR / EN');
   await pg.click('#b_view'); await tab('live'); await shot('live-simple');

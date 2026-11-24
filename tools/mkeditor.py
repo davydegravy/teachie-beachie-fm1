@@ -4,7 +4,7 @@
 # that works opened from the disk, with nothing else). Written for this project.
 import os, sys
 SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'web', 'src')
-JS = ['core.js', 'live.js', 'sound.js', 'seq.js', 'mixer.js', 'library.js', 'files.js', 'banks.js', 'main.js']
+JS = ['core.js', 'live.js', 'sound.js', 'seq.js', 'mixer.js', 'library.js', 'files.js', 'kit.js', 'banks.js', 'main.js']
 def rd(n):
     with open(os.path.join(SRC, n), encoding='utf-8') as f: return f.read()
 def main():

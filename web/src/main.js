@@ -1,6 +1,6 @@
 /* main: the tabs, the connection, the state polled, the top bar, the language, the views, the lock. */
 const TABS = [['live', '◉', drawLive], ['sound', '♫', drawSound], ['seq', '▦', drawSeq], ['mixer', '☰', drawMixer], ['song', '≡', drawSong], ['library', '★', drawLibrary],
-  ['samples', '∿', drawSamples], ['kits', '◎', drawKits], ['drumsynth', '◍', drawSyn], ['fm6', '⌁', drawFm6], ['projects', '▤', drawProjects], ['settings', '⚙', drawSettings], ['theme', '◐', drawTheme]];
+  ['samples', '∿', drawSamples], ['mkkit', '▣', drawMkKit], ['kits', '◎', drawKits], ['drumsynth', '◍', drawSyn], ['fm6', '⌁', drawFm6], ['projects', '▤', drawProjects], ['settings', '⚙', drawSettings], ['theme', '◐', drawTheme]];
 const NEEDS2 = ['live', 'seq', 'mixer', 'song', 'library', 'kits', 'settings'];
 let tab = 'live';
 try { tab = localStorage.getItem('sloop3.tab') || 'live'; } catch (e) {}
@@ -50,14 +50,24 @@ async function connect() {
   try {
     if (!navigator.requestMIDIAccess) { log(L('nomidi'), 'bad'); return; }
     const midi = await navigator.requestMIDIAccess({ sysex: true });
-    const find = () => { out = [...midi.outputs.values()].find(p => /SLOOP 3/i.test(p.name)) || null; inp = [...midi.inputs.values()].find(p => /SLOOP 3/i.test(p.name)) || null; };
-    find();
-    if (!out || !inp) { log(L('noport') + [...midi.outputs.values()].map(p => p.name).join(', '), 'bad'); return; }
+    /* (3.3.7, issue #2) the FM-1's port: "SLOOP 3", or under a name the computer kept from before (macOS: "Felucca");
+     * each possible one asked who it is: the one that answers as SLOOP 3 is kept, by its name */
+    let want = null;
+    const pair = n => [[...midi.outputs.values()].find(p => p.name === n && p.state !== 'disconnected') || null, [...midi.inputs.values()].find(p => p.name === n && p.state !== 'disconnected') || null];
+    const find = () => { [out, inp] = want ? pair(want) : [null, null]; };
+    const names = [...new Set([...midi.outputs.values()].map(p => p.name))];
+    const cand = names.filter(n => /SLOOP 3/i.test(n)).concat(names.filter(n => !/SLOOP 3/i.test(n) && /SLOOP|Felucca|FM-1|H[üu]gelton/i.test(n) && !/Update|ota-/i.test(n)));
+    for (const n of cand) {
+      [out, inp] = pair(n); if (!out || !inp) continue;
+      inp.onmidimessage = onMsg;
+      try { await refreshInfo(); want = n; break; } catch (e) { inp.onmidimessage = null; out = inp = null; }
+    }
+    if (!out || !inp) { log(L('noport') + names.join(', '), 'bad'); return; }
     inp.onmidimessage = onMsg;
     for (const p of midi.inputs.values()) if (p !== inp) p.onmidimessage = ctlIn;          /* the other controllers: MIDI learn */
     midi.onstatechange = () => { const was = out; find(); if (!out && was) { log(L('timeout'), 'bad'); $('con').textContent = L('connect'); $('con').classList.add('pri'); }
       for (const p of midi.inputs.values()) if (p !== inp && !p.onmidimessage) p.onmidimessage = ctlIn; if (inp) inp.onmidimessage = onMsg; };
-    await refreshInfo(); log(L('found') + info.ver + L('proto') + info.proto, 'ok');
+    log(L('found') + info.ver + L('proto') + info.proto, 'ok');
     if (!P2()) log(L('oldfw'), 'bad');
     $('con').textContent = L('connected'); $('con').classList.remove('pri');
     if (P2()) { await readNames(); await live(0); }

@@ -3,7 +3,9 @@
 #include "store.h"
 #include "../core/gb.h"
 #if defined(__PI32V2__)
-#define XT GB_SECT(".xtext.store")      /* (3.3.5: what never runs while the flash works: from the window) */
+#define XT __attribute__((section(".xtext.store")))      /* (3.3.5: what never runs while the flash works: from the window) */
+#elif defined(HOST) && !defined(__MACH__)
+#define XT __attribute__((section("tw_xt")))       /* (the twin: what calls an erase or a write from here is caught; not on a Mac, Mach-O) */
 #else
 #define XT
 #endif
@@ -13,10 +15,10 @@ typedef struct { uint32_t magic, seq, len, dcrc; uint8_t slot, pad[3]; uint32_t 
 
 static const store_flash *F;
 static struct { int state; int slot, copy; const uint8_t *data; uint32_t len, seq, at, pages, done_ops, all_ops, vat, vcrc; hdr h; } W;
-static uint8_t page[256] __attribute__((aligned(4)));
+static uint8_t page[256] __attribute__((aligned(4))) GB_BOOTRAM;   /* (3.4.1: in m-bootloader's RAM, written before read: the slot's room) */
 static uint8_t chk[1024] __attribute__((aligned(4))) GB_LOWRAM;   /* (a save's reading back: read into before checked) */
 /* (3.3.5) the one project's save: see the banks below */
-static struct { int state, known; uint32_t bank, len, given, prog, vat, vcrc, need_n; const uint8_t *d; uint32_t d_off, d_n; hdr h; } P;
+static struct { int state, known; uint32_t bank, off, len, given, prog, vat, vcrc, need_n; const uint8_t *d; uint32_t d_off, d_n; hdr h; } P;
 
 
 /* a byte at a time through a table (1 KB, made at the first call): a 20 KB project in ~0.3 ms, between two audio
@@ -111,57 +113,102 @@ static int raw_step(void)
 #define MAGIC3 0x33504247u                        /* "GBP3" */
 #define PSECT (STORE_PBANK / 4096u)
 static uint32_t pbank(uint32_t b) { return STORE_BASE + b * STORE_PBANK; }
-XT static int phdr(uint32_t b, hdr *h)
+/* (3.4.0, Sam: "saving a pattern while it plays cuts the sound") a copy may start at any sector of its bank (the
+ * header's pad[0] says which): a save while it plays goes after the newest copy, where the flash is still erased, and
+ * needs no erase (the window off for milliseconds: the samples silent). Only when no erased room is left is a sector
+ * erased, as before. */
+static uint32_t psect(uint32_t len) { return (256u + len + 4095u) / 4096u; }
+XT static int phdr(uint32_t b, uint32_t s, hdr *h)
 {
-    if (F->read(pbank(b), h, sizeof *h)) return 0;
-    return h->magic == MAGIC3 && h->hcrc == crc32_ieee(0, h, 20) && h->len >= 16u && h->len <= STORE_PMAX;
+    if (F->read(pbank(b) + s * 4096u, h, sizeof *h)) return 0;
+    return h->magic == MAGIC3 && h->hcrc == crc32_ieee(0, h, 20) && h->pad[0] == s && h->len >= 16u && s * 4096u + 256u + h->len <= STORE_PBANK;
 }
-XT static int pwhole(uint32_t b, hdr *h)                 /* its header, and its data with the CRC the header says */
+XT static int pwhole(uint32_t b, uint32_t s, hdr *h)     /* its header, and its data with the CRC the header says */
 {
-    if (!phdr(b, h)) return 0;
-    uint32_t c = 0;
+    if (!phdr(b, s, h)) return 0;
+    uint32_t c = 0, at = pbank(b) + s * 4096u + 256u;
     for (uint32_t a = 0; a < h->len; a += 256u) {
         uint32_t n = h->len - a > 256u ? 256u : h->len - a;
-        if (F->read(pbank(b) + 256u + a, page, (n + 3u) & ~3u)) return 0;
+        if (F->read(at + a, page, (n + 3u) & ~3u)) return 0;
         c = crc32_ieee(c, page, n);
     }
     return c == h->dcrc;
 }
-XT static int pnewest(hdr *h)                            /* the bank with the newest whole copy, or -1 */
+/* every copy's header: the newest whole one (its bank, -1 none; its sector in *ps), the highest number of all (*top),
+ * and where each bank's copies end (end[b]: the first sector after them) */
+XT static int pscan(hdr *best, uint32_t *ps, uint32_t *top, uint32_t *end)
 {
-    hdr a, b; int oa = pwhole(0, &a), ob = pwhole(1, &b);
-    if (!oa && !ob) return -1;
-    int k = oa && (!ob || a.seq >= b.seq) ? 0 : 1;
-    if (h) *h = k ? b : a;
-    return k;
+    uint32_t lim = ~0u; *top = 0; end[0] = end[1] = 0;
+    for (;;) {
+        int kb = -1; uint32_t ks = 0; hdr h, kh;
+        for (uint32_t b = 0; b < 2; b++) for (uint32_t s = 0; s < PSECT; s++) if (phdr(b, s, &h)) {
+            if (h.seq > *top) *top = h.seq;
+            if (s + psect(h.len) > end[b]) end[b] = s + psect(h.len);
+            if (h.seq < lim && (kb < 0 || h.seq > kh.seq)) { kb = (int)b; ks = s; kh = h; }
+        }
+        if (kb < 0) return -1;
+        if (pwhole((uint32_t)kb, ks, &kh)) { if (best) *best = kh; *ps = ks; return kb; }
+        lim = kh.seq;
+    }
+}
+XT static int pnewest(hdr *h) { uint32_t s, t, e[2]; return pscan(h, &s, &t, e); }
+static int blank4k(uint32_t a)                           /* a sector all erased (read, 1 KB at a time) */
+{
+    for (uint32_t o = 0; o < 4096u; o += sizeof chk) {
+        if (F->read(a + o, chk, sizeof chk)) return 0;
+        for (uint32_t i = 0; i < sizeof chk / 4u; i++) if (((const uint32_t *)chk)[i] != ~0u) return 0;
+    }
+    return 1;
 }
 XT int store_proj_find(uint32_t *data_at, uint32_t *len, uint32_t *crc)
 {
-    hdr h; int k = pnewest(&h);
+    hdr h; uint32_t s, t, e[2]; int k = pscan(&h, &s, &t, e);
     if (k < 0) return -1;
-    if (data_at) *data_at = pbank((uint32_t)k) + 256u;
+    if (data_at) *data_at = pbank((uint32_t)k) + s * 4096u + 256u;
     if (len) *len = h.len;
     if (crc) *crc = h.dcrc;
     return 0;
 }
+/* (3.3.8) a save while the music plays: an erase keeps the flash window off for milliseconds, and what the sound reads
+ * from the flash (the samples, the kits) is silent meanwhile: a stutter. So the bank the next save goes to is erased
+ * beforehand, a sector at a time, while it is stopped and nobody plays (store_proj_prep); a save then only writes pages
+ * (each well under a millisecond, between two audio halves). Only the sectors the project fills are erased, too. The
+ * newest whole copy is never touched: the bank prepared is the other one */
+static uint8_t pre_known; static uint32_t pre_bank, pre_n;     /* pre_n: its sectors from the first, erased */
+/* (3.3.8 fix) in RAM, not XT: it starts an erase, the window goes off, and it must still return (from the window: the
+ * FM-1 froze at the logo, then the watchdog restarted it) */
+int store_proj_prep(void)
+{
+    if (W.state == 1 || R.state == 1 || (P.state > 0 && P.state < 7) || F->busy()) return 0;
+    if (!pre_known) { hdr h; int k = pnewest(&h); pre_bank = k == 0 ? 1u : 0u; pre_n = 0; pre_known = 1; return 1; }   /* (read: a pass of its own) */
+    if (pre_n >= PSECT) return 0;
+    uint32_t a = pbank(pre_bank) + pre_n++ * 4096u;
+    if (!blank4k(a) && F->erase_start(a)) { pre_known = 0; return 0; }   /* (one already erased: not again) */
+    return 1;
+}
+XT int store_proj_ready(void) { return pre_known && pre_n >= PSECT; }
+int store_erasing(void) { return P.state == 1 || (W.state == 1 && W.at < size_of(W.copy) / 4096u); }
 XT int store_proj_begin(uint32_t len, uint32_t crc, int known)
 {
     if (W.state == 1 || R.state == 1 || (P.state > 0 && P.state < 7) || len < 16u || len > STORE_PMAX) return -1;
-    hdr h; int k = pnewest(&h);
-    uint32_t seq = 0;
-    if (k >= 0) seq = h.seq;
-    { hdr o; if (phdr(k == 0 ? 1u : 0u, &o) && o.seq > seq) seq = o.seq; }   /* (a newer header over bad data: its number passed too) */
-    P.bank = k == 0 ? 1u : 0u; P.len = len; P.known = known; P.given = 0; P.prog = 0; P.vat = 0; P.vcrc = 0; P.d = 0; P.d_n = 0; P.d_off = 0;
-    P.h.magic = MAGIC3; P.h.seq = seq + 1u; P.h.len = len; P.h.dcrc = crc; P.h.slot = 0; P.h.pad[0] = P.h.pad[1] = P.h.pad[2] = 0;
+    hdr h; uint32_t s, seq, end[2]; int k = pscan(&h, &s, &seq, end);
+    uint32_t kb = k < 0 ? 0u : (uint32_t)k, ob = kb ^ 1u;
+    P.need_n = psect(len);
+    /* (3.4.0) after the newest copy, in its bank; else after the other bank's copies; else that bank from its start
+     * (prepared while stopped: erased already). The newest whole copy is never touched */
+    if (end[kb] + P.need_n <= PSECT) { P.bank = kb; P.off = end[kb]; }
+    else { P.bank = ob; P.off = end[ob] + P.need_n <= PSECT ? end[ob] : 0u; }
+    P.len = len; P.known = known; P.given = 0; P.prog = 0; P.vat = 0; P.vcrc = 0; P.d = 0; P.d_n = 0; P.d_off = 0;
+    P.h.magic = MAGIC3; P.h.seq = seq + 1u; P.h.len = len; P.h.dcrc = crc; P.h.slot = 0; P.h.pad[0] = (uint8_t)P.off; P.h.pad[1] = P.h.pad[2] = 0;
     P.h.hcrc = crc32_ieee(0, &P.h, 20);
-    W.done_ops = 0; W.all_ops = PSECT + (len + 255u) / 256u + (len + 1023u) / 1024u + 1u;
-    P.need_n = 0;
+    pre_known = 0;                                       /* (written now: prepared again after it) */
+    W.done_ops = 0; W.all_ops = P.need_n + (len + 255u) / 256u + (len + 1023u) / 1024u + 1u;
     P.state = 1;                                         /* the sectors */
     return 0;
 }
 XT uint32_t store_proj_need(void) { return P.given; }
 XT int store_proj_written(void) { return P.state == 3 && P.prog >= P.len; }
-XT uint32_t store_proj_target(void) { return pbank(P.bank) + 256u; }
+XT uint32_t store_proj_target(void) { return pbank(P.bank) + P.off * 4096u + 256u; }
 XT int store_proj_wants(void) { return (P.state == 1 || P.state == 2) && P.given < P.len && (!P.d || P.prog >= P.d_off + P.d_n); }
 XT uint32_t store_proj_given(void) { return P.given; }
 XT void store_proj_give(const void *d, uint32_t n)
@@ -180,10 +227,10 @@ XT void store_proj_abort(void) { if (P.state > 0 && P.state < 7) P.state = 0; }
 static int proj_step(void)
 {
     if (F->busy()) return 1;
-    uint32_t base = pbank(P.bank);
+    uint32_t base = pbank(P.bank) + P.off * 4096u;
     switch (P.state) {
-    case 1:                                              /* the sectors, one at a time */
-        if (P.vat < PSECT) { if (F->erase_start(base + P.vat * 4096u)) { P.state = 0; return -1; } P.vat++; W.done_ops++; return 1; }
+    case 1:                                              /* the sectors, one at a time: erased only if they are not */
+        if (P.vat < P.need_n) { uint32_t a = base + P.vat++ * 4096u; W.done_ops++; if (!blank4k(a) && F->erase_start(a)) { P.state = 0; return -1; } return 1; }
         P.vat = 0; P.state = 2; return 1;
     case 2:                                              /* the data: what was given, a page's part at a time */
         if (P.prog >= P.len) { P.state = 3; return 1; }

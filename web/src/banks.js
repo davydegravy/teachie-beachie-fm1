@@ -9,8 +9,11 @@ words({
   fhelp: 'Load a .syx: into an empty bank its voices go to B1-B27 at once; then Save. On the FM-1 they are in SOUNDS (turn PRESETS, or EDIT 6/6), category DX7, by name. Changes are heard at once on the tracks that play that slot (FM6, PTCH B1-B27); they stay only once saved. SLOOP 2.8\'s bank is never written: saving makes one of SLOOP 3\'s own.',
   yhelp: 'Each change is heard at once (the drum track on that SYN kit); ▶ plays the sound. They stay only once saved. SLOOP 2.8\'s kits are never written.',
   nosyx: 'Not DX7 voices: a 32-voice bank (4104 bytes) or a single voice (163 bytes).', bgot: ' voices in the file', op: 'OP', voices: 'voices of the file',
-  theme: 'Your colour theme', themeHelp: 'Five shades, the background, the accent, a colour for each synth track: then HOME > SCREEN > COLOR (YOURS) on the FM-1, or COLOR in Settings.\nPREVIEW shows it here as the FM-1 would.',
-  tget: 'Read from the FM-1', tsend: 'Send to the FM-1', tok: 'Theme sent: COLOR > YOURS.', tname: 'name', tlab: ['shade 1', 'shade 2', 'shade 3', 'shade 4', 'text', 'background', 'accent', 'track 1', 'track 2', 'track 3', 'track 4']
+  theme: 'Your colour theme', themeHelp: 'Five shades, the background, the accent, a colour for each of the 5 tracks: then HOME > SCREEN > COLOR (YOURS) on the FM-1, or COLOR in Settings.\nThe previews show the main screen and a sound page as the FM-1 draws them.',
+  tget: 'Read from the FM-1', tsend: 'Send to the FM-1', tok: 'Theme sent: COLOR > YOURS.', tname: 'name', tlab: ['shade 1', 'shade 2', 'shade 3', 'shade 4', 'text', 'background', 'accent', 'track 1', 'track 2', 'track 3', 'track 4'],
+  tTracks: 'The tracks (as the FM-1 shows them)', tTrk: ['track 1', 'track 2', 'track 3', 'track 4', 'drums (5)'], tScreen: 'The screen', tOther: 'Other',
+  tShadeUse: ['rules, separators', 'what is off, empty steps', 'labels', 'secondary text', 'values, curves'], tHiUse: 'kept with the theme (SLOOP 2.8.5 used it)',
+  tPrevHome: 'Preview: the main screen', tPrevPage: 'Preview: a sound page (ENV)'
 }, {
   fm6: 'Ta banque FM6 (B1-B27)', syn: 'Tes kits SYN (SYN1-4)', bread: 'Lire depuis le FM-1', bload: 'Charger des voix DX7 (.syx)', fsave: 'Enregistrer la banque sur le FM-1',
   fsyx: 'Enregistrer en .syx', put: 'Dans la case choisie', fillall: 'Remplir les cases depuis celle choisie', bempty: 'vide', bclear: 'Vider cette case',
@@ -20,8 +23,11 @@ words({
   fhelp: 'Charge un .syx : dans une banque vide ses voix vont en B1-B27 d\'un coup ; puis Enregistrer. Sur le FM-1 elles sont dans SOUNDS (tourne PRESETS, ou EDIT 6/6), catégorie DX7, par leur nom. Les changements s\'entendent tout de suite sur les pistes qui jouent cette case (FM6, PTCH B1-B27) ; ils restent une fois enregistrés. La banque de SLOOP 2.8 n\'est jamais écrite : enregistrer crée celle de SLOOP 3.',
   yhelp: 'Chaque changement s\'entend tout de suite (la piste de batterie sur ce kit SYN) ; ▶ joue le son. Ils restent une fois enregistrés. Les kits de SLOOP 2.8 ne sont jamais écrits.',
   nosyx: 'Pas des voix DX7 : une banque de 32 voix (4104 octets) ou une voix seule (163 octets).', bgot: ' voix dans le fichier', op: 'OP', voices: 'voix du fichier',
-  theme: 'Ton thème de couleurs', themeHelp: 'Cinq teintes, le fond, l\'accent, une couleur par piste de synthé : puis HOME > SCREEN > COLOR (YOURS) sur le FM-1, ou COULEUR dans Réglages.\nL\'APERÇU le montre ici comme le FM-1.',
-  tget: 'Lire depuis le FM-1', tsend: 'Envoyer au FM-1', tok: 'Thème envoyé : COLOR > YOURS.', tname: 'nom', tlab: ['teinte 1', 'teinte 2', 'teinte 3', 'teinte 4', 'texte', 'fond', 'accent', 'piste 1', 'piste 2', 'piste 3', 'piste 4']
+  theme: 'Ton thème de couleurs', themeHelp: 'Cinq teintes, le fond, l\'accent, une couleur pour chacune des 5 pistes : puis HOME > SCREEN > COLOR (YOURS) sur le FM-1, ou COULEUR dans Réglages.\nLes aperçus montrent l\'écran principal et une page de son comme le FM-1 les dessine.',
+  tget: 'Lire depuis le FM-1', tsend: 'Envoyer au FM-1', tok: 'Thème envoyé : COLOR > YOURS.', tname: 'nom', tlab: ['teinte 1', 'teinte 2', 'teinte 3', 'teinte 4', 'texte', 'fond', 'accent', 'piste 1', 'piste 2', 'piste 3', 'piste 4'],
+  tTracks: 'Les pistes (comme le FM-1 les montre)', tTrk: ['piste 1', 'piste 2', 'piste 3', 'piste 4', 'batterie (5)'], tScreen: 'L\'écran', tOther: 'Autre',
+  tShadeUse: ['traits, séparations', 'ce qui est éteint, pas vides', 'étiquettes', 'texte secondaire', 'valeurs, courbes'], tHiUse: 'gardé avec le thème (SLOOP 2.8.5 l\'utilisait)',
+  tPrevHome: 'Aperçu : l\'écran principal', tPrevPage: 'Aperçu : une page de son (ENV)'
 });
 const L2 = L;
 const XB = { FM6: 16 + 27 * 128, KIT: 4 + 16 * 22, SYN: 16 + 4 * (4 + 16 * 22) };
@@ -187,35 +193,90 @@ function drawSyn() {
   const h = el('h2', '', PADS[p]); h.style.color = TCOL[DRUM_T];
   c.append(h, ed, cl, button('▶ ' + PADS[p], () => yPlay(p), 'sm'));
 }
-/* ---- your theme (SLOOP 2.7's 40 bytes) */
-const TH = { name: 'MINE', c: ['#283c50', '#3c5a78', '#7896b4', '#b4c8dc', '#ffffff'], bg: '#08080c', hi: '#ffd23c', trk: ['#50a0ff', '#50e678', '#ffdc3c', '#ff9628'] };
+/* ---- your theme (SLOOP 2.7's 40 bytes; 4.0.8: bytes 34-35 the 4th synth's colour, SLOOP 3's 5th track). TH.trk in the
+ * order the FM-1 shows them: synths 1-4, the drums 5th (the bytes keep SLOOP's: synths 1-3 at 22 24 26, the drums at 28) */
+const TH = { name: 'MINE', c: ['#283c50', '#3c5a78', '#7896b4', '#b4c8dc', '#ffffff'], bg: '#08080c', hi: '#ffd23c', trk: ['#287cff', '#1ecc70', '#ffc618', '#f06ec8', '#ff621a'] };
+const TH_AT = [22, 24, 26, 34, 28];
 const to565 = h => { const v = parseInt(h.slice(1), 16), r = v >> 16, g = v >> 8 & 255, b = v & 255; return (r >> 3) << 11 | (g >> 2) << 5 | b >> 3; };
 const from565 = c => '#' + [((c >> 11) & 31) * 255 / 31, ((c >> 5) & 63) * 255 / 63, (c & 31) * 255 / 31].map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
 function themeBytes() {
   const b = new Uint8Array(40), dv = new DataView(b.buffer);
   b.set([0x54, 0x48, 0x4D, 0x32]); const nm = (TH.name || 'MINE').toUpperCase().slice(0, 8); for (let i = 0; i < nm.length; i++) b[4 + i] = nm.charCodeAt(i) & 127;
-  TH.c.forEach((v, i) => dv.setUint16(12 + 2 * i, to565(v), true)); TH.trk.forEach((v, i) => dv.setUint16(22 + 2 * i, to565(v), true));
+  TH.c.forEach((v, i) => dv.setUint16(12 + 2 * i, to565(v), true)); TH.trk.forEach((v, i) => dv.setUint16(TH_AT[i], to565(v) || 1, true));
   dv.setUint16(30, to565(TH.bg), true); dv.setUint16(32, to565(TH.hi), true); dv.setUint32(36, crc32(b.slice(0, 36)), true);
   return [...b];
+}
+/* the colours as the FM-1 mixes them (app/ui.c): G(k) the background towards white (0 3 7 15 25 of 32), a track's dim
+ * a third of it; the knobs' own four */
+const hexRGB = h => { const v = parseInt(h.slice(1), 16); return [v >> 16, v >> 8 & 255, v & 255]; };
+const rgbHex = a => '#' + a.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+const mixC = (a, b, t) => { const x = hexRGB(a), y = hexRGB(b); return rgbHex(x.map((v, i) => v + (y[i] - v) * t)); };
+const dimC = c => rgbHex(hexRGB(c).map(v => v / 3));
+const KNOBC = ['#287cff', '#1ecc70', '#ffc618', '#ff621a'];
+/* the FM-1's main screen (TRACKS, app/ui.c page_tracks), drawn here with these colours: 240 x 240, at scale z */
+function drawHomePreview(cv, z) {
+  const g = cv.getContext('2d'), G = k => mixC(TH.bg, '#ffffff', [0, 3, 7, 15, 25][k] / 32), sel = 0;
+  cv.width = 240 * z; cv.height = 240 * z; g.setTransform(z, 0, 0, z, 0, 0);
+  const R = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const T = (x, y, t, c, px = 13, w = 'bold') => { g.font = w + ' ' + px + 'px system-ui,sans-serif'; g.fillStyle = c; g.textBaseline = 'top'; g.fillText(t, x, y); return g.measureText(t).width; };
+  R(0, 0, 240, 240, TH.bg);
+  /* the header: the tempo, LOOP, the four beats, the pattern's square (the selected track's colour), the battery */
+  const w = T(4, 3, '92', G(4), 28); T(6 + w, 20, 'BPM', G(3), 11);
+  R(104, 7, 12, 12, G(3)); T(122, 5, 'LOOP', G(3), 12);
+  for (let k = 0; k < 4; k++) R(104 + k * 9, 26, 7, 7, k ? G(2) : '#ff2c34');
+  R(210, 1, 28, 22, TH.trk[sel]); T(219, 3, '1', '#000000', 17);
+  g.strokeStyle = TH.c[2]; g.lineWidth = 1; g.strokeRect(219.5, 26.5, 16, 8); R(236, 28, 2, 5, TH.c[2]); for (let k = 0; k < 3; k++) R(221 + k * 5, 28, 3, 5, TH.c[4]);
+  R(0, 39, 240, 1, G(1));
+  /* the five tracks */
+  const NM = [['808 BOOM', 'ANALOG'], ['RHODES', 'DIGITAL'], ['LOFI FLUTE', 'SAMPLE'], ['WARM PAD', 'ANALOG'], ['808', 'DRUMS']];
+  const PAT = [0x8888, 0x2222, 0x0101, 0x1111, 0x5555], LV = [80, 60, 45, 55, 85];
+  for (let i = 0; i < 5; i++) {
+    const y = 40 + i * 28, col = TH.trk[i], dm = dimC(col), s = i === sel;
+    R(2, y + 2, 26, 24, s ? col : dm); T(11, y + 6, String(i + 1), s ? '#000000' : col, 14);
+    const nw = T(34, y + 1, NM[i][0], s ? '#ffffff' : G(4), 13); T(40 + nw, y + 1, NM[i][1], s ? col : G(3), 13);
+    for (let j = 0; j < 16; j++) { const on = (PAT[i] >> j) & 1, x = 34 + j * 10; R(x, y + 17, 8, 6, on ? (s ? col : dm) : G(1)); if (on && !s) R(x, y + 17, 8, 2, col); }
+    R(198, y + 19, 38, 5, G(1)); R(198, y + 19, LV[i] * 38 / 100, 5, s ? col : G(3));
+  }
+  /* the four dials (their own colours, as SLOOP 2.8.5's knobs) */
+  const LB = ['SWING', 'LEVEL', 'STEPS', 'PAN'], VA = ['0', '80', '16', '0'], P = [0.2, 0.8, 0.5, 0.5];
+  for (let k = 0; k < 4; k++) {
+    const cx = 30 + 60 * k, cy = 196; g.lineWidth = 4; g.lineCap = 'butt';
+    g.strokeStyle = dimC(KNOBC[k]); g.beginPath(); g.arc(cx, cy, 11, 0.75 * Math.PI, 2.25 * Math.PI); g.stroke();
+    g.strokeStyle = KNOBC[k]; g.beginPath(); g.arc(cx, cy, 11, 0.75 * Math.PI, (0.75 + 1.5 * P[k]) * Math.PI); g.stroke();
+    g.font = 'bold 12px system-ui,sans-serif'; g.textAlign = 'center'; g.fillStyle = G(3); g.textBaseline = 'top'; g.fillText(LB[k], cx, 209);
+    g.fillStyle = G(4); g.fillText(VA[k], cx, 224); g.textAlign = 'left';
+  }
+}
+/* a sound page (ENV), where the five shades show: rules, labels, values */
+function drawPagePreview(cv, z) {
+  const g = cv.getContext('2d'); cv.width = 240 * z; cv.height = 240 * z; g.setTransform(z, 0, 0, z, 0, 0);
+  const R = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const T = (x, y, t, c, px = 12) => { g.font = 'bold ' + px + 'px system-ui,sans-serif'; g.fillStyle = c; g.textBaseline = 'top'; g.fillText(t, x, y); };
+  R(0, 0, 240, 240, TH.bg); R(4, 5, 8, 8, TH.c[4]); T(34, 1, '92', TH.c[4], 14); R(168, 2, 12, 16, TH.trk[0]); T(171, 2, '1', '#000', 13); R(0, 20, 240, 1, TH.c[0]);
+  const L = ['ATK', 'DEC', 'SUS', 'REL'], V = ['2ms', '340ms', '60', '120ms'];
+  for (let k = 0; k < 4; k++) { const x = k * 60 + 4; if (k) R(k * 60 - 1, 24, 1, 46, TH.c[0]); T(x, 26, L[k], TH.c[2]); T(x, 43, V[k], KNOBC[k], 15); R(x, 65, 52, 1, TH.c[0]); R(x, 64, 20 + k * 8, 3, dimC(KNOBC[k])); }
+  g.strokeStyle = TH.c[4]; g.lineWidth = 2; g.beginPath(); g.moveTo(14, 190); g.lineTo(40, 90); g.lineTo(110, 140); g.lineTo(170, 140); g.lineTo(226, 190); g.stroke();
+  R(0, 200, 240, 1, TH.c[0]); T(4, 222, 'ANALOG', TH.c[4]); T(64, 222, '808 BOOM', TH.c[3]); T(176, 222, 'ENV 1/2', TH.c[2]);
 }
 function drawTheme() {
   const P = $('tab_theme'); P.innerHTML = '';
   const c = card(P, L('theme'), '', L('themeHelp'), 'wide');
   const r = el('div', 'tools'); const nm = el('input', 'txt'); nm.maxLength = 8; nm.value = TH.name; nm.oninput = () => TH.name = nm.value;
   r.append(button(L('tget'), async () => { try { const b = await ask(ED.THEME, []); const t = b.slice(1, 41);
-    if (t[0] === 0x54 && t[1] === 0x48 && t[2] === 0x4D && t[3] === 0x32) { TH.name = str(t, 4, 8); for (let i = 0; i < 5; i++) TH.c[i] = from565(u16(t, 12 + 2 * i)); for (let i = 0; i < 4; i++) TH.trk[i] = from565(u16(t, 22 + 2 * i)); TH.bg = from565(u16(t, 30)); TH.hi = from565(u16(t, 32)); drawTheme(); } } catch (e) { fail(e); } }),
+    if (t[0] === 0x54 && t[1] === 0x48 && t[2] === 0x4D && t[3] === 0x32) { TH.name = str(t, 4, 8); for (let i = 0; i < 5; i++) TH.c[i] = from565(u16(t, 12 + 2 * i));
+      for (let i = 0; i < 5; i++) { const v = u16(t, TH_AT[i]); if (v) TH.trk[i] = from565(v); } TH.bg = from565(u16(t, 30)); TH.hi = from565(u16(t, 32)); drawTheme(); } } catch (e) { fail(e); } }),
     button(L('tsend'), async () => { try { await ask(ED.THEME, themeBytes()); log(L('tok'), 'ok'); } catch (e) { fail(e); } }, 'pri'), el('span', 'dim', L('tname')), nm);
   c.appendChild(r);
   const row = el('div', 'row'); row.style.alignItems = 'flex-start'; row.style.gap = '20px'; c.appendChild(row);
-  const cols = el('div', 'row'); cols.style.maxWidth = '420px';
-  const pv = el('canvas'); pv.width = 320; pv.height = 170; pv.style.cssText = 'border-radius:8px;border:1px solid var(--line)';
-  const prev = () => { const g = pv.getContext('2d'); g.fillStyle = TH.bg; g.fillRect(0, 0, 320, 170); g.fillStyle = TH.c[0]; g.fillRect(0, 0, 320, 24);
-    g.fillStyle = TH.c[4]; g.font = 'bold 13px system-ui'; g.fillText('KEYS · RHODES', 8, 17); g.fillStyle = TH.hi; g.fillText('120.0', 268, 17);
-    for (let i = 0; i < 4; i++) { const x = 12 + i * 76; g.strokeStyle = TH.c[2]; g.lineWidth = 5; g.beginPath(); g.arc(x + 26, 70, 22, 0.75 * Math.PI, 2.25 * Math.PI); g.stroke(); g.strokeStyle = TH.trk[i]; g.beginPath(); g.arc(x + 26, 70, 22, 0.75 * Math.PI, (0.75 + 0.3 * (i + 1)) * Math.PI); g.stroke();
-      g.fillStyle = TH.c[3]; g.font = '11px system-ui'; g.fillText(['CUT', 'RES', 'ENV', 'DRV'][i], x + 14, 110); }
-    for (let i = 0; i < 5; i++) { g.fillStyle = i < 4 ? TH.trk[i] : '#ff9628'; g.fillRect(12 + i * 60, 132, 50, 26); } };
-  const all = [...TH.c.map((v, i) => ['c', i]), ['bg'], ['hi'], ...TH.trk.map((v, i) => ['trk', i])];
-  all.forEach(([key, i], j) => { const d = el('label', 'tc'), inp = el('input'); inp.type = 'color'; inp.value = i === undefined ? TH[key] : TH[key][i];
-    inp.oninput = () => { if (i === undefined) TH[key] = inp.value; else TH[key][i] = inp.value; prev(); }; d.append(inp, el('span', '', L('tlab')[j])); cols.appendChild(d); });
+  const cols = el('div', ''); cols.style.maxWidth = '440px';
+  const grp = (title, items) => { const h = el('h3', '', title); h.style.marginTop = '8px'; const g = el('div', 'row'); items.forEach(x => g.appendChild(x)); cols.append(h, g); };
+  const pick = (get, set, lab, hint) => { const d = el('label', 'tc'), inp = el('input'); inp.type = 'color'; inp.value = get(); inp.oninput = () => { set(inp.value); prev(); }; d.append(inp, el('span', '', lab)); if (hint) d.title = hint; return d; };
+  grp(L('tTracks'), TH.trk.map((v, i) => pick(() => TH.trk[i], x => TH.trk[i] = x, L('tTrk')[i])));
+  grp(L('tScreen'), [pick(() => TH.bg, x => TH.bg = x, L('tlab')[5]), ...TH.c.map((v, i) => pick(() => TH.c[i], x => TH.c[i] = x, L('tlab')[i], L('tShadeUse')[i]))]);
+  grp(L('tOther'), [pick(() => TH.hi, x => TH.hi = x, L('tlab')[6], L('tHiUse'))]);
+  const pv = el('div', ''); const h1 = el('h3', '', L('tPrevHome')), cv1 = el('canvas'), h2 = el('h3', '', L('tPrevPage')), cv2 = el('canvas');
+  cv1.style.cssText = cv2.style.cssText = 'border-radius:10px;border:1px solid var(--line);width:300px;height:300px;display:block';
+  h2.style.marginTop = '10px'; pv.append(h1, cv1, h2, cv2);
+  const prev = () => { drawHomePreview(cv1, 2); drawPagePreview(cv2, 2); };
   row.append(cols, pv); prev();
 }

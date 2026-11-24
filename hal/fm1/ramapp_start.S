@@ -18,10 +18,16 @@ _start:
 2:	r4 = sp
 	r1 = __caller_sp
 	[r1+0] = r4
+	r4 = ssp			/* (3.4.1) the interrupts' stack ours too: the caller's (m-bootloader's, in its RAM) */
+	[r1+4] = r4			/* lies in the buffers we reuse there (fw/ram.ld .bootbss): an interrupt's frame */
+	r4 = __sstack_top		/* written over them, or them over it (the second core writes there) */
+	ssp = r4
 	sp = __stack_top
 	r0 = r6
 	call app_main
 	r1 = __caller_sp
+	r4 = [r1+4]
+	ssp = r4
 	r4 = [r1+0]
 	sp = r4
 	{rets, r6-r4} = [sp++]
@@ -31,3 +37,4 @@ _start:
 	.balign 4			/* (a word: ".align 2" here is 2 bytes, and a word stored there faults) */
 __caller_sp:
 	.long 0
+	.long 0			/* (+4: the caller's ssp) */

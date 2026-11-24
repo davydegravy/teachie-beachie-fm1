@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * SLOOP 3's screens (ui.c): SLOOP's layout, which its players know, in bigger and smoother type.
+ * SLOOP 3's screens (ui.c). 4.0: SLOOP 2.8.5's screens, as its players know them (Terminus Bold, capitals, the four
+ * 60 px columns, the 16 tiles, the dials), with the fifth track. Before 4.0 (kept for what the fields mean):
  *   - top: the tempo in big type, the transport (play / stop / record, bar.beat and the four beats), a status
  *     (the pattern, the one queued, the song, REC);
  *   - a track header on the pages: its colour, its number, the sound's name in big type;
@@ -28,12 +29,15 @@ enum {
     UI_NOTES,                  /* SEQ tapped twice (a synth track): the pattern as a piano roll, a step edited */
     UI_SONG,                   /* SONG 2/2: the song's entries, each its pattern and its bars (as SLOOP's SONG screen) */
     UI_VIS,                    /* HOME tapped on TRACKS: the visualiser (vis.h), the messages over it */
-    UI_SPLASH                  /* the start: the SLOOP logo drawn in (vis.h) */
+    UI_SPLASH,                 /* the start: the SLOOP logo drawn in (vis.h) */
+    UI_REC,                    /* (4.0) REC armed, its count-in, a free take: as SLOOP 2.8.5's REC screen */
+    UI_MENU,                   /* (4.0) HOME held: SLOOP 2.8.5's menu (dpage: the section 0..4, knob i: its row i) */
+    UI_SLICER                  /* (4.0.3) FX > SLICER: its pattern drawn, as SLOOP 2.8.5 */
 };
 /* a step cell (TRACKS) */
 enum { UC_NOTE = 1, UC_LOCK = 2, UC_COND = 4, UC_RAT = 8, UC_OUT = 16, UC_PLAY = 32 };
 /* a tile */
-enum { T_EMPTY, T_ON, T_DIM, T_FRAME, T_WHITE, T_RED, T_NONE };
+enum { T_EMPTY, T_ON, T_DIM, T_FRAME, T_WHITE, T_RED, T_NONE, T_GAUGE };   /* (3.3.8) GAUGE: filled from the left as far as lvl, in col */
 enum { TF_PLAY = 1, TF_DOT = 2, TF_FILL = 4, TF_NOFILL = 8, TF_BAR = 16, TF_BLINK = 32, TF_LEVEL = 64, TF_WRAP = 128 };   /* LEVEL: a fader along its foot; WRAP: a name, on two lines if one is too short (SOUNDS) */
 
 typedef struct { const char *label; char value[10]; int8_t bar; uint8_t hot, dial; } ui_knob;   /* bar 0..100, -1 none */
@@ -70,20 +74,33 @@ typedef struct {
     int8_t mfilt, tfilt;                           /* the DJ filter, the track's: -100 LP .. 0 off .. 100 HP */
     uint8_t dust, duck;
     uint8_t arp_n; uint8_t arp_seq[16];            /* UI_ARP: the notes it would play, 0..100 high (255: a rest) */
-    uint16_t drum_row[16]; uint8_t drum_sel; int8_t drum_at;   /* UI_DRUMS: each sound's steps (bit i), its sound, the playhead */
+    uint16_t drum_row[16]; uint8_t drum_sel; int8_t drum_at, drum_cur; uint32_t drum_lvl, drum_rat; uint8_t drum_sheet;   /* UI_DRUMS: each sound's steps (bit i), its sound, the playhead,
+                                                   (3.3.8) the step picked (-1 none), the sound picked's levels and ratchets (2 bits a step),
+                                                   the sheet open (page_name its title) */
     const char *const *pad_names;
     uint16_t pad_mute;                             /* the drum sounds muted (bit = pad) */
-    ui_note nr[UI_NOTES_MAX]; uint8_t nr_n, nr_lo, nr_hi, nr_cur, nr_play, nr_cols;   /* UI_NOTES: the notes (x, len in 64ths
-                                                   of the steps shown), the pitches shown, the step edited (0 .. nr_cols - 1), the
-                                                   playhead (64ths; 255 none), the steps shown (0: 16) */
+    ui_note nr[UI_NOTES_MAX]; uint8_t nr_n, nr_lo, nr_hi, nr_cur, nr_play, nr_cols, nr_bar;   /* UI_NOTES: the notes (x, len
+                                                   in 64ths of the steps shown), the pitches shown, the step edited (0 .. nr_cols
+                                                   - 1), the playhead (64ths; 255 none), the steps shown (0: 16), the steps in a
+                                                   bar (the track's DIV, 3.3.8; 0: 16) */
     ui_songrow sg[5]; uint8_t sg_n;                /* UI_SONG: the rows shown */
     /* the dials */
     ui_knob knob[4];
     /* a message over the page */
-    const char *toast; uint8_t toast_kind;
+    const char *toast; uint8_t toast_kind; uint8_t saved;     /* (3.3.8) saved: 1 the big SAVED, 2 SAVE FAILED */
     const char *info;                              /* 3.3: what just changed: in the page's own title line, nothing covered */
     uint8_t saving, save_pct;
     uint8_t batt, batt_usb;                        /* (3.3.6) the battery: 0..100 % (255: not read yet); USB: 1..8, the light's step */
+    /* (4.0) as SLOOP 2.8.5 */
+    uint8_t rec_kind;                              /* UI_REC: 0 armed, free take; 1 armed, a note starts; 2 armed, PLAY counts in;
+                                                      3 counting in (count_n 4..1); 4 a free take (take_*) */
+    uint8_t count_n, take_secs, take_bars; uint16_t take_bpm;
+    int8_t pat_badge; uint8_t pat_next;            /* TRACKS / the drums: the pattern playing (0..7, -1 none), the one waiting (255 none) */
+    uint8_t hot_k, oct; int8_t octave;             /* the knob just turned (0..3, 255 none): its value white; the octave (0: none shown) */
+    char head_r[12];                               /* a layer's readout, top right (FX: its fade) */
+    uint8_t locked;                                /* the layer locked open (HOME): LOCK */
+    uint8_t dpage;                                 /* the drums' screen: 0 GRID, 1 KIT, 2 SOUND */
+    uint16_t slc_pat; uint8_t slc_mode, slc_depth, slc_at;   /* (4.0.3) UI_SLICER: the pattern (bit i), OFF GATE STUT, 0..100, the step playing */
 } ui_view;
 
 void ui_draw(const ui_view *v);

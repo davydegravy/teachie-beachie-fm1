@@ -129,7 +129,7 @@ GB_SMALL void snd_init(gb_sound *s, int16_t *fx_mem, int16_t *punch_mem)
         gb_patch_default(&k->patch, ENG_VA);
     }
     sm_init(&s->master, 0.8f, 30.0f);
-    s->lim_gain = 1.0f;
+    s->lim_gain = 1.0f; s->mix_gain = 1.0f;
     master_init(s, punch_mem);
     fx_init(s, fx_mem, punch_mem ? punch_mem + GB_HIST + 2 * GB_MODL + GB_CHO : 0);   /* (after: master_init clears its memory) */
     gb_tables_init();
@@ -701,9 +701,12 @@ GB_HOT void snd_mix(gb_sound *s, gb_bus *b, const gb_bus *other, int32_t *out)
      * the peak arrives (a block of look-ahead, no added latency) */
     if (s->usb_full)                                                   /* (USB AUDIO FULL: the mix, MASTER all the way up) */
         for (int n = 0; n < GB_BLOCK; n++) { s->usb_l[n] = gb_clampf(ml[n], -1.0f, 1.0f); s->usb_r[n] = gb_clampf(mr[n], -1.0f, 1.0f); }
-    float sm = sm_step(&s->master), mg = s->master.cur, pk = 0.0f, e = 0.0f;
+    /* (3.4.2, issue #16: "3.4 is 6 to 9 dB quieter than 2.8.5", measured) the mix 6 dB up before the limiter: as loud
+     * as before 3.4.0, its peaks still held at the ceiling (the DAC 6 dB under it since 4.0.9: fw/main.c), as 2.8.5's
+     * limiter holds its own; a quiet mix is louder, a loud one is limited, never clipped */
+    float sm = sm_step(&s->master), smg = sm * s->mix_gain, mg = s->master.cur * s->mix_gain, pk = 0.0f, e = 0.0f;
     GB_UNROLL4
-    for (int n = 0; n < GB_BLOCK; n++) { mg += sm; ml[n] *= mg; mr[n] *= mg; float x = gb_absf(ml[n]), y = gb_absf(mr[n]), a = gb_maxf(x, y); e += x + y; if (a > pk) pk = a; }   /* (e: a NaN kept, as max would not) */
+    for (int n = 0; n < GB_BLOCK; n++) { mg += smg; ml[n] *= mg; mr[n] *= mg; float x = gb_absf(ml[n]), y = gb_absf(mr[n]), a = gb_maxf(x, y); e += x + y; if (a > pk) pk = a; }   /* (e: a NaN kept, as max would not) */
     sm_end(&s->master, sm);
     if (s->panic_quiet) s->panic_quiet--;
     if (!(e < 1e9f)) {          /* 3.3.2: a value gone wrong (NaN, infinite; no float trap: no restart) would stay in the
@@ -711,7 +714,7 @@ GB_HOT void snd_mix(gb_sound *s, gb_bus *b, const gb_bus *other, int32_t *out)
         for (int n = 0; n < GB_BLOCK; n++) ml[n] = mr[n] = 0.0f;
         pk = 0.0f; snd_panic(s);
     }
-    if (s->lowcut) {                                                   /* the small speaker: two one-pole high-passes */
+    if (s->lowcut == 1) {                                              /* the small speaker: two one-pole high-passes */
         float a = s->lc[0], b2 = s->lc[1], c = s->lc[2], d = s->lc[3];
         for (int n = 0; n < GB_BLOCK; n++) {
             a += (ml[n] - a) * (1.0f / 64.0f); float x = ml[n] - a; b2 += (x - b2) * (1.0f / 64.0f); ml[n] = x - b2;

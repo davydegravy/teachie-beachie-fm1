@@ -382,11 +382,30 @@ static void ep4_service(void)                          /* (the tick) a packet as
     sie_wr(S_TX_CSR1, 0x01);                             /* ready (and an underrun's flag cleared) */
 }
 
+/* (3.3.8, as SLOOP 2.8.5) a host there: the frame number (FRAME1, FRAME2) moves only with a real host, a millisecond a
+ * frame; frozen 100 ms, or a suspend (the bus idle 3 ms), the cable is out (or the host asleep); a resume or a reset:
+ * back. No reset comes when the cable is pulled, so the configuration alone said "there" until the next start */
+enum { S_FRAME1 = 12, S_FRAME2 = 13 };
+static volatile uint8_t suspended;
+static uint32_t t_frame, t_moved; static uint16_t frame_n;
+static void frame_watch(uint32_t bus)
+{
+    uint32_t now = time_ticks(), mhz = time_mhz();
+    if (bus & 0x01u) suspended = 1;                                /* suspend */
+    if (bus & 0x06u) { suspended = 0; t_moved = now; }             /* resume, reset */
+    if (!conf || now - t_frame < 10000u * mhz) return;             /* (every 10 ms) */
+    t_frame = now;
+    uint16_t f = (uint16_t)(sie_rd(S_FRAME1) | (sie_rd(S_FRAME2) & 7u) << 8);
+    if (f != frame_n) { frame_n = f; t_moved = now; suspended = 0; }
+    else if (now - t_moved > 100000u * mhz) suspended = 1;
+}
 static void usb_service(void)
 {
     if (!open_) return;
-    if (U_CON0 & (1u << 13)) U_CON0 |= 1u << 12;                   /* a frame's start: acknowledged */
+    if (U_CON0 & (1u << 13)) U_CON0 |= 1u << 12;                   /* a frame's start: acknowledged (it goes on with the
+                                                                    * cable out: no sign of a host, SLOOP 2.8.5 found) */
     uint32_t bus = sie_rd(S_INT_USB), tx = sie_rd(S_INT_TX1), rx = sie_rd(S_INT_RX1);
+    frame_watch(bus);
     if (bus & 0x04u) {                                             /* a bus reset: back to the start */
         sie_wr(S_FADDR, 0);
         conf = 0; e0_sending = 0; addr_pending = 0; rx_pend = 0; ua.e0_rx = 0; ua_stream(0); ua.r48 = (uint8_t)(ua.force == 2);
@@ -428,6 +447,7 @@ void usb_midi_open(void)
     conf = 0; open_ = 1;
 }
 int usb_midi_ready(void) { return open_ && conf; }
+int usb_host_live(void) { return open_ && conf && !suspended; }
 void usb_midi_close(void) { U_IO_CON0 &= ~0xF0u; open_ = 0; conf = 0; }   /* off the bus (D+ let go) */
 int usb_midi_take(uint8_t pk[4])
 {

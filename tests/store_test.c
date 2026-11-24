@@ -7,15 +7,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 static int checks, fails;
 #define CHECK(c, ...) do { checks++; if (!(c)) { fails++; printf("  FAIL %s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n"); } } while (0)
 
 /* a NOR flash: erase sets 0xFF, a write can only clear bits; an operation is busy for a few polls */
 static uint8_t fl[0x100000];
-static int busy_left, ops, cut_at = -1;
+static int busy_left, ops, cut_at = -1, erases;
 static int f_read(uint32_t a, void *d, uint32_t n) { memcpy(d, fl + a, n); return 0; }
 static int f_busy(void) { if (busy_left > 0) { busy_left--; return 1; } return 0; }
-static int f_erase(uint32_t a) { if (ops++ == cut_at) return -1; memset(fl + a, 0xFF, 4096); busy_left = 5; return 0; }
+static int f_erase(uint32_t a) { if (ops++ == cut_at) return -1; erases++; memset(fl + a, 0xFF, 4096); busy_left = 5; return 0; }
 static int f_prog(uint32_t a, const void *s, uint32_t n) { if (ops++ == cut_at) return -1; for (uint32_t i = 0; i < n; i++) fl[a + i] &= ((const uint8_t *)s)[i]; busy_left = 2; return 0; }
 static const store_flash F = { f_read, f_erase, f_prog, f_busy };
 
@@ -85,6 +86,34 @@ static void store_tests(void)
     }
     printf("  39 cuts: %d gave the version before, %d the new one, %d neither\n", n_old, n_new, worst);
     CHECK(worst == 0, "%d cuts left no whole project", worst);
+    /* (3.4.0) saves one after another (as while it plays): each after the newest, where the flash is still erased, so no
+     * erase until the banks are full; then the other bank again, erased; every copy comes back, the cuts too */
+    {
+        memset(fl, 0xFF, sizeof fl); store_init(&F); erases = 0;
+        int bad = 0, first_erase = -1;
+        for (int i = 0; i < 24; i++) {
+            const uint8_t *d = (i & 1) ? b_ : a_ + i; uint32_t n = 7000u + (uint32_t)i * 37u;
+            int e0 = erases;
+            if (save_proj(d, n, crc_of(d, n), 12032) || load_proj(got, sizeof got) != (int)n || memcmp(got, d, n)) bad++;
+            if (erases > e0 && first_erase < 0) first_erase = i;
+        }
+        printf("  24 saves of 7 KB in a row: the first erase at save %d, %d erases in all\n", first_erase + 1, erases);
+        CHECK(!bad, "%d saves in a row did not come back", bad);
+        CHECK(first_erase >= 7, "an erase already at save %d (6 copies of 2 sectors fit in the two banks after the first)", first_erase + 1);
+        int w = 0;
+        for (int cut = 0; cut < 2 + 28 + 8 + 2; cut++) {             /* a save that must erase, cut at each operation */
+            memset(fl, 0xFF, sizeof fl); store_init(&F); cut_at = -1;
+            for (int i = 0; i < 12; i++) save_proj(a_ + i, 7000, crc_of(a_ + i, 7000), 12032);
+            ops = 0; cut_at = cut;
+            int r = save_proj(b_, 7000, crc_of(b_, 7000), 12032);
+            cut_at = -1; store_init(&F);
+            int n = load_proj(got, sizeof got);
+            int old = n == 7000 && !memcmp(got, a_ + 11, 7000), neu = n == 7000 && !memcmp(got, b_, 7000);
+            if (!old && !neu) w++;
+            if (r == 0 && !neu) w++;
+        }
+        CHECK(w == 0, "a save over a full bank, cut: %d left no whole project", w);
+    }
     /* a torn byte in the new copy's data: the one before */
     memset(fl, 0xFF, sizeof fl); store_init(&F);
     save_proj(a_, 2000, crc_of(a_, 2000), 12032); save_proj(b_, 2000, crc_of(b_, 2000), 12032);
@@ -176,7 +205,7 @@ static void project_tests(void)
     seq_step_cond(&Q1, 4, 3, SEQ_CHANCE + 3); seq_step_ratchet(&Q1, 4, 3, 3); seq_lock_set(&Q1, 4, 3, 6, 77); seq_lock_set(&Q1, 4, 3, 7, 200);
     Q1.song_n = 2; Q1.song_len = 8; Q1.song[1].bar = 4; Q1.song[1].mute = 5; Q1.song[1].pat[2] = 3;
     X1.dly_div = 5; for (int t = 0; t < SEQ_NTRK; t++) X1.preset[t] = (uint8_t)(t * 3); S1.dly_fb = 0.61f; S1.rev_fb = 0.9f; Q1.swing = 37; Q1.t[3].swing = 12; X1.harm[2][0] = 2; X1.harm[2][1] = 7; X1.harm[2][3] = 3; X1.harm[2][4] = 64 + 5;
-    S1.dust = 0.37f; S1.duck = 0.5f; sm_set(&S1.mfilt, -0.42f); X1.fade = 9; X1.strum[1] = 40; X1.vlead[2] = 1; memset(X1.home, 0xFF, sizeof X1.home); X1.home[3] = 7; X1.home[39] = 0; for (int i = 0; i < 8; i++) X1.tex[i] = (uint8_t)(i + 3); for (int i = 0; i < 4; i++) X1.fxv[i] = (uint8_t)(10 * i + 5); for (int i = 0; i < 8; i++) X1.midi[i] = (uint8_t)(i < 5 ? i % 3 : 0xFF); S1.trk[3].patch.dtune[2] = -5; S1.trk[3].patch.ddec[15] = 3; S1.trk[3].patch.dmute = 0x8001; Q1.t[2].div = SEQ_DIV_8T; Q1.t[1].gate = 60; sm_set(&S1.trk[2].send_cho, 0.4f); sm_set(&S1.trk[3].filt, 0.25f); sm_set(&S1.trk[1].filt, -1.0f);
+    S1.dust = 0.37f; S1.duck = 0.5f; sm_set(&S1.mfilt, -0.42f); X1.fade = 9; X1.strum[1] = 40; X1.vlead[2] = 1; memset(X1.home, 0xFF, sizeof X1.home); X1.home[3] = 7; X1.home[39] = 0; for (int i = 0; i < 8; i++) X1.tex[i] = (uint8_t)(i + 3); for (int i = 0; i < 4; i++) X1.fxv[i] = (uint8_t)(10 * i + 5); for (int i = 0; i < 8; i++) X1.midi[i] = (uint8_t)(i < 5 ? i % 3 : 0xFF); S1.trk[3].patch.dtune[2] = -5; S1.trk[3].patch.ddec[15] = 3; S1.trk[3].patch.ddec[14] = gb_dpack(-2, -7); S1.trk[3].patch.dmute = 0x8001; Q1.t[2].div = SEQ_DIV_8T; Q1.t[1].gate = 60; sm_set(&S1.trk[2].send_cho, 0.4f); sm_set(&S1.trk[3].filt, 0.25f); sm_set(&S1.trk[1].filt, -1.0f);
     /* each pattern's own sound: track 1's pattern 3 another cutoff and engine, the drums' pattern 6 a tune */
     for (int t = 0; t < SEQ_NTRK; t++) ps_fill(&PS1, t, 0, &S1.trk[t].patch, S1.trk[t].patch.p, 5);
     PS1.s[0][2].p[6] = 200; PS1.s[0][2].engine = ENG_FM; PS1.s[0][2].preset = -9; PS1.d[5].dtune[3] = -7; PS1.d[5].dmute = 0x0102;
@@ -184,6 +213,14 @@ static void project_tests(void)
     int n = project_save(&Q1, &S1, &X1, buf, sizeof buf);
     printf("  %d bytes\n", n);
     CHECK(n > 0, "save failed");
+    CHECK(project_load(&Q2, &S2, &X2, buf, (uint32_t)n) == 0, "load failed");
+    CHECK(fabsf(S2.trk[0].level.tgt - S1.trk[0].level.tgt) < 1e-6f, "the drums' level not kept (%f)", S2.trk[0].level.tgt);
+    /* (3.4.0) a project from before (17): the kits 3 x louder since, its drums' level a third (as it sounded) */
+    { static uint8_t old[sizeof buf]; memcpy(old, buf, (size_t)n); old[4] = 16;
+      sm_set(&S1.trk[0].level, 0.9f); int m = project_save(&Q1, &S1, &X1, old, sizeof old); old[4] = 16;
+      CHECK(m > 0 && project_load(&Q2, &S2, &X2, old, (uint32_t)m) == 0 && fabsf(S2.trk[0].level.tgt - 0.3f) < 1e-5f && fabsf(S2.trk[1].level.tgt - 0.05f) < 1e-5f,
+            "a project of 16: the drums %f (0.3), a synth %f (0.05)", S2.trk[0].level.tgt, S2.trk[1].level.tgt);
+      sm_set(&S1.trk[0].level, 0.0f); }
     CHECK(project_load(&Q2, &S2, &X2, buf, (uint32_t)n) == 0, "load failed");
     CHECK(Q2.bpm == 133.0f && Q2.t[2].mute == 1 && Q2.t[4].quant == 70 && Q2.t[4].cur == 6 && Q2.t[3].pat[0].steps == 96, "settings lost");
     int same = 1;
@@ -200,6 +237,7 @@ static void project_tests(void)
           && S2.trk[3].filt.tgt > 0.2499f && S2.trk[3].filt.tgt < 0.2501f && S2.trk[1].filt.tgt < -0.9999f && S2.trk[0].filt.tgt == 0.0f, "the master bus or the track filters differ");
     CHECK(Q2.t[2].div == SEQ_DIV_8T && Q2.t[0].div == SEQ_DIV_16 && Q2.t[1].gate == 60 && Q2.t[0].gate == 100 && S2.trk[2].send_cho.tgt > 0.399f && S2.trk[2].send_cho.tgt < 0.401f, "DIV, GATE or the chorus differ");
     CHECK(S2.trk[3].patch.dtune[2] == -5 && S2.trk[3].patch.ddec[15] == 3 && S2.trk[3].patch.dmute == 0x8001 && S2.trk[0].patch.dtune[2] == 0, "the drums' sounds differ");
+    CHECK(GB_DDEC(S2.trk[3].patch.ddec[14]) == -2 && gb_dlev(S2.trk[3].patch.ddec[14]) == -7, "a drum sound's level (3.4.2) not kept");
     CHECK(X2.strum[1] == 40 && X2.vlead[2] == 1 && X2.strum[0] == 0, "STRUM or VLEAD differ");
     CHECK(X2.home[3] == 7 && X2.home[39] == 0 && X2.home[0] == 0xFF, "the device's settings differ");
     CHECK(X2.tex[0] == 3 && X2.tex[6] == 9, "TEXTURE differs"); CHECK(X2.fxv[0] == 5 && X2.fxv[3] == 35, "COLR MIX DAMP CRT differ");
@@ -349,7 +387,13 @@ static void max_tests(void)
     }
     Q1.song_n = SEQ_SONG; Q1.song_len = 0xFFFF;
     for (int i = 0; i < SEQ_SONG; i++) { Q1.song[i].bar = (uint16_t)(i * 9); Q1.song[i].mute = 31; for (int t = 0; t < SEQ_NTRK; t++) Q1.song[i].pat[t] = (uint8_t)(prnd() % SEQ_NPAT); }
-    memset(&X1, 0x7F, sizeof X1); X1.ps = &P1; memset(&X2, 0, sizeof X2); X2.ps = &P2;
+    /* (4.0) each track's current pattern as last saved: full too, and different (format 16) */
+    static seq_pat K1[SEQ_NTRK], K2[SEQ_NTRK];
+    for (int t = 0; t < SEQ_NTRK; t++) {
+        seq_pat *k = &K1[t]; *k = Q1.t[t].pat[Q1.t[t].cur]; k->steps = 77;
+        for (int e = 0; e < SEQ_PATEV; e++) k->ev[e].note = (uint8_t)((k->ev[e].note + 5) & 127);
+    }
+    memset(&X1, 0x7F, sizeof X1); X1.ps = &P1; X1.keep = K1; memset(&X2, 0, sizeof X2); X2.ps = &P2; X2.keep = K2;
     int n = project_save(&Q1, &S1, &X1, whole, sizeof whole);
     printf("  %d bytes, %d %% of the place (%u)\n", n, n * 100 / (int)STORE_PMAX, STORE_PMAX);
     CHECK(n > 0 && n <= (int)STORE_PMAX, "the largest project (%d bytes) does not fit its place (%u)", n, STORE_PMAX);
@@ -369,6 +413,14 @@ static void max_tests(void)
         for (int e = 0; e < a->n && same; e++) if (a->ev[e].tick != b->ev[e].tick || a->ev[e].len != b->ev[e].len || a->ev[e].note != b->ev[e].note || a->ev[e].vel != b->ev[e].vel || a->ev[e].cond != b->ev[e].cond) same = 0;
     }
     CHECK(same && Q2.song_n == SEQ_SONG, "the largest project came back different");
+    int ksame = 1, kgot = 0;                             /* (the largest: as many as fit; each one kept, as it was) */
+    for (int t = 0; t < SEQ_NTRK; t++) { const seq_pat *a = &K1[t], *b = &K2[t];
+        if (!X2.keep_got[t]) continue;
+        kgot++;
+        if (a->n != b->n || a->steps != b->steps || a->nlock != b->nlock) ksame = 0;
+        for (int e = 0; e < a->n && ksame; e++) if (a->ev[e].note != b->ev[e].note || a->ev[e].len != b->ev[e].len) ksame = 0; }
+    printf("  (4.0) %d of %d patterns as last saved kept\n", kgot, SEQ_NTRK);
+    CHECK(ksame && kgot >= 1, "(4.0) the patterns as last saved came back different (%d kept)", kgot);
     whole[n / 2] ^= 0x40; int bad = project_load_from(0, 0, 0, fetch_fn, (uint32_t)n, 1); whole[n / 2] ^= 0x40;
     (void)bad;                                           /* (a byte changed may still make a file: the store's CRC catches it) */
     CHECK(project_load_from(0, 0, 0, fetch_fn, (uint32_t)n - 1, 1) < 0, "a cut file passed the check");

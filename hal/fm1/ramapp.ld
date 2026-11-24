@@ -9,6 +9,6 @@ SECTIONS {
   .data : { *(.data*) *(.sdata*) . = ALIGN(4); } > slot
   __image_end = .;
   .bss (NOLOAD) : { . = ALIGN(8); __bss_start = .; *(.bss*) *(.sbss*) *(COMMON) . = ALIGN(8); __bss_end = .; } > slot
-  .stack (NOLOAD) : { . = ALIGN(8); . += 0x4000; __stack_top = .; } > slot
+  .stack (NOLOAD) : { . = ALIGN(8); . += 0x200; __sstack_top = .; . += 0x4000; __stack_top = .; } > slot   /* (3.4.1: the interrupts' stack below) */
   ASSERT(__stack_top <= 0x01C7FD80, "the RAM app does not fit its slot")
 }

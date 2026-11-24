@@ -56,11 +56,20 @@ out = ['/* SPDX-License-Identifier: GPL-3.0-only',
        ' * docs/sloop/facts.json (edit the script, not this file). Each different sound once (gb_dsnds; 3.1.6: the kits share',
        ' * many), each kit its 16 by number. Read only while the flash window is on (engine/drum.c). */',
        '#include "drum.h"', '']
+# (3.4.1, Sam: "the instruments are not all as loud") tools/drumtrims.txt: a kit's key brought near the same key of
+# the other kits (build/level_tool drumtrims: K-weighted); a trim added to SLOOP's own
+TRIM = {}
+tp = os.path.join(HERE, 'drumtrims.txt')
+if os.path.exists(tp):
+    for line in open(tp, encoding='utf-8'):
+        if line.startswith('#') or '\t' not in line: continue
+        kn, r, db = line.rstrip('\n').split('\t'); TRIM[(kn, int(r))] = float(db)
 uniq, idx, kits = [], {}, []
 for k in facts['synth_kits']:
     lanes = dict(zip(LANES, k['lanes'])); si = []
-    for name, semi in OURS:
-        v = tuple(enc(punch(name, lanes[name]), semi))
+    for r, (name, semi) in enumerate(OURS):
+        s = dict(punch(name, lanes[name])); s['trim'] = s.get('trim', 0.0) + TRIM.get((k['name'], r), 0.0)
+        v = tuple(enc(s, semi))
         if v not in idx: idx[v] = len(uniq); uniq.append(v)
         si.append(idx[v])
     kits.append((k, si))

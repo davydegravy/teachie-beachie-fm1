@@ -401,7 +401,7 @@ int sloop_import(const uint8_t *const sections[4], const uint8_t *work, seq_t *q
             sm_set(&k->send_dly, (float)clampi(par(tk, SL_DLY), 0, 127) * (1.0f / 127.0f));
             sm_set(&k->send_rev, (float)clampi(par(tk, SL_REV), 0, 127) * (1.0f / 127.0f));
         } else {                                         /* the drums: GLO > DRUMS (LVL, REV, DLY) */
-            sm_set(&k->level, (float)clampi(rd16(g + 2 * 25), 0, 127) * (1.0f / 127.0f));
+            sm_set(&k->level, (float)clampi(rd16(g + 2 * 25), 0, 127) * (1.0f / 381.0f));   /* (3.4.0: our kits 3 x louder: as SLOOP 2.8 played them) */
             sm_set(&k->send_rev, (float)clampi(rd16(g + 2 * 26), 0, 127) * (1.0f / 127.0f));
             sm_set(&k->send_dly, (float)clampi(src[73], 0, 127) * (1.0f / 127.0f));
         }

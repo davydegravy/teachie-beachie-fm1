@@ -3,7 +3,7 @@
 #include "project.h"
 
 #define PMAGIC 0x4A504247u                      /* "GBPJ" */
-#define PVERSION 15u                              /* 2: conditions, ratchets, locks, the song; 3: the effects, the
+#define PVERSION 17u                              /* 2: conditions, ratchets, locks, the song; 3: the effects, the
                                                    * presets; 4: the swing; 5: 24 sound parameters (the LFO); 6: the
                                                    * master (DUST, DUCK, the DJ filter, the punch-ins' fade) and each
                                                    * track's filter; 7: each track's DIV and GATE, its chorus
@@ -13,7 +13,9 @@
                                                    * notes, their sounds back to their engine's defaults);
                                                    * 13: the device's settings (HOME); 14: the delay's COLR and MIX,
                                                    * the reverb's DAMP, the chorus's rate; 15: the patterns' notes
-                                                   * packed (ev_pack) */
+                                                   * packed (ev_pack); 16 (4.0): each track's pattern as last
+                                                   * saved; 17 (3.4.0): nothing new, but the drum kits 3 x louder: a
+                                                   * project from before has its drums' level taken down as much */
 #define PRJ_NTRK 8                                /* the tracks a file has room for (the sequencer has SEQ_NTRK) */
 #define PRJ_NPAT 16                               /* the patterns a track of a file may have (SEQ_NPAT here) */
 _Static_assert(SEQ_NTRK <= PRJ_NTRK && PRJ_NTRK <= GB_NTRACK, "a project's tracks");
@@ -111,7 +113,7 @@ static int ev_unpack(rd *r, seq_pat *p, uint32_t n)      /* 0: n notes read, eac
         if (!p) continue;                             /* (the dry run: read, checked, not kept) */
         seq_ev *v = &p->ev[e];
         v->tick = (uint16_t)t; v->len = (uint16_t)len; v->note = (uint8_t)note; v->vel = (uint8_t)(vel & 127u); v->cond = (uint8_t)cond;
-        uint32_t rn = rat & 7u; v->ratchet = (uint8_t)((rn < 1 ? 1 : rn > 4 ? 4 : rn) | (rat & 0x30u));
+        uint32_t rn = rat & 7u; v->ratchet = (uint8_t)((rn < 1 ? 1 : rn > 4 ? 4 : rn) | (rat & 0x70u));   /* (3.4.2: SEQ_FREE kept) */
     }
     return 0;
 }
@@ -175,7 +177,7 @@ static void save_body(wr *wp, const seq_t *q, const gb_sound *s, const project_e
         w16(&w, p->dmute);
     }
     /* 9 */
-    for (int t = 0; t < PRJ_NTRK; t++) { w8(&w, x && t < SEQ_NTRK ? x->strum[t] : 0u); w8(&w, x && t < SEQ_NTRK ? x->vlead[t] : 0u); }
+    for (int t = 0; t < PRJ_NTRK; t++) { w8(&w, x && t < SEQ_NTRK ? (uint8_t)x->strum[t] : 0u); w8(&w, x && t < SEQ_NTRK ? x->vlead[t] : 0u); }
     /* 10 */
     for (int i = 0; i < 8; i++) w8(&w, x ? x->midi[i] : 0u);
     /* 11: each pattern's own sound, where it is not the current pattern's (that one: the track's, above) */
@@ -195,6 +197,26 @@ static void save_body(wr *wp, const seq_t *q, const gb_sound *s, const project_e
     for (int t = 0; t < PRJ_NTRK; t++) w16(&w, x && t < SEQ_NTRK ? x->preset16[t] : 0xFFFFu);   /* (each track's sound: 15 bits, bit 15 edited) */
     for (int i = 0; i < 8; i++) w8(&w, x ? x->tex[i] : 0xFFu);
     for (int i = 0; i < 4; i++) w8(&w, x ? x->fxv[i] : 0xFFu);   /* 14 */
+    /* 16 (4.0, SLOOP 2.8's sections): each track's current pattern as last saved, and its sound as last saved (the
+     * header holds the sound as it is now): a pattern played again comes back as it was saved */
+    for (int t = 0; t < SEQ_NTRK; t++) {
+        int cur = q->t[t].cur;
+        const seq_pat *k = x && x->keep ? &x->keep[t] : 0, *c = &q->t[t].pat[cur];
+        int diff = k && (k->n != c->n || k->steps != c->steps || k->nlock != c->nlock ||
+                         memcmp(k->ev, c->ev, sizeof k->ev[0] * k->n) || memcmp(k->lk, c->lk, sizeof k->lk[0] * k->nlock));
+        uint32_t fl = (x && x->ps ? 1u : 0u) | (diff ? 2u : 0u), need = 1u, rest = 0;
+        if (fl & 1u) need += PS_BYTES + (t == PS_DRUM ? PS_DRUM_BYTES : 0u);
+        for (int u = t + 1; u < SEQ_NTRK; u++) rest += 1u + (x && x->ps ? PS_BYTES + (u == PS_DRUM ? PS_DRUM_BYTES : 0u) : 0u);
+        if (diff && w.n + need + 5u + 8u * k->n + 3u * k->nlock + rest > STORE_PMAX) fl &= ~2u;   /* (the largest project: it must fit
+                                                         its place; the pattern as it is counts as saved then) */
+        w8(&w, fl);
+        if (fl & 1u) { uint8_t b[PS_BYTES + PS_DRUM_BYTES]; int n = ps_write(x->ps, t, cur, b); for (int i = 0; i < n; i++) w8(&w, b[i]); }
+        if (fl & 2u) {
+            w16(&w, k->steps); w16(&w, k->n); w8(&w, k->nlock);
+            for (int e = 0; e < k->n; e++) { w16(&w, k->ev[e].tick); w16(&w, k->ev[e].len); w8(&w, k->ev[e].note); w8(&w, k->ev[e].vel); w8(&w, k->ev[e].cond); w8(&w, k->ev[e].ratchet); }
+            for (int l = 0; l < k->nlock; l++) { w8(&w, k->lk[l].step); w8(&w, k->lk[l].param); w8(&w, k->lk[l].value); }
+        }
+    }
     *wp = w;
 }
 int project_save(const seq_t *q, const gb_sound *s, const project_extra *x, uint8_t *buf, uint32_t cap)
@@ -258,6 +280,15 @@ static int load_body(seq_t *q, gb_sound *s, project_extra *x, rd r, int check_on
     }
     if (ver >= 13) chk.n += PRJ_HOME + 2u * PRJ_NTRK + 8u;
     if (ver >= 14) chk.n += 4u;
+    if (ver >= 16) for (int t = 0; t < SEQ_NTRK && !chk.bad; t++) {
+        uint32_t fl = r8(&chk);
+        if (fl & 1u) chk.n += PS_BYTES + (t == PS_DRUM ? PS_DRUM_BYTES : 0u);
+        if (fl & 2u) {
+            uint32_t steps = r16(&chk), n = r16(&chk), nl = r8(&chk);
+            if (steps < 1 || steps > SEQ_MAXSTEPS || n > SEQ_PATEV || nl > SEQ_LOCKS) return -1;
+            chk.n += 8u * n + 3u * nl;
+        }
+    }
     if (chk.bad || chk.n > len) return -1;
     if (check_only) return 0;
     /* the real load */
@@ -273,7 +304,8 @@ static int load_body(seq_t *q, gb_sound *s, project_extra *x, rd r, int check_on
         if (!p->unison) p->unison = 1;
         for (int i = 0; i < np; i++) { float f = clamp01(rf(&r)); if (i < GB_NPARAM) p->p[i] = f; }
         if (ver < 12) gb_patch_default(p, p->engine);   /* (another sound model: its values mean nothing here) */
-        sm_set(&k->level, clamp01(rf(&r))); sm_set(&k->pan, clamp01(rf(&r)));
+        { float lv = clamp01(rf(&r)); if (ver < 17u && p->engine == ENG_DRUM) lv *= (1.0f / 3.0f); sm_set(&k->level, lv); }   /* (3.4.0: the kits 3 x louder; a project from before as it sounded) */
+        sm_set(&k->pan, clamp01(rf(&r)));
         sm_set(&k->send_dly, clamp01(rf(&r))); sm_set(&k->send_rev, clamp01(rf(&r)));
         sm_set(&k->filt, 0.0f);
         uint32_t mu = r8(&r), qu = r8(&r), cu = r8(&r);
@@ -303,7 +335,7 @@ static int load_body(seq_t *q, gb_sound *s, project_extra *x, rd r, int check_on
             p->ev[e].tick = (uint16_t)r16(&r); p->ev[e].len = (uint16_t)r16(&r);
             p->ev[e].note = (uint8_t)(r8(&r) & 127u); p->ev[e].vel = (uint8_t)(r8(&r) & 127u);
             p->ev[e].cond = (uint8_t)(ver >= 2 ? r8(&r) : SEQ_ALWAYS);
-            uint32_t ra = ver >= 2 ? r8(&r) : 1u, rn = ra & 7u; p->ev[e].ratchet = (uint8_t)((rn < 1 ? 1 : rn > 4 ? 4 : rn) | (ra & 0x30u));   /* (+ ACCENT, SLIDE) */
+            uint32_t ra = ver >= 2 ? r8(&r) : 1u, rn = ra & 7u; p->ev[e].ratchet = (uint8_t)((rn < 1 ? 1 : rn > 4 ? 4 : rn) | (ra & 0x70u));   /* (+ ACCENT, SLIDE) */
         }
         for (int l = 0; l < p->nlock; l++) { p->lk[l].step = (uint8_t)r8(&r); p->lk[l].param = (uint8_t)(r8(&r) & 63u); p->lk[l].value = (uint8_t)r8(&r); }
         if (ver < 12) p->nlock = 0;                   /* (locks of another sound model) */
@@ -367,14 +399,14 @@ static int load_body(seq_t *q, gb_sound *s, project_extra *x, rd r, int check_on
         if (ver < 8) continue;
         for (int i = 0; i < 16; i++) {
             int a = (int8_t)r8(&r), b = (int8_t)r8(&r);
-            p->dtune[i] = (int8_t)(a < -8 ? -8 : a > 7 ? 7 : a); p->ddec[i] = (int8_t)(b < -4 ? -4 : b > 3 ? 3 : b);
+            p->dtune[i] = (int8_t)(a < -8 ? -8 : a > 7 ? 7 : a); p->ddec[i] = gb_dpack(GB_DDEC(b), gb_dlev((int8_t)b));   /* (3.4.2: its level above) */
         }
         p->dmute = (uint16_t)r16(&r);
     }
     if (x) { memset(x->strum, 0, sizeof x->strum); memset(x->vlead, 0, sizeof x->vlead); }
     if (ver >= 9) for (int t = 0; t < PRJ_NTRK; t++) {
         uint32_t a = r8(&r), b = r8(&r);
-        if (x && t < SEQ_NTRK) { x->strum[t] = (uint8_t)(a > 100 ? 100 : a); x->vlead[t] = (uint8_t)(b != 0); }
+        if (x && t < SEQ_NTRK) { { int sa = (int8_t)a; x->strum[t] = (int8_t)(sa < -100 ? -100 : sa > 100 ? 100 : sa); } x->vlead[t] = (uint8_t)(b != 0); }
     }
     if (x) memset(x->midi, 0xFF, sizeof x->midi);   /* (0xFF: none kept, an older project) */
     if (ver >= 10) for (int i = 0; i < 8; i++) { uint32_t a = r8(&r); if (x) x->midi[i] = (uint8_t)a; }
@@ -398,6 +430,31 @@ static int load_body(seq_t *q, gb_sound *s, project_extra *x, rd r, int check_on
     for (int t = 0; t < PRJ_NTRK; t++) { uint32_t v = ver >= 13 ? r16(&r) : 0xFFFFu; if (x && t < SEQ_NTRK) x->preset16[t] = (uint16_t)v; }
     for (int i = 0; i < 8; i++) { uint32_t v = ver >= 13 ? r8(&r) : 0xFFu; if (x) x->tex[i] = (uint8_t)v; }
     for (int i = 0; i < 4; i++) { uint32_t v = ver >= 14 ? r8(&r) : 0xFFu; if (x) x->fxv[i] = (uint8_t)v; }
+    if (x) { memset(x->keep_got, 0, sizeof x->keep_got); memset(x->pscur_got, 0, sizeof x->pscur_got); }
+    if (ver >= 16) for (int t = 0; t < SEQ_NTRK; t++) {   /* 16: the current patterns and their sounds as last saved */
+        uint32_t fl = r8(&r), cur = q->t[t].cur;
+        if (fl & 1u) {
+            uint32_t n = PS_BYTES + (t == PS_DRUM ? PS_DRUM_BYTES : 0u);
+            if (x && x->ps && r.n + n <= r.len) {
+                uint8_t b[PS_BYTES + PS_DRUM_BYTES]; rd sb = sub_of(&r, n);
+                for (uint32_t k = 0; k < n; k++) b[k] = (uint8_t)r8(&sb);
+                if (ps_read(x->ps, t, (int)cur, b, n, 0)) x->pscur_got[t] = 1;
+            }
+            r.n += n;
+        }
+        if (fl & 2u) {
+            seq_pat tmp, *k = x && x->keep ? &x->keep[t] : &tmp;
+            k->steps = (uint16_t)r16(&r); k->n = (uint16_t)r16(&r); k->nlock = (uint8_t)r8(&r);
+            for (int e = 0; e < k->n; e++) {
+                k->ev[e].tick = (uint16_t)r16(&r); k->ev[e].len = (uint16_t)r16(&r);
+                k->ev[e].note = (uint8_t)(r8(&r) & 127u); k->ev[e].vel = (uint8_t)(r8(&r) & 127u); k->ev[e].cond = (uint8_t)r8(&r);
+                uint32_t ra = r8(&r), rn = ra & 7u; k->ev[e].ratchet = (uint8_t)((rn < 1 ? 1 : rn > 4 ? 4 : rn) | (ra & 0x70u));
+            }
+            for (int l = 0; l < k->nlock; l++) { k->lk[l].step = (uint8_t)r8(&r); k->lk[l].param = (uint8_t)(r8(&r) & 63u); k->lk[l].value = (uint8_t)r8(&r); }
+            for (int a = 1; a < k->n; a++) { seq_ev ea = k->ev[a]; int b = a; while (b > 0 && k->ev[b - 1].tick > ea.tick) { k->ev[b] = k->ev[b - 1]; b--; } k->ev[b] = ea; }
+            if (x && x->keep) x->keep_got[t] = 1;
+        }
+    }
     if (ver < 3 && x) {                               /* older: the effects as they were, no preset known */
         x->dly_div = 0xFF;
         for (int t = 0; t < SEQ_NTRK; t++) x->preset[t] = 0xFF;

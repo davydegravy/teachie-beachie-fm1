@@ -74,10 +74,16 @@
 #include "../hal/fm1/uart.h"
 #include "../hal/fm1/irq.h"
 
-#define VERSION "3.3.7"
+#define VERSION "3.4.2"
 /* COLD: a function of the interface, run from the flash window (fw/ram.ld .xtext); never called while the window is
  * off (a save's flash work: fw/main.c's loop runs only the sound, the panel and the flash then) */
-#define COLD GB_SECT(".xtext.main")
+#if defined(HOST) && defined(__MACH__)
+#define COLD                                                     /* (Teachie Beachie: a Mac's twin has no such section, Mach-O: that check is Linux's) */
+#elif defined(HOST)
+#define COLD __attribute__((section("tw_xt")))                   /* (3.4.1: the twin sees a call to one with the window off) */
+#else
+#define COLD __attribute__((section(".xtext.main"), minsize))   /* (4.0.1: the smallest code: the room before the sample bank) */
+#endif
 /* RAMCONST: a table the audio block reads (main.o's other constants are in the window: fw/ram.ld) */
 #define RAMCONST GB_SECT(".data.ramconst")
 #define HALF_FRAMES 256u
@@ -100,13 +106,24 @@ static int sg_cur;                          /* SONG 2/2: the entry the knobs edi
  * MODE: PLAY held at power-on */
 static int rescue, safe_start, safe_hold;           /* safe_hold: a safe start with every place used: no save until one is opened */
 /* the quick chain: SAVE held and several pattern keys one after the other: they play in turn, each to its end */
-static uint8_t chain[SEQ_NPAT], chain_n, chain_pos, chain_on, chain_arm;   /* chain_arm: CHAIN (key 15) on */
+static uint8_t chain[SEQ_NPAT], chain_n, chain_pos, chain_on;   /* (4.0: a chain: pattern keys tapped in one SAVE hold) */
 static uint8_t sbuf[STORE_MAX] __attribute__((aligned(4))) GB_SECT(".bootbss");   /* the project as bytes */
 COLD static int sbuf_held(void);     /* (3.1.1) the editor's transfer is in sbuf: nothing else may write it */
 COLD static void sbuf_used(void);    /* (3.1.1) sbuf rewritten: the editor's read of a file starts again */
 COLD static uint32_t proj_measure(uint32_t *crc);   /* (3.3.5) the project's length and CRC */
+#ifdef HOST
+static uint32_t dark_halves;                    /* (3.3.8) halves rendered with the flash window off (the samples silent) */
+#endif
 static int proj, flash_ok, saving, saving_shown, save_said, saving_snd, save_soon;   /* save_soon: SAVE + a key asked for one */
+static int save_nocommit;                       /* (4.0) the next save writes the patterns as they are (SAVE + another key) */
+static int pat_arm = -1; static uint32_t t_pat_arm;      /* (4.0) a save over another saved pattern asked: the key again */
+static int sp_sel;                                       /* (4.0) SAVE > PATTERNS: the pattern KNOB 1 picked */
+static int pat_used(int t, int w);
 static uint32_t t_save_soon;   /* save_said: a save ended (1 kept, -1 failed): said once the window is back */
+/* (3.3.8) a save asked for, seen: SAVE + a pattern's key held fills that key's tile (pat_*: below); writing, the key
+ * blinks; written, a big green SAVED for 2 s (saved_kind 1; 2 SAVE FAILED, red), SAVE lit, the key flashing twice */
+static int save_key = -1, saved_kind; static uint32_t t_saved;
+static int pat_key, pat_w, pat_done; static uint32_t pat_t0;      /* (defined below) */
 static const char *boot_msg;                 /* (what the first message says, if not the version) */
 /* 3.3.2: where the last run was when it stopped (a restart keeps the RAM: .noinit, never cleared; a power-off does
  * not, and its garbage fails the magic). The next start says it: "RESTART IN MIX/FX · ECHO · 3 MIN", the place
@@ -118,14 +135,14 @@ static volatile struct { uint32_t magic, where, fx, blocks; } crumb GB_SECT(".no
 static char crash_msg[64] GB_SECT(".lowbss");   /* (.lowbss: not cleared; crumb_report sets it) */
 static uint32_t proj_used, saved_crc, saved_len;   /* proj_used: 1 when a saved copy of the project is in the flash (3.3.5: one project) */
 enum { HK_OPEN = 0, HK_NEW = 2, HK_SAVE = 4 };      /* (3.3.6) HOME held: the white keys of OPEN, NEW, SAVE (were 1, 8, 16): 1, 3, 5, a key between */
-static uint32_t proj_at, saving_len, save_retry, proj_pct, home_arm_t; static int home_arm;          /* (3.3.5) the saved copy's data in the flash; the length being saved; saves begun again */
+static uint32_t proj_at, saving_len, save_retry, home_arm_t; static int home_arm;          /* (3.3.5) the saved copy's data in the flash; the length being saved; saves begun again */
 
 /* the tracks, as on SLOOP: 1 blue, 2 green, 3 yellow, 4 orange (the drums); 5 pink */
 /* the tracks as the player sees them (3.0.1): the four synths 1-4, the drums 5th. Inside, the drums stay track 3 (as
  * SLOOP 2.8's: its projects, ours, the import and the per-pattern drum sounds keep that order): POS[t] is where track t
  * is shown, and since it is a swap, POS[p] is also the track shown at p */
 static const uint8_t POS[NTRK] = { 0, 1, 2, 4, 3 };
-static uint16_t TRK_COL[NTRK] = { RGB(80, 160, 255), RGB(80, 230, 120), RGB(255, 220, 60), RGB(255, 150, 40), RGB(240, 120, 220) };
+static uint16_t TRK_COL[NTRK] = { RGB(40, 124, 255), RGB(30, 204, 112), RGB(255, 198, 24), RGB(255, 98, 26), RGB(240, 110, 200) };   /* (4.0: SLOOP 2.8.5's) */
 /* HOME > SCREEN > COLOR: the built-in palettes (app/ui.h), then your theme (UI_NTHEMES, when there is one: SLOOP 2.7's
  * theme, or the web editor's) with its tracks' colours */
 static uint8_t scr_color;
@@ -136,13 +153,15 @@ static int theme_ok(void)
 }
 COLD static void color_apply(void)
 {
-    static const uint16_t DEF[4] = { RGB(80, 160, 255), RGB(80, 230, 120), RGB(255, 220, 60), RGB(255, 150, 40) };
+    static const uint16_t DEF[NTRK] = { RGB(40, 124, 255), RGB(30, 204, 112), RGB(255, 198, 24), RGB(255, 98, 26), RGB(240, 110, 200) };
+    for (int k = 0; k < NTRK; k++) TRK_COL[k] = DEF[k];
     if (scr_color >= UI_NTHEMES && theme_ok()) {         /* (no theme (yet): the first palette meanwhile) */
         const uint8_t *t = us_theme; uint16_t c[5];
         for (int k = 0; k < 5; k++) c[k] = (uint16_t)(t[12 + 2 * k] | t[13 + 2 * k] << 8);
         ui_theme_own(c, (uint16_t)(t[30] | t[31] << 8));
-        for (int k = 0; k < 4; k++) TRK_COL[k] = (uint16_t)(t[22 + 2 * k] | t[23 + 2 * k] << 8);
-    } else { ui_theme(scr_color < UI_NTHEMES ? scr_color : 0); for (int k = 0; k < 4; k++) TRK_COL[k] = DEF[k]; }
+        for (int k = 0; k < 4; k++) TRK_COL[k] = (uint16_t)(t[22 + 2 * k] | t[23 + 2 * k] << 8);   /* (synths 1-3, the drums) */
+        if (t[34] | t[35]) TRK_COL[4] = (uint16_t)(t[34] | t[35] << 8);   /* (4.0.8) synth 4, its own colour (an older theme: none) */
+    } else ui_theme(scr_color < UI_NTHEMES ? scr_color : 0);
 }
 static const char *const PAD[16] = { "KICK", "KICK2", "SNARE", "CLAP", "HAT", "OPEN", "PEDAL", "RIM",
                                      "SNR 2", "TOM L", "TOM H", "CRASH", "RIDE", "SHAKE", "CONGA", "BELL" };
@@ -150,17 +169,32 @@ static const char *const PAD[16] = { "KICK", "KICK2", "SNARE", "CLAP", "HAT", "O
  * voices, -1: nothing); a drum kit has four */
 enum { PG_TRACKS, PG_STEPS, PG_OSC, PG_FILTER, PG_VOICE, PG_ENV, PG_ENVDEST, PG_FX, PG_KIT, PG_GLOBAL, PG_SONG,
        PG_LFO, PG_SEL, PG_ARP, PG_LFODEST, PG_MASTER, PG_PLAY, PG_ARP2, PG_FX2, PG_DSOUND, PG_SEL2, PG_MIDI, PG_MIDI2, PG_NOTES,
-       PG_LFO3, PG_INS, PG_INSMIX, PG_SLC, PG_USER, PG_TEX1, PG_TEX2, PG_SONG2, PG_SND, PG_FX3, PG_GREC };
-#define NFX_PG 7
-static const uint8_t EDIT_PG[6] = { PG_OSC, PG_FILTER, PG_VOICE, PG_PLAY, PG_USER, PG_SND }, FX_PG[NFX_PG] = { PG_FX, PG_INS, PG_INSMIX, PG_SLC, PG_FX2, PG_FX3, PG_MASTER };
-static const uint8_t LFO_PG[3] = { PG_LFO, PG_LFODEST, PG_LFO3 };
+       PG_LFO3, PG_INS, PG_INSMIX, PG_SLC, PG_USER, PG_TEX1, PG_TEX2, PG_SONG2, PG_SND, PG_FX3, PG_GREC,
+       /* (4.0, as SLOOP 2.8.5) */
+       PG_PAT, PG_AFLT, PG_VOICE2, PG_TFLT, PG_SYS, PG_GDRUM, PG_PRESETS, PG_SAVEPAT, PG_TOOLS, PG_PROJ, PG_NPG };
+/* (4.0) each button's pages, in SLOOP 2.8.5's order: tapped again, the next; SELECT, the previous / next (it stops at
+ * the ends). PG_PLAY (3.x's PLUS) is gone: its values went where SLOOP 2.8.5 has them (GLMOD to VOICE, TYPE to
+ * FILTER, DST to FX, TRIM to VOICE 2). (PG_PLAY PG_SONG PG_SND: kept, no button opens them) */
+static const uint8_t GRP_EDIT[6] = { PG_OSC, PG_FILTER, PG_AFLT, PG_VOICE, PG_VOICE2, PG_SND },   /* (4.0.1: SOUNDS back, as SLOOP 3, Sam) */
+                     GRP_FX[7] = { PG_FX, PG_TFLT, PG_SLC, PG_INS, PG_INSMIX, PG_FX2, PG_FX3 },
+                     GRP_LFO[3] = { PG_LFO, PG_LFO3, PG_LFODEST }, GRP_ENV[2] = { PG_ENV, PG_ENVDEST },
+                     GRP_SEL[2] = { PG_SEL, PG_SEL2 }, GRP_ARP[2] = { PG_ARP, PG_ARP2 },
+                     GRP_GLO[9] = { PG_GLOBAL, PG_MASTER, PG_SYS, PG_GDRUM, PG_TEX1, PG_TEX2, PG_MIDI, PG_MIDI2, PG_GREC },
+                     GRP_SAVE[4] = { PG_PRESETS, PG_USER, PG_SAVEPAT, PG_TOOLS },   /* (as SLOOP 2.8.5; 4.0.7: PROJECT only after SONG) */
+                     GRP_SEQ[3] = { PG_NOTES, PG_PAT, PG_SONG2 },                    /* a synth track (SONG: a screen of its own) */
+                     GRP_DSEQ[5] = { PG_STEPS, PG_KIT, PG_DSOUND, PG_PAT, PG_SONG2 };   /* the drums: GRID, KIT, SOUND, then PATTERN, SONG */
+static const char *const PG_NAME[PG_NPG] = { "TRACKS", "GRID", "", "", "VOICE", "ENV", "ENV DEST", "FX", "KIT", "GLOBAL", "SONG",
+    "LFO", "SEL", "ARP", "LFO DEST", "MASTER", "PLUS", "ARP 2", "DLY", "SOUND", "SEL 2", "MIDI", "MIDI 2", "NOTES",
+    "LFO 2", "INSERT", "INSERT 2", "SLICER", "USER", "TEXTURE", "TEXTURE 2", "SONG", "SOUNDS", "REV/CHO", "REC",
+    "PATTERN", "FILTER", "VOICE 2", "FILTER", "SYSTEM", "DRUMS", "PRESETS", "PATTERNS", "TOOLS", "PROJECT" };
 /* the sound's pages (SLOOP's model, engine.h SP_*): EDIT 1/4 and 2/4 the engine's eight (its own names, engdesc.c),
  * 3/4 how it plays, 4/4 the rest; ENV, ENV DEST; LFO, its depths, its trigger */
 static const int8_t P_OSC[4] = { SP_E0, SP_E1, SP_E2, SP_E3 }, P_FLT[4] = { SP_E4, SP_E5, SP_E6, SP_E7 },
-                    P_VOI[4] = { SP_VOICE, SP_GLIDE, SP_PRIO, SP_DETUNE }, P_PLY[4] = { SP_GLMODE, SP_FTYPE, SP_DIST, SP_TRIM },
+                    P_VOI[4] = { SP_VOICE, SP_GLIDE, SP_GLMODE, SP_PRIO }, P_PLY[4] = { SP_FTYPE, SP_E4, SP_E5, SP_E7 },   /* (4.0: VOICE as 2.8.5; P_PLY: ANALOG's FILTER) */
+                    P_VO2[4] = { SP_TRIM, SP_DETUNE, -1, -1 },                                                         /* (VOICE 2: TRIM DTUNE, PAN MUTE) */
                     P_ENV[4] = { SP_ATK, SP_DEC, SP_SUS, SP_REL }, P_EDS[4] = { SP_EFLT, SP_EPIT, SP_ESHP, SP_ESYNC },
-                    P_LFO[4] = { SP_LRATE, SP_LWAVE, SP_LSYNC, SP_LFADE }, P_LFD[4] = { SP_LPIT, SP_LFLT, SP_LSHP, SP_LAMP },
-                    P_LF3[4] = { SP_LTRIG, SP_LPOL, SP_LPHASE, -1 }, P_DRUM[4] = { SP_E0, SP_E1, SP_E2, SP_E3 },
+                    P_LFO[4] = { SP_LRATE, SP_LWAVE, SP_LPHASE, SP_LFADE }, P_LFD[4] = { SP_LPIT, SP_LFLT, SP_LSHP, SP_LAMP },
+                    P_LF3[4] = { SP_LSYNC, SP_LTRIG, SP_LPOL, -1 },   /* (4.0: LFO 2 as 2.8.5: SYNC TRIG POL) */ P_DRUM[4] = { SP_E0, SP_E1, SP_E2, SP_E3 },
                     P_INS[4] = { SP_ITYPE, SP_IA, SP_IB, SP_IC }, P_INSMIX[4] = { SP_IMIX, -1, -1, -1 },
                     P_SLC[4] = { SP_SLCR, SP_SLPAT, SP_SLRATE, SP_SLDEPTH };
 /* the track's own effects (the drum track's too): INSERT, its MIX, SLICER */
@@ -191,7 +225,7 @@ static const pdesc SP_UI[SP_N] = {
     [SP_PRIO] = { "PRIO", PF_LIST, 3, N_PRIO }, [SP_ALLOC] = { "ALLOC", PF_NUM, 0, 0 }, [SP_DETUNE] = { "DTUNE", PF_NUM, 0, 0 },
     [SP_FTYPE] = { "TYPE", PF_LIST, 3, N_FTYPE }, [SP_DIST] = { "DST", PF_PCT, 0, 0 },
     [SP_ITYPE] = { "TYPE", PF_LIST, 9, N_ITYPE }, [SP_IA] = { "A", PF_PCT, 0, 0 }, [SP_IB] = { "B", PF_PCT, 0, 0 },
-    [SP_IC] = { "C", PF_PCT, 0, 0 }, [SP_IMIX] = { "MIX", PF_PCT, 0, 0 }, [SP_SLCR] = { "MODE", PF_LIST, 3, N_SLCR },
+    [SP_IC] = { "C", PF_PCT, 0, 0 }, [SP_IMIX] = { "MIX", PF_PCT, 0, 0 }, [SP_SLCR] = { "SLCR", PF_LIST, 3, N_SLCR },
     [SP_SLPAT] = { "PAT", PF_NUM, 0, 0 }, [SP_SLRATE] = { "RATE", PF_LIST, 6, N_SLDIV }, [SP_SLDEPTH] = { "DEPTH", PF_PCT, 0, 0 },
 };
 static int trk;                                                        /* (the track chosen: below) */
@@ -220,7 +254,7 @@ static const char *const PK_NAME[PK_N] = { "1/4", "1/8", "1/16", "1/32", "STUT",
     "-LOW", "-MID", "-HIGH", "RWND", "OCT+", "FLANG", "PAN", "FREEZ", "8T", "MONO", "FADE" };
 /* the key, scale and chords of each track (SEL), the roll's rate (ARP), the click */
 static harm_cfg harm[NTRK];
-static uint8_t strum[NTRK], vlead[NTRK];    /* SEL 2/2: a chord's notes one after the other (0..100: up to 120 ms); the
+static int8_t strum[NTRK]; static uint8_t vlead[NTRK];    /* SEL 2/2: a chord's notes one after the other (0..100: up to 120 ms); the
                                                chords voiced near the one before (0/1) */
 static int roll_rate = 1;                   /* 1/8, 1/16, 1/32, 32T, 1/64 */
 RAMCONST static const uint16_t ROLL_TICKS[5] = { 192, 96, 48, 32, 24 };
@@ -257,6 +291,7 @@ static char *put_u(char *p, uint32_t v) { char t[12]; int n = 0; do { t[n++] = (
 static char *put_s(char *p, const char *s) { while (*s) *p++ = *s++; return p; }
 static char *put_i(char *p, int v) { if (v > 0) *p++ = '+'; else if (v < 0) { *p++ = '-'; v = -v; } return put_u(p, (uint32_t)v); }
 static float clamp01(float v) { return v < 0.0f ? 0.0f : v > 1.0f ? 1.0f : v; }
+COLD static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
 static int is_drum(int t) { return S.trk[t].patch.engine == ENG_DRUM; }
 /* a sound, as a number (a track's preset_of, a favourite): a factory sound (presets.c), US_BASE + one of your 32
  * places, and (3.2) FB_BASE + a DX7 voice of your FM6 bank (the editor's, or SLOOP 2.8's: PTCH B1..B27), which until
@@ -268,6 +303,7 @@ static int is_drum(int t) { return S.trk[t].patch.engine == ENG_DRUM; }
 COLD static int uk_ok(int kit)
 {
     if (kit >= GB_KIT_USR && kit < GB_KIT_USR + 4) return smp_user_nz(kit - GB_KIT_USR) > 0;
+    if (kit == GB_KIT_USR + 4) return smp_user_nz(2) > 0 || smp_user_nz(3) > 0;   /* (4.0.3) USR3+4: one kit over two slots, as SLOOP 2.8.5 */
     return kit >= GB_KIT_SYN && kit < GB_NKITS;
 }
 COLD static const char *uk_name(int kit)
@@ -303,7 +339,7 @@ COLD static int fav_ok(int f) { return snd_ok(f) && f < UK_BASE && (f >= gb_npre
  * drum track, the kits. Opened by EDIT, the white keys choose (and play); opened by PRESETS, it shows where the
  * knob is, the keys play as ever, and it goes back by itself (EDIT: it stays, the keys choose) */
 enum { SB_FAV = 0, SB_USER = K_N + 1, SB_BANK, SB_UKIT, SB_NCAT };  /* (1 .. K_N: a kind + 1; SB_UKIT: your kits, the drum track's) */
-static int uk_at(int i) { return i < 4 ? GB_KIT_USR + i : GB_KIT_SYN + i - 4; }   /* YOUR KITS: USR1-4, then SYN1-4 */
+static int uk_at(int i) { return GB_KIT_USR + i; }   /* YOUR KITS: USR1-4, USR3+4 (4.0.3), then SYN1-4 */
 static uint8_t sb_cat, sb_pg, sb_n, sb_was, fav_dirty;             /* sb_n: the category's places; sb_was: the page was shown last round */
 static int8_t sb_trk = -1, sb_back = -1;                           /* the track it shows; the page PRESETS opened it from (-1: EDIT did) */
 static int16_t sb_o[16];                                           /* the page's sounds (-1: none there) */
@@ -316,7 +352,7 @@ COLD static int sb_list(int c, int first, int16_t *o)              /* category c
     if (c == SB_FAV) { if (!first) for (int i = 0; i < US_NFAV; i++) if (fav_ok(us_fav[i])) o[i] = (int16_t)us_fav[i]; return US_NFAV; }
     if (c == SB_USER) { for (int i = 0; i < 16; i++) if (first + i < US_N && us_used(first + i)) o[i] = (int16_t)(US_BASE + first + i); return US_N; }
     if (c == SB_BANK) { for (int i = 0; i < 16; i++) if (fb_ok(first + i)) o[i] = (int16_t)(FB_BASE + first + i); return fm6_bank_at && fm6_bank_used ? FM6_NBANK : 0; }
-    if (c == SB_UKIT) { for (int i = 0; i < 8 && !first; i++) if (uk_ok(uk_at(i))) o[i] = (int16_t)(UK_BASE + uk_at(i)); return 8; }
+    if (c == SB_UKIT) { for (int i = 0; i < 9 && !first; i++) if (uk_ok(uk_at(i))) o[i] = (int16_t)(UK_BASE + uk_at(i)); return 9; }
     for (int i = 0; i < gb_npresets; i++) if (gb_presets[i].kind == c - 1) { if (n >= first && n < first + 16) o[n - first] = (int16_t)i; n++; }
     return n;
 }
@@ -326,7 +362,7 @@ COLD static int sb_where(int f, int *cat)
 {
     if (f < 0) return -1;
     if (*cat == SB_FAV) for (int i = 0; i < US_NFAV; i++) if (us_fav[i] == f) return i;
-    if (f >= UK_BASE) { int k = f - UK_BASE; *cat = SB_UKIT; return k >= GB_KIT_SYN ? 4 + k - GB_KIT_SYN : k >= GB_KIT_USR && k < GB_KIT_USR + 4 ? k - GB_KIT_USR : -1; }
+    if (f >= UK_BASE) { int k = f - UK_BASE; *cat = SB_UKIT; return k >= GB_KIT_USR && k < GB_NKITS ? k - GB_KIT_USR : -1; }
     if (f >= FB_BASE) { *cat = SB_BANK; return f - FB_BASE; }
     if (f >= US_BASE) { *cat = SB_USER; return f - US_BASE; }
     if (f >= gb_npresets) return -1;
@@ -365,17 +401,20 @@ static void play_off(gb_owner o, int t, int n) { snd_note_off(&S, o, t, n); out_
 /* ---------------------------------------------------------------- the sequencer to the sound */
 static uint8_t solo[NTRK];
 static int solo_any(void) { for (int t = 0; t < NTRK; t++) if (solo[t]) return 1; return 0; }
+static void sq_mark(int t, int n, int on);                          /* (3.3.8: the keys lit by what the sequencer plays) */
+static uint16_t dm_live;                                              /* (3.3.8) the drums' live mutes (EDIT + a black key, then a white key) */
 static void sq_on(seq_t *s, int t, int n, int v)
 {
     (void)s;
     if (t < NTRK && solo_any() && !solo[t]) return;                    /* a solo: the others are not heard */
-    if (S.trk[t].patch.engine == ENG_DRUM && ((S.trk[t].patch.dmute >> (n & 15)) & 1u)) return;   /* a drum sound muted */
+    if (S.trk[t].patch.engine == ENG_DRUM && (((S.trk[t].patch.dmute | dm_live) >> (n & 15)) & 1u)) return;   /* a drum sound muted */
+    sq_mark(t, n, 1);
     float vel = (v & SEQ_ON_ACC) ? 1.25f : (float)(v & 127) * (1.0f / 127.0f);   /* ACCENT: harder than 127 */
     snd_slide(&S, t, (v & SEQ_ON_SLID) != 0);                             /* after a SLIDE: a glide to it (SLOOP's) */
     play_on(GB_OWNER(OWN_SEQ, t), t, n, vel);
     snd_slide(&S, t, 0);
 }
-static void sq_off(seq_t *s, int t, int n) { (void)s; play_off(GB_OWNER(OWN_SEQ, t), t, n); }
+static void sq_off(seq_t *s, int t, int n) { (void)s; play_off(GB_OWNER(OWN_SEQ, t), t, n); sq_mark(t, n, 0); }
 /* the track's mix under a lock (SEQ_LK_*): its own value kept while a lock holds it */
 static float mix_own[NTRK][6]; static uint8_t mix_held[NTRK];
 RAMCONST static const uint16_t MIX_AT[6] = { __builtin_offsetof(gb_track, level), __builtin_offsetof(gb_track, pan),
@@ -417,16 +456,26 @@ static psounds PS GB_SECT(".lowbss");          /* (ps_all fills it before it is 
 static int preset_of[NTRK];
 COLD static void ps_all(void) { for (int t = 0; t < NTRK; t++) ps_fill(&PS, t, Q.t[t].cur, &S.trk[t].patch, base[t], preset_of[t]); }
 static void ps_keep(int t) { ps_take(&PS, t, PS.cur[t], &S.trk[t].patch, base[t], preset_of[t]); }   /* live -> its pattern */
+/* (4.0, SLOOP 2.8's sections, as Patrik and Sam asked) each track's current pattern as last saved: what you change
+ * plays and is kept by the autosave, but the 8 patterns change only when you save (SAVE + a key held, SAVE twice, HOME +
+ * key 5); a pattern played again (SAVE + its key) or left for another comes back as it was saved, its sound too */
+static seq_pat keep[NTRK] GB_SECT(".lowbss");
+static int pat_used(int t, int w) { return Q.t[t].pat[w].n || Q.t[t].pat[w].nlock; }
+static void keep_take(int t) { Q.t[t].pat[Q.t[t].cur] = keep[t]; }   /* (the saved one back in place) */
+static void keep_all(void) { for (int t = 0; t < NTRK; t++) keep[t] = Q.t[t].pat[Q.t[t].cur]; }
+static void commit_trk(int t) { keep[t] = Q.t[t].pat[Q.t[t].cur]; ps_keep(t); }   /* (saved: as it is now) */
 static void ps_follow(void)                         /* (in the audio block: the sequencer may have changed pattern) */
 {
     for (int t = 0; t < NTRK; t++) {
-        int cur = Q.t[t].cur;
-        if (cur == PS.cur[t] || cur >= SEQ_NPAT) continue;
-        ps_keep(t);
+        int cur = Q.t[t].cur, was = PS.cur[t];
+        if (cur == was || cur >= SEQ_NPAT) continue;
+        if (was < SEQ_NPAT) Q.t[t].pat[was] = keep[t];  /* (4.0) the pattern left: as last saved, its sound too */
+        keep[t] = Q.t[t].pat[cur];
         ps_give(&PS, t, cur, &S.trk[t].patch, base[t], &preset_of[t]);
         PS.cur[t] = (uint8_t)cur; Q.t[t].lock_step = -1;
     }
 }
+static void sq_switched(seq_t *q, int t) { (void)q; (void)t; ps_follow(); }   /* (3.4.2, #24: before its first notes) */
 static void sound_from_base(void)                                        /* (before a save: the own values) */
 {
     for (int t = 0; t < NTRK; t++) { mix_back(t); for (int i = 0; i < GB_NPARAM; i++) S.trk[t].patch.p[i] = base[t][i]; Q.t[t].lock_step = -1; }
@@ -463,7 +512,8 @@ enum { HS_ACCEL, HS_LIGHTS, HS_KEYS, HS_NOTES, HS_LOWCUT, HS_USB, HS_RATE, HS_RE
 static uint8_t hs[HS_N] = { 1, 3, 0, 0, 0, 0, 0, 0, 0, 1 };   /* (Teachie Beachie: LIGHTS starts at HIGH, the buttons' names can be read; SLOOP: 0) */
 static const uint8_t HS_MAX[HS_N] = { 1, 3, 3, 1, 1, 1, 2, 10, 1, 1 };
 static uint8_t cal_ok, cal_btn[14], cal_enc[7]; static int8_t cal_dir[7];   /* the calibration (panel_map) */
-static int home_sec;                                   /* HOME held: 0 the projects, 1..3 the settings */
+static int home_sec, home_last = 1, home_key_used;     /* HOME held: the menu, sections 1..5 (the last one: home_last) */
+static uint32_t t_home;
 static int cal_step = -1;
 /* MIDI: GLO > MIDI 3's REMOTE and FX channels (0 off, 1..16), the bend's range; MIDI LEARN's map (as SLOOP's: 16 CCs,
  * each one value of one track, whatever channel it comes on): cc | track << 7 | code << 10, code 1..48 a sound value
@@ -517,13 +567,13 @@ __attribute__((noinline)) static void render_block(int32_t *out)
         cin_ticks += (uint32_t)(Q.bpm * 4.0f * (float)SEQ_TPS / 60.0f / rate_hz * (float)GB_BLOCK + 0.5f);
         if (cin_ticks >= SEQ_BAR) { countin = 0; record_now(cin_trk); }
     }
+    ps_follow();                                         /* (3.4.2, #24: a song's start, PLAY: the sound before the notes) */
     if (Q.playing && ext_on(blk_t)) {
         /* at most twice the tempo (from the pulses' interval once known): a lag caught up, never a jump */
         uint64_t cap = MK.iv ? (uint64_t)blk_ticks * 2u * 65536u / MK.iv
                              : (uint64_t)(uint32_t)(Q.bpm * (24.0f / 60.0f) / rate_hz * (float)GB_BLOCK * 2.0f * 65536.0f);   /* (32 bits: no soft double here) */
         seq_advance_by(&Q, mclk_advance(&MK, blk_t, cap) * 16u);
     } else seq_advance(&Q, GB_BLOCK);
-    ps_follow();
     clock_out_block();
     roll_step();
     arp_step();
@@ -555,18 +605,35 @@ __attribute__((noinline)) static void render_block(int32_t *out)
         for (int n = 0; n < GB_BLOCK; n++) { u[2 * n] = (int32_t)(S.usb_l[n] * 8388607.0f); u[2 * n + 1] = (int32_t)(S.usb_r[n] * 8388607.0f); }
         usb_audio_put(u, GB_BLOCK);
     } else usb_audio_put(out, GB_BLOCK);
+    /* (4.0.9, issues #7 #11: "the bass distorts, through the speaker and the jack", "no low end") the DAC 6 dB below the
+     * USB audio, as SLOOP 2.8.5 drove it (Q15 << 7: at most -6 dBFS): above that the FM-1's analog stage clips the loud
+     * lows. The USB copy, taken before, stays whole */
+    for (int i = 0; i < 2 * GB_BLOCK; i++) out[i] >>= 1;
+    if (S.lowcut) {   /* (4.0.2, issue #11: "a hard low cut around 100 Hz") SPEAKER LOWCUT: the DAC's out only, after the
+                       * USB audio has had its copy: a recording keeps its lows. Two one-pole high-passes (~110 Hz) */
+        static float lc[4];
+        for (int n = 0; n < GB_BLOCK; n++) for (int c = 0; c < 2; c++) {
+            float x = (float)out[2 * n + c] * (1.0f / 8388607.0f), *a = lc + 2 * c;
+            a[0] += (x - a[0]) * (1.0f / 64.0f); x -= a[0]; a[1] += (x - a[1]) * (1.0f / 64.0f); x -= a[1];
+            x = x > 0.999f ? 0.999f : x < -0.999f ? -0.999f : x;
+            out[2 * n + c] = (int32_t)(x * 8388607.0f);
+        }
+        for (int i = 0; i < 4; i++) lc[i] = gb_flush(lc[i]);
+    }
 }
 
 /* ---------------------------------------------------------------- a new project: SLOOP's power-on sounds, empty
  * patterns (with_loop: the first loop, to hear something at once) */
 static void preload(void);
 COLD static void preset_extras(int t, int np);
+static uint8_t dm_mode;                                    /* (3.3.8) EDIT's white keys mute the drum sounds (EDIT + a black key) */
 COLD static void new_project(int with_loop)
 {
+    dm_live = 0;                                           /* (the live mutes: a performance's, not the project's) */
     seq_init(&Q, rate_hz, 92.0f, &HIST);
-    Q.note_on = sq_on; Q.note_off = sq_off; Q.locks = sq_locks;
+    Q.note_on = sq_on; Q.note_off = sq_off; Q.locks = sq_locks; Q.switched = sq_switched;
     for (int t = 0; t < NTRK; t++) Q.t[t].quant = 100;   /* (3.3.7) a take on the steps, as SLOOP 2.8 recorded (QUANT OFF: as played) */
-    static const float LVL[NTRK] = { 0.45f, 0.45f, 0.4f, 0.85f, 0.3f };   /* (the sounds' own levels: presets.c) */
+    static const float LVL[NTRK] = { 0.45f, 0.45f, 0.45f, 0.45f, 0.45f };   /* (4.0.11, Sam: the 4 synths at the same level; 3.4.0: the drums too, their kits louder (engine/drum.c); the sounds' own levels: presets.c) */
     /* SLOOP's: 808 BOOM, RHODES, LOFI FLUTE (SAMPLE); the kit; a pad on track 5 (SLOOP's engine order, place) */
     static const uint8_t SOUND0[NTRK][2] = { { 0, 0 }, { 1, 0 }, { 4, 5 }, { 0xFF, 0 }, { 0, 13 } };
     snd_all_off(&S);
@@ -586,7 +653,7 @@ COLD static void new_project(int with_loop)
     for (int t = 0; t < NTRK; t++) { arpc[t] = (arp_cfg){ 0, 3, 1, 50, 0, 100, 0, 0 }; strum[t] = 0; vlead[t] = 0; }
     for (int t = 0; t < GB_NTRACK; t++) sm_set(&S.trk[t].filt, 0.0f);
     for (int t = 0; t < NTRK; t++) { harm[t].root = 0; harm[t].scale = 0; harm[t].keys = KEYS_OFF; harm[t].chord = CH_OFF; harm[t].transpose = 0; }
-    base_from_sound(); ps_all();
+    base_from_sound(); ps_all(); keep_all();
     if (with_loop) preload();
 }
 COLD static void preload(void)
@@ -615,7 +682,20 @@ COLD static void keys_map(void)
         if (white) white_key[w++] = k;
     }
 }
-static int oct, page, recording_armed;
+static int oct, page, recording_armed, armed_page = -1;   /* (3.4.1) the page REC was armed on: its screen there only */
+/* (3.3.8, as SLOOP 2.8.5) the keys of what the sequencer plays on the track selected: the drums' hits always, a synth's
+ * notes with HOME > LIGHTS > NOTES; each lit while it sounds, a hit for 0.1 s at least (lit_t: in 8 ms) */
+static volatile uint32_t lit_on, lit_hit;
+static volatile uint8_t lit_t[27];
+static void sq_mark(int t, int n, int on)
+{
+    if (t != trk) return;
+    int k = S.trk[t].patch.engine == ENG_DRUM ? white_key[n & 15] : n - 53 - 12 * oct;
+    if (S.trk[t].patch.engine == ENG_SLICE) k = n - 60 - 12 * oct;
+    if (k < 0 || k > 26) return;
+    if (!on) { lit_on &= ~(1u << k); return; }
+    lit_on |= 1u << k; lit_hit |= 1u << k; lit_t[k] = (uint8_t)(time_ticks() / lsb >> 13);
+}
 static int last_notes[NTRK] = { 45, 57, 69, 0, 57 };   /* each track's last note (what a step writes; drums: the pad) */
 #define last_note last_notes[trk]
 static int drum_note_of_key(int k) { while (k > 0 && white_of[k] < 0) k--; return white_of[k] < 0 ? 0 : white_of[k]; }
@@ -631,13 +711,14 @@ COLD static void note_name(char *p, int t, int n)
     *p = 0;
 }
 /* the drum track's black keys pick a sound, as on SLOOP (a pair: the same key again, the other) */
+static const int8_t DB_KEY[11] = { 1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25 };
+static const int8_t DB_A[11] = { 0, 2, 7, 3, 4, 5, 9, 11, 12, 13, 15 }, DB_B[11] = { 1, 8, 7, 3, 6, 5, 10, 11, 12, 14, 15 };
 COLD static int drum_black(int k, int cur)
 {
-    static const int8_t KEY[11] = { 1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25 };
-    static const int8_t A[11] = { 0, 2, 7, 3, 4, 5, 9, 11, 12, 13, 15 }, B[11] = { 1, 8, 7, 3, 6, 5, 10, 11, 12, 14, 15 };
-    for (int i = 0; i < 11; i++) if (KEY[i] == k) return cur == A[i] ? B[i] : A[i];
+    for (int i = 0; i < 11; i++) if (DB_KEY[i] == k) return cur == DB_A[i] ? DB_B[i] : DB_A[i];
     return -1;
 }
+COLD static int drum_black_key(int n) { for (int i = 0; i < 11; i++) if (DB_A[i] == n || DB_B[i] == n) return DB_KEY[i]; return DB_KEY[0]; }   /* (3.3.8) lit */
 COLD static int pattern_has_note(int t, int n)
 {
     const seq_pat *p = &Q.t[t].pat[Q.t[t].cur];
@@ -697,25 +778,68 @@ static uint8_t vis_on, vis_style, vis_named;
 static uint8_t splash_on, splash_bad; static uint32_t splash_t0; static const char *splash_say;
 static int8_t vis_ring[2 * GB_VIS_RING];
 _Static_assert(GB_VIS_RING == VIS_RING, "the visualiser's ring");
-static int edit_page, env_page, lfo_page, fx_page;   /* the page of EDIT / ENV / LFO / FX each button shows */
 static int layer_used;                      /* the layer held now did something (its release is no tap) */
-static uint32_t t_btn_down, t_input;        /* when the layer's button went down; the last touch */
-#define LAYER_BITS ((1u << BTN_SEQ) | (1u << BTN_GLO) | (1u << BTN_SAVE) | (1u << BTN_HOME) | (1u << BTN_EDIT) | (1u << BTN_SEL) | (1u << BTN_ARP) | (1u << BTN_FX))
-static uint32_t lay(void) { return (held_btn & LAYER_BITS) | locked; }
+static uint32_t t_btn_down, t_input, t_midi_play;   /* t_midi_play (3.3.8): the last note or control from MIDI */        /* when the layer's button went down; the last touch */
+#define LAYER_BITS ((1u << BTN_SEQ) | (1u << BTN_GLO) | (1u << BTN_SAVE) | (1u << BTN_EDIT) | (1u << BTN_SEL) | (1u << BTN_ARP) | (1u << BTN_FX))
+/* (3.3.8, as SLOOP 2.8.5) HOME is no layer: tapped (let go before 0.7 s), TRACKS / the visualiser; held 0.7 s, the menu,
+ * which stays open (HOME, or any page button, closes it); a layer held + HOME tapped: that layer locked open (on HOME's
+ * release: the layer's page stays, no other shows). While HOME alone is held, white keys 1, 3, 5 OPEN, NEW, SAVE (the
+ * menu's page shows once one is used, or SELECT turned) */
+#define HOME_BIT (1u << BTN_HOME)
+static int menu_on, home_eat, home_fired;
+static uint32_t lay(void)
+{
+    uint32_t l = (held_btn & LAYER_BITS) | locked;
+    if (menu_on || ((held_btn & HOME_BIT) && !home_eat && !l)) l |= HOME_BIT;
+    return l;
+}
 static int lay_on(int b) { return (int)((lay() >> b) & 1u); }
-static int shown_after(void) { return locked || layer_used || (uint32_t)(time_ticks() - t_btn_down) > 350000u * lsb; }
+static int shown_after(void)
+{
+    if (menu_on) return 1;
+    if ((held_btn & HOME_BIT) && !(held_btn & LAYER_BITS) && !locked) return layer_used;   /* (HOME: no flash of its page) */
+    return locked || layer_used || (uint32_t)(time_ticks() - t_btn_down) > 350000u * lsb;
+}
+static int pg_shown(int pg)                 /* (4.0) a page this track has (ANALOG's FILTER only on ANALOG) */
+{
+    return pg != PG_AFLT || S.trk[trk].patch.engine == ENG_VA;
+}
+static int grp_of(int b, const uint8_t **l)  /* (4.0) a button's pages */
+{
+    switch (b) {
+    case BTN_EDIT: *l = GRP_EDIT; return 6;
+    case BTN_FX: *l = GRP_FX; return 7;
+    case BTN_LFO: *l = GRP_LFO; return 3;
+    case BTN_ENV: *l = GRP_ENV; return 2;
+    case BTN_SEL: *l = GRP_SEL; return 2;
+    case BTN_ARP: *l = GRP_ARP; return 2;
+    case BTN_GLO: *l = GRP_GLO; return 9;
+    case BTN_SAVE: *l = GRP_SAVE; return 4;
+    case BTN_SEQ: if (is_drum(trk)) { *l = GRP_DSEQ; return 5; } *l = GRP_SEQ; return 3;
+    default: *l = 0; return 0;
+    }
+}
 static int group_of(int pg)                 /* the button whose taps go through these pages */
 {
-    switch (pg) {
-    case PG_OSC: case PG_FILTER: case PG_VOICE: case PG_PLAY: case PG_KIT: case PG_DSOUND: case PG_USER: case PG_SND: return BTN_EDIT;
-    case PG_FX: case PG_FX2: case PG_FX3: case PG_MASTER: case PG_INS: case PG_INSMIX: case PG_SLC: return BTN_FX;
-    case PG_ARP: case PG_ARP2: return BTN_ARP;
-    case PG_SEL: case PG_SEL2: return BTN_SEL;
-    case PG_ENV: case PG_ENVDEST: return BTN_ENV;
-    case PG_LFO: case PG_LFODEST: case PG_LFO3: return BTN_LFO;
-    case PG_GLOBAL: case PG_MIDI: case PG_MIDI2: case PG_TEX1: case PG_TEX2: case PG_GREC: return BTN_GLO;   /* (3.3.6: GLOBAL too: SELECT goes through GLO's pages, KNOB 1 is the tempo there) */
-    default: return -1;
+    static const uint8_t B[] = { BTN_EDIT, BTN_FX, BTN_LFO, BTN_ENV, BTN_SEL, BTN_ARP, BTN_GLO, BTN_SAVE, BTN_SEQ };
+    for (unsigned i = 0; i < sizeof B; i++) { const uint8_t *l; int n = grp_of(B[i], &l); for (int k = 0; k < n; k++) if (l[k] == pg) return B[i]; }
+    if (pg == PG_KIT || pg == PG_DSOUND || pg == PG_STEPS) return BTN_SEQ;
+    return -1;
+}
+/* (4.0) the page's name and its place among its button's pages: "LFO 2 2/3" (as SLOOP 2.8.5's foot; EDIT 1 and 2: the
+ * engine's names; the screens of their own, SONG and the drums', not counted) */
+COLD static void pg_title(char *b, int pg)
+{
+    const uint8_t *l; int n = grp_of(group_of(pg), &l), k = 0, m = 0;
+    char *p = b;
+    if (pg == PG_OSC || pg == PG_FILTER) p = put_s(p, gb_edesc[S.trk[trk].patch.engine].page[pg == PG_FILTER]);
+    else p = put_s(p, PG_NAME[pg]);
+    for (int i = 0; i < n; i++) {
+        if (!pg_shown(l[i]) || l[i] == PG_SONG2 || (is_drum(trk) && (l[i] == PG_STEPS || l[i] == PG_KIT || l[i] == PG_DSOUND))) continue;
+        m++; if (l[i] == pg) k = m;
     }
+    if (k && m > 1) { *p++ = ' '; p = put_u(p, (uint32_t)k); *p++ = '/'; p = put_u(p, (uint32_t)m); }
+    *p = 0;
 }
 /* a page's four values (SP_*, -1 none) */
 static int is_va(int t) { return S.trk[t].patch.engine == ENG_VA; }
@@ -729,7 +853,8 @@ COLD static const int8_t *params_of(int pg, int t)
     case PG_OSC: return P_OSC;
     case PG_FILTER: return P_FLT;
     case PG_VOICE: return P_VOI;
-    case PG_PLAY: return P_PLY;
+    case PG_PLAY: case PG_AFLT: return P_PLY;
+    case PG_VOICE2: return P_VO2;
     case PG_ENV: return P_ENV;
     case PG_ENVDEST: return P_EDS;
     case PG_LFO: return P_LFO;
@@ -787,7 +912,7 @@ COLD static void param_text(char *b, int engine, int pi, float x)
         int h = v - 112; if (h < 0) { *p++ = '-'; h = -h; } else if (h) *p++ = '+';
         p = put_u(p, (uint32_t)h / 2u); if (h & 1) { *p++ = '.'; *p++ = '5'; } p = put_s(p, "dB"); break; }
     case PF_LIST8: p = put_s(b, d->ch && (v >> 3) < d->n ? d->ch[v >> 3] : "?"); break;
-    default: p = put_i(b, v); break;
+    default: p = r->min >= 0 ? put_u(b, (uint32_t)v) : put_i(b, v); break;   /* (4.0.3: PAT 1, not +1) */
     }
     *p = 0;
 }
@@ -804,15 +929,6 @@ static void stack_mark(void)                         /* (from main's frame: ever
     for (uint32_t *w = __stack_low; w < sp - 32; w++) *w = STACK_MARK;
     (void)here;
 #endif
-}
-COLD static uint32_t stack_used_pct(void)
-{
-#ifdef HOST
-    return 0;
-#endif
-    uint32_t *w = __stack_low;
-    while (w < __stack_top && *w == STACK_MARK) w++;
-    return (uint32_t)((uintptr_t)__stack_top - (uintptr_t)w) * 100u / (uint32_t)((uintptr_t)__stack_top - (uintptr_t)__stack_low);
 }
 
 static uint8_t key_nn[27];                  /* (each key's notes sounding: the panel's part, below) */
@@ -845,10 +961,10 @@ COLD static void bip_text(char *b, float x)               /* a one-knob filter: 
 COLD static void fx_knobs(ui_view *v)                     /* FX held, FX 2/2: the master bus and the track's filter */
 {
     char b[12];
-    bip_text(b, S.mfilt.tgt); knob(v, 0, "FILT", b, (int)(50.0f + 50.0f * S.mfilt.tgt), 0);
+    bip_text(b, S.mfilt.tgt); knob(v, 0, "FILTER", b, (int)(50.0f + 50.0f * S.mfilt.tgt), 0);
     knob_n(v, 1, "DUST", (int)(S.dust * 100.0f + 0.5f), (int)(S.dust * 100.0f + 0.5f));
     knob_n(v, 2, "DUCK", (int)(S.duck * 100.0f + 0.5f), (int)(S.duck * 100.0f + 0.5f));
-    bip_text(b, S.trk[trk].filt.tgt); knob(v, 3, "FILT P", b, (int)(50.0f + 50.0f * S.trk[trk].filt.tgt), 0);
+    bip_text(b, S.trk[trk].filt.tgt); knob(v, 3, "TRK FLT", b, (int)(50.0f + 50.0f * S.trk[trk].filt.tgt), 0);
     v->mfilt = (int8_t)(S.mfilt.tgt * 100.0f + (S.mfilt.tgt >= 0.0f ? 0.5f : -0.5f));
     v->tfilt = (int8_t)(S.trk[trk].filt.tgt * 100.0f + (S.trk[trk].filt.tgt >= 0.0f ? 0.5f : -0.5f));
     v->dust = (uint8_t)(S.dust * 100.0f + 0.5f); v->duck = (uint8_t)(S.duck * 100.0f + 0.5f);
@@ -926,13 +1042,42 @@ COLD static void ne_sheet_do(void)                              /* OCT+ tapped i
     } else if (ne_row == 5) { seq_ev_del(&Q, trk, sel); if (ne_sub > 0) ne_sub--; ne_sheet = 0; say("NOTE DELETED"); }
 }
 COLD static int notes_on(void) { return sticky == PG_NOTES && !is_drum(trk) && hold_step < 0 && !Q.recording && !recording_armed && !ft_on && !countin; }
+/* (3.3.8, SLOOP 2.8.5's DRUMS grid) SEQ tapped on the drums: the white keys are the 16 steps of the page for the sound
+ * picked (a black key, KNOB 1): set, or cleared, silently; KNOB 2 the step, 3 its hit (right set, left cleared), 4 its
+ * level; OCT- / OCT+ tapped the page; OCT+ held the hit's sheet (RATCHET, NUDGE, FILL, MOVE, COPY, DELETE). Recording
+ * or armed, the keys play (and record) as on the other pages */
+static int dg_cur, dg_sheet, dg_row = 0;
+static const char *const DG_ROW[6] = { "RATCHET", "NUDGE", "FILL", "MOVE", "COPY", "DELETE" };
+COLD static int grid_on(void) { return sticky == PG_STEPS && is_drum(trk) && !lay() && hold_step < 0 && !Q.recording && !recording_armed && !ft_on && !countin; }
+COLD static int dg_steps(void) { return Q.t[trk].pat[Q.t[trk].cur].steps; }
+COLD static void dg_fix(void) { int n = dg_steps(); if (dg_cur >= n) dg_cur = n - 1; if (dg_cur < 0) dg_cur = 0; page = dg_cur / 16; }
+static const int DG_LV[4] = { 40, 70, 100, 127 };
+COLD static int dg_lvl(int v) { return v < 50 ? 0 : v < 85 ? 1 : v < 115 ? 2 : 3; }
+COLD static void dg_sheet_do(void)                              /* OCT+ tapped in the sheet: COPY, DELETE */
+{
+    int n = last_note & 15, i = seq_hit_find(&Q, trk, dg_cur, n);
+    if (i < 0) { say_bad("NO HIT HERE"); return; }
+    Q.batch = 0;
+    if (dg_row == 4) {
+        if (dg_cur + 1 >= dg_steps() || seq_step_has(&Q, trk, dg_cur + 1, n)) { say_bad("NO ROOM"); return; }
+        if (seq_ev_move(&Q, trk, i, 0, 1) < 0) { say_bad("NO ROOM"); return; }
+        dg_cur++; dg_fix(); dg_row = 3; say("COPIED · KNOB 2 MOVES IT");
+    } else if (dg_row == 5) { seq_step_toggle(&Q, trk, dg_cur, n, 100); dg_sheet = 0; say("HIT DELETED"); }
+    else if (dg_row == 2) {
+        int c = 0; seq_step_info(&Q, trk, dg_cur, &c, 0);
+        int f = c == SEQ_ALWAYS ? SEQ_FILL : c == SEQ_FILL ? SEQ_NOFILL : SEQ_ALWAYS;
+        seq_step_cond(&Q, trk, dg_cur, f); say(f == SEQ_FILL ? "FILL: ONLY IN A FILL" : f == SEQ_NOFILL ? "NO FILL: NOT IN A FILL" : "NORMAL");
+    }
+}
 COLD static int force_of(int vel, int acc) { return acc ? 4 : vel < 50 ? 0 : vel < 85 ? 1 : vel < 115 ? 2 : 3; }
 static const char *const FORCE[5] = { "GHOST", "SOFT", "NORM", "HARD", "ACC" };
 /* ---------------------------------------------------------------- HOME: the menu's sections, the calibration */
-static const char *const HOME_SEC[5] = { "PROJECT", "SCREEN 1/4", "LIGHTS 2/4", "AUDIO 3/4", "SEQ · SYSTEM 4/4" };
-static const int8_t HOME_ROW[5][4] = { { -1, -1, -1, -1 }, { -4, HS_ACCEL, -1, -1 }, { HS_LIGHTS, HS_KEYS, HS_NOTES, -1 },
-                                       { HS_LOWCUT, HS_USB, HS_RATE, HS_RESO }, { HS_DPREV, HS_CORE2, -2, -3 } };
-static const char *const HS_LABEL[HS_N] = { "ACCEL", "LIGHTS", "KEYS", "NOTES", "SPEAKER", "USB", "RATE", "RESO", "PREVIEW", "CORE 2" };
+/* (4.0) SLOOP 2.8.5's menu: SCREEN, LIGHTS, AUDIO, SEQ, SYSTEM (0: the project, HOME held: its keys OPEN NEW SAVE) */
+#define HOME_NSEC 6
+static const char *const HOME_SEC[HOME_NSEC] = { "PROJECT", "SCREEN", "LIGHTS", "AUDIO", "SEQ", "SYSTEM" };
+static const int8_t HOME_ROW[HOME_NSEC][4] = { { -1, -1, -1, -1 }, { -4, HS_ACCEL, -1, -1 }, { HS_LIGHTS, HS_KEYS, HS_NOTES, -1 },
+                                       { HS_LOWCUT, HS_USB, HS_RATE, HS_RESO }, { HS_DPREV, -1, -1, -1 }, { HS_CORE2, -3, -2, -5 } };   /* (-5: the version, 3.4.0) */
+static const char *const HS_LABEL[HS_N] = { "KNOB ACCEL", "LIGHTS", "KEYS", "NOTES", "SPEAKER LOWCUT", "USB AUDIO", "USB RATE", "FILTER RESO", "DRUM PREVIEW", "2ND CORE" };
 COLD static const char *home_value(int i, char *b)
 {
     static const char *const LV[4] = { "OFF", "LOW", "MID", "HIGH" }, *const KY[4] = { "OFF", "C KEYS", "WHITE", "ALL" };
@@ -984,6 +1129,7 @@ COLD static void cal_tick(void)
         return;
     }
 }
+COLD static void home_do(int w);
 COLD static void home_knob(int sec, int kn, int d)
 {
     int i = HOME_ROW[sec][kn];
@@ -1001,6 +1147,7 @@ COLD static void home_knob(int sec, int kn, int d)
     if (i < 0) return;
     int v = hs[i] + d; hs[i] = (uint8_t)(v < 0 ? 0 : v > HS_MAX[i] ? HS_MAX[i] : v);
     home_apply();
+    if (i == HS_LOWCUT) say(hs[i] ? "LOWCUT: OUT -12 DB AT 55 HZ, USB WHOLE" : "LOWCUT OFF: ALL THE LOWS");
     if (i == HS_RATE) say(hs[i] ? "USB AUDIO: THIS RATE ONLY" : "USB AUDIO: THE COMPUTER'S RATE");
 }
 COLD static void sb_view(ui_view *v)                    /* SOUNDS: the category, its page, the 16 sounds as tiles */
@@ -1018,7 +1165,7 @@ COLD static void sb_view(ui_view *v)                    /* SOUNDS: the category,
         int f = sb_o[i], fav = 0;
         if (f < 0) {                                     /* a place with nothing: its number (your favourites, your places) */
             char e[4]; *put_u(e, (uint32_t)(sb_pg * 16 + i + 1)) = 0;
-            if (sb_cat == SB_UKIT && i < 8) { tile(v, i, gb_dkit_names[uk_at(i)], T_EMPTY, 0, 0); continue; }   /* (an empty slot: its name, dim) */
+            if (sb_cat == SB_UKIT && i < 9) { tile(v, i, gb_dkit_names[uk_at(i)], T_EMPTY, 0, 0); continue; }   /* (an empty slot: its name, dim) */
             tile(v, i, sb_pg * 16 + i < sb_n && (sb_cat == SB_FAV || sb_cat == SB_USER || sb_cat == SB_BANK) ? e : "", sb_pg * 16 + i < sb_n ? T_EMPTY : T_NONE, 0, 0);
             continue;
         }
@@ -1052,6 +1199,10 @@ COLD static void batt_poll(void)
     int p = batt_of(batt_raw);
     if (batt_pct < 0 || p > batt_pct + 1 || p < batt_pct - 1) batt_pct = (int8_t)p;
 }
+static uint32_t ft_us(void);
+static uint8_t hot_k = 255; static uint32_t t_hot;          /* (4.0) the knob turned last, when: its value white a moment */
+static int pg_walk(int d);
+COLD static void ft_fit(uint32_t d, int *nb, float *bpm);
 COLD static void fill_view(ui_view *v)
 {
     if (splash_on) { v->page = UI_SPLASH; return; }
@@ -1060,9 +1211,17 @@ COLD static void fill_view(ui_view *v)
     v->ntrk = NTRK; v->trk = POS[trk];
     v->blink = (uint8_t)((now / (250000u * lsb)) & 1u);
     v->batt = batt_pct < 0 ? 255u : (uint8_t)batt_pct;
-    v->batt_usb = usb_midi_ready() ? (uint8_t)(1u + ((now / (250000u * lsb)) & 7u)) : 0u;   /* (a computer: it powers and charges) */
+    /* (a computer: it powers and charges) (3.3.8) a host still there (hal/fm1/usb.c: its frame number moving): the
+     * cable pulled, the battery's level at once (measured afresh), not at the next start */
+    { int usb_live = usb_host_live();
+      static int was_live; if (was_live && !usb_live) batt_raw = 0; was_live = usb_live;
+      v->batt_usb = usb_live ? (uint8_t)(1u + ((now / (250000u * lsb)) & 7u)) : 0u; }
     v->bpm = (uint16_t)(Q.bpm + 0.5f);
-    v->bar = (uint16_t)(Q.tick / SEQ_BAR + 1u); v->beat = (uint8_t)(Q.tick / (4 * SEQ_TPS) % 4u + 1u);
+    v->octave = (int8_t)(is_drum(trk) ? 0 : oct); v->hot_k = (uint8_t)((uint32_t)(now - t_hot) < 1000000u * lsb ? hot_k : 255u);
+    v->pat_badge = (int8_t)Q.t[trk].cur; v->pat_next = (uint8_t)(Q.t[trk].next != SEQ_NONE ? Q.t[trk].next : 255u);
+    v->locked = (uint8_t)(locked != 0); v->head_r[0] = 0; v->dpage = 0;
+    { uint32_t lt = Q.song_play ? 0 : seq_loop_ticks(&Q); v->bar = (uint16_t)((lt ? Q.tick % lt : Q.tick) / SEQ_BAR + 1u); }   /* (4.0.9, issues #1 #5: the bar loops with the loop) */
+    v->beat = (uint8_t)(Q.tick / (4 * SEQ_TPS) % 4u + 1u);
     v->playing = (uint8_t)Q.playing; v->recording = (uint8_t)Q.recording; v->armed = (uint8_t)recording_armed;
     /* the status: REC, the song, the pattern and the one waiting for the bar */
     const seq_track *k = &Q.t[trk];
@@ -1116,11 +1275,12 @@ COLD static void fill_view(ui_view *v)
                 (L & (1u << BTN_EDIT)) ? BTN_EDIT : (L & (1u << BTN_SEL)) ? BTN_SEL : (L & (1u << BTN_ARP)) ? BTN_ARP :
                 (L & (1u << BTN_FX)) ? BTN_FX : -1;
     int pg = sticky, sel_page = 0;
-    int rec_screen = (recording_armed || countin) && !Q.playing && !ft_on && layer < 0;   /* REC armed: its screen */
+    /* REC armed: its screen, on the page it was armed on (3.4.1: SAVE, EDIT... opened then show their own page, and
+     * the knobs are theirs: SAVE > PROJECT > KNOB 1 changed the loop's length and saved nothing) */
+    int rec_screen = (recording_armed || countin) && !Q.playing && !ft_on && layer < 0 && sticky == armed_page;
     if ((pg == PG_DSOUND || pg == PG_KIT) && !is_drum(trk)) pg = PG_OSC;   /* (a synth track: its own pages) */
     if (layer < 0 && pg == PG_STEPS) layer = BTN_SEQ;                 /* (these pages are tiles too) */
     if (layer < 0 && pg == PG_SONG) layer = BTN_SAVE;
-    if (layer < 0 && pg == PG_SEL) { layer = BTN_SEL; sel_page = 1; }
     if (rescue) {                                           /* RESCUE (OCT- at power-on): what each key does */
         v->page = UI_LAYER; v->title_col = RGB(255, 80, 80);
         put_s(v->title, "RESCUE")[0] = 0; put_s(v->sub, "SAFE START · YOUR PROJECT IS KEPT")[0] = 0;
@@ -1137,22 +1297,29 @@ COLD static void fill_view(ui_view *v)
         knob(v, 0, cal_step < 14 ? "PRESS" : "TURN →", cal_step < 14 ? CAL_BTN[cal_step] : CAL_ENC[cal_step - 14], -1, 1);
         for (int i = 1; i < 4; i++) v->knob[i].label = 0;
         v->knob[0].dial = 0;
-    } else if (rec_screen) {                                /* REC: MODE, LONG, START, QUANT */
-        v->page = UI_GENERIC;
-        if (countin) { p = put_s(v->page_name, "COUNT-IN "); p = put_u(p, 4u - cin_ticks / (4 * SEQ_TPS)); *p = 0; }
-        else put_s(v->page_name, "REC READY")[0] = 0;
+    } else if (ft_on && layer < 0) {                        /* (4.0) a free take: its seconds, the loop it would make */
+        v->page = UI_REC; v->rec_kind = 4;
+        uint32_t d = ft_us(); int nb; float bpm; ft_fit(d > 400000u ? d : 400000u, &nb, &bpm);
+        v->take_secs = (uint8_t)(d / 1000000u > 99u ? 99u : d / 1000000u); v->take_bars = (uint8_t)(d > 400000u ? nb : 0); v->take_bpm = (uint16_t)(bpm + 0.5f);
+        for (int i = 0; i < 4; i++) v->knob[i].label = 0;
+    } else if (rec_screen) {                                /* REC: MODE, LONG, START, QUANT (as SLOOP 2.8.5's REC screen) */
+        v->page = UI_REC;
         int empty = project_empty(), spb = seq_steps_per_bar(&Q, trk), st = k->pat[k->cur].steps;
+        v->rec_kind = (uint8_t)(countin ? 3 : empty && !rec_mode ? 0 : rec_count ? 2 : 1);
+        v->count_n = (uint8_t)(countin ? 4u - cin_ticks / (4 * SEQ_TPS) : 0u);
         knob(v, 0, "MODE", empty ? (rec_mode ? "TEMPO" : "FREE") : "TEMPO", empty ? rec_mode * 100 : 100, 0);
-        if (empty && !rec_mode) knob(v, 1, "BARS", "FREE", -1, 0);
-        else { if (st % spb == 0) p = put_u(b, (uint32_t)(st / spb)); else { p = put_u(b, (uint32_t)st); *p++ = 'P'; } *p = 0;
-               knob(v, 1, "BARS", b, st * 100 / SEQ_MAXSTEPS, 0); }
-        knob(v, 2, "START", rec_count ? "CLICK" : "NOTE", rec_count * 100, 0);
+        if (empty && !rec_mode) v->knob[1].label = 0;
+        else { if (st % spb == 0) { p = put_u(b, (uint32_t)(st / spb)); p = put_s(p, st / spb == 1 ? " BAR" : " BARS"); } else { p = put_u(b, (uint32_t)st); p = put_s(p, " ST"); } *p = 0;
+               knob(v, 1, "LENGTH", b, st * 100 / SEQ_MAXSTEPS, 0); }
+        if (empty && !rec_mode) v->knob[2].label = 0;
+        else knob(v, 2, "START", rec_count ? "COUNT" : "NOTE", rec_count * 100, 0);
         int qv = k->quant; if (qv == 100) put_s(b, "ON")[0] = 0; else if (!qv) put_s(b, "OFF")[0] = 0; else { *put_s(put_u(b, (uint32_t)qv), "%") = 0; }
         knob(v, 3, "QUANT", b, qv, 0);
+        if (countin) for (int i = 0; i < 4; i++) v->knob[i].label = 0;
     } else if (layer < 0 && pg == PG_SONG2) {              /* SONG 2/2: the song's entries (as SLOOP's SONG screen) */
         v->page = UI_SONG; v->title_col = RGB(80, 220, 255);
         put_s(v->title, "SONG")[0] = 0;
-        p = put_s(v->sub, Q.song_rec ? "2/2 · SONG REC" : Q.song_play ? "2/2 · SONG" : "2/2 · LOOP");
+        p = put_s(v->sub, Q.song_rec ? "2/3 · SONG REC" : Q.song_play ? "2/3 · SONG" : "2/3 · LOOP");
         p = put_s(p, scope_one ? " · THIS TRACK" : " · ALL"); *p = 0;
         int n = Q.song_n;
         if (sg_cur >= n) sg_cur = n ? n - 1 : 0;
@@ -1183,14 +1350,10 @@ COLD static void fill_view(ui_view *v)
         for (int i = 0; i < 16; i++) tile(v, i, "", T_NONE, 0, 0);
         if (layer == BTN_FX) {                                  /* PUNCH: the 27 keys, the master bus */
             v->page = UI_PUNCH; v->title_col = RGB(255, 150, 40);
-            put_s(v->title, "FX")[0] = 0;
-            p = put_s(v->sub, "FADE "); p = put_u(p, S.pk_fade);
-            if (held_btn & ((1u << BTN_OCT_DOWN) | (1u << BTN_OCT_UP))) {
-                p = put_s(p, " · THROW");
-                if (held_btn & (1u << BTN_OCT_DOWN)) p = put_s(p, " REV");
-                if (held_btn & (1u << BTN_OCT_UP)) p = put_s(p, " DLY");
-            } else p = put_s(p, " · OCT- REV · OCT+ DLY");
-            *p = 0;
+            put_s(v->title, "PUNCH")[0] = 0;                  /* (4.0, as SLOOP 2.8.5) */
+            *put_u(put_s(v->head_r, "FADE "), S.pk_fade) = 0;
+            { int r = (held_btn >> BTN_OCT_DOWN) & 1u, e = (held_btn >> BTN_OCT_UP) & 1u;
+              put_s(v->sub, r && e ? "REV + ECHO THROW" : e ? "ECHO THROW" : r ? "REV THROW" : "HOLD + KEY")[0] = 0; }
             int on = punch_key >= 0 ? punch_of_key(punch_key) : -1;
             for (int i = 0; i < 16; i++) tile(v, i, PK_NAME[i], i == on ? T_WHITE : T_DIM, 0, 0);
             for (int j = 0; j < 11; j++) { ui_tile *t = &v->btile[j]; const char *nm = PK_NAME[16 + j]; int c = 0; for (; nm[c] && c < 9; c++) t->text[c] = nm[c]; t->text[c] = 0; t->style = (uint8_t)(16 + j == on ? T_WHITE : T_DIM); }
@@ -1207,6 +1370,17 @@ COLD static void fill_view(ui_view *v)
             if (lv >= 0) p = put_u(p, (uint32_t)(lv * 100 / 255)); else p = put_s(p, "--");
             p = put_s(p, " · "); p = cond_name(p, c); *p = 0;
             step_tiles(v);
+            if (is_drum(trk)) {                                  /* (3.3.8) the drums: the sound picked, its own level, ratchet */
+                note = last_note & 15; vel = 0; r = 1;
+                int has = seq_hit_get(&Q, trk, hold_step, note, &vel, &r);
+                knob(v, 0, "SOUND", PAD[note], note * 100 / 15, 0);
+                if (!has) { knob(v, 1, "LEVEL", "--", -1, 0); knob(v, 2, "RATCH", "--", -1, 0); }
+                else {
+                    knob(v, 1, "LEVEL", vel < 50 ? "GHOST" : vel < 85 ? "SOFT" : vel < 115 ? "NORM" : "HARD", vel * 100 / 127, 0);
+                    p = put_s(b, "X"); p = put_u(p, (uint32_t)r); *p = 0; knob(v, 2, "RATCH", b, (r - 1) * 33, 0);
+                }
+                int n64 = nud * 64 / SEQ_TPS; *put_i(b, n64) = 0; knob(v, 3, "NUDGE", b, 50 + n64 * 50 / 32, 0);
+            } else {
             note_name(b, trk, note); knob(v, 0, is_drum(trk) ? "SOUND" : "NOTE", b, note * 100 / 127, 0);
             int fl = seq_step_flags(&Q, trk, hold_step);
             if (fl & SEQ_ACCENT) knob(v, 1, is_drum(trk) ? "LEVEL" : "VEL", "ACC", 100, 1);
@@ -1215,15 +1389,38 @@ COLD static void fill_view(ui_view *v)
             if (fl & SEQ_SLIDE) knob(v, 2, "RATCH", "SLIDE", 0, 1);
             else { p = put_s(b, "X"); p = put_u(p, (uint32_t)r); *p = 0; knob(v, 2, "RATCH", b, (r - 1) * 33, 0); }
             int n64 = nud * 64 / SEQ_TPS; *put_i(b, n64) = 0; knob(v, 3, "NUDGE", b, 50 + n64 * 50 / 32, 0);
+            }
         } else if (layer == BTN_SEQ && !(L & (1u << BTN_SEQ)) && is_drum(trk)) {   /* DRUMS: the kit's grid */
             v->page = UI_DRUMS; v->drum_sel = (uint8_t)(last_note & 15);
             int steps = k->pat[k->cur].steps, at = Q.playing ? (int)seq_step_of(&Q, trk) - page * 16 : -1;
             v->drum_at = (int8_t)(at >= 0 && at < 16 ? at : -1);
             for (int r = 0; r < 16; r++) { uint16_t m = 0; for (int i = 0; i < 16; i++) if (page * 16 + i < steps && seq_step_has(&Q, trk, page * 16 + i, r)) m |= (uint16_t)(1u << i); v->drum_row[r] = m; }
-            knob(v, 0, "SOUND", PAD[last_note & 15], (last_note & 15) * 100 / 15, 0);
-            knob_n(v, 1, "QUANT", k->quant, k->quant);
-            knob_n(v, 2, "GATE", k->gate, k->gate / 2);
-            knob_n(v, 3, "STEPS", k->pat[k->cur].steps, k->pat[k->cur].steps * 100 / SEQ_MAXSTEPS);
+            /* (3.3.8) the step picked framed, the sound picked's levels as shades and its ratchets as notches */
+            int n = last_note & 15, vv = 0, rr = 1, has;
+            if (grid_on()) dg_fix();
+            v->drum_cur = (int8_t)(grid_on() && dg_cur / 16 == page ? dg_cur % 16 : -1);
+            v->drum_lvl = 0; v->drum_rat = 0;
+            for (int i = 0; i < 16; i++) if (seq_hit_get(&Q, trk, page * 16 + i, n, &vv, &rr)) { v->drum_lvl |= (uint32_t)dg_lvl(vv) << (2 * i); v->drum_rat |= (uint32_t)(rr - 1) << (2 * i); }
+            has = seq_hit_get(&Q, trk, dg_cur, n, &vv, &rr);
+            v->drum_sheet = (uint8_t)dg_sheet;
+            if (grid_on() && dg_sheet) {                     /* the hit's sheet: KNOB 1 the row, KNOB 2 its value */
+                p = put_s(v->page_name, "SHEET "); p = put_u(p, (uint32_t)dg_cur + 1u); *p = 0;
+                knob(v, 0, "LINE", DG_ROW[dg_row], dg_row * 20, 0);
+                if (!has) knob(v, 1, DG_ROW[dg_row], "--", -1, 0);
+                else if (dg_row == 0) { p = put_s(b, "X"); p = put_u(p, (uint32_t)rr); *p = 0; knob(v, 1, "RATCHET", b, (rr - 1) * 33, 0); }
+                else if (dg_row == 1) { int nd = 0; seq_step_get(&Q, trk, dg_cur, 0, 0, &nd); int n64 = nd * 64 / SEQ_TPS; *put_i(b, n64) = 0; knob(v, 1, "NUDGE", b, 50 + n64 * 50 / 32, 0); }
+                else if (dg_row == 2) { int c = 0; seq_step_info(&Q, trk, dg_cur, &c, 0); knob(v, 1, "FILL", c == SEQ_FILL ? "FILL" : c == SEQ_NOFILL ? "NO FILL" : "NORMAL", c == SEQ_FILL ? 50 : c == SEQ_NOFILL ? 100 : 0, 0); }
+                else if (dg_row == 3) { *put_u(b, (uint32_t)dg_cur + 1u) = 0; knob(v, 1, "STEP", b, dg_cur * 100 / (steps > 1 ? steps - 1 : 1), 0); }
+                else knob(v, 1, DG_ROW[dg_row], "OCT+", -1, 1);
+                knob(v, 2, "OCT+", dg_row == 2 ? "CHANGE" : dg_row == 4 ? "COPY" : dg_row == 5 ? "DELETE" : "--", -1, 0);
+                knob(v, 3, "OCT-", "CLOSE", -1, 0);
+                v->knob[2].dial = v->knob[3].dial = 0;
+            } else {
+                knob(v, 0, "SOUND", PAD[n], n * 100 / 15, 0);
+                *put_u(b, (uint32_t)dg_cur + 1u) = 0; knob(v, 1, "STEP", b, dg_cur * 100 / (steps > 1 ? steps - 1 : 1), 0);
+                knob(v, 2, "HIT", has ? "ON" : "--", has ? 100 : 0, 0);
+                if (has) knob(v, 3, "LEVEL", FORCE[dg_lvl(vv)], dg_lvl(vv) * 33, 0); else knob(v, 3, "LEVEL", "--", -1, 0);
+            }
         } else if (layer == BTN_SEQ) {
             put_s(v->title, "STEPS")[0] = 0; v->title_col = TRK_COL[trk];
             int pages = (k->pat[k->cur].steps + 15) / 16;
@@ -1237,7 +1434,7 @@ COLD static void fill_view(ui_view *v)
                 knob_n(v, 2, "SWING", k->swing, k->swing);
             } else { knob_n(v, 1, "QUANT", k->quant, k->quant); knob_n(v, 2, "GATE", k->gate, k->gate / 2); }
             knob_n(v, 3, "STEPS", k->pat[k->cur].steps, k->pat[k->cur].steps * 100 / SEQ_MAXSTEPS);
-        } else if (layer == BTN_GLO) {
+        } else if (layer == BTN_GLO) {                       /* (4.0.2, Sam: SLOOP 3's MIX back) */
             put_s(v->title, "MIX")[0] = 0;
             put_s(v->sub, "1-5 MUTE · 6-10 SOLO · ALGO: TRACK")[0] = 0; v->cols = 5;   /* (a track a column: mute above, solo below) */
             for (int t = 0; t < NTRK; t++) {                 /* the tracks in their places: 1-5 mute, 6-10 solo */
@@ -1250,7 +1447,7 @@ COLD static void fill_view(ui_view *v)
             tile(v, 11, "BAR", Q.fill_bar ? T_WHITE : T_EMPTY, 0, 0);
             tile(v, 13, "TAP 16", T_EMPTY, 0, 0);
             *put_u(b, v->bpm) = 0; tile(v, 14, b, T_DIM, 0, 0);
-            v->tile[trk].flags |= TF_PLAY; v->tile[NTRK + trk].flags |= TF_PLAY;   /* (the track the knobs turn: framed) */
+            v->tile[POS[trk]].flags |= TF_PLAY; v->tile[NTRK + POS[trk]].flags |= TF_PLAY;   /* (the track the knobs turn: framed) */
             static char LB[4][8]; static const char *const NM[4] = { "LVL ", "PAN ", "DLY ", "REV " };
             for (int i = 0; i < 4; i++) *put_u(put_s(LB[i], NM[i]), (uint32_t)POS[trk] + 1u) = 0;
             const gb_track *mk = &S.trk[trk];
@@ -1262,57 +1459,48 @@ COLD static void fill_view(ui_view *v)
             put_s(v->title, "SONG")[0] = 0;
             if (Q.song_rec) put_s(v->sub, "SONG REC · PLAY YOUR PATTERNS")[0] = 0;
             else if (Q.song_play) { p = put_s(v->sub, "SONG · "); p = put_u(p, Q.song_len); p = put_s(p, " BARS"); *p = 0; }
-            else if (chain_arm && !chain_on) put_s(v->sub, "CHAIN: TOUCH THE PATTERNS")[0] = 0;
             else if (chain_on) {
                 p = put_s(v->sub, "CHAIN ");
                 for (int i = 0; i < chain_n && p < v->sub + 30; i++) { if (i) p = put_s(p, "→"); p = put_u(p, chain[i] + 1u); }
                 *p = 0;
             }
-            else put_s(v->sub, scope_one ? "PATTERN · THIS TRACK" : "PATTERN · ON THE BAR")[0] = 0;
+            else put_s(v->sub, scope_one ? "TAP: PATTERN · HOLD: SAVE · TRACK" : "TAP: PATTERN · HOLD: SAVE")[0] = 0;
             for (int i = 0; i < SEQ_NPAT; i++) {
                 *put_u(b, (uint32_t)i + 1) = 0;
                 if (i == k->cur) tile(v, i, b, T_ON, 0, TRK_COL[trk]);
                 else if (i == k->next) tile(v, i, b, T_FRAME, TF_BLINK, RGB(255, 210, 60));
                 else tile(v, i, b, k->pat[i].n ? T_DIM : T_EMPTY, 0, 0);
                 if (chain_on) for (int c = 0; c < chain_n; c++) if (chain[c] == i) v->tile[i].flags |= TF_BAR;
+                if (pat_key >= 0 && !pat_done && i == pat_w) {   /* (3.3.8) held: the tile fills, saved when full */
+                    uint32_t ms = (time_ticks() - pat_t0) / lsb / 1000u;
+                    tile(v, i, b, T_GAUGE, 0, RGB(255, 210, 60)); v->tile[i].lvl = (uint8_t)(ms >= 1500u ? 100u : ms / 15u);
+                }
+                if (save_key == i && (saving || saved_kind)) tile(v, i, saving ? "SAVING" : saved_kind == 1 ? "SAVED" : "FAILED", saving ? T_GAUGE : saved_kind == 1 ? T_ON : T_RED, 0, saving ? RGB(255, 210, 60) : RGB(60, 220, 110));
+                if (save_key == i && saving) v->tile[i].lvl = (uint8_t)store_progress();
             }
-            tile(v, 12, Q.song_play ? "SONG" : "LOOP", Q.song_play ? T_ON : T_DIM, 0, RGB(80, 220, 255));
-            tile(v, 13, "REC", Q.song_rec ? T_RED : T_FRAME, 0, RGB(255, 80, 80));
-            tile(v, 14, "CHAIN", chain_arm ? T_ON : T_FRAME, 0, RGB(80, 220, 255));
-            tile(v, 15, scope_one ? "ONE" : "ALL", T_DIM, 0, 0);
+            tile(v, 12, Q.song_play ? "SONG" : "LOOP", Q.song_play ? T_ON : T_DIM, 0, RGB(80, 220, 255));   /* (4.0: SLOOP 2.8.5's 13 14 16) */
+            tile(v, 13, "SONG REC", Q.song_rec ? T_RED : T_FRAME, 0, RGB(255, 80, 80));
+            tile(v, 14, scope_one ? "TRACK" : "ALL", T_DIM, 0, 0);
+            tile(v, 15, "SONG", T_FRAME, 0, RGB(80, 220, 255));
+            if (pat_arm >= 0 && (uint32_t)(now - t_pat_arm) < 3000000u * lsb) tile(v, pat_arm, "AGAIN", T_FRAME, TF_BLINK, RGB(255, 198, 24));
             for (int i = 0; i < 4; i++) v->knob[i].label = 0;
-            ps_keep(trk);                                    /* (the live sound, to compare the patterns with) */
             for (int i = 0; i < SEQ_NPAT; i++) if (i != k->cur && !ps_same(&PS, trk, i, k->cur)) v->tile[i].flags |= TF_DOT;
-            p = put_s(b, "P"); p = put_u(p, (uint32_t)k->cur + 1u); p = put_s(p, "→ALL"); *p = 0;
-            knob(v, 0, "SOUND", b, -1, 0); v->knob[0].dial = 0;
         } else if (layer == BTN_HOME && home_sec) {             /* the menu: a section's four settings */
+            v->page = UI_MENU; v->dpage = (uint8_t)(home_sec - 1);   /* (4.0: drawn as SLOOP 2.8.5's menu) */
             put_s(v->title, "MENU")[0] = 0; put_s(v->sub, HOME_SEC[home_sec])[0] = 0;
             for (int i = 0; i < 16; i++) tile(v, i, "", T_EMPTY, 0, 0);
+            tile(v, HK_OPEN, "OPEN", proj_used ? T_DIM : T_EMPTY, 0, 0);   /* (3.3.8: the project's keys work here too) */
+            tile(v, HK_NEW, "NEW", T_DIM, 0, 0);
+            tile(v, HK_SAVE, "SAVE", T_FRAME, 0, TRK_COL[trk]);
             for (int i = 0; i < 4; i++) {
                 int r = HOME_ROW[home_sec][i];
-                if (r == -2) { char c[8]; *put_u(c, (uint32_t)ml_count()) = 0; knob(v, i, "LEARN", ml_count() ? c : "NONE", -1, 0); continue; }
-                if (r == -3) { knob(v, i, "CALIBR.", "→", -1, 0); continue; }
+                if (r == -2) { char c[8]; *put_u(c, (uint32_t)ml_count()) = 0; knob(v, i, "MIDI LEARN CLEAR", ml_count() ? c : "NONE", -1, 0); continue; }
+                if (r == -3) { knob(v, i, "HARDWARE CALIBRATION", "", -1, 0); continue; }
                 if (r == -4) { knob(v, i, "COLOR", scr_color < UI_NTHEMES ? ui_theme_name[scr_color] : "YOURS", scr_color * 100 / UI_NTHEMES, 0); continue; }
+                if (r == -5) { knob(v, i, "VERSION", VERSION, -1, 0); continue; }
                 if (r == -1) { v->knob[i].label = 0; continue; }
                 knob(v, i, HS_LABEL[r], home_value(r, b), hs[r] * 100 / HS_MAX[r], 0);
             }
-        } else if (layer == BTN_HOME) {
-            put_s(v->title, "PROJECT")[0] = 0;
-            /* the measures on the four dials, readable: the load (average, worst of the last half second, worst since
-             * power-on), the stack used; a late half (a gap in the sound) said beside the title */
-            if (late) { p = put_s(v->sub, "LATE "); p = put_u(p, late); *p = 0; }
-            else {                                           /* (3.3.5: how full the one project is, measured once a second) */
-                static uint32_t t_pct; uint32_t now = time_ticks();
-                if (!saving && !sbuf_held() && (uint32_t)(now - t_pct) > 1000000u * lsb) { t_pct = now; uint32_t c; proj_pct = (proj_measure(&c) * 100u + STORE_PMAX - 1u) / STORE_PMAX; }
-                p = put_s(v->sub, "MEMORY "); p = put_u(p, proj_pct); p = put_s(p, "%"); *p = 0;
-            }
-            *put_s(put_u(b, load_avg), "%") = 0; knob(v, 0, "CPU", b, (int)load_avg, 0);
-            *put_s(put_u(b, load_peak), "%") = 0; knob(v, 1, "PEAK", b, (int)load_peak, 0);
-            *put_s(put_u(b, load_max), "%") = 0; knob(v, 2, "MAX", b, (int)load_max, 0);
-            uint32_t sp = stack_used_pct(); *put_s(put_u(b, sp), "%") = 0; knob(v, 3, "STACK", b, (int)sp, 0);
-            tile(v, HK_OPEN, "OPEN", proj_used ? T_DIM : T_EMPTY, 0, 0);   /* (3.3.5: one project: the saved one opened again, a new one, saved) */
-            tile(v, HK_NEW, "NEW", T_DIM, 0, 0);                   /* (3.3.6: white keys 1, 3, 5, lit) */
-            tile(v, HK_SAVE, "SAVE", T_FRAME, 0, TRK_COL[trk]);
         } else if (layer == BTN_SEL) {                           /* KEY: the chord of each white key */
             const harm_cfg *h = &harm[trk];
             put_s(v->title, "KEY")[0] = 0; v->title_col = RGB(80, 230, 120);
@@ -1329,11 +1517,11 @@ COLD static void fill_view(ui_view *v)
                     int root = nn && ((n[0] - h->transpose) % 12 + 12) % 12 == h->root;
                     tile(v, i, lab[0] ? lab : "-", !nn ? T_EMPTY : root ? T_ON : T_DIM, 0, RGB(80, 230, 120));
                 }
-                (void)sel_page;                                  /* the same knobs, held or tapped */
-                knob(v, 0, "ROOT", harm_note_name[h->root], h->root * 100 / 11, 0);
+                (void)sel_page;                                  /* (4.0, as SLOOP 2.8.5) held: CHORD SCALE KEYS TRANSPOSE */
+                knob(v, 0, "CHORD", harm_chord_name[h->chord], h->chord * 20, 0);
                 knob(v, 1, "SCALE", harm_scale_name[h->scale], h->scale * 100 / (SCALE_N - 1), 0);
-                knob(v, 2, "CHORD", harm_chord_name[h->chord], h->chord * 20, 0);
-                knob(v, 3, "KEYS", harm_keys_name[h->keys], h->keys * 50, 0);
+                knob(v, 2, "KEYS", harm_keys_name[h->keys], h->keys * 50, 0);
+                *put_i(b, h->transpose) = 0; knob(v, 3, "TRANSP", b, 50 + h->transpose * 50 / 24, 0);
             }
         } else if (layer == BTN_ARP) {                           /* ROLL */
             put_s(v->title, "ROLL")[0] = 0; v->title_col = RGB(80, 220, 255);
@@ -1341,25 +1529,31 @@ COLD static void fill_view(ui_view *v)
             for (int i = 0; i < 16; i++) { int n = is_drum(trk) ? i : note_of_key(white_key[i]); note_name(b, trk, n); tile(v, i, b, key_nn[white_key[i]] ? T_WHITE : T_EMPTY, 0, 0); }
             knob(v, 0, "RATE", ROLL_NAME[roll_rate], roll_rate * 25, 0);
             for (int i = 1; i < 4; i++) v->knob[i].label = 0;
+        } else if (is_drum(trk) && dm_mode) {                    /* (3.3.8) EDIT, the drums' MUTE: a muted sound red, OFF */
+            put_s(v->title, "MUTE")[0] = 0; v->title_col = RGB(255, 80, 80);
+            put_s(v->sub, "KEY: ITS SOUND · BLACK KEY: ERASE")[0] = 0;
+            for (int i = 0; i < 16; i++) {
+                int off = (dm_live >> i) & 1u;
+                tile(v, i, off ? "OFF" : PAD[i], off ? T_RED : pattern_has_note(trk, i) ? T_DIM : T_EMPTY, 0, 0);
+            }
+            knob(v, 0, "SHIFT", "< >", -1, 0); knob_n(v, 1, "LENGTH", k->pat[k->cur].steps, -1);   /* (4.0, as SLOOP 2.8.5) */
+            for (int i = 0; i < 4; i++) v->knob[i].dial = 0;
         } else {                                                /* EDIT: erase */
             put_s(v->title, "ERASE")[0] = 0;
-            put_s(v->sub, Q.playing ? "KEY HELD: ERASES AS IT PASSES" : "KEY: ITS NOTE · THE WHOLE PATTERN")[0] = 0;
+            put_s(v->sub, is_drum(trk) ? (Q.playing ? "KEY HELD: ERASES · BLACK KEY: MUTE" : "KEY: ITS SOUND OUT · BLACK KEY: MUTE") : Q.playing ? "KEY HELD: ERASES AS IT PASSES" : "KEY: ITS NOTE · THE WHOLE PATTERN")[0] = 0;
             for (int i = 0; i < 16; i++) {
                 int n = is_drum(trk) ? i : note_of_key(white_key[i]);
                 note_name(b, trk, n);
                 tile(v, i, b, pattern_has_note(trk, n) ? T_DIM : T_EMPTY, 0, 0);
             }
-            knob(v, 0, "SHIFT", "<>", -1, 0);
-            knob_n(v, 1, "LEN", k->pat[k->cur].steps, -1);
-            knob(v, 2, "TRANSP", "<>", -1, 0);
-            knob_n(v, 3, "UNDO", HIST.n_undo, -1);
+            knob(v, 0, "SHIFT", "< >", -1, 0);                 /* (4.0, as SLOOP 2.8.5) */
+            knob_n(v, 1, "LENGTH", k->pat[k->cur].steps, -1);
+            if (!is_drum(trk)) knob(v, 2, "TRANSP", "< >", -1, 0);
             for (int i = 0; i < 4; i++) v->knob[i].dial = 0;
         }
     } else {
         v->page = UI_SOON;
-        static const char *const TITLE[] = { "", "", "OSC 1/6", "FILTER 2/6", "VOICE 3/6", "ENV 1/2", "ENV DEST 2/2", "SENDS 1/7", "KIT", "GLOBAL 1/6", "", "LFO 1/3", "SEL", "ARP 1/2", "LFO DEST 2/3", "MASTER 7/7", "PLUS 4/6", "ARP 2/2", "DELAY 5/7", "SOUND 2/2", "SEL 2/2", "MIDI 4/6", "MIDI 5/6", "NOTES", "LFO TRIG 3/3", "INSERT 2/7", "INSERT MIX 3/7", "SLICER 4/7", "USER SOUNDS 5/6", "TEXTURE 2/6", "TEXTURE 3/6", "SONG", "SOUNDS 6/6", "REV · CHO 6/7" , "REC 6/6" };
-        _Static_assert(sizeof TITLE / sizeof TITLE[0] == PG_GREC + 1, "a title for every page");
-        put_s(v->page_name, TITLE[pg])[0] = 0;
+        pg_title(v->page_name, pg);                      /* (4.0) "LFO 2 2/3", as SLOOP 2.8.5's foot */
         if (pg == PG_NOTES && !is_drum(trk)) {
             v->page = UI_NOTES;
             const seq_pat *pp = &k->pat[k->cur];
@@ -1370,7 +1564,11 @@ COLD static void fill_view(ui_view *v)
             for (int i = 0; i < pp->n && n < UI_NOTES_MAX; i++) {
                 const seq_ev *e = &pp->ev[i]; int es = ev_step(pp, e->tick);
                 if (es < first || es >= last) continue;
-                int x = ((int)e->tick - first * SEQ_TPS) * 64 / (nv * SEQ_TPS), l = e->len * 64 / (nv * SEQ_TPS);
+                /* (3.3.8) where it plays: pulled to its step by QUANT (a take is kept as played; at QUANT ON it was
+                 * drawn between the steps it plays on) */
+                int et = (int)e->tick, g = (et + SEQ_TPS / 2) / SEQ_TPS * SEQ_TPS; et += (g - et) * (int)k->quant / 100;
+                if (et >= (int)pp->steps * SEQ_TPS) et -= (int)pp->steps * SEQ_TPS;
+                int x = (et - first * SEQ_TPS) * 64 / (nv * SEQ_TPS), l = e->len * 64 / (nv * SEQ_TPS);
                 ui_note *u = &v->nr[n++];
                 u->x = (uint8_t)(x < 0 ? 0 : x > 63 ? 63 : x); u->len = (uint8_t)(l < 1 ? 1 : l > 64 ? 64 : l); u->pitch = e->note;
                 u->flags = (uint8_t)((i == sel ? NR_SEL : 0) | ((e->ratchet & SEQ_ACCENT) ? NR_ACC : 0) | ((e->ratchet & SEQ_SLIDE) ? NR_SLIDE : 0) |
@@ -1382,7 +1580,7 @@ COLD static void fill_view(ui_view *v)
             if (!n) lo = hi = sp;
             if (hi - lo > 17) { lo = sp - 9 < 0 ? 0 : sp - 9; hi = lo + 17; if (hi > 127) { hi = 127; lo = 110; } }   /* (too wide: 18 rows around the note edited) */
             while (hi - lo < 11) { if (lo > 0) lo--; if (hi - lo < 11 && hi < 127) hi++; }   /* (12 rows at least: 10 px each) */
-            v->nr_lo = (uint8_t)lo; v->nr_hi = (uint8_t)hi; v->nr_cur = (uint8_t)(ne_step - first); v->nr_cols = (uint8_t)nv;
+            v->nr_lo = (uint8_t)lo; v->nr_hi = (uint8_t)hi; v->nr_cur = (uint8_t)(ne_step - first); v->nr_cols = (uint8_t)nv; v->nr_bar = (uint8_t)seq_steps_per_bar(&Q, trk);
             int at = Q.playing ? (int)seq_step_of(&Q, trk) : -1;
             v->nr_play = (uint8_t)(at >= first && at < last ? (at - first) * 64 / nv : 255);
             if (ne_sheet) {                                  /* the note's sheet: KNOB 1 the row, KNOB 2 its value */
@@ -1414,12 +1612,12 @@ COLD static void fill_view(ui_view *v)
             knob_n(v, 0, "SWING", Q.swing, Q.swing);
             knob_n(v, 1, "LEVEL", level_of(trk), level_of(trk));
             knob_n(v, 2, "STEPS", k->pat[k->cur].steps, k->pat[k->cur].steps * 100 / SEQ_MAXSTEPS);
-            int pan = (int)(S.trk[trk].pan.tgt * 100.0f + 0.5f) - 50; *put_i(b, pan) = 0; knob(v, 3, "PAN", b, pan + 50, 0);
+            { int pan = (int)(S.trk[trk].pan.tgt * 100.0f + 0.5f) - 50; *put_i(b, pan) = 0; knob(v, 3, "PAN", b, pan + 50, 0); }   /* (4.0: PAN, as SLOOP 2.8.5; the track's swing: SEQ + KNOB 3) */
         } else if (pg == PG_FX) {                              /* the sends, as SLOOP's: DST CHO DLY REV */
             v->page = UI_FX;
             int dst = (int)(base[trk][is_drum(trk) ? SP_E3 : SP_DIST] * 100.0f + 0.5f), cho = (int)(S.trk[trk].send_cho.tgt * 100.0f + 0.5f);
             knob_n(v, 0, "DST", dst, dst); knob_n(v, 1, "CHO", cho, cho);
-            knob_n(v, 2, "ECHO", v->send_dly, v->send_dly); knob_n(v, 3, "REV", v->send_rev, v->send_rev);
+            knob_n(v, 2, "DLY", v->send_dly, v->send_dly); knob_n(v, 3, "REV", v->send_rev, v->send_rev);
         } else if (pg == PG_FX2) {
             v->page = UI_FX;
             knob(v, 0, "TIME", DIV[dly_div].name, dly_div * 100 / (NDIV - 1), 0);
@@ -1455,18 +1653,27 @@ COLD static void fill_view(ui_view *v)
         } else if (pg == PG_DSOUND && is_drum(trk)) {          /* the drums: each sound's own tune, decay, mute */
             v->page = UI_KIT;
             int n = last_note & 15; const gb_patch *dp = &S.trk[trk].patch;
-            put_s(v->page_name, "SOUND 2/2")[0] = 0;
             knob(v, 0, "SOUND", PAD[n], n * 100 / 15, 0);
             *put_i(b, dp->dtune[n]) = 0; knob(v, 1, "TUNE", b, (dp->dtune[n] + 8) * 100 / 15, 0);
-            *put_i(b, dp->ddec[n]) = 0; knob(v, 2, "DEC", b, (dp->ddec[n] + 4) * 100 / 7, 0);
-            knob(v, 3, "MUTE", (dp->dmute >> n) & 1u ? "ON" : "OFF", (dp->dmute >> n) & 1u ? 100 : 0, 0);
-        } else if (pg == PG_SEL2) {                             /* SEL 2/2: STRUM, VLEAD */
-            v->page = UI_GENERIC; put_s(v->page_name, "SEL 2/2 · PLAY")[0] = 0;
+            *put_i(b, GB_DDEC(dp->ddec[n])) = 0; knob(v, 2, "DEC", b, (GB_DDEC(dp->ddec[n]) + 4) * 100 / 7, 0);
+            { int dl = gb_dlev(dp->ddec[n]); char *e = put_i(b, dl); *e++ = 'D'; *e++ = 'B'; *e = 0;   /* (3.4.2, #25) the sound's own level */
+              knob(v, 3, "LEVEL", b, (dl - GB_DLEV_MIN) * 100 / (GB_DLEV_MAX - GB_DLEV_MIN), 0); }
+            v->dpage = 2;
+        } else if (pg == PG_SEL && !is_drum(trk)) {             /* (4.0, as SLOOP 2.8.5) SEL: ROOT SCL QNT CHORD of this track */
+            const harm_cfg *h = &harm[trk];
+            v->page = UI_GENERIC;
+            knob(v, 0, "ROOT", harm_note_name[h->root], h->root * 100 / 11, 0);
+            knob(v, 1, "SCL", harm_scale_name[h->scale], h->scale * 100 / (SCALE_N - 1), 0);
+            knob(v, 2, "QNT", harm_keys_name[h->keys], h->keys * 50, 0);
+            knob(v, 3, "CHORD", harm_chord_name[h->chord], h->chord * 20, 0);
+        } else if (pg == PG_SEL2 && !is_drum(trk)) {                             /* SEL 2/2: STRUM, VLEAD */
+            v->page = UI_GENERIC;
             if (is_drum(trk)) for (int i = 0; i < 4; i++) v->knob[i].label = 0;
             else {
                 *put_i(b, harm[trk].transpose) = 0; knob(v, 0, "TRANS", b, 50 + harm[trk].transpose * 50 / 24, 0);
-                int ms = strum[trk] * 120 / 100; *put_s(put_u(b, (uint32_t)ms), "ms") = 0;
-                knob(v, 1, "STRUM", strum[trk] ? b : "OFF", strum[trk], 0);
+                /* (3.4.2, issue #30) < 0: from the highest note down, as 2.8.5; the spread in ms, always the same way */
+                *put_i(b, strum[trk] * 120 / 100) = 0;
+                knob(v, 1, "STRUM", strum[trk] ? b : "OFF", 50 + strum[trk] / 2, 0);
                 knob(v, 2, "VLEAD", vlead[trk] ? "ON" : "OFF", vlead[trk] * 100, 0);
                 v->knob[3].label = 0;
             }
@@ -1486,56 +1693,110 @@ COLD static void fill_view(ui_view *v)
                 knob(v, 2, "DUCK", S.tx[6] ? "ON" : "OFF", S.tx[6] * 100, 0);
                 v->knob[3].label = 0;
             }
-        } else if (pg == PG_MIDI || pg == PG_MIDI2) {         /* MIDI: the settings; then what comes in */
+        } else if (pg == PG_MIDI || pg == PG_MIDI2 || pg == PG_SYS) {   /* (4.0, as SLOOP 2.8.5) SYSTEM, MIDI, MIDI 2 */
             v->page = UI_GENERIC;
-            if (pg == PG_MIDI) {
+            if (pg == PG_SYS) {
+                knob(v, 0, "OUT", midi_out_name[MC.out], MC.out * 50, 0);
+                knob(v, 1, "SYNC", midi_sync_name[MC.sync], MC.sync * 100, 0);
+                knob(v, 2, "IN", midi_in_name[MC.in], MC.in * 50, 0);
+                if (usb_midi_ready()) { *put_s(put_u(b, load_avg), "%") = 0; knob(v, 3, "CPU", b, (int)load_avg, 0); }
+                else knob(v, 3, "USB", "WAIT", -1, 0);
+            } else if (pg == PG_MIDI) {
                 knob(v, 0, "IN", midi_in_name[MC.in], MC.in * 50, 0);
-                knob(v, 1, "OUT", midi_out_name[MC.out], MC.out * 50, 0);
-                knob(v, 2, "SYNC", midi_sync_name[MC.sync], MC.sync * 100, 0);
-                knob(v, 3, "CLK", MC.clk_out ? "ON" : "OFF", MC.clk_out * 100, 0);
+                *put_u(b, midi_n % 100000u) = 0; knob(v, 1, "GOT", b, -1, 0);   /* (what came in, USB and TRS: a keyboard that reaches us) */
+                knob(v, 2, "OUT", midi_out_name[MC.out], MC.out * 50, 0);
+                p = put_s(b, "+"); p = put_u(p, (uint32_t)m_bend); p = put_s(p, " ST"); *p = 0; knob(v, 3, "BEND", b, m_bend * 100 / 12, 0);
             } else {
-                knob(v, 0, "DRUM", midi_dmap_name[MC.dmap], MC.dmap * 100, 0);
-                if (m_rmch) knob_n(v, 1, "REMOTE", m_rmch, m_rmch * 100 / 16); else knob(v, 1, "REMOTE", "OFF", 0, 0);
-                if (m_fxch) knob_n(v, 2, "FX CH", m_fxch, m_fxch * 100 / 16); else knob(v, 2, "FX CH", "OFF", 0, 0);
-                knob_n(v, 3, "BEND", m_bend, m_bend * 100 / 12);
-                p = put_s(v->page_name, "MIDI 5/6 · USB "); p = put_s(p, usb_midi_ready() ? "OK" : "--"); p = put_s(p, " · GOT ");
-                p = put_u(p, midi_n % 100000u); *p = 0;           /* (USB and TRS: a keyboard that reaches us) */
+                if (m_fxch) knob_n(v, 0, "FX CH", m_fxch, m_fxch * 100 / 16); else knob(v, 0, "FX CH", "OFF", 0, 0);
+                knob(v, 1, "DR MAP", midi_dmap_name[MC.dmap], MC.dmap * 100, 0);
+                if (m_rmch) knob_n(v, 2, "REMOTE", m_rmch, m_rmch * 100 / 16); else knob(v, 2, "REMOTE", "OFF", 0, 0);
+                knob(v, 3, "CLOCK", MC.clk_out ? "OUT" : "OFF", MC.clk_out * 100, 0);
             }
         } else if (pg == PG_GREC) {                           /* (3.3.6) REC: a track changed while recording; how a take starts */
             v->page = UI_GENERIC;
             knob(v, 0, "TRACK", rec_keep ? "KEEP" : "STOP", rec_keep * 100, 0);   /* (a track changed while recording: REC STOP or KEEP) */
             knob(v, 1, "START", rec_count ? "CLICK" : "NOTE", rec_count * 100, 0);
             v->knob[2].label = 0; v->knob[3].label = 0;
-        } else if (pg == PG_MASTER) {
-            v->page = UI_MASTER;
-            fx_knobs(v);
+        } else if (pg == PG_MASTER) {                            /* (4.0, as SLOOP 2.8.5) GLO > MASTER: DUST DUCK FILT ROLL */
+            v->page = UI_GENERIC;
+            knob_n(v, 0, "DUST", (int)(S.dust * 100.0f + 0.5f), (int)(S.dust * 100.0f + 0.5f));
+            knob_n(v, 1, "DUCK", (int)(S.duck * 100.0f + 0.5f), (int)(S.duck * 100.0f + 0.5f));
+            bip_text(b, S.mfilt.tgt); knob(v, 2, "FILT", b, (int)(S.mfilt.tgt * 50.0f + 50.5f), 0);
+            knob(v, 3, "ROLL", ROLL_NAME[roll_rate], roll_rate * 25, 0);
+        } else if (pg == PG_TFLT) {                              /* (4.0) FX > FILTER: the track's one-knob filter */
+            v->page = UI_GENERIC;
+            bip_text(b, S.trk[trk].filt.tgt); knob(v, 0, "FILT", b, (int)(S.trk[trk].filt.tgt * 50.0f + 50.5f), 0);
+            for (int i = 1; i < 4; i++) v->knob[i].label = 0;
+        } else if (pg == PG_PAT) {                               /* (4.0) SEQ > PATTERN: LEN DIV SWG GATE */
+            v->page = UI_GENERIC;
+            knob_n(v, 0, "LEN", k->pat[k->cur].steps, k->pat[k->cur].steps * 100 / SEQ_MAXSTEPS);
+            knob(v, 1, "DIV", seq_div_name[k->div], k->div * 100 / (SEQ_NDIV - 1), 0);
+            knob_n(v, 2, "SWG", k->swing, k->swing);
+            knob_n(v, 3, "GATE", k->gate, k->gate / 2);
+        } else if (pg == PG_VOICE2 && !is_drum(trk)) {           /* (4.0) EDIT > VOICE 2: TRIM DTUNE PAN MUTE */
+            v->page = UI_GENERIC;
+            for (int i = 0; i < 2; i++) { int pi = P_VO2[i]; const pdesc *d = pdesc_of(q->engine, pi); param_text(b, q->engine, pi, base[trk][pi]); knob(v, i, d->name[0] ? d->name : (i ? "DTUNE" : "TRIM"), b, param_bar(q->engine, pi, base[trk][pi]), 0); }
+            { int pan = (int)(S.trk[trk].pan.tgt * 100.0f + 0.5f) - 50; *put_i(b, pan) = 0; knob(v, 2, "PAN", b, pan + 50, 0); }
+            knob(v, 3, "MUTE", Q.t[trk].mute ? "ON" : "OFF", Q.t[trk].mute * 100, 0);
+        } else if (pg == PG_KIT && is_drum(trk)) {               /* (4.0) the drums' KIT: KIT LEVEL REVERB PAN */
+            v->page = UI_KIT; v->dpage = 1;
+            param_text(b, q->engine, SP_E0, base[trk][SP_E0]); knob(v, 0, "KIT", b, param_bar(q->engine, SP_E0, base[trk][SP_E0]), 0);
+            knob_n(v, 1, "LEVEL", level_of(trk), level_of(trk));
+            knob_n(v, 2, "REVERB", v->send_rev, v->send_rev);
+            { int pan = (int)(S.trk[trk].pan.tgt * 100.0f + 0.5f) - 50; *put_i(b, pan) = 0; knob(v, 3, "PAN", b, pan + 50, 0); }
+        } else if (pg == PG_GDRUM) {                             /* (4.0) GLO > DRUMS: CH LVL REV DLY */
+            v->page = UI_GENERIC;
+            int dt = 0; while (dt < NTRK - 1 && !is_drum(dt)) dt++;
+            const gb_track *mk = &S.trk[dt];
+            knob(v, 0, "CH", "10", -1, 0);
+            knob_n(v, 1, "LVL", level_of(dt), level_of(dt));
+            int rv = (int)(mk->send_rev.tgt * 100.0f + 0.5f), dl = (int)(mk->send_dly.tgt * 100.0f + 0.5f);
+            knob_n(v, 2, "REV", rv, rv); knob_n(v, 3, "DLY", dl, dl);
+        } else if (pg == PG_PRESETS) {                           /* (4.0) SAVE > PRESETS: the sound, the engine, FAV */
+            v->page = UI_GENERIC;
+            int po = preset_origin(preset_of[trk]);
+            knob(v, 0, "SOUND", po >= 0 ? snd_name(po) : "EDITED", -1, 0);
+            knob(v, 1, "ENG", gb_edesc[q->engine < ENG_N ? q->engine : 0].name, -1, 0);
+            v->knob[2].label = 0;
+            { int fv = 0; for (int j = 0; j < US_NFAV; j++) fv |= po >= 0 && us_fav[j] == po; knob(v, 3, "FAV", fv ? "ON" : "--", -1, 0); }
+        } else if (pg == PG_SAVEPAT) {                           /* (4.0) SAVE > PATTERNS: PAT ERASE LOAD SAVE */
+            v->page = UI_GENERIC;
+            p = put_u(b, (uint32_t)sp_sel + 1u); p = put_s(p, pat_used(trk, sp_sel) ? "" : " EMPTY"); *p = 0;
+            knob(v, 0, "PAT", b, sp_sel * 100 / (SEQ_NPAT - 1), 0);
+            knob(v, 1, "ERASE", "GO", -1, 0); knob(v, 2, "LOAD", "GO", -1, 0); knob(v, 3, "SAVE", "GO", -1, 0);
+        } else if (pg == PG_PROJ) {                              /* (4.0.4, Sam) SAVE > PROJECT: NEW OPEN SAVE (GO) */
+            v->page = UI_GENERIC;                                /* (4.0.6, Sam: SAVE NEW LOAD, knob 1 2 3; after SONG: its 3rd page) */
+            knob(v, 0, "SAVE", "GO", -1, 0); knob(v, 1, "NEW", "GO", -1, 0); knob(v, 2, "LOAD", proj_used ? "GO" : "--", -1, 0); v->knob[3].label = 0;
+            put_s(v->page_name, "PROJECT 3/3")[0] = 0;
+        } else if (pg == PG_TOOLS) {                             /* (4.0) SAVE > TOOLS: CLRSQ INIT NEW */
+            v->page = UI_GENERIC;
+            knob(v, 0, "CLRSQ", "GO", -1, 0); knob(v, 1, "INIT", "GO", -1, 0); v->knob[2].label = 0; knob(v, 3, "NEW", "GO", -1, 0);
         } else if (pg == PG_GLOBAL) {
             v->page = UI_MIXER;
             if (ext_on(now)) { p = put_s(b, "EXT "); p = put_u(p, v->bpm); *p = 0; knob(v, 0, "BPM", b, (v->bpm - 30) * 100 / 270, 0); }
             else knob_n(v, 0, "BPM", v->bpm, (v->bpm - 30) * 100 / 270);
             knob_n(v, 1, "SWING", Q.swing, Q.swing);
             knob(v, 2, "CLICK", CLICK_NAME[click_mode], click_mode * 50, 0);
-            static char gl[8]; *put_u(put_s(gl, "LVL "), (uint32_t)POS[trk] + 1u) = 0; knob_n(v, 3, gl, level_of(trk), level_of(trk));
+            v->page = UI_GENERIC; v->knob[3].label = 0;              /* (4.0: SLOOP 2.8.5's TUNE: none here) */
         } else if (pg == PG_USER && !is_drum(trk)) {            /* USER SOUNDS: a place, load, save, erase */
             v->page = UI_GENERIC;
             p = put_u(b, (uint32_t)us_place + 1u); p = put_s(p, us_used(us_place) ? " " : " EMPTY"); *p = 0;
             knob(v, 0, "SLOT", b, us_place * 100 / (US_N - 1), 0);
-            knob(v, 1, "LOAD", us_used(us_place) ? us_name(us_place) : "-", -1, 0);
-            knob(v, 2, "SAVE", "→", -1, 0);
-            knob(v, 3, "ERASE", us_used(us_place) ? "→ →" : "-", -1, 0);
+            knob(v, 1, "LOAD", us_used(us_place) ? us_name(us_place) : "--", -1, 0);   /* (4.0: SLOT LOAD ERASE SAVE) */
+            knob(v, 2, "ERASE", us_used(us_place) ? "GO" : "--", -1, 0);
+            knob(v, 3, "SAVE", "GO", -1, 0);
             for (int i = 1; i < 4; i++) v->knob[i].dial = 0;
-        } else if ((pg >= PG_OSC && pg <= PG_KIT) || pg == PG_PLAY || FX_TRACK_PG(pg) || ((pg == PG_LFO || pg == PG_LFODEST || pg == PG_LFO3) && !is_drum(trk))) {
+        } else if ((pg >= PG_OSC && pg <= PG_KIT) || pg == PG_PLAY || pg == PG_AFLT || FX_TRACK_PG(pg) || ((pg == PG_LFO || pg == PG_LFODEST || pg == PG_LFO3) && !is_drum(trk))) {
             /* the sound's pages: SLOOP's values, its names (the engine's for EDIT 1/4 and 2/4) */
             static const uint8_t UIP[] = { 0, 0, UI_GENERIC, UI_GENERIC, UI_PLAY, UI_ENV, UI_ENVDEST, UI_FX, UI_KIT };
-            v->page = FX_TRACK_PG(pg) ? UI_GENERIC : is_drum(trk) ? UI_KIT : pg == PG_PLAY || pg == PG_LFO3 ? UI_GENERIC : pg == PG_LFO || pg == PG_LFODEST ? UI_LFO : UIP[pg];
+            v->page = FX_TRACK_PG(pg) ? UI_GENERIC : is_drum(trk) ? UI_KIT : pg == PG_PLAY || pg == PG_LFO3 ? UI_GENERIC : pg == PG_LFO || pg == PG_LFODEST ? UI_LFO : pg <= PG_KIT ? UIP[pg] : UI_GENERIC;
             if (is_va(trk) && pg == PG_OSC) v->page = UI_OSC;
             if (is_va(trk) && pg == PG_FILTER) v->page = UI_FILTER;
-            if (FX_TRACK_PG(pg)) { }                                   /* (its title: TITLE) */
-            else if (is_drum(trk)) put_s(v->page_name, "KIT 1/2 · 16 SOUNDS")[0] = 0;
-            else if (pg == PG_OSC || pg == PG_FILTER) {                            /* the engine's own two pages */
-                int k = pg - PG_OSC;
-                p = put_s(v->page_name, gb_edesc[q->engine].page[k]); *p++ = ' '; *p++ = (char)('1' + k); p = put_s(p, "/5"); *p = 0;
-            } else if (pg == PG_LFO3) put_s(v->page_name, "LFO TRIG 3/3")[0] = 0;
+            if (pg == PG_AFLT || pg == PG_PLAY) v->page = UI_GENERIC;
+            if (pg == PG_SLC) {                              /* (4.0.3, Sam: as SLOOP 2.8.5) the SLICER's pattern drawn */
+                uint32_t sv = tfx_slicer_view(trk, gb_pv(q->p, SP_SLPAT)); v->page = UI_SLICER;
+                v->slc_pat = (uint16_t)sv; v->slc_at = (uint8_t)(sv >> 16); v->slc_mode = (uint8_t)gb_pv(q->p, SP_SLCR); v->slc_depth = (uint8_t)(gb_pv(q->p, SP_SLDEPTH) * 100 / 127);
+            }
             const int8_t *P = params_of(pg, trk);
             for (int i = 0; i < 4; i++) {
                 int pi = is_drum(trk) && !FX_TRACK_PG(pg) ? i : P[i];
@@ -1545,13 +1806,15 @@ COLD static void fill_view(ui_view *v)
                 knob(v, i, d->name, b, param_bar(q->engine, pi, base[trk][pi]), 0);
             }
         } else {
-            {
-                put_s(v->sub, "NO LFO ON THE DRUMS")[0] = 0;
+            {                                                /* (as SLOOP 2.8.5: a page the drums have no use for) */
+                put_s(v->sub, "DRUM TRACK")[0] = 0;
                 for (int i = 0; i < 4; i++) v->knob[i].label = 0;
             }
         }
     }
     v->toast = msg[0] && msg_live ? msg : 0; v->toast_kind = (uint8_t)msg_bad;
+    if (saved_kind && (uint32_t)(now - t_saved) > 2000000u * lsb) { saved_kind = 0; save_key = -1; }
+    v->saved = (uint8_t)(saving ? 0 : saved_kind);                  /* (3.3.8) the big SAVED */
     v->info = info[0] && info_live && !v->toast ? info : 0;
     v->saving = (uint8_t)(saving && saving_shown); v->save_pct = saving ? (uint8_t)store_progress() : 0;
 }
@@ -1804,8 +2067,7 @@ COLD static void proj_extra(project_extra *xp)
 {
     sound_from_base();
     project_extra x; memset(&x, 0, sizeof x);
-    for (int t = 0; t < NTRK; t++) ps_keep(t);
-    x.ps = &PS;
+    x.ps = &PS; x.keep = keep;                           /* (4.0: PS's current ones and keep: as last saved; the live sound: the header) */
     x.dly_div = (uint8_t)dly_div; x.fade = S.pk_fade;
     for (int t = 0; t < SEQ_NTRK; t++) { x.strum[t] = t < NTRK ? strum[t] : 0; x.vlead[t] = t < NTRK ? vlead[t] : 0; }
     for (int t = 0; t < SEQ_NTRK; t++) { const arp_cfg *c = &arpc[t < NTRK ? t : 0]; uint8_t *a = x.arp[t];
@@ -1870,7 +2132,7 @@ COLD static void fm6_bank_poll(void)
 /* the settings in effect: the low cut, the filters' resonance, the second core */
 COLD static void home_apply(void)
 {
-    S.lowcut = hs[HS_LOWCUT]; S.flt_q = 0.75f + 0.45f * (float)hs[HS_RESO];
+    S.lowcut = (uint8_t)(hs[HS_LOWCUT] ? 2 : 0); S.flt_q = 0.75f + 0.45f * (float)hs[HS_RESO];
     S.usb_full = hs[HS_USB]; usb_audio_rate(hs[HS_RATE]);
 }
 static int home_had;                                  /* the settings came from a project (else: SLOOP's, at power-on) */
@@ -1900,11 +2162,12 @@ COLD static void load_after(project_extra *xp);
 COLD static void load_project(int w)
 {
     (void)w;
+    dm_live = 0;
     if (sbuf_held()) { say_bad("EDITOR BUSY"); return; }
     uint32_t n = 0, crc = 0;
     int have = flash_ok && store_proj_find(&proj_at, &n, &crc) == 0;
     proj = 0; safe_hold = 0; proj_used = have ? 1u : 0u;
-    project_extra x; memset(&x, 0, sizeof x); x.ps = &PS;
+    project_extra x; memset(&x, 0, sizeof x); x.ps = &PS; x.keep = keep;
     if (have && project_load_from(&Q, &S, &x, proj_fetch, n, 0) == 0) {
         load_after(&x);
         say("PROJECT OPENED");
@@ -1954,9 +2217,12 @@ COLD static void load_after(project_extra *xp)
             else if (preset_of[t] != -1) g = preset_gain(k);
             S.trk[t].patch.gain = g;
         }
-        for (int t = 0; t < NTRK; t++) {                     /* each pattern's sound: its own, else the track's */
-            for (int i = 0; i < SEQ_NPAT; i++) if (!((x.ps_mask[t] >> i) & 1u)) ps_take(&PS, t, i, &S.trk[t].patch, base[t], preset_of[t]);
-            PS.cur[t] = Q.t[t].cur;
+        for (int t = 0; t < NTRK; t++) {                     /* each pattern's sound: its own, else the current one's as saved (4.0), else the track's */
+            int cur = Q.t[t].cur;
+            if (!x.pscur_got[t]) ps_take(&PS, t, cur, &S.trk[t].patch, base[t], preset_of[t]);
+            for (int i = 0; i < SEQ_NPAT; i++) if (i != cur && !((x.ps_mask[t] >> i) & 1u)) ps_copy(&PS, t, cur, i);
+            PS.cur[t] = (uint8_t)cur;
+            if (!x.keep_got[t]) keep[t] = Q.t[t].pat[cur];   /* (an older project: as it is) */
         }
         saved_len = proj_measure(&saved_crc);                /* what it is now, to know when it changes */
     }
@@ -1973,6 +2239,8 @@ COLD static void save_project(int shown)
     }
     if (sbuf_held()) { if (shown) say_bad("EDITOR BUSY"); return; }
     if (safe_hold) { if (shown) say_bad("SAFE START: SAVE IT FROM HOME"); return; }
+    if (shown && !save_nocommit) for (int t = 0; t < NTRK; t++) commit_trk(t);   /* (4.0) asked for: the patterns saved as they are now */
+    save_nocommit = 0;
     uint32_t crc, n = proj_measure(&crc);
     if (n > STORE_PMAX) { say_bad("PROJECT TOO BIG"); return; }   /* (cannot be: the largest the sequencer holds fits, tests/store_test.c) */
     if (!shown && crc == saved_crc && n == saved_len) return;     /* nothing changed */
@@ -1992,7 +2260,10 @@ COLD static void proj_feed(void)
 /* each key's notes sounding (a chord: up to 5), its track; the last chord each track played (what a step writes) */
 static uint8_t key_notes[27][5], key_nn[27], key_vel[27];
 static int8_t key_trk[27];
-static uint8_t last_chord[NTRK][5], last_chord_n[NTRK] = { 1, 1, 1, 1, 1 };
+static uint8_t last_chord[NTRK][5] = { { 45 }, { 57 }, { 69 }, { 0 }, { 57 } }, last_chord_n[NTRK] = { 1, 1, 1, 1, 1 };   /* (3.3.7: as last_notes, not note 0) */
+/* (3.3.7, issue #3) the sound shown changed by hand (KNOB 1, a drum's black key, a note edited): it is also what a
+ * step will be written with (the last chord played was, whatever the screen showed) */
+static void shown_note(int n) { last_notes[trk] = n; last_chord[trk][0] = (uint8_t)n; last_chord_n[trk] = 1; }
 static struct { uint8_t on; uint32_t next; } roll[27];      /* ARP + a key: it repeats on the grid */
 /* the free take (REC on an empty project, then play freely): the notes as played, in microseconds from the first;
  * REC on the "1" after the last bar closes it: 1, 2 or 4 bars at the tempo nearest the one set (kept within 3 %) */
@@ -2016,31 +2287,60 @@ COLD static void ft_fit(uint32_t d, int *nb, float *bpm)
     if (best < 1.03f) *bpm = Q.bpm;                              /* near enough: the tempo set */
     else *bpm = (float)(int)(*bpm + 0.5f);
 }
+/* (3.3.8) the loop's length from the hits, not from REC alone: REC is pressed on the "1" a little late (a hand's
+ * reaction, 0.1 to 0.2 s), which made the loop that much longer, the take squeezed into its start, the last hits on
+ * the step before and a hole at the end. The length near REC (0.25 s before to 0.12 s after) whose grid of steps
+ * the hits sit on best; with few hits (more than one grid fits), the one with the fewest hits between the 8ths,
+ * then the one nearest REC a little early */
+COLD static float ft_cost(float s, float D, float c)
+{
+    float sum = 0.0f;
+    for (int i = 0; i < ft_n; i++) {
+        float x = (float)ft_ev[i].on / s; int st = (int)(x + 0.5f); float e = x - (float)st;
+        sum += e * e + ((st & 1) ? 0.02f : 0.0f);
+    }
+    float r = (D - c) / s;
+    return sum / (float)ft_n + 0.01f * r * r;
+}
+COLD static uint32_t ft_length(uint32_t d, int nb)
+{
+    float steps = (float)(nb * 16), best = 1e30f; uint32_t at = d;
+    for (int32_t D = (int32_t)d - 250000; D <= (int32_t)d + 120000; D += 1000) {
+        if (D < 400000) continue;
+        float s = (float)D / steps, b = 15.0e6f / s;
+        if (b < 40.0f || b > 250.0f) continue;
+        float x = ft_cost(s, (float)D, (float)d - 50000.0f);
+        if (x < best) { best = x; at = (uint32_t)D; }
+    }
+    return at;
+}
 COLD static void ft_close(void)
 {
-    uint32_t d = ft_us();
+    uint32_t d = ft_us(), d_rec = d;
     ft_on = 0; recording_armed = 0;
     if (!ft_n || d < 400000u) { say_bad("EMPTY TAKE"); return; }
     int nb; float bpm; ft_fit(d, &nb, &bpm);
+    d = ft_length(d, nb);
+    { float b = (float)nb * 4.0f * 60.0e6f / (float)d, r = b > Q.bpm ? b / Q.bpm : Q.bpm / b;
+      bpm = r < 1.03f ? Q.bpm : (float)(int)(b + 0.5f); }
     seq_set_bpm(&Q, bpm);
     for (int t = 0; t < NTRK; t++) seq_set_len(&Q, t, nb * 16);
     float P = (float)(nb * SEQ_BAR), k = P / (float)d;
     for (int i = 0; i < ft_n; i++) {
-        uint32_t off = ft_ev[i].open ? d : ft_ev[i].off;
-        seq_add(&Q, ft_ev[i].trk, (uint32_t)((float)ft_ev[i].on * k + 0.5f), (uint32_t)((float)(off - ft_ev[i].on) * k + 0.5f), ft_ev[i].note, ft_ev[i].vel);
+        uint32_t off = ft_ev[i].open ? d_rec : ft_ev[i].off;
+        uint32_t tick = (uint32_t)((float)ft_ev[i].on * k + 0.5f) % (uint32_t)P;
+        /* a hit past the end (the "1" played again before REC): the loop's start, once */
+        const seq_pat *p = &Q.t[ft_ev[i].trk].pat[Q.t[ft_ev[i].trk].cur]; int dup = 0;
+        for (int j = 0; j < p->n && !dup; j++) {
+            uint32_t dt = (p->ev[j].tick + (uint32_t)P - tick) % (uint32_t)P; if (dt > (uint32_t)P / 2u) dt = (uint32_t)P - dt;
+            dup = p->ev[j].note == ft_ev[i].note && dt < SEQ_TPS / 2u;
+        }
+        if (dup) continue;
+        seq_add(&Q, ft_ev[i].trk, tick, (uint32_t)((float)(off - ft_ev[i].on) * k + 0.5f), ft_ev[i].note, ft_ev[i].vel);
     }
     seq_play(&Q, 1);
     char b[32], *p = put_s(b, "TAKE: "); p = put_u(p, (uint32_t)nb); p = put_s(p, nb > 1 ? " BARS · " : " BAR · ");
     p = put_u(p, (uint32_t)(Q.bpm + 0.5f)); p = put_s(p, " BPM"); *p = 0; say(b);
-}
-COLD static void ft_say(void)                                      /* the seconds, and the loop it would make now */
-{
-    uint32_t d = ft_us();
-    int nb; float bpm; ft_fit(d > 400000u ? d : 400000u, &nb, &bpm);
-    char b[40], *p = put_s(b, "TAKE ");
-    p = put_u(p, d / 1000000u); *p++ = '.'; p = put_u(p, d / 100000u % 10u); p = put_s(p, "s · ");
-    p = put_u(p, (uint32_t)nb); p = put_s(p, " BARS "); p = put_u(p, (uint32_t)(bpm + 0.5f)); *p = 0;
-    say(b);
 }
 static uint32_t roll_clock;                                   /* (ticks, while stopped) */
 static void arp_release(void)                               /* what it plays now, ended */
@@ -2086,7 +2386,7 @@ static void arp_step(void)                                  /* in the audio bloc
     if (m && (c->prob >= 100 || (A.rnd >> 9) % 100u < c->prob)) {
         for (int i = 0; i < m; i++) {
             play_on(GB_OWNER(OWN_ARP, 0), A.trk, out[i], (float)vel * (1.0f / 127.0f));
-            if (Q.recording && A.trk == Q.rec_trk) seq_key(&Q, out[i], vel, 1, 0);
+            if (Q.recording && A.trk == Q.rec_trk) { Q.rec_free = 1; seq_key(&Q, out[i], vel, 1, 0); Q.rec_free = 0; }   /* (3.4.2, #28: on the arp's grid) */
             A.snd[i] = out[i];
         }
         A.nsnd = (uint8_t)m;
@@ -2150,9 +2450,11 @@ static void key_on(int k, int t, const uint8_t *n, int nn, float vel, uint32_t l
     }
     for (int i = 0; i < nn; i++) {
         key_notes[k][i] = n[i];
-        if (i && t < NTRK && strum[t] && !is_drum(t)) {      /* STRUM: later, in turn */
+        int sr = t < NTRK && strum[t] < 0 ? nn - 1 - i : i;   /* (3.4.2, #30: STRUM < 0, the highest note first) */
+        if (sr && t < NTRK && strum[t] && !is_drum(t)) {     /* STRUM: later, in turn */
+            uint32_t sa = (uint32_t)(strum[t] < 0 ? -strum[t] : strum[t]);
             for (int j = 0; j < 8; j++) if (!st_q[j].on) { st_q[j].on = 1; st_q[j].key = (uint8_t)k; st_q[j].note = n[i]; st_q[j].trk = (uint8_t)t; st_q[j].vel = key_vel[k];
-                st_q[j].at = st_clock + (uint32_t)i * (uint32_t)strum[t] * 53u / (uint32_t)(nn > 1 ? nn - 1 : 1); break; }   /* (120 ms at 100) */
+                st_q[j].at = st_clock + (uint32_t)sr * sa * 53u / (uint32_t)(nn > 1 ? nn - 1 : 1); break; }   /* (120 ms at 100) */
             continue;
         }
         play_on(o, t, n[i], vel);
@@ -2180,7 +2482,7 @@ static void roll_step(void)
         uint8_t n[5]; int nn = key_nn[k]; float vel = (float)key_vel[k] * (1.0f / 127.0f);
         for (int i = 0; i < nn; i++) n[i] = key_notes[k][i];
         int t = key_trk[k];
-        out_seq = 1; key_off(k, 0); key_on(k, t, n, nn, vel, 0); out_seq = 0;
+        out_seq = 1; Q.rec_free = 1; key_off(k, 0); key_on(k, t, n, nn, vel, 0); Q.rec_free = 0; out_seq = 0;   /* (3.4.2, #28: on the roll's grid) */
         if ((int32_t)(now - roll[k].next) >= 0) roll[k].next += ((now - roll[k].next) / iv + 1u) * iv;   /* (3.3: at once, as the arp's) */
     }
 }
@@ -2329,7 +2631,9 @@ COLD static void ml_knob(int t, int code)               /* a value turned while 
     if (!ml_pick || ml_trk != t || ml_code != code) { char b[24], c[32], *p; ml_label(t, code, b); p = put_s(c, b); p = put_s(p, ": SEND A CC"); *p = 0; say(c); }
     ml_pick = 1; ml_trk = (uint8_t)t; ml_code = (uint8_t)code;
 }
-static int ml_free_cc(int cc) { return cc && cc < 120 && cc != 1 && cc != 6 && cc != 11 && cc != 32 && cc != 38 && cc != 64 && (cc < 96 || cc > 101); }
+/* (3.4.2, issues #12, #21) the mod wheel (CC 1, and the keys' pressure with it) and EXPRESSION (CC 11) may be learnt too:
+ * to any value of any track, in place of what they do by themselves (CC 1 the vibrato, CC 11 the level) */
+static int ml_free_cc(int cc) { return cc && cc < 120 && cc != 6 && cc != 32 && cc != 38 && cc != 64 && (cc < 96 || cc > 101); }
 COLD static int ml_count(void) { int n = 0; for (int i = 0; i < ML_N; i++) n += ml_tab[i] != 0; return n; }
 COLD static int ml_cc(int cc, int val)                  /* a CC: learned now, or a learned one's job done (1) */
 {
@@ -2419,6 +2723,7 @@ COLD static void select_track(int t)
 {
     if (t < 0 || t >= NTRK || t == trk) return;
     trk = t; page = 0; lock_param = is_drum(trk) ? 0 : SP_E4;
+    lit_on = 0; lit_hit = 0;                          /* (3.4.2, issues #18, #26: the track left's notes were left lit) */
     if (!Q.recording) return;
     seq_record(&Q, 0, trk);
     char b[24], *p;
@@ -2442,6 +2747,7 @@ COLD static void midi_program(int t, int pc, int bank)
 COLD static void midi_in(const midi_msg *m, uint32_t now)
 {
     midi_n++;
+    if (m->st < 0xF0) t_midi_play = now;            /* (played from outside: no bank prepared meanwhile) */
     if (m->st >= 0xF8) {                             /* the clock and the transport: with SYNC EXT */
         if (MC.sync != MIDI_SYNC_EXT) return;
         if (m->st == 0xF8) {
@@ -2468,6 +2774,7 @@ COLD static void midi_in(const midi_msg *m, uint32_t now)
     case 0xB0: midi_control(ch, t, m->d1, m->d2); break;
     case 0xE0: S.trk[t].bend = (float)((int)(m->d2 << 7 | m->d1) - 8192) * ((float)m_bend / 8192.0f); break;
     case 0xC0: midi_program(t, m->d1, ch_bank[ch]); break;
+    case 0xD0: if (!ml_on && !ml_cc(1, m->d1)) midi_control(ch, t, 1, m->d1); break;   /* (3.4.2, #12) the keys' pressure: as the mod wheel */
     default: break;
     }
 }
@@ -2903,7 +3210,7 @@ COLD static void ed_request(void)
         case 9: if (a < NTRK && a != trk) select_track(a); break;
         case 10: if (a < NTRK) { int k = b | c << 8; if (k >= UK_BASE) apply_ukit(a, k - UK_BASE); else if (k >= FB_BASE) apply_bank(a, k - FB_BASE); else if (k >= US_BASE) { if (!is_drum(a)) apply_user(a, k - US_BASE); } else if (k < gb_npresets && (gb_presets[k].kind == K_KIT) == is_drum(a)) apply_preset(a, k); } break;
         case 11: { int dt = -1; for (int t = 0; t < NTRK; t++) if (is_drum(t)) dt = t;      /* a drum pad's TUNE, DECAY */
-                 if (dt >= 0 && a < 16) { gb_patch *p = &S.trk[dt].patch; int tu = (int8_t)b, de = (int8_t)c; p->dtune[a] = (int8_t)(tu < -8 ? -8 : tu > 7 ? 7 : tu); p->ddec[a] = (int8_t)(de < -4 ? -4 : de > 3 ? 3 : de); } } break;
+                 if (dt >= 0 && a < 16) { gb_patch *p = &S.trk[dt].patch; int tu = (int8_t)b, de = (int8_t)c; p->dtune[a] = (int8_t)(tu < -8 ? -8 : tu > 7 ? 7 : tu); p->ddec[a] = gb_dpack(de, gb_dlev(p->ddec[a])); } } break;   /* (3.4.2: its level kept) */
         case 12: ed_thr = (uint8_t)(a & 3u); break;                                                        /* the throws */
         case 13: { int bp = a | b << 8; if (bp >= 300 && bp <= 3000) seq_set_bpm(&Q, (float)bp * 0.1f); if (c <= 100) Q.swing = (uint8_t)c; } break;
         case 14: if (a <= 100) S.dust = (float)a * 0.01f; if (b <= 100) S.duck = (float)b * 0.01f; if (c <= 200) sm_set(&S.mfilt, ((float)c - 100.0f) * 0.01f); break;
@@ -2939,7 +3246,7 @@ COLD static void ed_request(void)
         }
         {   /* the drum pads' TUNE (+8) and DECAY (+4), a nibble each */
             int dt = -1; for (int t = 0; t < NTRK; t++) if (is_drum(t)) dt = t;
-            for (int i = 0; i < 16; i++) q[i] = dt < 0 ? 0x84 : (uint8_t)((S.trk[dt].patch.dtune[i] + 8) << 4 | (S.trk[dt].patch.ddec[i] + 4));
+            for (int i = 0; i < 16; i++) q[i] = dt < 0 ? 0x84 : (uint8_t)((S.trk[dt].patch.dtune[i] + 8) << 4 | (GB_DDEC(S.trk[dt].patch.ddec[i]) + 4));
         }
         r[0] = (uint8_t)op;
         ed_send(cmd, 1 + 45 + 22 * NTRK + 16); return;
@@ -3073,6 +3380,7 @@ COLD static void leds(void)
             if ((uint32_t)st == now) on = !on;
             led_(14 + white_key[w], on); if (!(w & 3)) panel_glow(14 + white_key[w]);
         }
+        if (is_drum(trk)) led_(14 + drum_black_key(last_note & 15), 1);   /* (3.3.8, as SLOOP 2.8.5) the black key of the sound picked */
     } else if (L & (1u << BTN_GLO)) {
         for (int t = 0; t < NTRK; t++) led_(14 + white_key[POS[t]], !Q.t[t].mute);
         for (int t = 0; t < NTRK; t++) led_(14 + white_key[NTRK + POS[t]], solo[t]);
@@ -3093,11 +3401,20 @@ COLD static void leds(void)
         if (L & (1u << BTN_SAVE)) {                     /* (3.3.6) the 8 patterns, 1-4 and 5-8 each faint to full; the one playing blinks; 13-16 faint */
             int cur = Q.t[trk].cur;
             for (int w = 0; w < SEQ_NPAT && w < 8; w++) panel_level(14 + white_key[w], w == cur ? ((bl >> 1) & 1u ? 4 : 0) : 1 + (w & 3));
+            if (pat_key >= 0 && !pat_done && pat_w < 8) panel_level(14 + white_key[pat_w], 4);   /* (3.3.8) held: lit */
             for (int w = 12; w < 16; w++) panel_glow(14 + white_key[w]);
         } else for (int w = 0; w < 16; w += 4) panel_glow(14 + white_key[w]);
     } else {
         uint32_t keys = (panel_keys() | ek_held);
         for (int k = 0; k < 27; k++) if (keys & (1u << k)) led_(14 + k, 1);
+        if (is_drum(trk) || hs[HS_NOTES]) {                 /* (3.3.8) what the sequencer plays, as SLOOP 2.8.5 */
+            uint8_t now8 = (uint8_t)(time_ticks() / lsb >> 13);
+            for (int k = 0; k < 27; k++) {
+                if (!((lit_hit >> k) & 1u)) continue;
+                if ((uint8_t)(now8 - lit_t[k]) < 13u || (!is_drum(trk) && ((lit_on >> k) & 1u))) led_(14 + k, 1);
+                else lit_hit &= ~(1u << k);
+            }
+        }
         if (!L && sticky == PG_SND && sb_back < 0 && sb_was) {   /* SOUNDS: the keys that hold a sound faint, the track's lit */
             int cur = preset_origin(preset_of[trk]);
             for (int w = 0; w < 16; w++) if (sb_o[w] >= 0) { if (sb_o[w] == cur) led_(14 + white_key[w], 1); else panel_glow(14 + white_key[w]); }
@@ -3108,6 +3425,14 @@ COLD static void leds(void)
     led_(BTN_REC, Q.recording || (ft_on && (bl & 1u)) || (!ft_on && recording_armed && ((bl >> 2) & 1u)));
     led_(BTN_OCT_DOWN, oct < 0); led_(BTN_OCT_UP, oct > 0);
     for (int b = 2; b < 12; b++) led_(b, ((locked >> b) & 1u) && ((bl >> 1) & 1u));   /* a locked layer blinks */
+    if (menu_on) led_(BTN_HOME, (bl >> 1) & 1u);                                        /* (3.3.8) the menu open: HOME blinks */
+    if (saving && saving_shown) led_(BTN_SAVE, bl & 1u);                               /* (3.3.8) writing: SAVE blinks fast, */
+    else if (saved_kind == 1) led_(BTN_SAVE, 1);                                         /* written: lit 2 s */
+    if (save_key >= 0 && save_key < 8) {                                                /* the key saved with: blinking, then two flashes */
+        uint32_t ms = (time_ticks() - t_saved) / lsb / 1000u;
+        if (saving) panel_level(14 + white_key[save_key], (bl & 1u) ? 4 : 0);
+        else if (saved_kind == 1 && ms < 1000u) panel_level(14 + white_key[save_key], (ms / 250u) & 1u ? 0 : 4);
+    }
     /* HOME > LIGHTS: for playing in the dark, every button glows, the keys too as KEYS says, at the LIGHTS level (the
      * part of a column's 40 us they are lit: led_dwell); NOTES: a synth track's sounding notes light their keys */
     if (hs[HS_NOTES] && !is_drum(trk)) for (int k = 0; k < 27; k++) if (key_nn[k]) led_(14 + k, 1);
@@ -3149,31 +3474,113 @@ COLD static void erase_pass(void)
     if (any) say("ERASED");
 }
 /* SAVE + a key 1-8 (3.0.2): tapped, that pattern at the next bar, as it is (an empty one: a new pattern, no notes,
- * the sound playing); held 0.6 s, the pattern playing copied into it first, notes and sound (undo: EDIT + OCT-), then
+ * the sound playing); held 1.5 s, the pattern playing copied into it first, notes and sound (undo: EDIT + OCT-), then
  * the project written */
 static int pat_key = -1, pat_w, pat_done;
 static uint32_t pat_t0;
-COLD static void pat_go(int w, int copy)
+static uint8_t ctap[SEQ_NPAT], ctap_n;                   /* (4.0) the pattern keys tapped in this SAVE hold: 2 or more, a chain */
+COLD static void pat_go(int w, int held)
 {
-    int from = Q.t[trk].cur, empty = 1;
-    if (copy && w == from) copy = 0;                  /* (held on the one playing: nothing to copy) */
+    int from = Q.t[trk].cur, empty = 1, into = 0;
+    char b[40], *p = put_s(b, "PATTERN "); p = put_u(p, (uint32_t)w + 1u);
+    if (held) {                                       /* (4.0, as SLOOP 2.8.5's SAVE + 5-8) what plays saved into pattern w */
+        for (int t = 0; t < NTRK; t++) {
+            if (scope_one && t != trk) continue;
+            if (w == Q.t[t].cur) commit_trk(t);       /* (the one playing: saved as it is) */
+            else { seq_copy(&Q, t, Q.t[t].cur, w); ps_take(&PS, t, w, &S.trk[t].patch, base[t], preset_of[t]); into = 1; }
+        }
+        save_nocommit = into;                         /* (into another: the one playing stays as it was saved) */
+        save_soon = 1; t_save_soon = time_ticks() - 1600001u * lsb; save_key = w; saved_kind = 0;
+        if (w != from) { p = put_s(p, " FROM "); p = put_u(p, (uint32_t)from + 1u); }
+        p = put_s(p, " · SAVING"); *p = 0; say(b); return;
+    }
+    /* tapped: that pattern, as saved, at the next bar (stopped: at once); the one playing: back as saved, now */
     for (int t = 0; t < NTRK; t++) {
-        if ((scope_one && t != trk) || w == Q.t[t].cur) continue;
-        if (copy) { seq_copy(&Q, t, Q.t[t].cur, w); ps_keep(t); ps_copy(&PS, t, Q.t[t].cur, w); }
-        else if (!Q.t[t].pat[w].n) { ps_keep(t); ps_copy(&PS, t, Q.t[t].cur, w); }   /* a new one: the sound playing */
-        if (Q.t[t].pat[w].n) empty = 0;
+        if (scope_one && t != trk) continue;
+        if (w == Q.t[t].cur) { keep_take(t); ps_give(&PS, t, w, &S.trk[t].patch, base[t], &preset_of[t]); Q.t[t].lock_step = -1; }
+        else if (!pat_used(t, w)) ps_take(&PS, t, w, &S.trk[t].patch, base[t], preset_of[t]);   /* a new one: the sound playing */
+        if (pat_used(t, w)) empty = 0;
     }
     chain_n = 0; chain_on = 0; Q.switch_now = 0; seq_queue(&Q, scope_one ? trk : -1, w);
-    char b[40], *p = put_s(b, "PATTERN "); p = put_u(p, (uint32_t)w + 1u);
-    if (copy) { p = put_s(p, ": COPY OF "); p = put_u(p, (uint32_t)from + 1u); save_soon = 1; t_save_soon = time_ticks(); }
-    else if (empty) p = put_s(p, ": NEW, EMPTY");
-    p = put_s(p, " ON THE BAR"); *p = 0; say(b);
+    if (w == from) p = put_s(p, " · AS SAVED");
+    else { if (empty) p = put_s(p, ": NEW, EMPTY"); p = put_s(p, Q.playing ? " ON THE BAR" : ""); }
+    *p = 0; say(b);
+    if (ctap_n < SEQ_NPAT) ctap[ctap_n++] = (uint8_t)w;   /* (several tapped while SAVE is held: a chain, as SLOOP 2.8.5) */
+    if (ctap_n >= 2) {
+        chain_n = ctap_n; for (int i = 0; i < ctap_n; i++) chain[i] = ctap[i];
+        chain_on = 1; chain_pos = 0; Q.switch_now = 1; seq_song_play(&Q, 0); seq_queue(&Q, scope_one ? trk : -1, chain[0]);
+        char c[40], *q = put_s(c, "CHAIN ");
+        for (int i = 0; i < chain_n && q < c + 30; i++) { if (i) q = put_s(q, " "); q = put_u(q, chain[i] + 1u); }
+        *q = 0; say(c);
+    }
 }
 COLD static void pat_tick(uint32_t rel)
 {
     if (pat_key < 0) return;
     if (rel & (1u << pat_key)) { if (!pat_done) pat_go(pat_w, 0); pat_key = -1; return; }
-    if (!pat_done && (uint32_t)(time_ticks() - pat_t0) > 600000u * lsb) { pat_done = 1; pat_go(pat_w, 1); }
+    if (!pat_done && (uint32_t)(time_ticks() - pat_t0) > 1500000u * lsb) {   /* (3.3.8: 1.5 s, was 0.6: saved by mistake) */
+        pat_done = 1;
+        int over = 0;                                 /* (4.0, as SLOOP 2.8.5) over another saved pattern: the key again within 3 s */
+        for (int t = 0; t < NTRK; t++) if ((!scope_one || t == trk) && pat_w != Q.t[t].cur && pat_used(t, pat_w)) over = 1;
+        if (over) { pat_arm = pat_w; t_pat_arm = time_ticks(); char b[32], *p = put_s(b, "AGAIN: SAVE INTO "); p = put_u(p, (uint32_t)pat_w + 1u); *p = 0; say_imp(b); return; }
+        pat_go(pat_w, 1);
+    }
+}
+/* (4.0) SAVE > PATTERNS: KNOB 1 the pattern, KNOB 2 ERASE, KNOB 3 LOAD, KNOB 4 SAVE (each: a turn right, again within
+ * 1.5 s: AGAIN: ...), as SLOOP 2.8.5's SECTION page */
+static int go_arm = -1; static uint32_t t_go;
+COLD static int go_again(int k, const char *what)
+{
+    uint32_t now = time_ticks();
+    if (go_arm == k && (uint32_t)(now - t_go) < 1500000u * lsb) { go_arm = -1; return 1; }
+    go_arm = k; t_go = now; char b[32], *p = put_s(b, "AGAIN: "); p = put_s(p, what); *p = 0; say_imp(b); return 0;
+}
+COLD static void pat_page_knob(int kn, int d)
+{
+    if (kn == 0) { sp_sel = sp_sel + d < 0 ? 0 : sp_sel + d > SEQ_NPAT - 1 ? SEQ_NPAT - 1 : sp_sel + d; go_arm = -1; return; }
+    if (kn < 1 || d <= 0) return;
+    if (kn == 1 && go_again(1, "ERASE")) {
+        for (int t = 0; t < NTRK; t++) {
+            if (scope_one && t != trk) continue;
+            seq_pat *pp = sp_sel == Q.t[t].cur ? &keep[t] : &Q.t[t].pat[sp_sel];   /* (the one playing: its saved one; it plays on) */
+            pp->n = 0; pp->nlock = 0;
+        }
+        save_nocommit = 1; save_project(1); say("PATTERN ERASED");
+    }
+    if (kn == 2 && go_again(2, "LOAD")) pat_go(sp_sel, 0);
+    if (kn == 3 && go_again(3, "SAVE")) pat_go(sp_sel, 1);
+}
+/* (4.0) SAVE > TOOLS: CLRSQ the pattern emptied, INIT the sound as its engine starts, NEW a new project (each asked twice) */
+COLD static void tools_knob(int kn, int d)
+{
+    if (kn < 0 || d <= 0) return;
+    if (kn == 0 && go_again(10, "CLEAR THE PATTERN")) { Q.batch = 0; seq_clear(&Q, trk); say("PATTERN CLEARED"); }
+    if (kn == 1 && go_again(11, "INIT THE SOUND")) {
+        gb_patch *q = &S.trk[trk].patch; int e = q->engine;
+        gb_patch_default(q, e); base_of_track(trk); preset_of[trk] = -1; say("SOUND: INIT");
+    }
+    if (kn == 3 && go_again(13, "A NEW PROJECT")) { new_project(0); recording_armed = 0; say("NEW PROJECT"); }
+}
+/* (3.3.5) the one project: OPEN the saved one, NEW, SAVE; HOME + its key (white 1, 3, 5) or (4.0.3, Sam) the menu's
+ * PROJECT section, a knob turned right. What would lose work is asked twice */
+COLD static void home_do(int w)
+{
+    if (saving) { say_bad("A MOMENT: SAVING"); return; }
+    uint32_t now = time_ticks(), dt = now - home_arm_t; int again = home_arm == w + 1 && dt < 3000000u * lsb;
+    if (home_arm == w + 1 && dt < 300000u * lsb) return;   /* (a knob's turn: its next clicks are not the second ask) */
+    home_arm = 0;
+    if (w == HK_SAVE) {                              /* SAVE (after a safe start: over the saved one, asked twice) */
+        if (safe_hold && proj_used && !again) { home_arm = HK_SAVE + 1; home_arm_t = now; say_imp("AGAIN TO SAVE OVER IT"); return; }
+        safe_hold = 0; save_project(1); return;
+    }
+    if (w == HK_OPEN) {                              /* OPEN: the saved one again (what changed since: lost, asked twice) */
+        if (!proj_used) { say_bad("NOTHING SAVED YET"); return; }
+        uint32_t crc, n = proj_measure(&crc);
+        if (!safe_hold && (crc != saved_crc || n != saved_len) && !again) { home_arm = HK_OPEN + 1; home_arm_t = now; say_imp("AGAIN: CHANGES LOST"); return; }
+        load_project(0); return;
+    }
+    if (!again) { home_arm = HK_NEW + 1; home_arm_t = now; say_imp("AGAIN FOR A NEW ONE"); return; }   /* NEW */
+    new_project(0); recording_armed = 0; say("NEW PROJECT");
 }
 COLD static void keys(void)
 {
@@ -3215,7 +3622,7 @@ COLD static void keys(void)
         if (L & (1u << BTN_SEQ)) {                           /* STEPS: a step placed now, or held to edit */
             layer_used = 1;
             if (w < 0) {
-                if (is_drum(trk)) { int s = drum_black(k, last_note & 15); if (s >= 0) last_note = s; }
+                if (is_drum(trk)) { int s = drum_black(k, last_note & 15); if (s >= 0) shown_note(s); }
                 else { static const int8_t PGK[4] = { 1, 3, 5, 8 }; for (int i = 0; i < 4; i++) if (PGK[i] == k && i * 16 < Q.t[trk].pat[Q.t[trk].cur].steps) page = i; }
                 continue;
             }
@@ -3245,28 +3652,16 @@ COLD static void keys(void)
         if (L & (1u << BTN_HOME)) {                          /* PROJECT (3.3.5: one) */
             layer_used = 1;
             if (w != HK_OPEN && w != HK_NEW && w != HK_SAVE) continue;
-            if (saving) { say_bad("A MOMENT: SAVING"); continue; }
-            uint32_t now = time_ticks(); int again = home_arm == w + 1 && (uint32_t)(now - home_arm_t) < 3000000u * lsb;
-            home_arm = 0;
-            if (w == HK_SAVE) {                              /* SAVE (after a safe start: over the saved one, asked twice) */
-                if (safe_hold && proj_used && !again) { home_arm = HK_SAVE + 1; home_arm_t = now; say_imp("AGAIN TO SAVE OVER IT"); continue; }
-                safe_hold = 0; save_project(1); continue;
-            }
-            if (w == HK_OPEN) {                              /* OPEN: the saved one again (what changed since: lost, asked twice) */
-                if (!proj_used) { say_bad("NOTHING SAVED YET"); continue; }
-                uint32_t crc, n = proj_measure(&crc);
-                if (!safe_hold && (crc != saved_crc || n != saved_len) && !again) { home_arm = HK_OPEN + 1; home_arm_t = now; say_imp("AGAIN: CHANGES LOST"); continue; }
-                load_project(0); continue;
-            }
-            if (!again) { home_arm = HK_NEW + 1; home_arm_t = now; say_imp("AGAIN FOR A NEW ONE"); continue; }   /* NEW */
-            new_project(0); recording_armed = 0; say("NEW PROJECT");
+            home_key_used = 1; home_do(w);
             continue;
         }
         if (L & (1u << BTN_SAVE)) {                          /* SONG */
             layer_used = 1;
             if (w == 12 || k == 3) {
-                seq_song_play(&Q, !Q.song_play);
-                if (Q.song_play) { if (Q.song_n) say("SONG ON THE BAR"); else say_bad("NO SONG: REC"); } else say("LOOP");
+                /* (3.4.2, issue #27) on the SONG pages: from the LINE shown (to hear an edit), then round to line 1 */
+                int from = (sticky == PG_SONG || sticky == PG_SONG2) ? sg_cur : 0;
+                seq_song_play_from(&Q, !Q.song_play, from);
+                if (Q.song_play) { if (!Q.song_n) say_bad("NO SONG: REC"); else if (Q.song_from) { char b[28]; *put_u(put_s(b, "SONG FROM LINE "), (uint32_t)from + 1u) = 0; say(b); } else say("SONG ON THE BAR"); } else say("LOOP");
                 continue;
             }
             if (w == 13 || k == 1) {
@@ -3274,25 +3669,11 @@ COLD static void keys(void)
                 else { seq_song_record(&Q, 1); say("SONG REC ON THE BAR"); }
                 continue;
             }
-            if (w == 15 || k == 5) { scope_one = !scope_one; say(scope_one ? "PATTERNS: THIS TRACK ONLY" : "PATTERNS: EVERY TRACK"); continue; }
-            if (w == 14) {                                   /* CHAIN: on, the patterns touched next play in turn */
-                chain_arm = !chain_arm; chain_n = 0; chain_on = 0; Q.switch_now = 0;
-                say(chain_arm ? "CHAIN: TOUCH THE PATTERNS IN ORDER" : "CHAIN DONE · THE PATTERN GOES ON");
-                continue;
-            }
+            if (w == 14 || k == 5) { scope_one = !scope_one; say(scope_one ? "PATTERNS: THIS TRACK ONLY" : "PATTERNS: EVERY TRACK"); continue; }
+            if (w == 15) { sticky = PG_SONG2; say("SONG"); continue; }   /* (4.0, as SLOOP 2.8.5: SAVE + 16 the SONG screen) */
             if (w < 0 || w >= SEQ_NPAT) continue;
-            if (!chain_arm) {                                /* a key: tapped, that pattern; held, a copy into it (pat_tick) */
-                pat_key = k; pat_w = w; pat_t0 = time_ticks(); pat_done = 0;
-                continue;
-            }
-            if (!chain_n) { Q.switch_now = 0; seq_queue(&Q, scope_one ? trk : -1, w); }
-            if (chain_n < SEQ_NPAT) chain[chain_n++] = (uint8_t)w;
-            if (chain_n >= 2) { chain_on = 1; chain_pos = 0; Q.switch_now = 1; seq_song_play(&Q, 0); }
-            {
-                char b[40], *p = put_s(b, "CHAIN ");
-                for (int i = 0; i < chain_n && p < b + 30; i++) { if (i) p = put_s(p, "→"); p = put_u(p, chain[i] + 1u); }
-                *p = 0; say(b);
-            }
+            if (pat_arm == w && (uint32_t)(time_ticks() - t_pat_arm) < 3000000u * lsb) { pat_arm = -1; pat_done = 1; pat_key = -1; pat_go(w, 1); continue; }   /* (the key again: saved) */
+            pat_key = k; pat_w = w; pat_t0 = time_ticks(); pat_done = 0;   /* a key: tapped, that pattern; held 1.5 s, saved into it (pat_tick) */
             continue;
         }
         if (L & (1u << BTN_SEL)) {                           /* KEY: any key sets the key of the song */
@@ -3304,9 +3685,17 @@ COLD static void keys(void)
         }
         if (!L && sticky == PG_SND && sb_back < 0 && sb_was && w >= 0) sb_key(w);   /* SOUNDS: the tile's sound, then its note */
         uint8_t nts[5]; int nn = notes_for_key(k, nts);
-        if ((L & (1u << BTN_EDIT)) && is_drum(trk) && w < 0) {   /* ERASE + a black key: the sound selected muted */
-            layer_used = 1; uint16_t *m = &S.trk[trk].patch.dmute; *m ^= (uint16_t)(1u << (last_note & 15));
-            char b[24], *p = put_s(b, PAD[last_note & 15]); p = put_s(p, (*m >> (last_note & 15)) & 1u ? " MUTED" : " PLAYS"); *p = 0; say(b);
+        /* (3.3.8, SLOOP 2.8.5's) the drums' live mutes: EDIT + a black key, the white keys mute and unmute their sound in
+         * the sequencer (the keys and MIDI still play it), erase no more; a black key again: back to erasing. It stays
+         * so when EDIT is let go; not saved, not undone; a project opened or a new one plays every sound */
+        if ((L & (1u << BTN_EDIT)) && is_drum(trk) && w < 0) {
+            layer_used = 1; dm_mode = (uint8_t)!dm_mode;
+            say(dm_mode ? "MUTE: A KEY, ITS SOUND OFF / ON" : "ERASE: A KEY, ITS SOUND OUT");
+            continue;
+        }
+        if ((L & (1u << BTN_EDIT)) && is_drum(trk) && dm_mode) {
+            layer_used = 1; dm_live ^= (uint16_t)(1u << (w & 15));
+            char b[24], *p = put_s(b, PAD[w & 15]); p = put_s(p, (dm_live >> (w & 15)) & 1u ? " OFF" : " ON"); *p = 0; say(b);
             continue;
         }
         if ((L & (1u << BTN_EDIT)) && Q.playing) {          /* ERASE playing: where the playhead passes, while held */
@@ -3320,7 +3709,14 @@ COLD static void keys(void)
             if (any) say("ERASED");
             continue;
         }
-        if (!L && sticky == PG_STEPS && w < 0 && is_drum(trk)) { int s = drum_black(k, last_note & 15); if (s >= 0) { last_note = s; continue; } }
+        if (!L && sticky == PG_STEPS && w < 0 && is_drum(trk)) { int s = drum_black(k, last_note & 15); if (s >= 0) { shown_note(s); continue; } }
+        if (!L && w >= 0 && grid_on()) {                    /* (3.3.8) the DRUMS grid: the step of the sound picked, set or cleared */
+            int st = page * 16 + w;
+            if (st >= dg_steps()) continue;
+            dg_cur = st; Q.batch = 0;
+            seq_step_toggle(&Q, trk, st, last_note & 15, DG_LV[2]);
+            continue;
+        }
         if (!nn) continue;                                   /* (a black key: CHORD+, or silent with KEYS WHITE) */
         if (!L && notes_on()) {                              /* NOTES: the keys write the step edited */
             if (!ne_wrote) { ne_n = 0; Q.batch = 1; Q.batch_done = 0; }
@@ -3352,53 +3748,41 @@ COLD static void notes_advance(void)                              /* NOTES: ever
     int st = Q.t[trk].pat[Q.t[trk].cur].steps; ne_step = (ne_step + 1) % (st > 0 ? st : 1); ne_sub = 0;
 }
 static uint32_t t_rec_down; static uint8_t rec_hint;
+static uint8_t grp_last[16];                         /* (4.0) the page each button showed last (0: its first) */
 COLD static void open_page(int b)
 {
     int pg = sticky;
     if (b == BTN_HOME && sticky == PG_TRACKS && !vis_on) { vis_on = 1; vis_named = 25; S.vis_ring = vis_ring; return; }
     if (vis_on) { vis_on = 0; S.vis_ring = 0; if (b == BTN_HOME) return; }
-    switch (b) {
-    case BTN_HOME: pg = PG_TRACKS; break;
-    case BTN_SEQ:                                        /* STEPS, then NOTES (a synth track), then back */
-        if (sticky == PG_STEPS && !is_drum(trk)) { pg = PG_NOTES; ne_step = page * 16; ne_sub = 0; say("NOTES: THE KEYS WRITE THE STEP"); }
-        else pg = sticky == PG_STEPS || sticky == PG_NOTES ? PG_TRACKS : PG_STEPS;
-        break;
-    case BTN_GLO: pg = sticky == PG_GLOBAL ? PG_TEX1 : sticky == PG_TEX1 ? PG_TEX2 : sticky == PG_TEX2 ? PG_MIDI : sticky == PG_MIDI ? PG_MIDI2 : sticky == PG_MIDI2 ? PG_GREC : sticky == PG_GREC ? PG_TRACKS : PG_GLOBAL; break;   /* GLOBAL, TEXTURE, MIDI */
-    case BTN_SAVE: {                                     /* tapped: SONG (its keys free; SELECT: SONG 2/2); on the SONG pages,
-                                                            the song saved (with its project), as SLOOP 2.8.5's SONG screen
-                                                            (3.1.6); twice fast anywhere: the project saved */
-        static uint32_t t_last; static int before;
-        uint32_t now = time_ticks();
-        if (t_last && (uint32_t)(now - t_last) < 450000u * lsb) { t_last = 0; pg = before; save_project(1); break; }
-        if (sticky == PG_SONG || sticky == PG_SONG2) { t_last = 0; save_project(1); return; }
-        t_last = now; before = sticky; pg = PG_SONG; break;
+    if (b == BTN_HOME) { sticky = PG_TRACKS; return; }
+    if (b == BTN_EDIT && sticky == PG_SND && sb_back >= 0) { sb_back = -1; grp_last[BTN_EDIT] = 5; return; }   /* (PRESETS' SOUNDS: it stays, the keys choose) */
+    if (b == BTN_EDIT && sticky == PG_NOTES && !is_drum(trk)) {   /* (NOTES: the note edited deleted) */
+        int i = ne_sel();
+        if (i < 0) { say_bad("NO NOTE HERE"); return; }
+        Q.batch = 0; seq_ev_del(&Q, trk, i); if (ne_sub > 0) ne_sub--; say("NOTE DELETED"); return;
     }
-    case BTN_FX:                                         /* the sends, then the master bus */
-        if (group_of(sticky) == BTN_FX) fx_page = (fx_page + 1) % NFX_PG;
-        pg = FX_PG[fx_page]; break;
-    case BTN_LFO:                                        /* LFO, then where it goes */
-        if (is_drum(trk)) { pg = sticky == PG_LFO ? PG_TRACKS : PG_LFO; break; }
-        if (group_of(sticky) == BTN_LFO) lfo_page = (lfo_page + 1) % 3;
-        pg = LFO_PG[lfo_page]; break;
-    case BTN_SEL: pg = sticky == PG_SEL ? PG_SEL2 : PG_SEL; break;
-    case BTN_ARP: pg = sticky == PG_ARP ? PG_ARP2 : PG_ARP; break;
-    case BTN_EDIT:                                       /* the engine's pages, the next each tap */
-        if (sticky == PG_NOTES && !is_drum(trk)) {          /* (NOTES: the note edited deleted) */
-            int i = ne_sel();
-            if (i < 0) { say_bad("NO NOTE HERE"); return; }
-            Q.batch = 0; seq_ev_del(&Q, trk, i); if (ne_sub > 0) ne_sub--; say("NOTE DELETED"); return;
+    if (b == BTN_SAVE) {                                 /* (4.0, as SLOOP 2.8.5) on TRACKS or the drums' screen: the SONG
+                                                            screen; on it: the project saved (its song with it);
+                                                            elsewhere: the SAVE pages */
+        if (sticky == PG_SONG || sticky == PG_SONG2) { sticky = PG_PROJ; return; }   /* (4.0.6, Sam) SONG, then PROJECT */
+        if (sticky == PG_PROJ) { sticky = PG_SONG2; return; }
+        if (sticky == PG_TRACKS || ((sticky == PG_STEPS || sticky == PG_KIT || sticky == PG_DSOUND) && is_drum(trk))) { sticky = PG_SONG2; return; }
+    }
+    if ((b == BTN_EDIT || b == BTN_SEQ) && is_drum(trk)) {   /* the drums: EDIT or SEQ, the DRUMS screen: GRID, KIT, SOUND */
+        if (b == BTN_EDIT || sticky == PG_STEPS || sticky == PG_KIT || sticky == PG_DSOUND) {
+            pg = sticky == PG_STEPS ? PG_KIT : sticky == PG_KIT ? PG_DSOUND : sticky == PG_DSOUND ? (b == BTN_SEQ ? PG_PAT : PG_STEPS) : PG_STEPS;
+            sticky = pg; return;
         }
-        if (sticky == PG_SND && sb_back >= 0) { sb_back = -1; edit_page = 5; return; }   /* (PRESETS' SOUNDS: it stays, the keys choose) */
-        if (is_drum(trk)) { pg = sticky == PG_KIT ? PG_DSOUND : PG_KIT; break; }
-        if (group_of(sticky) == BTN_EDIT) edit_page = (edit_page + 1) % (is_drum(trk) ? 4 : 6);
-        pg = EDIT_PG[edit_page]; break;
-    case BTN_ENV:
-        if (is_drum(trk)) { pg = sticky == PG_KIT ? PG_TRACKS : PG_KIT; break; }
-        if (group_of(sticky) == BTN_ENV) env_page = (env_page + 1) % 2;
-        pg = PG_ENV + env_page; break;
-    default: break;
     }
-    sticky = pg;
+    const uint8_t *l; int n = grp_of(b, &l);
+    if (!n) return;
+    int at = -1;
+    for (int i = 0; i < n; i++) if (l[i] == sticky) at = i;
+    if (at >= 0) { do at = (at + 1) % n; while (!pg_shown(l[at])); }   /* tapped again: the next page */
+    else { at = grp_last[b] < n ? grp_last[b] : 0; if (!pg_shown(l[at])) at = 0; }   /* the page it showed last */
+    if (b == BTN_SEQ && at == 0 && !is_drum(trk)) { ne_step = page * 16; ne_sub = 0; }
+    grp_last[b] = (uint8_t)at;
+    sticky = l[at];
 }
 COLD static void buttons(void)
 {
@@ -3412,28 +3796,51 @@ COLD static void buttons(void)
     if (pr | rel) t_input = time_ticks();
     held_btn = (panel_buttons() & ~G.took_btn) | rm_held | eb_held;
     if (t_octup) {                                                   /* NOTES: OCT+ held, the sheet; let go soon, an octave */
-        if (!notes_on()) t_octup = 0;
-        else if (rel & (1u << BTN_OCT_UP)) { t_octup = 0; if (oct < 3) oct++; }
-        else if ((uint32_t)(time_ticks() - t_octup) > 400000u * lsb) { t_octup = 0; ne_sheet = 1; say("SHEET: KNOB 1 THE ROW · OCT+ DOES IT"); }
+        int g = grid_on();                                           /* (3.3.8) the DRUMS grid: the hit's sheet; let go soon, the next page */
+        if (!notes_on() && !g) t_octup = 0;
+        else if (rel & (1u << BTN_OCT_UP)) { t_octup = 0; if (g) { if (dg_cur + 16 < dg_steps()) { dg_cur += 16; dg_fix(); } } else if (oct < 3) oct++; }
+        else if ((uint32_t)(time_ticks() - t_octup) > 400000u * lsb) { t_octup = 0; if (g) dg_sheet = 1; else ne_sheet = 1; say("SHEET: KNOB 1 THE ROW · OCT+ DOES IT"); }
     }
     if (ne_sheet && !notes_on()) ne_sheet = 0;
+    if (dg_sheet && !grid_on()) dg_sheet = 0;
     if (!lay_on(BTN_SEQ) && hold_step >= 0) {                        /* SEQ let go before the step's key */
         if (hold_erase) step_write(hold_step, 0);
         hold_step = -1; hold_more = 0; Q.batch = 0;
     }
     if (!lay_on(BTN_EDIT) && hold_step < 0 && sticky != PG_NOTES) Q.batch = 0;   /* (an ERASE hold: one undo; NOTES: a note) */
     if (!lay_on(BTN_GLO) && Q.fill) seq_fill(&Q, 0);
-    if (!lay_on(BTN_FX) && punch_key >= 0) { punch_key = -1; snd_punch(&S, -1); }
+    if (!lay_on(BTN_SAVE)) ctap_n = 0;                               /* (4.0) the chain's taps: one SAVE hold */
+    /* (3.4.2, issue #18, as 2.8.5) FX let go before the key: the punch-in goes on until the key is let go */
+    if (!lay_on(BTN_FX) && punch_key >= 0 && !(((panel_keys() | ek_held) >> punch_key) & 1u)) { punch_key = -1; snd_punch(&S, -1); }
     /* the throws: FX + OCT- every reverb send full, FX + OCT+ every delay send (and its repeats), while held */
     sm_set(&S.throw_rev, (lay_on(BTN_FX) && (held_btn & (1u << BTN_OCT_DOWN))) || (ed_thr & 1u) ? 1.0f : 0.0f);
     sm_set(&S.throw_dly, (lay_on(BTN_FX) && (held_btn & (1u << BTN_OCT_UP))) || (ed_thr & 2u) ? 1.0f : 0.0f);
     /* a layer locked open: HOME tapped while it is held; any other button (not PLAY, REC, OCT) lets it go */
     const uint32_t KEEP = (1u << BTN_PLAY) | (1u << BTN_REC) | (1u << BTN_OCT_DOWN) | (1u << BTN_OCT_UP);
-    if (locked && (pr & ~KEEP)) { locked = 0; pr &= ~LAYER_BITS; rel &= ~LAYER_BITS; layer_used = 1; say("LAYER FREE"); }
-    if ((pr & (1u << BTN_HOME)) && (held_btn & LAYER_BITS & ~(1u << BTN_HOME))) {
-        locked = held_btn & LAYER_BITS & ~(1u << BTN_HOME); layer_used = 1; say("LOCK: LAYER OPEN"); return;
+    if ((locked || menu_on) && (pr & ~KEEP)) {           /* (its press only lets it go: eaten) */
+        say(menu_on ? "MENU CLOSED" : "LAYER FREE");
+        if (pr & HOME_BIT) home_eat = 1;
+        locked = 0; menu_on = 0; pr &= ~(LAYER_BITS | HOME_BIT); rel &= ~LAYER_BITS; layer_used = 1;
     }
     if (pr & LAYER_BITS) { layer_used = 0; t_btn_down = time_ticks(); }
+    /* HOME (3.3.8, as SLOOP 2.8.5: lay() above) */
+    {
+        uint32_t now = time_ticks();
+        if (pr & HOME_BIT) { t_home = now | 1u; home_fired = 0; home_key_used = 0; home_sec = home_last; if (!(held_btn & LAYER_BITS) && !locked) layer_used = 0; }
+        if (t_home && (held_btn & HOME_BIT) && !home_fired && !home_key_used && !(held_btn & LAYER_BITS) && (int32_t)(now - (t_home & ~1u)) > (int32_t)(700000u * lsb)) {
+            home_fired = 1; menu_on = 1; home_sec = home_last; say("MENU · HOME CLOSES IT");
+        }
+        if ((rel & HOME_BIT) && t_home) {
+            if (!home_fired && !home_eat) {
+                if (held_btn & LAYER_BITS) { locked = held_btn & LAYER_BITS; layer_used = 1; say("LOCK: LAYER OPEN"); }
+                else if (home_key_used) { }                                   /* (OPEN, NEW, SAVE: done) */
+                else if (layer_used) { menu_on = 1; say("MENU · HOME CLOSES IT"); }   /* (HOME + SELECT or a knob: the menu stays) */
+                else open_page(BTN_HOME);
+            }
+            t_home = 0;
+        }
+        if (home_eat && !(held_btn & HOME_BIT)) home_eat = 0;
+    }
     for (int b = 0; b < 14; b++) {
         if (!(pr & (1u << b))) continue;
         switch (b) {
@@ -3444,6 +3851,8 @@ COLD static void buttons(void)
                 for (int si = -1; si < 16; si++) { int st = si < 0 ? hold_step : ((hold_more >> si) & 1u) ? hold_page * 16 + si : -1; if (st < 0) continue; seq_step_reset(&Q, trk, st); seq_step_nudge(&Q, trk, st, 0); }
                 hold_erase = 0;
             }
+            else if (dg_sheet && grid_on()) { dg_sheet = 0; t_octup = 0; }   /* (3.3.8: the grid's sheet closed) */
+            else if (grid_on()) { if (dg_cur >= 16) { dg_cur -= 16; dg_fix(); } }
             else if (steps_on_keys() || (!lay() && sticky == PG_STEPS)) { layer_used = 1; if (page > 0) page--; }
             else if (ne_sheet && notes_on()) { ne_sheet = 0; t_octup = 0; }   /* (NOTES: the sheet closed) */
             else if (is_drum(trk)) { }                       /* drums: ghost hits while held */
@@ -3459,6 +3868,7 @@ COLD static void buttons(void)
                 int i = 0; while (i < NCONDS && CONDS[i] != c) i++;
                 for (int si = -1; si < 16; si++) { int st = si < 0 ? hold_step : ((hold_more >> si) & 1u) ? hold_page * 16 + si : -1; if (st >= 0) seq_step_cond(&Q, trk, st, CONDS[(i + 1) % NCONDS]); }
             }
+            else if (grid_on() && !(held_btn & (1u << BTN_OCT_DOWN))) { if (dg_sheet) dg_sheet_do(); else t_octup = time_ticks() | 1u; }   /* (3.3.8: held, the sheet; tapped, the page) */
             else if (steps_on_keys() || (!lay() && sticky == PG_STEPS)) { layer_used = 1; if ((page + 1) * 16 < Q.t[trk].pat[Q.t[trk].cur].steps) page++; }
             else if (notes_on() && !lay() && !(held_btn & (1u << BTN_OCT_DOWN))) {   /* NOTES: held, the sheet; tapped, as before */
                 if (ne_sheet) ne_sheet_do(); else t_octup = time_ticks() | 1u;
@@ -3485,7 +3895,7 @@ COLD static void buttons(void)
         }
     }
     /* a layer's button tapped (let go soon, nothing done with it): its page */
-    int tap = !layer_used && (uint32_t)(time_ticks() - t_btn_down) < 400000u * lsb;
+    int tap = !layer_used && (uint32_t)(time_ticks() - t_btn_down) < 1000000u * lsb;   /* (3.3.8: 1 s untouched, as SLOOP 2.8.5's) */
     for (int b = 0; b < 14; b++) if ((rel & (1u << b)) && ((LAYER_BITS >> b) & 1u) && tap) open_page(b);
     if ((rel & (1u << BTN_REC)) && t_rec_down && rec_hint) { t_rec_down = 0; say("ERASE CANCELLED"); }   /* (held, then let go before 2 s: nothing) */
     if ((rel & (1u << BTN_REC)) && t_rec_down) {          /* REC tapped (let go before the erase): REC on or off */
@@ -3493,7 +3903,7 @@ COLD static void buttons(void)
         if (Q.recording) seq_record(&Q, 0, trk);
         else if (Q.playing) seq_record(&Q, 1, trk);
         else {
-            recording_armed = !recording_armed;
+            recording_armed = !recording_armed; armed_page = sticky;
             if (!recording_armed) say("REC OFF");
             else say(project_empty() && !rec_mode ? "REC READY · PLAY FREELY" : rec_count ? "REC READY · PLAY: COUNT-IN" : "REC READY · YOUR NOTE STARTS IT");
         }
@@ -3647,7 +4057,7 @@ COLD static void sb_page_step(int d, int across)         /* a page on; across: i
     if (g >= 0 && g < np) { sb_pg = (uint8_t)g; return; }
     if (!across) return;
     if (d < 0 && sb_cat == (is_drum(trk) ? K_KIT + 1 : SB_FAV)) {      /* (left of the first page: the page before SOUNDS) */
-        if (is_drum(trk)) sticky = PG_KIT; else { edit_page = 4; sticky = PG_USER; }
+        sticky = is_drum(trk) ? PG_KIT : PG_VOICE2;   /* (left of SOUNDS: the EDIT page before it) */
         return;
     }
     sb_cat_step(d);
@@ -3710,7 +4120,7 @@ COLD static void choose_preset(int d)
         sb_cat = (uint8_t)c; sb_pg = (uint8_t)(i / 16); sb_trk = (int8_t)trk; sb_t = time_ticks();
         int plain = !L && hold_step < 0 && !Q.recording && !recording_armed && !countin && !ft_on &&
                     sticky != PG_STEPS && sticky != PG_NOTES && sticky != PG_SONG && sticky != PG_SONG2 && sticky != PG_SEL;
-        if (sticky != PG_SND && plain) { sb_back = (int8_t)sticky; sticky = PG_SND; sb_was = 1; }
+        if (sticky != PG_SND && plain && !vis_on) { sb_back = (int8_t)sticky; sticky = PG_SND; sb_was = 1; }   /* (4.0.1, as SLOOP 3 (Sam): SOUNDS shows where PRESETS is, 4 s) */
         if (sticky == PG_SND && !L) { sb_n = (uint8_t)sb_list(sb_cat, sb_pg * 16, sb_o); return; }
         char b[48], *p = put_s(b, sb_cat_name(c)); p = put_s(p, " · "); p = put_s(p, snd_name(o[i & 15]));
         p = put_s(p, " · "); p = put_u(p, (uint32_t)i + 1u); *p++ = '/'; p = put_u(p, (uint32_t)n); *p = 0;
@@ -3743,6 +4153,22 @@ COLD static void set_param(int pi, int d)                 /* a sound value turne
     if (preset_of[trk] >= 0) preset_of[trk] = -preset_of[trk] - 2;       /* edited: from that preset, now its own */
     lock_param = pi;                                                       /* (what a step's lock is on, next) */
 }
+
+static int pg_walk(int d)                                /* (4.0) SELECT on a page: its button's page before or after */
+{
+    if (is_drum(trk) && (sticky == PG_STEPS || sticky == PG_KIT || sticky == PG_DSOUND)) {   /* the drums' screen: GRID KIT SOUND */
+        int i = sticky == PG_STEPS ? 0 : sticky == PG_KIT ? 1 : 2; i += d > 0 ? 1 : -1;
+        if (i >= 0 && i <= 2) sticky = i == 0 ? PG_STEPS : i == 1 ? PG_KIT : PG_DSOUND;
+        return 1;
+    }
+    int b = group_of(sticky); const uint8_t *l; int n = grp_of(b, &l), at = -1;
+    for (int i = 0; i < n; i++) if (l[i] == sticky) at = i;
+    if (at < 0) return 0;
+    int to = at;
+    do to += d > 0 ? 1 : -1; while (to >= 0 && to < n && (!pg_shown(l[to]) || l[to] == PG_SONG2));
+    if (to >= 0 && to < n) { sticky = l[to]; grp_last[b] = (uint8_t)to; }
+    return 1;
+}
 COLD static void encoders(void)
 {
     for (int e = 0; e < 7; e++) {
@@ -3756,12 +4182,13 @@ COLD static void encoders(void)
         int da = d * (!hs[HS_ACCEL] ? 1 : us < 25000u ? 4 : us < 60000u ? 2 : 1);
         t_input = tn;
         int kn = e >= ENC_KNOB1 && e <= ENC_KNOB4 ? e - ENC_KNOB1 : -1;
+        if (kn >= 0) { hot_k = (uint8_t)kn; t_hot = tn; }            /* (4.0, as SLOOP 2.8.5: its value white a moment) */
         uint32_t L = lay();
         if (vis_on && sticky == PG_TRACKS && !L && e == ENC_SELECT && hold_step < 0) {   /* the visualiser: SELECT its style */
             vis_style = (uint8_t)(((vis_style + d) % VIS_N + VIS_N) % VIS_N); vis_named = 25; continue;
         }
         if ((L & (1u << BTN_HOME)) && hold_step < 0) {          /* HOME: SELECT the sections, the knobs their settings */
-            if (e == ENC_SELECT) { layer_used = 1; home_sec = home_sec + d < 0 ? 0 : home_sec + d > 4 ? 4 : home_sec + d; continue; }
+            if (e == ENC_SELECT) { layer_used = 1; home_sec = home_sec + d < 1 ? 1 : home_sec + d > HOME_NSEC - 1 ? HOME_NSEC - 1 : home_sec + d; home_last = home_sec; continue; }
             if (home_sec && kn >= 0) { layer_used = 1; home_knob(home_sec, kn, d); continue; }
             if (home_sec) continue;
         }
@@ -3783,7 +4210,17 @@ COLD static void encoders(void)
                     v += 5 * da; v = v < 0 ? 0 : v > 255 ? 255 : v;
                     seq_lock_set(&Q, trk, st, lock_param, v);
                 } else if (kn == 0) {
-                    if (!is_drum(trk)) { seq_step_note(&Q, trk, st, d); int n; if (seq_step_get(&Q, trk, st, &n, 0, 0)) last_note = n; }
+                    if (!is_drum(trk)) { seq_step_note(&Q, trk, st, d); int n; if (seq_step_get(&Q, trk, st, &n, 0, 0)) shown_note(n); }
+                    else if (si < 0) {                       /* (3.3.8, as SLOOP 2.8.5) the drums: which sound of the step */
+                        int n = last_note & 15;
+                        for (int j = 0; j < 16; j++) { n = (n + (d > 0 ? 1 : 15)) & 15; if (seq_step_has(&Q, trk, st, n)) break; }
+                        shown_note(n);
+                    }
+                } else if (kn == 1 && is_drum(trk)) {         /* (3.3.8) its LEVEL alone: GHOST SOFT NORM HARD */
+                    static const int LV[4] = { 40, 70, 100, 127 }; int v;
+                    if (seq_hit_get(&Q, trk, st, last_note & 15, &v, 0)) { int i = v < 50 ? 0 : v < 85 ? 1 : v < 115 ? 2 : 3; i += d; i = i < 0 ? 0 : i > 3 ? 3 : i; seq_hit_set(&Q, trk, st, last_note & 15, LV[i], -1); }
+                } else if (kn == 2 && is_drum(trk)) {         /* (3.3.8) its RATCHET alone: x1 .. x4 */
+                    int r; if (seq_hit_get(&Q, trk, st, last_note & 15, 0, &r)) seq_hit_set(&Q, trk, st, last_note & 15, -1, r + d);
                 } else if (kn == 1) {
                     int n, v;
                     if (seq_step_get(&Q, trk, st, &n, &v, 0)) {
@@ -3808,11 +4245,14 @@ COLD static void encoders(void)
             continue;
         }
         if (e == ENC_ALGORITHM) {
-            select_track(POS[((POS[trk] + d) % NTRK + NTRK) % NTRK]);
+            /* (3.3.8) it stops at the first and the last track (two testers: going round made track 4 hard to reach live) */
+            int np = POS[trk] + d; np = np < 0 ? 0 : np > NTRK - 1 ? NTRK - 1 : np;
+            if (np == POS[trk]) continue;
+            select_track(POS[np]);
             if (sticky == PG_NOTES) { if (is_drum(trk)) sticky = PG_STEPS; ne_step = 0; ne_sub = 0; ne_wrote = 0; }
             continue;
         }
-        if ((recording_armed || countin) && !Q.playing && !ft_on && !L) {   /* the REC screen */
+        if ((recording_armed || countin) && !Q.playing && !ft_on && !L && sticky == armed_page) {   /* the REC screen */
             seq_track *k = &Q.t[trk];
             if (e == ENC_SELECT) tempo(Q.bpm + (float)da);
             if (e == ENC_PRESETS) choose_preset(d);
@@ -3828,15 +4268,16 @@ COLD static void encoders(void)
             if (kn == 3) { k->quant = (uint8_t)(d > 0 ? 100 : 0); say(k->quant ? "QUANT ON: ON THE STEPS" : "QUANT OFF: AS PLAYED"); }
             continue;
         }
-        if ((L & (1u << BTN_FX)) || (!L && sticky == PG_MASTER)) {  /* the master bus, the track's filter; SELECT the fade */
+        if ((L & (1u << BTN_FX)) || (!L && sticky == PG_TFLT)) {  /* the master bus, the track's filter; SELECT the fade (FX > FILTER: the track's filter) */
             if (L) layer_used = 1;
             if (e == ENC_SELECT) {
                 if (L) { int f = S.pk_fade + d; S.pk_fade = (uint8_t)(f < 0 ? 0 : f > 15 ? 15 : f); }
-                else if (d < 0) { fx_page = NFX_PG - 2; sticky = PG_FX3; }
+                else pg_walk(d);
                 continue;
             }
+            if (!L && sticky == PG_TFLT && kn != 0) continue;
             if (kn == 0 || kn == 3) {
-                gb_smooth *f = kn == 0 ? &S.mfilt : &S.trk[trk].filt;
+                gb_smooth *f = kn == 0 && L ? &S.mfilt : &S.trk[trk].filt;
                 float x = f->tgt + 0.02f * (float)da; x = x < -1.0f ? -1.0f : x > 1.0f ? 1.0f : x;
                 if ((f->tgt < 0.0f && x > 0.0f) || (f->tgt > 0.0f && x < 0.0f) || gb_absf(x) < 0.01f) x = 0.0f;   /* (a stop at OFF) */
                 sm_set(f, x);
@@ -3847,14 +4288,19 @@ COLD static void encoders(void)
         }
         if ((L & (1u << BTN_SEL)) || (!L && sticky == PG_SEL)) {    /* KEY: the key, scale, keys, chords */
             if (L) layer_used = 1;
-            if (e == ENC_SELECT) { tempo(Q.bpm + (float)da); continue; }
+            if (e == ENC_SELECT) { if (L) tempo(Q.bpm + (float)da); else pg_walk(d); continue; }   /* (4.0.8, Sam: the SEL page, SELECT: SEL 2) */
             if (is_drum(trk) || kn < 0) continue;
             harm_cfg *h = &harm[trk];
             int layer = L != 0;                              /* (held: the key and scale of every synth track; tapped: this one) */
-            if (kn == 0) { int r = (h->root + d + 48) % 12; for (int t = 0; t < NTRK; t++) if (!is_drum(t) && (layer || t == trk)) harm[t].root = (uint8_t)r; }
-            if (kn == 1) { int sc = (h->scale + d + SCALE_N * 4) % SCALE_N; for (int t = 0; t < NTRK; t++) if (!is_drum(t) && (layer || t == trk)) harm[t].scale = (uint8_t)sc; }
-            if (kn == 2) h->chord = (uint8_t)((h->chord + d + CH_N * 4) % CH_N);
-            if (kn == 3) h->keys = (uint8_t)((h->keys + d + KEYS_N * 4) % KEYS_N);
+            /* (4.0, as SLOOP 2.8.5) held: CHORD, SCALE (every synth track), KEYS, TRANSPOSE (the key: a key pressed);
+             * the SEL page: ROOT, SCL, QNT (the keys), CHORD of this track */
+            int fk = layer ? (kn == 0 ? 2 : kn == 1 ? 1 : kn == 2 ? 3 : 4) : (kn == 0 ? 0 : kn == 1 ? 1 : kn == 2 ? 3 : 2);
+            /* (3.4.2, issue #18) each stops at its first and last value, as the other knobs (they went round) */
+            if (fk == 0) harm[trk].root = (uint8_t)clampi(h->root + d, 0, 11);
+            if (fk == 1) { int sc = clampi(h->scale + d, 0, SCALE_N - 1); for (int t = 0; t < NTRK; t++) if (!is_drum(t) && (layer || t == trk)) harm[t].scale = (uint8_t)sc; }
+            if (fk == 2) h->chord = (uint8_t)clampi(h->chord + d, 0, CH_N - 1);
+            if (fk == 3) h->keys = (uint8_t)clampi(h->keys + d, 0, KEYS_N - 1);
+            if (fk == 4) { int tr = h->transpose + d; h->transpose = (int8_t)(tr < -24 ? -24 : tr > 24 ? 24 : tr); }
             continue;
         }
         if (!L && (sticky == PG_ARP || sticky == PG_ARP2)) {         /* the arpeggiator */
@@ -3884,11 +4330,45 @@ COLD static void encoders(void)
             if (kn == 0) { roll_rate += d; roll_rate = roll_rate < 0 ? 0 : roll_rate > 4 ? 4 : roll_rate; }
             continue;
         }
+        if (!L && grid_on()) {                               /* (3.3.8) the DRUMS grid: SOUND, STEP, HIT, LEVEL; the sheet */
+            int n = last_note & 15;
+            if (e == ENC_SELECT) { tempo(Q.bpm + (float)d); continue; }
+            if (e == ENC_PRESETS) { choose_preset(d); continue; }
+            if (dg_sheet) {                                  /* KNOB 1 the row, KNOB 2 its value */
+                if (kn == 0) { dg_row = dg_row + d < 0 ? 0 : dg_row + d > 5 ? 5 : dg_row + d; continue; }
+                if (kn != 1) continue;
+                int vv, r;
+                if (!seq_hit_get(&Q, trk, dg_cur, n, &vv, &r)) { say_bad("NO HIT HERE"); continue; }
+                if (dg_row == 0) seq_hit_set(&Q, trk, dg_cur, n, -1, r + d);
+                else if (dg_row == 1) {
+                    int nd = 0; seq_step_get(&Q, trk, dg_cur, 0, 0, &nd);
+                    int n64 = nd * 64 / SEQ_TPS + d; n64 = n64 < -32 ? -32 : n64 > 31 ? 31 : n64;
+                    seq_step_nudge(&Q, trk, dg_cur, n64 * SEQ_TPS / 64);
+                } else if (dg_row == 2) {
+                    static const uint8_t FC[3] = { SEQ_ALWAYS, SEQ_FILL, SEQ_NOFILL };
+                    int c = 0; seq_step_info(&Q, trk, dg_cur, &c, 0);
+                    int f = c == SEQ_FILL ? 1 : c == SEQ_NOFILL ? 2 : 0; f = f + d < 0 ? 0 : f + d > 2 ? 2 : f + d;
+                    seq_step_cond(&Q, trk, dg_cur, FC[f]);
+                } else if (dg_row == 3) {                    /* MOVE: a step a detent, not onto the same sound */
+                    int to = dg_cur + (d > 0 ? 1 : -1);
+                    if (to < 0 || to >= dg_steps() || seq_step_has(&Q, trk, to, n)) { say_bad("NO ROOM"); continue; }
+                    Q.batch = 0;
+                    if (seq_ev_move(&Q, trk, seq_hit_find(&Q, trk, dg_cur, n), d > 0 ? 1 : -1, 0) < 0) { say_bad("NO ROOM"); continue; }
+                    dg_cur = to; dg_fix();
+                }
+                continue;
+            }
+            if (kn == 0) { shown_note((n + d + 16) % 16); if (hs[HS_DPREV]) { int m = last_note & 15; play_on(GB_OWNER(OWN_PREVIEW, 0), trk, m, 0.8f); play_off(GB_OWNER(OWN_PREVIEW, 0), trk, m); } }
+            if (kn == 1) { dg_cur += d; dg_fix(); }
+            if (kn == 2) { Q.batch = 0; if ((d > 0) != seq_step_has(&Q, trk, dg_cur, n)) seq_step_toggle(&Q, trk, dg_cur, n, DG_LV[2]); }
+            if (kn == 3) { int vv; if (seq_hit_get(&Q, trk, dg_cur, n, &vv, 0)) { int i = dg_lvl(vv) + d; i = i < 0 ? 0 : i > 3 ? 3 : i; seq_hit_set(&Q, trk, dg_cur, n, DG_LV[i], -1); } else say_bad("NO HIT: KNOB 3"); }
+            continue;
+        }
         if ((L & (1u << BTN_SEQ)) || (!L && sticky == PG_STEPS)) {   /* STEPS */
             if (L) layer_used = 1;
             seq_track *k = &Q.t[trk];
             if (e == ENC_SELECT) tempo(Q.bpm + (float)d);
-            if (kn == 0) { if (is_drum(trk)) last_note = ((last_note & 15) + d + 16) % 16; else { int n = last_note + d; last_note = n < 0 ? 0 : n > 127 ? 127 : n; } }
+            if (kn == 0) { if (is_drum(trk)) shown_note(((last_note & 15) + d + 16) % 16); else { int n = last_note + d; shown_note(n < 0 ? 0 : n > 127 ? 127 : n); } }
             if (L) {
                 if (kn == 1) seq_set_div(&Q, trk, k->div + d);
                 if (kn == 2) seq_set_swing(&Q, trk, k->swing + 2 * da);
@@ -3901,7 +4381,7 @@ COLD static void encoders(void)
             continue;
         }
         if (!L && sticky == PG_SONG2) {                      /* SONG 2/2: LINE, PAT, BARS, LINES (as SLOOP's entry, section, bars, length) */
-            if (e == ENC_SELECT) { if (d < 0) sticky = PG_SONG; continue; }
+            if (e == ENC_SELECT) { sticky = d < 0 ? PG_SONG : PG_PROJ; continue; }
             if (e == ENC_PRESETS) { choose_preset(d); continue; }
             if (kn == 0) { int c = sg_cur + d, n = Q.song_n; sg_cur = c < 0 || !n ? 0 : c > n - 1 ? n - 1 : c; continue; }
             if (kn < 1 || kn > 3) continue;
@@ -3954,21 +4434,9 @@ COLD static void encoders(void)
         int pg = sticky;
         if ((pg == PG_DSOUND || pg == PG_KIT) && !is_drum(trk)) pg = PG_OSC;
         if (e == ENC_SELECT && pg == PG_SND) { sb_t = time_ticks(); sb_page_step(d, 1); continue; }   /* SOUNDS: its pages, category after category */
-        if (e == ENC_SELECT) {                               /* a page of several: the previous / next; else the tempo */
-            int g = group_of(pg);
-            if (g == BTN_EDIT && !is_drum(trk)) { edit_page = edit_page + d < 0 ? 0 : edit_page + d > 5 ? 5 : edit_page + d; sticky = EDIT_PG[edit_page]; }
-            else if (g == BTN_FX) { fx_page = fx_page + d < 0 ? 0 : fx_page + d > NFX_PG - 1 ? NFX_PG - 1 : fx_page + d; sticky = FX_PG[fx_page]; }
-            else if (g == BTN_ARP) sticky = d < 0 ? PG_ARP : PG_ARP2;
-            else if (g == BTN_GLO) {
-                static const uint8_t GP[6] = { PG_GLOBAL, PG_TEX1, PG_TEX2, PG_MIDI, PG_MIDI2, PG_GREC };
-                int i = 0; while (i < 6 && GP[i] != sticky) i++;
-                i = i >= 6 ? 0 : i + d < 0 ? 0 : i + d > 5 ? 5 : i + d; sticky = GP[i];
-            }
-            else if (g == BTN_ENV && !is_drum(trk)) { env_page = env_page + d < 0 ? 0 : env_page + d > 1 ? 1 : env_page + d; sticky = PG_ENV + env_page; }
-            else if (g == BTN_LFO && !is_drum(trk)) { lfo_page = lfo_page + d < 0 ? 0 : lfo_page + d > 2 ? 2 : lfo_page + d; sticky = LFO_PG[lfo_page]; }
-            else tempo(Q.bpm + (float)da);
-            continue;
-        }
+        if (e == ENC_SELECT && pg == PG_PROJ) { if (d < 0) sticky = PG_SONG2; continue; }   /* (4.0.7) PROJECT 3/3: back to SONG 2/3 */
+        if (e == ENC_SELECT && pg_walk(d)) continue;        /* a page of several: the previous / next (it stops at the ends) */
+        if (e == ENC_SELECT && group_of(pg) < 0) { tempo(Q.bpm + (float)da); continue; }
         if (pg == PG_NOTES && !is_drum(trk)) {
             const seq_pat *pp = &Q.t[trk].pat[Q.t[trk].cur];
             int steps = pp->steps, sel = ne_sel();
@@ -4008,7 +4476,7 @@ COLD static void encoders(void)
                 if (sel < 0) { uint8_t n1 = (uint8_t)last_note; seq_step_write(&Q, trk, ne_step, &n1, 1, 100); ne_sub = 0; continue; }
                 int n = pp->ev[sel].note + d; n = n < 0 ? 0 : n > 127 ? 127 : n;
                 if (!Q.batch) { Q.batch = 1; Q.batch_done = 0; }
-                seq_ev_set(&Q, trk, sel, n, -1, -1, -1); last_note = n;
+                seq_ev_set(&Q, trk, sel, n, -1, -1, -1); shown_note(n);
                 play_on(GB_OWNER(OWN_PREVIEW, 0), trk, n, 0.7f); play_off(GB_OWNER(OWN_PREVIEW, 0), trk, n);   /* (heard) */
             }
             if (kn == 2 && sel >= 0) {                       /* its length, a step a click (below a step: a quarter) */
@@ -4035,7 +4503,7 @@ COLD static void encoders(void)
             if (kn == 0) seq_set_swing(&Q, -1, Q.swing + 2 * da);
             if (kn == 1) { gb_smooth *l = &S.trk[trk].level; sm_set(l, clamp01(l->tgt + 0.01f * (float)da)); if (Q.t[trk].mute) seq_mute(&Q, trk, 0); }
             if (kn == 2) seq_set_len(&Q, trk, Q.t[trk].pat[Q.t[trk].cur].steps + da);
-            if (kn == 3) { gb_smooth *pn = &S.trk[trk].pan; sm_set(pn, clamp01(pn->tgt + 0.01f * (float)da)); }
+            if (kn == 3) sm_set(&S.trk[trk].pan, clamp01(S.trk[trk].pan.tgt + 0.01f * (float)da));   /* (4.0: PAN, as SLOOP 2.8.5; the track's swing: SEQ + KNOB 3, SEQ > PATTERN) */
             if (e == ENC_PRESETS) choose_preset(d);
             continue;
         }
@@ -4048,8 +4516,8 @@ COLD static void encoders(void)
             static int erase_arm = -1;
             if (kn == 0) { us_place = us_place + d < 0 ? 0 : us_place + d > US_N - 1 ? US_N - 1 : us_place + d; erase_arm = -1; }
             if (kn == 1 && d > 0) { if (us_used(us_place) && apply_user(trk, us_place)) { char b[32], *p = put_s(b, "LOADED: "); p = put_s(p, us_name(us_place)); *p = 0; say(b); } else say_bad("EMPTY SLOT"); }
-            if (kn == 2 && d > 0) user_save(us_place, 0);
-            if (kn == 3 && d > 0 && us_used(us_place)) {
+            if (kn == 3 && d > 0) user_save(us_place, 0);       /* (4.0: SLOT LOAD ERASE SAVE, as SLOOP 2.8.5) */
+            if (kn == 2 && d > 0 && us_used(us_place)) {
                 if (erase_arm != us_place) { erase_arm = us_place; say_imp("AGAIN TO ERASE"); }
                 else { erase_arm = -1; user_save(us_place, 1); }
             }
@@ -4067,19 +4535,18 @@ COLD static void encoders(void)
         }
         if (pg == PG_DSOUND && is_drum(trk)) {
             gb_patch *dp = &S.trk[trk].patch; int n = last_note & 15;
-            if (kn == 0) last_note = ((last_note & 15) + d + 16) % 16;
+            if (kn == 0) shown_note(((last_note & 15) + d + 16) % 16);
             if (kn == 1) { int t2 = dp->dtune[n] + d; dp->dtune[n] = (int8_t)(t2 < -8 ? -8 : t2 > 7 ? 7 : t2); }
-            if (kn == 2) { int t2 = dp->ddec[n] + d; dp->ddec[n] = (int8_t)(t2 < -4 ? -4 : t2 > 3 ? 3 : t2); }
-            if (kn == 3) { if (d > 0) dp->dmute |= (uint16_t)(1u << n); else dp->dmute &= (uint16_t)~(1u << n); }
-            if (hs[HS_DPREV] && kn <= 2) { int m = last_note & 15; play_on(GB_OWNER(OWN_PREVIEW, 0), trk, m, 0.8f); play_off(GB_OWNER(OWN_PREVIEW, 0), trk, m); }   /* (DRUM PREVIEW: heard) */
+            if (kn == 2) dp->ddec[n] = gb_dpack(GB_DDEC(dp->ddec[n]) + d, gb_dlev(dp->ddec[n]));
+            if (kn == 3) dp->ddec[n] = gb_dpack(GB_DDEC(dp->ddec[n]), gb_dlev(dp->ddec[n]) + d);   /* (3.4.2, issue #25: this sound alone; the kit's level: MIX) */
+            if (hs[HS_DPREV]) { int m = last_note & 15; play_on(GB_OWNER(OWN_PREVIEW, 0), trk, m, 0.8f); play_off(GB_OWNER(OWN_PREVIEW, 0), trk, m); }   /* (DRUM PREVIEW: heard) */
             if (e == ENC_PRESETS) choose_preset(d);
-            if (e == ENC_SELECT) sticky = d < 0 ? PG_KIT : PG_DSOUND;
             continue;
         }
         if (pg == PG_SEL2) {
             if (e == ENC_SELECT) { sticky = d < 0 ? PG_SEL : PG_SEL2; continue; }
             if (!is_drum(trk) && kn == 0) { int tr = harm[trk].transpose + d; harm[trk].transpose = (int8_t)(tr < -24 ? -24 : tr > 24 ? 24 : tr); }
-            if (!is_drum(trk) && kn == 1) { int x = strum[trk] + 2 * da; strum[trk] = (uint8_t)(x < 0 ? 0 : x > 100 ? 100 : x); }
+            if (!is_drum(trk) && kn == 1) { int x = strum[trk] + 2 * da; strum[trk] = (int8_t)(x < -100 ? -100 : x > 100 ? 100 : x); }
             if (!is_drum(trk) && kn == 2) vlead[trk] = (uint8_t)(d > 0);
             if (e == ENC_PRESETS) choose_preset(d);
             continue;
@@ -4111,20 +4578,22 @@ COLD static void encoders(void)
             if (e == ENC_PRESETS) choose_preset(d);
             continue;
         }
-        if (pg == PG_MIDI || pg == PG_MIDI2) {
+        if (pg == PG_MIDI || pg == PG_MIDI2 || pg == PG_SYS) {   /* (4.0, as SLOOP 2.8.5) SYSTEM: OUT SYNC IN CPU; MIDI: IN, OUT, BEND;
+                                                                   MIDI 2: FX CH, DR MAP, REMOTE, CLOCK */
             int was_ext = MC.sync;
-            if (pg == PG_MIDI) {
-                if (kn == 0) { int x = MC.in + d; MC.in = (uint8_t)(x < 0 ? 0 : x >= MIDI_IN_N ? MIDI_IN_N - 1 : x);
-                    say(MC.in == MIDI_IN_TRACKS ? "CHANNEL 1-5: TRACKS · 10: DRUMS" : MC.in == MIDI_IN_SEL ? "ALL CHANNELS: THE TRACK SELECTED" : "MIDI IN OFF"); }
-                if (kn == 1) { int x = MC.out + d; MC.out = (uint8_t)(x < 0 ? 0 : x >= MIDI_OUT_N ? MIDI_OUT_N - 1 : x);
-                    say(MC.out == MIDI_OUT_KEYS ? "OUT: THE KEYS" : MC.out == MIDI_OUT_SEQ ? "OUT: KEYS, SEQUENCER, ARP" : "MIDI OUT OFF"); }
-                if (kn == 2) { MC.sync = (uint8_t)(d > 0 ? MIDI_SYNC_EXT : MIDI_SYNC_INT);
-                    say(MC.sync == MIDI_SYNC_EXT ? "FOLLOWS THE MIDI CLOCK (USB, TRS)" : "INTERNAL TEMPO"); }
-                if (kn == 3) { MC.clk_out = (uint8_t)(d > 0); say(MC.clk_out ? "CLOCK SENT ON USB" : "CLOCK OUT OFF"); }
-            } else if (kn == 0) { MC.dmap = (uint8_t)(d > 0 ? MIDI_DMAP_PADS : MIDI_DMAP_GM); say(MC.dmap ? "DRUMS: NOTES 36 TO 51" : "DRUMS: GM NOTES (36 KICK, 38 SNARE)"); }
-            else if (kn == 1) { int x = m_rmch + d; m_rmch = (uint8_t)(x < 0 ? 0 : x > 16 ? 16 : x); say(m_rmch ? "REMOTE: CC 102-115 = THE BUTTONS" : "REMOTE OFF"); }
-            else if (kn == 2) { int x = m_fxch + d; m_fxch = (uint8_t)(x < 0 ? 0 : x > 16 ? 16 : x); say(m_fxch ? "FX CH: NOTES 53-79 = THE PUNCH-INS" : "FX CH OFF"); }
-            else if (kn == 3) { int x = m_bend + d; m_bend = (uint8_t)(x < 1 ? 1 : x > 12 ? 12 : x); }
+            int f = pg == PG_SYS ? (kn == 0 ? 1 : kn == 1 ? 2 : kn == 2 ? 0 : -1) : pg == PG_MIDI ? (kn == 0 ? 0 : kn == 2 ? 1 : kn == 3 ? 7 : -1)
+                                 : (kn == 0 ? 6 : kn == 1 ? 4 : kn == 2 ? 5 : kn == 3 ? 3 : -1);
+            if (f == 0) { int x = MC.in + d; MC.in = (uint8_t)(x < 0 ? 0 : x >= MIDI_IN_N ? MIDI_IN_N - 1 : x);
+                say(MC.in == MIDI_IN_TRACKS ? "CHANNEL 1-5: TRACKS · 10: DRUMS" : MC.in == MIDI_IN_SEL ? "ALL CHANNELS: THE TRACK SELECTED" : "MIDI IN OFF"); }
+            if (f == 1) { int x = MC.out + d; MC.out = (uint8_t)(x < 0 ? 0 : x >= MIDI_OUT_N ? MIDI_OUT_N - 1 : x);
+                say(MC.out == MIDI_OUT_KEYS ? "OUT: THE KEYS" : MC.out == MIDI_OUT_SEQ ? "OUT: KEYS, SEQUENCER, ARP" : "MIDI OUT OFF"); }
+            if (f == 2) { MC.sync = (uint8_t)(d > 0 ? MIDI_SYNC_EXT : MIDI_SYNC_INT);
+                say(MC.sync == MIDI_SYNC_EXT ? "FOLLOWS THE MIDI CLOCK (USB, TRS)" : "INTERNAL TEMPO"); }
+            if (f == 3) { MC.clk_out = (uint8_t)(d > 0); say(MC.clk_out ? "CLOCK SENT ON USB" : "CLOCK OUT OFF"); }
+            if (f == 4) { MC.dmap = (uint8_t)(d > 0 ? MIDI_DMAP_PADS : MIDI_DMAP_GM); say(MC.dmap ? "DRUMS: NOTES 36 TO 51" : "DRUMS: GM NOTES (36 KICK, 38 SNARE)"); }
+            if (f == 5) { int x = m_rmch + d; m_rmch = (uint8_t)(x < 0 ? 0 : x > 16 ? 16 : x); say(m_rmch ? "REMOTE: CC 102-115 = THE BUTTONS" : "REMOTE OFF"); }
+            if (f == 6) { int x = m_fxch + d; m_fxch = (uint8_t)(x < 0 ? 0 : x > 16 ? 16 : x); say(m_fxch ? "FX CH: NOTES 53-79 = THE PUNCH-INS" : "FX CH OFF"); }
+            if (f == 7) { int x = m_bend + d; m_bend = (uint8_t)(x < 1 ? 1 : x > 12 ? 12 : x); }
             if (was_ext == MIDI_SYNC_EXT && MC.sync != MIDI_SYNC_EXT) ext_start = 0;
             if (MC.in == MIDI_IN_OFF) midi_all_off(-1);
             t_input = time_ticks();
@@ -4142,12 +4611,70 @@ COLD static void encoders(void)
             if (kn == 0) tempo(Q.bpm + (float)da);
             if (kn == 1) seq_set_swing(&Q, -1, Q.swing + 2 * da);
             if (kn == 2) { click_mode += d; click_mode = click_mode < 0 ? 0 : click_mode > 2 ? 2 : click_mode; }
-            if (kn == 3) { gb_smooth *l = &S.trk[trk].level; sm_set(l, clamp01(l->tgt + 0.01f * (float)da)); }
             if (e == ENC_PRESETS) choose_preset(d);
             continue;
         }
+        if (pg == PG_MASTER) {                                /* (4.0) GLO > MASTER: DUST DUCK FILT ROLL */
+            if (kn == 0) S.dust = clamp01(S.dust + 0.01f * (float)da);
+            if (kn == 1) S.duck = clamp01(S.duck + 0.01f * (float)da);
+            if (kn == 2) {
+                float x = S.mfilt.tgt + 0.02f * (float)da; x = x < -1.0f ? -1.0f : x > 1.0f ? 1.0f : x;
+                if ((S.mfilt.tgt < 0.0f && x > 0.0f) || (S.mfilt.tgt > 0.0f && x < 0.0f) || gb_absf(x) < 0.01f) x = 0.0f;
+                sm_set(&S.mfilt, x);
+            }
+            if (kn == 3) { roll_rate += d; roll_rate = roll_rate < 0 ? 0 : roll_rate > 4 ? 4 : roll_rate; }
+            if (e == ENC_PRESETS) choose_preset(d);
+            continue;
+        }
+        if (pg == PG_PAT) {                                   /* (4.0) SEQ > PATTERN: LEN DIV SWG GATE */
+            seq_track *k = &Q.t[trk];
+            if (kn == 0) { seq_set_len(&Q, trk, k->pat[k->cur].steps + da); page = 0; }
+            if (kn == 1) seq_set_div(&Q, trk, k->div + d);
+            if (kn == 2) seq_set_swing(&Q, trk, k->swing + 2 * da);
+            if (kn == 3) seq_set_gate(&Q, trk, k->gate + 5 * d);
+            if (e == ENC_PRESETS) choose_preset(d);
+            continue;
+        }
+        if (pg == PG_VOICE2 && !is_drum(trk)) {                /* (4.0) EDIT > VOICE 2: TRIM DTUNE, PAN MUTE */
+            if (kn == 0) set_param(SP_TRIM, da);
+            if (kn == 1) set_param(SP_DETUNE, da);
+            if (kn == 2) sm_set(&S.trk[trk].pan, clamp01(S.trk[trk].pan.tgt + 0.01f * (float)da));
+            if (kn == 3) seq_mute(&Q, trk, d > 0);
+            if (e == ENC_PRESETS) choose_preset(d);
+            continue;
+        }
+        if (pg == PG_KIT && is_drum(trk)) {                    /* (4.0) the drums' KIT: KIT LEVEL REVERB PAN */
+            gb_track *mk = &S.trk[trk];
+            if (kn == 0) set_param(SP_E0, d);
+            if (kn == 1) { sm_set(&mk->level, clamp01(mk->level.tgt + 0.01f * (float)da)); if (Q.t[trk].mute) seq_mute(&Q, trk, 0); }
+            if (kn == 2) sm_set(&mk->send_rev, clamp01(mk->send_rev.tgt + 0.01f * (float)da));
+            if (kn == 3) sm_set(&mk->pan, clamp01(mk->pan.tgt + 0.01f * (float)da));
+            if (e == ENC_PRESETS) choose_preset(d);
+            continue;
+        }
+        if (pg == PG_GDRUM) {                                  /* (4.0) GLO > DRUMS: CH, LVL, REV, DLY of the drum track */
+            int dt = 0; while (dt < NTRK - 1 && !is_drum(dt)) dt++;
+            gb_track *mk = &S.trk[dt];
+            if (kn == 1) sm_set(&mk->level, clamp01(mk->level.tgt + 0.01f * (float)da));
+            if (kn == 2) sm_set(&mk->send_rev, clamp01(mk->send_rev.tgt + 0.01f * (float)da));
+            if (kn == 3) sm_set(&mk->send_dly, clamp01(mk->send_dly.tgt + 0.01f * (float)da));
+            if (e == ENC_PRESETS) choose_preset(d);
+            continue;
+        }
+        if (pg == PG_PRESETS) {                                /* (4.0) SAVE > PRESETS: the sound, the engine, FAV */
+            if (kn == 0 || e == ENC_PRESETS) choose_preset(d);
+            if (kn == 1) { int e0 = S.trk[trk].patch.engine; for (int i = 0; i < 300 && S.trk[trk].patch.engine == e0; i++) choose_preset(d); }
+            if (kn == 3) sb_knob(3, d);
+            continue;
+        }
+        if (pg == PG_SAVEPAT) { pat_page_knob(kn, d); continue; }   /* (4.0) SAVE > PATTERNS */
+        if (pg == PG_TOOLS) { tools_knob(kn, d); continue; }        /* (4.0) SAVE > TOOLS */
+        if (pg == PG_PROJ) {                                      /* (4.0.4) SAVE > PROJECT: SAVE NEW LOAD */
+            if (kn >= 0 && kn < 3 && d > 0) home_do(kn == 0 ? HK_SAVE : kn == 1 ? HK_NEW : HK_OPEN);
+            continue;
+        }
         if (e == ENC_PRESETS) { choose_preset(d); continue; }
-        if (kn < 0 || !((pg >= PG_OSC && pg <= PG_KIT && pg != PG_FX) || pg == PG_PLAY || FX_TRACK_PG(pg) || ((pg == PG_LFO || pg == PG_LFODEST || pg == PG_LFO3) && !is_drum(trk)))) continue;
+        if (kn < 0 || !((pg >= PG_OSC && pg <= PG_KIT && pg != PG_FX) || pg == PG_PLAY || pg == PG_AFLT || FX_TRACK_PG(pg) || ((pg == PG_LFO || pg == PG_LFODEST || pg == PG_LFO3) && !is_drum(trk)))) continue;
         int pi = is_drum(trk) && !FX_TRACK_PG(pg) ? kn : params_of(pg, trk)[kn];
         if (pi < 0 || !pdesc_of(S.trk[trk].patch.engine, pi)->name[0] || (pi == SP_FTYPE && !is_va(trk))) continue;
         const gb_pd *r = pi < 8 ? &gb_engines[S.trk[trk].patch.engine]->ed[pi] : &gb_sp[pi];
@@ -4181,10 +4708,10 @@ COLD __attribute__((noinline)) static void ui_round(void)
     uint32_t now = time_ticks();
     if (ft_on) {                                    /* the free take: what it would make; closed after 24 s */
         if (ft_us() > 24000000u) ft_close();
-        else if ((uint32_t)(now - ft_said) > 400000u * lsb) { ft_said = now; ft_say(); }
+        else if ((uint32_t)(now - ft_said) > 400000u * lsb) { ft_said = now; }   /* (4.0: the REC screen shows the take; ft_say no longer called) */
     }
     if (save_soon && !saving && (uint32_t)(now - t_save_soon) > 1600000u * lsb) { save_soon = 0; save_project(1); }   /* (SAVE + a key) */
-    if (fav_dirty && !saving && flash_ok && !sbuf_held() && (uint32_t)(now - fav_t) > 1200000u * lsb) { fav_dirty = 0; fav_save(); }   /* (3.2: your favourites, once they rest) */
+    if (fav_dirty && !saving && !Q.playing && flash_ok && !sbuf_held() && (uint32_t)(now - fav_t) > 1200000u * lsb) { fav_dirty = 0; fav_save(); }   /* (3.2: your favourites, once they rest; 3.4.0: stopped, as the autosave: its erase would cut the sound) */
     /* an editor's transfer left halfway (the page closed, the cable out): dropped, sbuf free again (3.1.1) */
     if (saving && ed_wr.on && ed_wr.kind == 0 && (uint32_t)(now - ed_t_last) > 10000000u * lsb) {   /* (3.3.5) a project halfway */
         store_proj_abort(); saving = 0; ed_wr.on = 0; say_bad("PROJECT: STOPPED");
@@ -4267,7 +4794,7 @@ COLD static int save_now(void)
 COLD __attribute__((noinline)) static void boot_flash(void)
 {
     /* the projects: SPI0 taken from the flash window (we run from RAM), the last project back */
-    smp_bank_set((const uint8_t *)(uintptr_t)(FLASH_WIN + 0x44000u));   /* the sample bank (flash 0x48000, tools/mkfw.py), checked once */
+    smp_bank_set((const uint8_t *)(uintptr_t)(FLASH_WIN + 0x45400u));   /* the sample bank (flash 0x49400 since 3.4.2, tools/mkfw.py BANK_AT), checked once */
     BOOT_STEP(8);
     flash_ok = flash_open() == 0;
     if (flash_ok) {
@@ -4297,7 +4824,7 @@ COLD __attribute__((noinline)) static void boot_flash(void)
         proj_used = store_proj_find(0, 0, 0) == 0 ? 1u : 0u;
         if (!proj_used && !safe_start) {                  /* (3.3.5) one project: the newest of the 8 places of 3.0 to 3.3.4, once */
             int old = store_old_latest(), n = old >= 0 ? store_old_load(old, sbuf, sizeof sbuf) : -1;
-            project_extra x; memset(&x, 0, sizeof x); x.ps = &PS;
+            project_extra x; memset(&x, 0, sizeof x); x.ps = &PS; x.keep = keep;
             if (n > 0 && project_load(&Q, &S, &x, sbuf, (uint32_t)n) == 0) {
                 load_after(&x);
                 if (save_now() == 2) { static char m[40]; char *p = put_s(m, "ONE PROJECT NOW: YOUR PROJECT "); p = put_u(p, (uint32_t)old + 1); *p = 0; boot_msg = m; }
@@ -4313,7 +4840,7 @@ COLD __attribute__((noinline)) static void boot_flash(void)
                 project_extra x; memset(&x, 0, sizeof x);
                 new_project(0);
                 if (sloop_import(secs, w, &Q, &S, &x, preset_of)) {
-                    base_from_sound(); ps_all();
+                    base_from_sound(); ps_all(); keep_all();
                     for (int t = 0; t < 3; t++) harm[t].transpose = (int8_t)(x.harm[t][4] - 64);
                     for (int t = 0; t < 3; t++) {                 /* the arpeggiators, as SLOOP's tracks had them */
                         const uint8_t *a = x.arp[t];
@@ -4435,7 +4962,7 @@ COLD __attribute__((noinline)) static void start(uint32_t arg)
     BOOT_STEP(5);
     if (c1 == 0 && cpu1_core_id() == 1u) two = 1;
     for (int k = 0; k < FM6_NBANK; k++) fb_nm[k][0] = 0;
-    snd_init(&S, fxmem, pmem);
+    snd_init(&S, fxmem, pmem); S.mix_gain = 2.0f;   /* (3.4.2, issue #16: 6 dB up before the limiter) */
     float rate = (float)AUDIO_RATE_NUM / (float)AUDIO_RATE_DEN;
     rate_hz = rate;
     demo_song song;
@@ -4462,6 +4989,7 @@ COLD __attribute__((noinline)) static void start(uint32_t arg)
     mp_usb.sxe = ed_rx; mp_usb.sxe_cap = sizeof ed_rx;
     usb_midi_open();                                      /* (25 ms: before the sound) */
     trs_midi_open();
+    if (!boot_msg && hs[HS_LOWCUT]) boot_msg = "SPEAKER LOWCUT ON: HOME > AUDIO";   /* (4.0.2, issue #11: a low cut no one saw) */
     splash_bad = (uint8_t)(!two || crash_msg[0]); splash_say = !two ? "CORE 2: SILENT" : crash_msg[0] ? crash_msg : safe_start ? "SAFE START: AN EMPTY PROJECT" : boot_msg;   /* (3.3: no popup with the name and version) */
     if ((panel_raw_buttons() & 3u) == 3u) { cal_start(); if (splash_bad) say_bad(splash_say); }   /* OCT- and OCT+ held: the calibration, as on SLOOP */
     else { splash_on = 1; splash_t0 = time_ticks(); }
@@ -4487,8 +5015,8 @@ int app_main(uint32_t arg)
     const uint32_t half_ticks = (uint32_t)((uint64_t)HALF_FRAMES * AUDIO_RATE_DEN * lsb / (AUDIO_RATE_NUM / 1000000u));
     blk_ticks = half_ticks / (HALF_FRAMES / GB_BLOCK);
     t_pot = time_ticks(); t_stat = t_pot; t_autosave = t_pot;
-    uint32_t calm = 0, over = 0, t_over = time_ticks() - 6000000u * lsb;
-    t_input = t_pot; if (splash_on) splash_t0 = t_input;   /* (the logo from here; a knob turned: t_input moves) */
+    uint32_t calm = 0, over = 0, t_over = time_ticks() - 6000000u * lsb; int overload_say = 0;
+    t_input = t_pot; t_midi_play = t_pot; if (splash_on) splash_t0 = t_input;   /* (the logo from here; a knob turned: t_input moves) */
     uint32_t t_wdt = time_ticks();
     for (;;) {
         if ((uint32_t)(time_ticks() - t_wdt) > 100000u * lsb) { t_wdt = time_ticks(); sys_wdt_feed(); }   /* (every 0.1 s) */
@@ -4496,6 +5024,12 @@ int app_main(uint32_t arg)
         midi_poll();
         if (audio_half_free()) {
             panel_dark();
+            /* (3.3.8) a page of a save being written: waited for (well under a millisecond), so that the samples and the
+             * kits, read from the flash, are not silent for this half (a stutter while it played) */
+            if (!flash_xip_on() && saving && !store_erasing()) { uint32_t tw = time_ticks(); while (!flash_xip_on() && (uint32_t)(time_ticks() - tw) < 1200u * lsb) flash_busy(); }
+#ifdef HOST
+            if (!flash_xip_on()) dark_halves++;
+#endif
             uint32_t t0 = time_ticks();
             t_half = t0;
             int32_t *h = audio_free_half();
@@ -4514,7 +5048,9 @@ int app_main(uint32_t arg)
                 snd_shed(&S);
                 S.voice_cap = n - 1 > floor ? n - 1 : floor;
                 calm = 0;
-                if (pct > 100u && ++over == 8u && (uint32_t)(t0 - t_over) > 5000000u * lsb) { t_over = t0; say_bad("CPU OVERLOAD: VOICES CUT"); }
+                /* (3.4.1) said with the interface, not here: this runs while a save has the window off, and say_bad is
+                 * the window's (3.4.0: a heavy sound saved while it played froze the FM-1) */
+                if (pct > 100u && ++over == 8u && (uint32_t)(t0 - t_over) > 5000000u * lsb) { t_over = t0; overload_say = 1; }
             } else if (S.voice_cap && pct < 55u && ++calm >= 64u) {
                 calm = 0;
                 if (++S.voice_cap >= GB_NVOICE) S.voice_cap = 0;
@@ -4529,7 +5065,7 @@ int app_main(uint32_t arg)
             int rt = scope_one ? trk : 0; Q.lead = (uint8_t)rt;          /* (3.3.7: its pattern's end is the change point) */
             if (Q.t[rt].next == SEQ_NONE) { chain_pos = (uint8_t)((chain_pos + 1u) % chain_n); seq_queue(&Q, scope_one ? trk : -1, chain[chain_pos]); }
         }
-        if (saving) {                                       /* a save: one flash operation at a time, never a wait */
+        if (saving && (store_erasing() || (uint32_t)(time_ticks() - t_half) < half_ticks - 1300u * lsb)) {   /* a save: one flash operation at a time, never a wait; (3.3.8) a page only with 1.3 ms left before the next half */
             crumb_at(W_SAVE);
             int r = store_step();
             if (r == 3) { if (ed_wr.on && ed_wr.kind == 0) ed_proj_pump(); else proj_feed(); }   /* (the flash idle, the window on: its next part) */
@@ -4542,6 +5078,7 @@ int app_main(uint32_t arg)
             else led_dwell();
             continue;
         }
+        if (overload_say) { overload_say = 0; say_bad("CPU OVERLOAD: VOICES CUT"); }   /* (the window on: 3.4.1) */
         slice_scan_poll();                                  /* (SLICE: a user slot just written, scanned a part at a time) */
         if (save_said) {
             /* (taken and cleared first: what follows may start the next flash job, its own kind set: 3.1.1, the
@@ -4555,17 +5092,24 @@ int app_main(uint32_t arg)
             }
             else if (said > 0) {                         /* (said each time, the autosave's too: the player sees it is kept) */
                 proj_used = 1; save_retry = 0;
-                if (saving_shown) say_imp("PROJECT SAVED"); else say("PROJECT SAVED (AUTO)");
+                if (saving_shown) { say_imp("PROJECT SAVED"); saved_kind = 1; t_saved = time_ticks(); } else say("PROJECT SAVED (AUTO)");
             }
             else if (said == -2 && save_retry < 3) {     /* (3.3.5) changed while it was written: written again, from now */
                 save_retry++; saved_crc = 0;
                 if (saving_shown) { save_soon = 1; t_save_soon = time_ticks() - 1000000u * lsb; say("SAVING AGAIN"); }
             }
-            else { saved_crc = 0; save_retry = 0; say_bad("SAVE FAILED"); }
+            else { saved_crc = 0; save_retry = 0; say_bad("SAVE FAILED"); saved_kind = 2; t_saved = time_ticks(); }
         }
         crumb_at(W_SCREEN);
         if (panel_step()) { led_dwell(); panel_dark(); ui_round(); }   /* (3.2: the frame's last column lit as long as the others) */
         else led_dwell();
         t_ui = time_ticks();
+        /* (3.3.8) stopped, nobody touching it for 2.5 s, no flash work: the next save's bank erased beforehand, a
+         * sector every 0.2 s, after the interface's round (it goes on answering between them); a save while it plays
+         * then writes pages only: no stutter */
+        { static uint32_t t_prep;
+          if (!saving && !Q.playing && !ft_on && !splash_on && cal_step < 0 && !safe_hold && !sbuf_held() && flash_xip_on() &&
+              (uint32_t)(time_ticks() - t_input) > 2500000u * lsb && (uint32_t)(time_ticks() - t_midi_play) > 2500000u * lsb &&
+              (uint32_t)(time_ticks() - t_prep) > 200000u * lsb) { t_prep = time_ticks(); store_proj_prep(); } }
     }
 }

@@ -141,10 +141,24 @@ static uint32_t flash_jedec_raw(void)
 }
 uint32_t flash_jedec(void) { int was = xip_off_now; xip_off(); uint32_t id = flash_jedec_raw(); if (!was) xip_on(); return id; }
 /* an erase or a write still running; once done, the window is given back */
+/* (3.4.1) an operation that never ends (a part that does not answer, a status read wrong) would keep the window off
+ * for ever: the interface stands still while the loop goes on (no restart by the watchdog: a freeze). Past 2 s (a
+ * 4 KB erase takes 0.05-0.4 s on these parts), the part is reset (66 99: what it was doing is dropped; the save's
+ * check then fails, and the older copy counts) and the window comes back */
+static uint32_t op_t0; static uint8_t op_on;
+uint32_t flash_stuck;
 int flash_busy(void)
 {
     if (!xip_off_now) return 0;
-    if (status(0x05) & 1u) return 1;
+    if (status(0x05) & 1u) {
+        if (!op_on) { op_on = 1; op_t0 = time_ticks(); }
+        if ((uint32_t)(time_ticks() - op_t0) < 2000000u * time_mhz()) return 1;
+        command(0x66); cs(1); command(0x99); cs(1);
+        for (volatile uint32_t n = 0; n < 20000u; n++) ;   /* (the reset's 30 us and more) */
+        (void)wait_ready(100);
+        flash_stuck++;
+    }
+    op_on = 0;
     xip_on();
     return 0;
 }
@@ -181,6 +195,7 @@ int flash_erase_start(uint32_t a)
     if (!capacity || (a & 4095u) || a >= capacity || flash_busy()) return -1;
     xip_off();                                                /* (off until flash_busy sees it done) */
     wren(); command(0x20); addr24(a); cs(1);
+    op_t0 = time_ticks(); op_on = 1;
     return 0;
 }
 int flash_program_start(uint32_t a, const void *src, uint32_t n)
@@ -191,6 +206,7 @@ int flash_program_start(uint32_t a, const void *src, uint32_t n)
     wren(); command(0x02); addr24(a);
     for (uint32_t i = 0; i < n; i++) xfer(p[i], 0);
     cs(1);
+    op_t0 = time_ticks(); op_on = 1;
     return 0;
 }
 

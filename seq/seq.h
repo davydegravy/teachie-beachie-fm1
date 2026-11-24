@@ -25,7 +25,7 @@
 #define SEQ_TPS 96                       /* ticks a step (a step = a 1/16 note) */
 #define SEQ_BAR (16 * SEQ_TPS)           /* ticks a bar (4/4) */
 #define SEQ_PATEV 128                    /* events a pattern */
-#define SEQ_UNDO 8                        /* (8 since 3.0B9: the room for the NOTES page) */
+#define SEQ_UNDO 3                        /* (8 since 3.0B9; 3 in 4.0: the room for each track's pattern as last saved, fw/main.c keep) */
 #define SEQ_HELD 10                      /* keys held at once while recording */
 #define SEQ_LOCKS 32                     /* parameter locks a pattern */
 #define SEQ_SONG 96                      /* song entries */
@@ -39,6 +39,8 @@ typedef struct { uint16_t tick, len; uint8_t note, vel, cond, ratchet; } seq_ev;
 #define SEQ_RAT(r) ((r) & 7 ? (r) & 7 : 1)
 #define SEQ_SLIDE 0x10                   /* the note goes on into the next one (a MONO / LEG sound glides there) */
 #define SEQ_ACCENT 0x20                  /* played hard: velocity 127, and louder still */
+#define SEQ_FREE 0x40                    /* (3.4.2, issue #28) played where it was written, QUANT or not: the arpeggiator's
+                                          * and the rolls' notes, recorded on their own grid (1/32 on 1/16 steps) */
 /* what note_on's vel carries above its 7 bits: the accent; the note a slide leads into (to glide) */
 #define SEQ_ON_ACC 0x100
 #define SEQ_ON_SLID 0x200
@@ -88,12 +90,16 @@ typedef struct seq {
     uint16_t song_n, song_len;           /* entries; bars (0: no song) */
     uint8_t song_rec, song_play;
     uint32_t song_start;                 /* the bar the song (or its recording) started on */
+    uint16_t song_from;                  /* (3.4.2, issue #27) the song's bar it starts from (a LINE's first) */
     uint8_t swing;                       /* every track's swing, 0 (straight) .. 100 (a pair played 75 / 25) */
     uint8_t batch, batch_done;           /* batch: the edits until it is cleared count as one undo */
+    uint8_t rec_free;                    /* (3.4.2) what seq_key records now is SEQ_FREE (the arp, a roll) */
     void (*note_on)(struct seq *, int trk, int note, int vel);
     void (*note_off)(struct seq *, int trk, int note);
     /* the locks of the step now playing on a track (n = 0: back to the sound's own values) */
     void (*locks)(struct seq *, int trk, const seq_lock *lk, int n);
+    /* (3.4.2) a track's pattern changed while playing, before the new pattern's first notes (its sound follows) */
+    void (*switched)(struct seq *, int trk);
     void *user;
 } seq_t;
 
@@ -107,7 +113,8 @@ void seq_advance_by(seq_t *s, uint64_t inc);            /* by inc (ticks << 16):
 uint32_t seq_bar(const seq_t *s);                        /* bars since PLAY */
 int seq_steps_per_bar(const seq_t *s, int trk);          /* the track's steps in a bar (its DIV), at least 1 */
 uint32_t seq_step_of(const seq_t *s, int trk);           /* the track's step now */
-uint32_t seq_local(const seq_t *s, int trk, uint32_t tick);   /* a tick of the sequencer as the track's own tick */
+uint32_t seq_local(const seq_t *s, int trk, uint32_t tick);
+uint32_t seq_loop_ticks(const seq_t *s);                 /* (4.0.9) the longest track's pattern, in the sequencer's ticks */   /* a tick of the sequencer as the track's own tick */
 void seq_set_div(seq_t *s, int trk, int div);            /* playing: the track goes on from where it is */
 void seq_set_gate(seq_t *s, int trk, int gate);
 /* patterns */
@@ -129,6 +136,9 @@ void seq_lock_set(seq_t *s, int trk, int step, int param, int value);   /* value
 int seq_lock_get(const seq_t *s, int trk, int step, int param);         /* -1: none */
 void seq_step_cond(seq_t *s, int trk, int step, int cond);
 void seq_step_ratchet(seq_t *s, int trk, int step, int n);
+int seq_hit_find(const seq_t *s, int trk, int step, int note);         /* (3.3.8) a sound of a step: its event, -1 */
+int seq_hit_get(const seq_t *s, int trk, int step, int note, int *vel, int *rat);   /* 0: not there */
+void seq_hit_set(seq_t *s, int trk, int step, int note, int vel, int rat);         /* -1: unchanged (undoable) */
 int seq_step_flags(const seq_t *s, int trk, int step);                 /* SEQ_SLIDE | SEQ_ACCENT of the step */
 void seq_step_flag(seq_t *s, int trk, int step, int flag, int on);     /* (undoable) */
 /* the NOTES page: the events one by one (the current pattern, in time order: an index into its ev[]) */
@@ -156,6 +166,7 @@ void seq_fill(seq_t *s, int on);
 void seq_fill_next_bar(seq_t *s);
 void seq_song_record(seq_t *s, int on);                  /* on: from the next bar; off: its length is the bars recorded */
 void seq_song_play(seq_t *s, int on);
+void seq_song_play_from(seq_t *s, int on, int line);   /* (3.4.2) from that entry (then round to the first) */
 uint32_t seq_song_bar(const seq_t *s);                   /* the song's bar now */
 /* the song by hand (SONG 2/2): an entry's bars (to the next), set (the later ones move), its pattern (trk < 0: every
  * track), how many entries (more: copies of the last, 4 bars each), the entry playing (-1 none) */

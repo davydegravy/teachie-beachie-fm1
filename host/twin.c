@@ -83,6 +83,14 @@ void twin_audio(const int32_t *lr, uint32_t frames)
         if (a > 1.01) tw_wild++;
     }
     if (tw_wav) { for (uint32_t i = 0; i < 2 * frames; i++) { int v = lr[i] >> 8; v = v > 32767 ? 32767 : v < -32768 ? -32768 : v; int16_t s = (int16_t)v; fwrite(&s, 2, 1, tw_wav); } tw_wav_n += frames; }
+    {   /* (3.4.1) the interface's pass (fw/main.c t_ui): 3 s without one while the sound goes on is what a player calls a
+         * freeze (the screen still, the buttons dead) */
+        static int said; uint32_t now = (uint32_t)(tw_ns * lsb / 1000u), lim = 3000000u * lsb;
+        if (t_ui && lsb && (uint32_t)(now - t_ui) > lim && !said && cal_step < 0) {
+            said = 1; tw_checks++; tw_fails++;
+            printf("[%8.3f] FAIL the interface stood still %.1f s (the sound going on): a freeze\n", tw_s(), (double)(uint32_t)(now - t_ui) / (lsb * 1e6));
+        }
+    }
     tw_safe_point();
 }
 static uint32_t tw_erases, tw_writes, tw_unerased;
@@ -211,13 +219,16 @@ static void check_project_roundtrip(const char *when)
     EXPECT(n > 0, "%s: the project did not make its bytes", when);
     if (n <= 0) return;
     seq_init(&tw_q2, rate_hz, 120.0f, &tw_h2); snd_init(&tw_s2, tw_fx2, 0);
-    project_extra x2; memset(&x2, 0, sizeof x2); x2.ps = &tw_ps2;
+    static seq_pat tw_keep2[NTRK];
+    project_extra x2; memset(&x2, 0, sizeof x2); x2.ps = &tw_ps2; x2.keep = tw_keep2;
     EXPECT(project_load(&tw_q2, &tw_s2, &x2, tw_pb, (uint32_t)n) == 0, "%s: the project's bytes do not load", when);
-    for (int t = 0; t < NTRK; t++) {                      /* (as load_project goes on: each pattern's sound, else the track's) */
-        int k = x2.preset16[t] & 0x7FFF;
+    for (int t = 0; t < NTRK; t++) {                      /* (as load_after goes on, 4.0: the current one's as saved, else the track's) */
+        int k = x2.preset16[t] & 0x7FFF, cur = tw_q2.t[t].cur;
         int po = x2.preset16[t] != 0xFFFF && preset_valid(k, tw_s2.trk[t].patch.engine) ? (x2.preset16[t] & 0x8000 ? -k - 2 : k) : -1;
-        for (int i = 0; i < SEQ_NPAT; i++) if (!((x2.ps_mask[t] >> i) & 1u)) ps_take(&tw_ps2, t, i, &tw_s2.trk[t].patch, tw_s2.trk[t].patch.p, po);
-        tw_ps2.cur[t] = tw_q2.t[t].cur;
+        if (!x2.pscur_got[t]) ps_take(&tw_ps2, t, cur, &tw_s2.trk[t].patch, tw_s2.trk[t].patch.p, po);
+        for (int i = 0; i < SEQ_NPAT; i++) if (i != cur && !((x2.ps_mask[t] >> i) & 1u)) ps_copy(&tw_ps2, t, cur, i);
+        tw_ps2.cur[t] = (uint8_t)cur;
+        if (!x2.keep_got[t]) tw_keep2[t] = tw_q2.t[t].pat[cur];
     }
     int n2 = project_save(&tw_q2, &tw_s2, &x2, tw_pb2, sizeof tw_pb2);
     if (n2 != n || memcmp(tw_pb, tw_pb2, (size_t)n)) {
@@ -243,10 +254,19 @@ static void digest(const char *name)
     fprintf(f, "\n");
     fclose(f);
 }
+/* (4.0.6, Sam) the project saved: SAVE on TRACKS, the SONG screen; SAVE again, PROJECT (its 3rd page); KNOB 1: SAVE */
+static void proj_save_keys(void)
+{
+    if (sticky != PG_PROJ) { if (sticky != PG_SONG2) { tap(B_SAVE); wait_ms(80); } tap(B_SAVE); wait_ms(80); }
+    turn(ENC_KNOB1, 1);
+}
 static void save_and_wait(void)
 {
-    uint32_t m = msg_mark(); tap(B_SAVE); wait_ms(80); tap(B_SAVE);
-    EXPECT(wait_msg(m, "SAVED", 4000), "SAVE twice: no PROJECT SAVED");
+    /* (4.0, as SLOOP 2.8.5: SAVE on TRACKS the SONG screen, SAVE there saves) */
+    if (vis_on) { tap(B_HOME); wait_ms(80); }
+    else if (sticky != PG_TRACKS && sticky != PG_SONG2) { tap(B_HOME); wait_ms(80); if (vis_on) { tap(B_HOME); wait_ms(80); } }
+    uint32_t m = msg_mark(); proj_save_keys();
+    EXPECT(wait_msg(m, "SAVED", 4000), "SAVE > PROJECT > SAVE: no PROJECT SAVED");
     wait_saved(4000); wait_ms(300);
 }
 
@@ -271,8 +291,8 @@ static void sc_boot(void)                     /* a blank FM-1: it starts, it pla
     shot("playing");
     tap(B_PLAY); wait_ms(800);
     EXPECT(!Q.playing, "PLAY again did not stop");
-    tap(B_SAVE); wait_ms(80); tap(B_SAVE);                  /* SAVE twice quickly: the project written */
-    EXPECT(wait_msg(m, "SAVED", 3000), "SAVE twice: no PROJECT SAVED");
+    proj_save_keys();                                     /* SAVE, SAVE, KNOB 1: the project written */
+    EXPECT(wait_msg(m, "SAVED", 3000), "SAVE > PROJECT: no PROJECT SAVED");
     wait_saved(2000);
     check_project_roundtrip("after the save");
 }
@@ -298,9 +318,14 @@ static void sc_pages(void)                    /* every button's pages, each draw
         }
         tap(B_HOME); wait_ms(200);
     }
-    hold(B_HOME, 900); shot("home-held");
-    press(B_HOME); wait_ms(400); tap(B_SEL); wait_ms(300); shot("home-menu"); release(B_HOME); wait_ms(300);
+    hold(B_HOME, 900); shot("home-held");                 /* (3.3.8: the menu, open) */
+    turn(ENC_SELECT, 1); wait_ms(300); shot("home-menu"); tap(B_HOME); wait_ms(300);
     for (int t = 0; t < 5; t++) { turn(ENC_ALGORITHM, 1); wait_ms(100); }
+    EXPECT(POS[trk] == NTRK - 1, "ALGORITHM: not stopped on the last track (shown %d)", POS[trk] + 1);   /* (3.3.8: it no longer goes round) */
+    turn(ENC_ALGORITHM, 1); wait_ms(100);
+    EXPECT(POS[trk] == NTRK - 1, "ALGORITHM went round past the last track (shown %d)", POS[trk] + 1);
+    for (int t = 0; t < 6; t++) { turn(ENC_ALGORITHM, -1); wait_ms(100); }
+    EXPECT(POS[trk] == 0, "ALGORITHM: not stopped on the first track (shown %d)", POS[trk] + 1);
     for (int p = 0; p < 20; p++) turn(ENC_PRESETS, 1);
     shot("presets");
     check_project_roundtrip("after the pages");
@@ -328,6 +353,21 @@ static void sc_record(void)                   /* REC: notes played go in; SEQ st
         press(B_EDIT); tap(B_OCTD); release(B_EDIT); wait_ms(300);   /* (the take undone) */
         EXPECT(seq_count(&Q, trk) == n0, "the chord's take not undone (%d)", seq_count(&Q, trk));
         tap(B_PLAY); wait_ms(500);
+    }
+    /* 3.3.7, issue #3: SEQ held on the drums, KNOB 1 turns the sound shown: a step is written with that one (it was
+     * written with the last pad played) */
+    {
+        int t0 = trk; trk = 3;
+        tapkey(0); wait_ms(200);
+        int played = last_chord[3][0], want = (played + 1) % 16, st = -1;
+        for (int w = 0; w < 16 && st < 0; w++) if (!seq_step_has(&Q, 3, w, -1)) st = w;
+        press(B_SEQ); wait_ms(300);
+        turn(ENC_KNOB1, 1); wait_ms(200);
+        tapkey(white_key[st]); wait_ms(200);
+        release(B_SEQ); wait_ms(300);
+        EXPECT(st >= 0 && seq_step_has(&Q, 3, st, want) && !seq_step_has(&Q, 3, st, played), "SEQ held, KNOB 1 to sound %d (played %d): step %d has %d / %d", want, played, st + 1, seq_step_has(&Q, 3, st, want), seq_step_has(&Q, 3, st, played));
+        press(B_EDIT); tap(B_OCTD); release(B_EDIT); wait_ms(300);
+        trk = t0;
     }
     tap(B_PLAY); wait_ms(500);
     tap(B_REC); wait_ms(300);
@@ -381,15 +421,15 @@ static void sc_record(void)                   /* REC: notes played go in; SEQ st
         tap(B_GLO); wait_ms(150);
         { float bpm0 = Q.bpm; EXPECT(sticky == PG_GLOBAL, "GLO: not GLOBAL (%d)", sticky);
           turn(ENC_SELECT, 1); wait_ms(150);
-          EXPECT(sticky == PG_TEX1 && Q.bpm == bpm0, "GLOBAL: SELECT changed the tempo or not the page (page %d, %.1f -> %.1f)", sticky, bpm0, Q.bpm);
-          turn(ENC_SELECT, 4); wait_ms(150);
-          EXPECT(sticky == PG_GREC && Q.bpm == bpm0, "SELECT: not on to REC 6/6 (%d)", sticky);
-          turn(ENC_SELECT, -5); wait_ms(150);
+          EXPECT(sticky == PG_MASTER && Q.bpm == bpm0, "GLOBAL: SELECT changed the tempo or not the page (page %d, %.1f -> %.1f)", sticky, bpm0, Q.bpm);   /* (4.0: GLOBAL MASTER SYSTEM DRUMS TEXTURE 1-2 MIDI 1-2 REC) */
+          turn(ENC_SELECT, 7); wait_ms(150);
+          EXPECT(sticky == PG_GREC && Q.bpm == bpm0, "SELECT: not on to REC 9/9 (%d)", sticky);
+          turn(ENC_SELECT, -8); wait_ms(150);
           EXPECT(sticky == PG_GLOBAL, "SELECT: not back to GLOBAL (%d)", sticky);
           turn(ENC_KNOB1, 2); wait_ms(150);
           EXPECT(Q.bpm != bpm0, "GLOBAL: KNOB 1 not the tempo"); turn(ENC_KNOB1, -2); wait_ms(150); }
         tap(B_HOME); wait_ms(200);
-        for (int i = 0; i < 6 && sticky != PG_GREC; i++) { tap(B_GLO); wait_ms(150); }
+        for (int i = 0; i < 10 && sticky != PG_GREC; i++) { tap(B_GLO); wait_ms(150); }
         EXPECT(sticky == PG_GREC, "GLO: no REC 6/6 page (%d)", sticky);
         shot("glo-rec");
         turn(ENC_KNOB1, 1); wait_ms(200);
@@ -403,7 +443,7 @@ static void sc_record(void)                   /* REC: notes played go in; SEQ st
         EXPECT(trk == t0, "back on the track (%d)", trk);
     }
     check_project_roundtrip("after recording");
-    uint32_t m = msg_mark(); tap(B_SAVE); wait_ms(80); tap(B_SAVE);
+    uint32_t m = msg_mark(); proj_save_keys();
     EXPECT(wait_msg(m, "SAVED", 3000), "no PROJECT SAVED");
     wait_saved(3000);
 }
@@ -411,7 +451,7 @@ static void sc_powercut(void)                 /* the power cut during a save: th
 {
     boot_wait();
     tap(B_PLAY); wait_ms(300); tap(B_REC); for (int i = 0; i < 6; i++) tapkey(3 + i); tap(B_REC); tap(B_PLAY);
-    tap(B_SAVE); wait_ms(80); press(B_SAVE); wait_ms(40); release(B_SAVE);
+    proj_save_keys();
     for (int i = 0; i < 400 && !saving; i++) wait_ms(1);
     uint64_t t0 = tw_ns;
     double at = (double)(tw_rnd() % 9000) / 10.0;          /* somewhere in the save (3.3.5: ~0.7 s: 13 erases, the pages, the reading back) */
@@ -443,6 +483,7 @@ static void fill_max(void)
     Q.song_n = SEQ_SONG; Q.song_len = 8u * SEQ_SONG;
     for (int i = 0; i < SEQ_SONG; i++) { Q.song[i].bar = (uint16_t)(i * 8); Q.song[i].mute = (uint8_t)(tw_rnd() & 31u); for (int t = 0; t < SEQ_NTRK; t++) Q.song[i].pat[t] = (uint8_t)(tw_rnd() % SEQ_NPAT); }
     if (Q.hist) Q.hist->n_undo = Q.hist->n_redo = 0;
+    for (int t = 0; t < NTRK; t++) commit_trk(t);         /* (4.0: as it is now, saved: what a save writes) */
 }
 static void sc_bigproj(void)
 {
@@ -462,7 +503,7 @@ static void sc_bigproj(void)
     check_project_roundtrip("the fullest project");
     /* changed while it is being written: written again, from what it is then */
     fill_max(); uint32_t c3, n3 = proj_measure(&c3);
-    m = msg_mark(); save_project(1); wait_ms(300);
+    m = msg_mark(); save_project(1); for (int i = 0; i < 300 && !store_proj_given(); i++) wait_ms(1);   /* (3.4.0: no erase first, the writing starts at once) */
     Q.t[2].pat[5].ev[7].vel ^= 1u; uint32_t c4, n4 = proj_measure(&c4);
     EXPECT(wait_msg(m, "SAVING AGAIN", 20000), "changed during its save: not written again");
     EXPECT(wait_msg(m, "PROJECT SAVED", 30000), "changed during its save: no PROJECT SAVED after");
@@ -577,6 +618,7 @@ static void sc_sample(void)                   /* an editor sends a sample while 
     EXPECT(nz == 1, "the slot was not taken (%d)", nz);
     EXPECT(smp_user_nz(1) == 1, "USR2 empty after the editor's sample");
     const uint8_t *w = (const uint8_t *)(FLASH_WIN + 0xB4000u - 0x4000u);
+    for (int i = 0; i < 200 && !flash_xip_on(); i++) wait_ms(1);   /* (3.3.8: idle, the next save's bank may be erasing) */
     EXPECT(!memcmp(w + 512, tw_slot + 512, len), "the slot's data in the flash is not what was sent");
     /* played: SAMPLE on USR2 */
     trk = 0; gb_patch *p = &S.trk[0].patch; gb_patch_default(p, ENG_SAMPLE); gb_patch_set(p, SP_E0, smp_nsets() + 1); base_from_sound();
@@ -706,7 +748,7 @@ static void sc_import(void)
 /* MIDI from a computer: notes in, the clock (SYNC EXT), program changes, the notes the sequencer sends out */
 static void midi_send(uint8_t a, uint8_t b, uint8_t c)
 {
-    uint8_t m[3] = { a, b, c }, pk[4]; int n = a >= 0xF8 ? 1 : (a & 0xF0) == 0xC0 ? 2 : 3;
+    uint8_t m[3] = { a, b, c }, pk[4]; int n = a >= 0xF8 ? 1 : (a & 0xF0) == 0xC0 || (a & 0xF0) == 0xD0 ? 2 : 3;
     midi_usb_packet(m, n, pk); tw_usb_put_in(pk);
 }
 static uint32_t out_count(uint8_t status_hi, int drain)
@@ -720,12 +762,24 @@ static void sc_midi(void)
     boot_wait();
     out_count(0, 1);
     /* notes in on each channel: synths 1..4, drums 10 */
-    static const int CH[5] = { 0, 1, 2, 9, 3 };
-    for (int i = 0; i < 5; i++) {
-        midi_send((uint8_t)(0x90 | CH[i]), 48, 100); double pk = peak_over(300); midi_send((uint8_t)(0x80 | CH[i]), 48, 0); wait_ms(400);
-        printf("[%8.3f]    MIDI note on channel %d: peak %.3f\n", tw_s(), CH[i] + 1, pk);
+    /* (4.0.8, Sam: MIDI with the 5th track) channels 1-4: the synths shown 1-4 (tracks 0 1 2 4), 5 and 10: the drums
+     * (track 3); each note heard, and on the right track */
+    static const int CH[6] = { 0, 1, 2, 3, 4, 9 }, TK[6] = { 0, 1, 2, 4, 3, 3 };
+    for (int i = 0; i < 6; i++) {
+        midi_send((uint8_t)(0x90 | CH[i]), 48, 100); wait_ms(60);
+        int on = -1; for (int v = 0; v < GB_NVOICE; v++) if (S.v[v].state != V_FREE) on = S.v[v].track;
+        double pk = peak_over(300); midi_send((uint8_t)(0x80 | CH[i]), 48, 0); wait_ms(400);
+        printf("[%8.3f]    MIDI note on channel %d: track %d, peak %.3f\n", tw_s(), CH[i] + 1, on, pk);
         EXPECT(pk > 0.002, "a note on channel %d not heard (%.4f)", CH[i] + 1, pk);
+        EXPECT(on == TK[i], "a note on channel %d played track %d, not %d", CH[i] + 1, on, TK[i]);
     }
+    /* out: each track on its channel (KEYS: what the keys play): synth 4 (track 4) on 4, the drums on 10 */
+    MC.out = MIDI_OUT_KEYS;
+    { static uint8_t pk[4096][4]; tw_usb_take_out(pk, 4096);
+      for (int t = 0; t < NTRK; t++) { trk = t; wait_ms(100); tapkey(white_key[4]); wait_ms(150);
+        uint32_t n = tw_usb_take_out(pk, 4096); int ch = -1; for (uint32_t i = 0; i < n; i++) if ((pk[i][1] & 0xF0) == 0x90 && pk[i][3]) ch = pk[i][1] & 15;
+        EXPECT(ch == midi_ch_of_track(t) && ch == (t == 3 ? 9 : t == 4 ? 3 : t), "track %d's keys out on channel %d, not %d", t, ch + 1, midi_ch_of_track(t) + 1); }
+      trk = 0; }
     EXPECT(snd_voices(&S) == 0 || 1, "");
     wait_ms(1500);
     EXPECT(snd_voices(&S) == 0, "notes left on after their note-offs (%d voices)", snd_voices(&S));
@@ -757,6 +811,76 @@ static void sc_midi(void)
     midi_send(0xB0, 123, 0); for (int c = 0; c < 16; c++) midi_send((uint8_t)(0xB0 | c), 123, 0);
     wait_ms(3000);
     check_project_roundtrip("after MIDI");
+}
+/* (3.4.2, Sam: "confirm every track works with MIDI, and the rest of the MIDI system, before publishing") on each of the
+ * 5 tracks' channels: CC 7 and CC 11 the level, CC 10 the pan, the sends, the bend, the sustain pedal, a program change
+ * (the drums: a kit); MIDI LEARN of CC 1 and CC 11 and the keys' pressure; the sequencer's notes out on each track's
+ * channel; REMOTE (PLAY) and the FX channel (a punch-in) */
+static void sc_midi2(void)
+{
+    boot_wait(); wait_ms(500);
+    static const int CH[5] = { 0, 1, 2, 3, 9 }, TK[5] = { 0, 1, 2, 4, 3 };
+    for (int i = 0; i < 5; i++) {
+        int c = CH[i], t = TK[i]; gb_track *k = &S.trk[t];
+        midi_send((uint8_t)(0xB0 | c), 7, 20); wait_ms(150); float l7 = k->level.tgt;
+        midi_send((uint8_t)(0xB0 | c), 11, 100); wait_ms(150); float l11 = k->level.tgt;
+        midi_send((uint8_t)(0xB0 | c), 10, 0); wait_ms(100); float pan = k->pan.tgt;
+        midi_send((uint8_t)(0xB0 | c), 91, 127); midi_send((uint8_t)(0xB0 | c), 94, 64); wait_ms(100); float rev = k->send_rev.tgt, dly = k->send_dly.tgt;
+        midi_send((uint8_t)(0xB0 | c), 10, 64); midi_send((uint8_t)(0xB0 | c), 91, 0); midi_send((uint8_t)(0xB0 | c), 94, 0); midi_send((uint8_t)(0xB0 | c), 7, 57);
+        int pb = 1; if (!is_drum(t)) { midi_send((uint8_t)(0xE0 | c), 0, 127); wait_ms(80); pb = k->bend > 1.5f; midi_send((uint8_t)(0xE0 | c), 0, 64); wait_ms(80); pb = pb && fabsf(k->bend) < 0.01f; }
+        /* the sustain pedal: a note let go keeps sounding until the pedal is up */
+        midi_send((uint8_t)(0xB0 | c), 64, 127); midi_send((uint8_t)(0x90 | c), 50, 100); wait_ms(100); midi_send((uint8_t)(0x80 | c), 50, 0); wait_ms(300);
+        int held = 0; for (int v = 0; v < GB_NVOICE; v++) if (S.v[v].state == V_ON && S.v[v].track == t) held = 1;
+        midi_send((uint8_t)(0xB0 | c), 64, 0); wait_ms(300);
+        int still = 0; for (int v = 0; v < GB_NVOICE; v++) if (S.v[v].state == V_ON && S.v[v].track == t) still = 1;
+        /* a program change: the synths a sound, the drums a kit */
+        int p0 = preset_of[t], k0 = (int)(k->patch.p[SP_E0] * 255.0f + 0.5f);
+        midi_send((uint8_t)(0xC0 | c), 3, 0); wait_ms(200);
+        int pc = is_drum(t) ? (int)(k->patch.p[SP_E0] * 255.0f + 0.5f) != k0 || k0 == 3 : preset_of[t] != p0;
+        printf("[%8.3f]    channel %2d, track %d: CC7 %.2f, CC11 %.2f, pan %.2f, sends %.2f %.2f, bend %d, sustain %d/%d, program %d\n", tw_s(), c + 1, t + 1, l7, l11, pan, rev, dly, pb, held, !still, pc);
+        EXPECT(fabsf(l7 - 20 / 127.0f) < 0.01f && fabsf(l11 - 100 / 127.0f) < 0.01f, "channel %d: CC 7 / CC 11 not the level (%.2f %.2f)", c + 1, l7, l11);
+        EXPECT(pan < 0.01f && rev > 0.99f && fabsf(dly - 64 / 127.0f) < 0.01f, "channel %d: pan or sends not set", c + 1);
+        EXPECT(pb, "channel %d: the bend not followed", c + 1);
+        if (!is_drum(t)) EXPECT(held && !still, "channel %d: the sustain pedal (held %d, ended %d)", c + 1, held, !still);
+        EXPECT(pc, "channel %d: a program change did nothing", c + 1);
+    }
+    wait_ms(1500);
+    EXPECT(snd_voices(&S) == 0, "notes left on (%d voices)", snd_voices(&S));
+    /* CC 1 by itself: the vibrato of the track; the keys' pressure the same */
+    { gb_track *k = &S.trk[1]; midi_send(0xB1, 1, 0); wait_ms(100); float a = k->patch.p[SP_LPIT];
+      midi_send(0xB1, 1, 100); wait_ms(100); float b = k->patch.p[SP_LPIT];
+      midi_send(0xD1, 30, 0); wait_ms(100); float c = k->patch.p[SP_LPIT];
+      printf("[%8.3f]    CC 1: vibrato %.2f -> %.2f, the pressure -> %.2f\n", tw_s(), a, b, c);
+      EXPECT(a < 0.01f && fabsf(b - 100 / 127.0f) < 0.01f && fabsf(c - 30 / 127.0f) < 0.01f, "CC 1 or the pressure not the vibrato");
+      midi_send(0xB1, 1, 0); }
+    /* MIDI LEARN: CC 1 to track 3's level, CC 11 to track 1's reverb send; then the pressure plays CC 1's part */
+    ml_on = 1; ml_pick = 1; ml_trk = 2; ml_code = ML_LEVEL; midi_send(0xB0, 1, 10); wait_ms(150);
+    ml_pick = 1; ml_trk = 0; ml_code = ML_REV; midi_send(0xB0, 11, 10); wait_ms(150); ml_on = 0;
+    int l1 = 0, l11 = 0; for (int i = 0; i < ML_N; i++) { if ((ml_tab[i] & 127) == 1 && ((ml_tab[i] >> 7) & 7) == 2) l1 = 1; if ((ml_tab[i] & 127) == 11 && (ml_tab[i] >> 10) == ML_REV) l11 = 1; }
+    midi_send(0xB5, 1, 90); midi_send(0xB7, 11, 70); wait_ms(150);
+    float lv = S.trk[2].level.tgt, rv = S.trk[0].send_rev.tgt;
+    midi_send(0xD0, 33, 0); wait_ms(150); float lp = S.trk[2].level.tgt;
+    printf("[%8.3f]    learnt: CC 1 %d, CC 11 %d; track 3 level %.2f, track 1 reverb %.2f, the pressure -> %.2f\n", tw_s(), l1, l11, lv, rv, lp);
+    EXPECT(l1 && l11, "CC 1 or CC 11 not learnt");
+    EXPECT(fabsf(lv - 90 / 127.0f) < 0.01f && fabsf(rv - 70 / 127.0f) < 0.01f && fabsf(lp - 33 / 127.0f) < 0.01f, "the learnt CCs, or the pressure, did nothing");
+    for (int i = 0; i < ML_N; i++) ml_tab[i] = 0;
+    /* the sequencer's notes out: each track on its own channel */
+    { static uint8_t pk[4096][4]; for (int t = 0; t < NTRK; t++) { Q.t[t].pat[Q.t[t].cur].n = 0; seq_step_toggle(&Q, t, 0, is_drum(t) ? 0 : 48, 100); seq_step_toggle(&Q, t, 8, is_drum(t) ? 2 : 55, 100); }
+      MC.out = MIDI_OUT_SEQ; tw_usb_take_out(pk, 4096); tap(B_PLAY); wait_ms(2500); tap(B_PLAY); wait_ms(300);
+      uint32_t n = tw_usb_take_out(pk, 4096); int seen[16] = { 0 };
+      for (uint32_t i = 0; i < n; i++) if ((pk[i][1] & 0xF0) == 0x90 && pk[i][3]) seen[pk[i][1] & 15]++;
+      printf("[%8.3f]    notes out by channel: 1:%d 2:%d 3:%d 4:%d 10:%d\n", tw_s(), seen[0], seen[1], seen[2], seen[3], seen[9]);
+      for (int i = 0; i < 5; i++) EXPECT(seen[CH[i]] > 0, "the sequencer sent nothing on channel %d", CH[i] + 1); }
+    /* REMOTE (channel 16): CC 112 is PLAY; the FX channel (15): a note holds its punch-in */
+    m_rmch = 16; m_fxch = 15;
+    midi_send(0xBF, 112, 127); wait_ms(100); midi_send(0xBF, 112, 0); wait_ms(400); int rp = Q.playing;
+    midi_send(0xBF, 112, 127); wait_ms(100); midi_send(0xBF, 112, 0); wait_ms(300);
+    midi_send(0x9E, 53, 100); wait_ms(300); int fx = mfx_key >= 0; midi_send(0x8E, 53, 0); wait_ms(200);
+    printf("[%8.3f]    REMOTE PLAY %d, then %d; FX channel punch-in %d, then %d\n", tw_s(), rp, Q.playing, fx, mfx_key);
+    EXPECT(rp && !Q.playing, "REMOTE: CC 112 is not PLAY");
+    EXPECT(fx && mfx_key < 0, "the FX channel: no punch-in");
+    m_rmch = 0; m_fxch = 0; MC.out = MIDI_OUT_KEYS;
+    check_project_roundtrip("after MIDI 2");
 }
 /* OCT- held at power-on: RESCUE, then PLAY: an empty project, the projects kept */
 static void sc_rescue(void)
@@ -810,16 +934,28 @@ static void sc_calib(void)
 static void sc_settings(void)
 {
     boot_wait();
-    press(B_HOME); wait_ms(500); tap(B_SEL); wait_ms(300);
-    for (int pg = 0; pg < 4; pg++) { for (int e = ENC_KNOB1; e <= ENC_KNOB4; e++) turn(e, 1); char nm[32]; snprintf(nm, sizeof nm, "settings-%d", pg + 1); shot(nm); tap(B_SEL); wait_ms(200); }
-    release(B_HOME); wait_ms(500);
-    /* a sound of yours: track 1's into place 3 (EDIT 5/6: KNOB 1 the place, KNOB 3 SAVE) */
-    for (int i = 0; i < 5; i++) tap(B_EDIT);
-    wait_ms(300); shot("user-sounds");
-    turn(ENC_KNOB1, 2); turn(ENC_KNOB3, 1); wait_ms(1500);
+    /* (3.3.8, as SLOOP 2.8.5) HOME tapped: no menu, no flash of it; HOME + SELECT: the menu, open when let go */
+    { int flash = 0; press(B_HOME); for (int i = 0; i < 25; i++) { wait_ms(10); flash += V.page != UI_TRACKS && V.page != UI_VIS && sticky == PG_TRACKS; } release(B_HOME); wait_ms(300);
+      EXPECT(!menu_on && !flash, "HOME tapped: the menu (%d) or a flash of it (%d frames)", menu_on, flash); if (vis_on) { tap(B_HOME); wait_ms(200); } }
+    press(B_HOME); wait_ms(150); turn(ENC_SELECT, 1); wait_ms(100); release(B_HOME); wait_ms(300);
+    EXPECT(menu_on && home_sec == 2, "HOME + SELECT, let go: the menu not open on LIGHTS (open %d, section %d)", menu_on, home_sec);
+    tap(B_HOME); wait_ms(300);
+    EXPECT(!menu_on, "HOME: the menu not closed");
+    hold(B_HOME, 900);
+    EXPECT(menu_on, "HOME held 0.9 s: no menu");
+    turn(ENC_SELECT, -6); wait_ms(100);                 /* (4.0: SCREEN LIGHTS AUDIO SEQ SYSTEM, as SLOOP 2.8.5) */
+    for (int pg = 0; pg < 5; pg++) { for (int e = ENC_KNOB1; e <= (pg >= 3 ? ENC_KNOB1 : ENC_KNOB4); e++) turn(e, 1); char nm[32];   /* (SYSTEM: not CALIBRATION, LEARN) */ snprintf(nm, sizeof nm, "settings-%d", pg + 1); shot(nm); turn(ENC_SELECT, 1); wait_ms(200); }
+    tap(B_HOME); wait_ms(300);                          /* (3.3.8: HOME closes it) */
+    EXPECT(!menu_on, "HOME: the menu not closed");
+    /* a sound of yours: track 1's into place 3 (4.0, as SLOOP 2.8.5: SAVE > USER, KNOB 1 the place, KNOB 4 SAVE) */
+    tap(B_EDIT); wait_ms(150); tap(B_SAVE); wait_ms(150);
+    EXPECT(sticky == PG_PRESETS, "SAVE tapped on a page: not SAVE > PRESETS (%d)", sticky);
+    tap(B_SAVE); wait_ms(300); shot("user-sounds");
+    EXPECT(sticky == PG_USER, "SAVE again: not USER (%d)", sticky);
+    turn(ENC_KNOB1, 2); turn(ENC_KNOB4, 1); wait_ms(1500);
     printf("[%8.3f]    your sounds: place 3 %s (%s)\n", tw_s(), us_used(2) ? "used" : "empty", us_name(2));
     EXPECT(us_used(2), "USER SOUNDS: SAVE did not keep the sound in place 3");
-    tap(B_EDIT); wait_ms(300); shot("favs");
+    turn(ENC_SELECT, -1); wait_ms(300); shot("favs");   /* (SAVE > PRESETS: KNOB 4 FAV) */
     turn(ENC_KNOB4, 1); wait_ms(2500); wait_saved(4000);  /* FAV: the track's sound a favourite (kept a moment later) */
     EXPECT(us_fav[0] == US_BASE + 2, "FAV did not add the track's sound (%d)", us_fav[0]);
     tap(B_HOME); wait_ms(300);
@@ -836,7 +972,7 @@ static void sc_play(void)
         int np = preset_named(SL[i]); EXPECT(np >= 0, "no preset %s", SL[i]); if (np < 0) continue;
         apply_preset(0, np); wait_ms(200);
         int quiet = 0;
-        for (int k = 0; k < 16; k++) { keydown(k); double pk = peak_over(120); keyup(k); wait_ms(40); if (pk < 0.002) quiet++; }
+        for (int k = 0; k < 16; k++) { keydown(k); double pk = peak_over(120); keyup(k); wait_ms(40); if (pk < 0.001) quiet++; }   /* (3.4.0: the DAC 6 dB lower, the threshold too) */
         printf("[%8.3f]    %s: %d of 16 keys silent\n", tw_s(), SL[i], quiet);
         EXPECT(quiet <= 2, "%s: %d keys silent", SL[i], quiet);
         char nm[32]; snprintf(nm, sizeof nm, "slice-%d", i + 1); shot(nm);
@@ -976,7 +1112,7 @@ static void sc_vis(void)
     printf("[%8.3f]    the sound's cost, visualiser off / on: %.0f / %.0f us a half\n", tw_s(), c0 / 20e3, c1 / 20e3);
     EXPECT(c1 < c0 * 1.6 + 2e5, "the visualiser costs the sound: %.0f -> %.0f", c0, c1);   /* (3.3.6: 1.25 -> 1.6: a 2-CPU PC, the drawing on the other, slows the sound's thread by 1.3-1.4; the visualiser's work in the sound would be several times) */
     /* a layer held shows its screen, then the visualiser again */
-    press(B_GLO); wait_ms(700); EXPECT(V.page != UI_VIS, "GLO held: the visualiser stayed"); release(B_GLO); wait_ms(300);
+    press(B_GLO); wait_ms(1100); EXPECT(V.page != UI_VIS, "GLO held: the visualiser stayed"); release(B_GLO); wait_ms(300);   /* (3.3.8: a tap up to 1 s, as SLOOP 2.8.5) */
     EXPECT(V.page == UI_VIS, "GLO let go: the visualiser did not come back");
     /* a save while it shows: the project written whole (sbuf lent back) */
     m = msg_mark(); save_project(1);                     /* (as the autosave: SAVE tapped is a page, it closes the visualiser) */
@@ -995,17 +1131,17 @@ static void sc_vis(void)
     EXPECT(!vis_on && V.page == UI_TRACKS, "HOME again: the visualiser stayed");
     turn(ENC_SELECT, 2); wait_ms(100);
     tap(B_PLAY); wait_ms(300);
-    m = msg_mark(); tap(B_SAVE); wait_ms(80); tap(B_SAVE); EXPECT(wait_msg(m, "SAVED", 4000), "no save"); wait_saved(3000);
+    m = msg_mark(); proj_save_keys(); EXPECT(wait_msg(m, "SAVED", 4000), "no save"); wait_saved(3000); tap(B_HOME); wait_ms(200);
     printf("[%8.3f]    style kept: %d\n", tw_s(), vis_style);
     /* 3.3.6: six styles; a style kept by 3.0-3.3.5 (twelve) finds its place, the six taken out the oscilloscope */
     EXPECT(VIS_N == 6 && !strcmp(vis_name[vis_from12[0]], "OSCILLOSCOPE") && !strcmp(vis_name[vis_from12[1]], "SPECTRUM") && !strcmp(vis_name[vis_from12[4]], "VU METERS") &&
            !strcmp(vis_name[vis_from12[7]], "LCD") && !strcmp(vis_name[vis_from12[10]], "WIRES") && !strcmp(vis_name[vis_from12[11]], "SLOOP") && vis_from12[2] == 0 && vis_from12[9] == 0,
            "the twelve styles' places among the six");
     /* SAVE on the SONG pages (3.1.6): tapped, the song saved and the page kept, as SLOOP 2.8.5's SONG screen */
-    tap(B_SAVE); wait_ms(700); EXPECT(sticky == PG_SONG, "SAVE tapped: not the SONG page");
-    m = msg_mark(); tap(B_SAVE); EXPECT(wait_msg(m, "SAVED", 4000) && sticky == PG_SONG, "SAVE on SONG: not saved there (page %d)", sticky); wait_saved(3000);
-    turn(ENC_SELECT, 1); wait_ms(200); EXPECT(sticky == PG_SONG2, "SELECT on SONG: not SONG 2/2");
-    m = msg_mark(); tap(B_SAVE); EXPECT(wait_msg(m, "SAVED", 4000) && sticky == PG_SONG2, "SAVE on SONG 2/2: not saved there"); wait_saved(3000);
+    /* (4.0, as SLOOP 2.8.5) SAVE tapped on TRACKS: the SONG screen; SAVE on it: saved, the screen kept */
+    tap(B_SAVE); wait_ms(700); EXPECT(sticky == PG_SONG2, "SAVE tapped: not the SONG screen (%d)", sticky);
+    tap(B_SAVE); wait_ms(300); EXPECT(sticky == PG_PROJ, "SAVE on SONG: not PROJECT (page %d)", sticky);   /* (4.0.6) */
+    m = msg_mark(); turn(ENC_KNOB1, 1); EXPECT(wait_msg(m, "SAVED", 4000) && sticky == PG_PROJ, "PROJECT > SAVE: not saved (page %d)", sticky); wait_saved(3000);
     tap(B_HOME); wait_ms(300); EXPECT(sticky == PG_TRACKS && !vis_on, "HOME from the SONG pages: not TRACKS");
 }
 /* serve: the twin as an FM-1 on stdin / stdout for the web editor in a browser (tests/editor_e2e.js): each line
@@ -1143,6 +1279,13 @@ static void sc_punch(void)
 {
     boot_wait();
     tap(B_PLAY); wait_ms(800);
+    {   /* (3.4.2, issue #18) FX let go before the key: the punch-in goes on until the key is let go, as 2.8.5 */
+        int k = key_of_punch(PK_ECHO);
+        press(B_FX); wait_ms(100); keydown(k); wait_ms(300); release(B_FX); wait_ms(300);
+        EXPECT(punch_key == k, "FX let go, the key held: the punch-in stopped");
+        keyup(k); wait_ms(200);
+        EXPECT(punch_key < 0, "the key let go: the punch-in goes on");
+    }
     static const int CH[][4] = { { PK_GATE, PK_ECHO, PK_LOOP16, PK_LOOP32 }, { PK_ECHO, PK_LOOP8, PK_REVERSE, PK_GATE },
                                  { PK_LOOP16, PK_TAPESTOP, PK_ECHO, PK_FREEZE }, { PK_REWIND, PK_ECHO, PK_HALF, PK_GATE },
                                  { PK_STUTTER, PK_FLANGER, PK_ECHO, PK_LOOP4 }, { PK_ECHO, PK_ECHO, PK_LOOP16, PK_ECHO } };
@@ -1278,6 +1421,252 @@ static void note(int t, int step, int n, int vel, int len16)
     seq_step_toggle(&Q, t, step, n, vel);
     seq_pat *pt = &Q.t[t].pat[Q.t[t].cur];
     for (int i = 0; i < pt->n; i++) if (pt->ev[i].tick == (uint32_t)(step * SEQ_TPS) && pt->ev[i].note == n) pt->ev[i].len = (uint16_t)(len16 * SEQ_TPS - 2);
+}
+/* (4.0.4, Sam) SAVE > PROJECT, the 3rd SAVE page: SAVE (KNOB 4) writes the project; NEW (KNOB 2) asks, then does it */
+static void sc_saveproj(void)
+{
+    boot_wait(); wait_ms(800);
+    tap(B_SAVE); wait_ms(200); EXPECT(sticky == PG_SONG2, "SAVE on TRACKS: not SONG (%d)", sticky);
+    tap(B_SAVE); wait_ms(200); EXPECT(sticky == PG_PROJ, "SAVE again: not PROJECT (%d)", sticky); shot("project");
+    turn(ENC_KNOB1, 1); for (int i = 0; i < 400 && !(proj_used && !saving); i++) wait_ms(10); wait_ms(300);
+    EXPECT(proj_used && !saving, "PROJECT > SAVE: nothing saved (used %d, saving %d)", proj_used, saving);
+    tempo(130.0f); wait_ms(100);
+    turn(ENC_KNOB2, 1); wait_ms(200); EXPECT(Q.bpm > 125.0f, "PROJECT > NEW: done at the first turn");
+    wait_ms(500); turn(ENC_KNOB2, 1); wait_ms(400);
+    EXPECT(Q.bpm < 125.0f, "PROJECT > NEW asked again: not a new project (%.0f BPM)", Q.bpm);
+    tap(B_SAVE); wait_ms(200); EXPECT(sticky == PG_SONG2, "SAVE on PROJECT: not SONG again (%d)", sticky);
+    /* (4.0.7, Sam: "page 3, back to page 2: another menu") the three pages only, with SELECT: 3 -> 2 -> 1 and back */
+    tap(B_SAVE); wait_ms(200); EXPECT(sticky == PG_PROJ, "SAVE: not PROJECT (%d)", sticky);
+    turn(ENC_SELECT, -1); wait_ms(200); EXPECT(sticky == PG_SONG2, "PROJECT, SELECT left: not SONG 2/3 (%d)", sticky);
+    turn(ENC_SELECT, -1); wait_ms(200); EXPECT(sticky == PG_SONG, "SONG 2/3, SELECT left: not SONG 1/3 (%d)", sticky);
+    turn(ENC_SELECT, 1); wait_ms(200); EXPECT(sticky == PG_SONG2, "SONG 1/3, SELECT right: not SONG 2/3 (%d)", sticky);
+    turn(ENC_SELECT, 1); wait_ms(200); EXPECT(sticky == PG_PROJ, "SONG 2/3, SELECT right: not PROJECT (%d)", sticky);
+    turn(ENC_SELECT, 1); wait_ms(200); EXPECT(sticky == PG_PROJ, "PROJECT, SELECT right: left it (%d)", sticky);
+    for (int i = 0; i < 4; i++) { tap(B_SAVE); wait_ms(200); EXPECT(sticky == PG_PROJ || sticky == PG_SONG2, "SAVE taps: out of the 3 pages (%d)", sticky); }
+}
+/* (4.0.9, issue #6: "crashes when punching 1/4 in the Browser") FX + 1/4 held on every page that browses sounds (SOUNDS
+ * from PRESETS, EDIT's last page, SAVE > PRESETS, the drums' kits), playing and stopped; every punch key; PRESETS turned meanwhile */
+static void sc_punchsnd(void)
+{
+    boot_wait(); wait_ms(800);
+    for (int pass = 0; pass < 4; pass++) {
+        tap(B_HOME); wait_ms(150);
+        if (pass == 0) { turn(ENC_PRESETS, 1); wait_ms(200); }
+        else if (pass == 1) { tap(B_EDIT); for (int i = 0; i < 6 && sticky != PG_SND; i++) { tap(B_EDIT); wait_ms(100); } }
+        else if (pass == 2) { tap(B_EDIT); wait_ms(100); tap(B_SAVE); wait_ms(150); }
+        else { trk = 3; tempo(40.0f); turn(ENC_PRESETS, 1); wait_ms(200); }   /* (the slowest tempo: 1/4 the longest) */
+        if (pass & 1) { tap(B_PLAY); wait_ms(300); }
+        printf("[%8.3f]    pass %d: page %d\n", tw_s(), pass, sticky);
+        for (int k = 0; k < 16; k++) {
+            press(B_FX); wait_ms(60); keydown(white_key[k]); wait_ms(k == 0 ? 2500 : 300); keyup(white_key[k]); wait_ms(60); release(B_FX); wait_ms(120);
+        }
+        turn(ENC_PRESETS, 2); wait_ms(200); press(B_FX); keydown(white_key[0]); wait_ms(800); turn(ENC_PRESETS, -1); wait_ms(800); keyup(white_key[0]); release(B_FX);
+        if (Q.playing) { tap(B_PLAY); wait_ms(200); }
+        EXPECT(!S.panics, "pass %d: the sound panicked (%u)", pass, S.panics);
+    }
+    trk = 0;
+}
+/* (3.4.2, issue #22: "the arpeggiator does not work, the sound goes silent, on track 3") each synth track of a new
+ * project, then each of its sounds' kinds, a chord held with ARP on: heard, stopped and playing */
+static void sc_arpall(void)
+{
+    boot_wait(); wait_ms(800);
+    for (int pass = 0; pass < 2; pass++) {
+        if (pass) { tap(B_PLAY); wait_ms(300); }
+        for (int t = 0; t < NTRK; t++) {
+            if (is_drum(t)) continue;
+            select_track(t); wait_ms(150);
+            for (int u = 0; u < NTRK; u++) solo[u] = u == t;
+            double off = peak_over(300);
+            arpc[t].mode = AM_UP; arpc[t].rate = 3;
+            keydown(0); keydown(4); keydown(7);
+            double pk[4]; for (int w = 0; w < 4; w++) pk[w] = peak_over(1000);
+            uint32_t v = (uint32_t)snd_voices(&S);
+            keyup(0); keyup(4); keyup(7); wait_ms(300);
+            arpc[t].mode = AM_OFF;
+            for (int u = 0; u < NTRK; u++) solo[u] = 0;
+            printf("[%8.3f]    %s, track %d (%s): ARP peaks %.4f %.4f %.4f %.4f (%.4f without), %u voices\n", tw_s(), pass ? "playing" : "stopped", t + 1, gb_presets[preset_of[t]].name, pk[0], pk[1], pk[2], pk[3], off, v);
+            if (!pass) for (int w = 0; w < 4; w++) EXPECT(pk[w] > 0.0015, "track %d (%s) silent with ARP, second %d (%.4f)", t + 1, gb_presets[preset_of[t]].name, w + 1, pk[w]);
+        }
+        if (pass) { tap(B_PLAY); wait_ms(300); }
+    }
+}
+/* (3.4.2, issue #24: "during SONG playback, step 1 does not play when the track's engine changes between patterns")
+ * track 1: pattern 1 the 808 (E808), pattern 2 RHODES (FM), a note on step 1 of each; a song of 1 bar each, played:
+ * every bar's step 1 heard */
+static void sc_songeng(void)
+{
+    boot_wait(); wait_ms(800);
+    select_track(0); wait_ms(150);
+    int rh = preset_named("RHODES"); EXPECT(rh >= 0, "no RHODES");
+    for (int w = 0; w < 2; w++) {
+        seq_queue(&Q, 0, w); wait_ms(100);
+        Q.t[0].pat[w].n = 0; Q.t[0].pat[w].nlock = 0; seq_step_toggle(&Q, 0, 0, 48, 110);
+        if (w == 1 && rh >= 0) { apply_preset(0, rh); wait_ms(100); }
+        commit_trk(0); wait_ms(100);
+    }
+    EXPECT(PS.s[0][0].engine != PS.s[0][1].engine, "the two patterns' engines the same (%d)", PS.s[0][0].engine);
+    seq_song_set_count(&Q, 2); seq_song_set_len(&Q, 0, 1); seq_song_set_len(&Q, 1, 1);
+    seq_song_set_pat(&Q, 0, 0, 0); seq_song_set_pat(&Q, 1, 0, 1);
+    for (int u = 0; u < NTRK; u++) solo[u] = u == 0;
+    seq_song_play(&Q, 1); wait_ms(300); tw_peak = 0; tap(B_PLAY);
+    int quiet = 0;
+    for (int bar = 0; bar < 6; bar++) {
+        double pk;
+        if (!bar) { wait_ms(150); pk = tw_peak; }        /* (bar 1: from PLAY on) */
+        else { while (Q.tick % SEQ_BAR > SEQ_BAR / 2 || seq_bar(&Q) != (uint32_t)bar) wait_ms(1); pk = peak_over(150); }
+        printf("[%8.3f]    bar %d (pattern %d, engine %d): step 1 peak %.4f\n", tw_s(), bar + 1, Q.t[0].cur + 1, S.trk[0].patch.engine, pk);
+        if (pk < 0.003) quiet++;
+        while (seq_bar(&Q) == (uint32_t)bar) wait_ms(1);
+    }
+    tap(B_PLAY); seq_song_play(&Q, 0);
+    for (int u = 0; u < NTRK; u++) solo[u] = 0;
+    EXPECT(!quiet, "%d bars of 6: step 1 silent after the engine changed", quiet);
+}
+/* (3.4.2, issue #28: "I select a chord (7th) and record: it won't record the chords") SEL CHORD 7TH on track 1, REC,
+ * one white key: the 4 notes of its chord written; and with ARP on: what it plays written */
+static void sc_chordrec(void)
+{
+    boot_wait(); wait_ms(800);
+    select_track(0); wait_ms(150);
+    for (int st = 0; st < 3; st++) {
+        static const int8_t SV[3] = { 0, 40, -40 };
+        harm[0].chord = CH_7TH; strum[0] = SV[st];
+        Q.t[0].pat[Q.t[0].cur].n = 0; Q.t[0].quant = 0;   /* (as played: the strum's order seen) */
+        tap(B_PLAY); wait_ms(300); tap(B_REC); wait_ms(300);
+        uint32_t len = (uint32_t)Q.t[0].pat[Q.t[0].cur].steps * SEQ_TPS, loop = Q.tick / len;
+        while (Q.tick / len == loop) wait_ms(1);
+        wait_ms(40); keydown(white_key[0]); wait_ms(400); keyup(white_key[0]); wait_ms(200);
+        tap(B_REC); wait_ms(300); tap(B_PLAY); wait_ms(300);
+        int n = seq_count(&Q, 0);
+        const seq_pat *P = &Q.t[0].pat[Q.t[0].cur]; int hi = 0, lo = 0;
+        for (int i = 0; i < P->n; i++) { if (P->ev[i].note > P->ev[hi].note) hi = i; if (P->ev[i].note < P->ev[lo].note) lo = i; }
+        printf("[%8.3f]    CHORD 7TH, STRUM %d, one key recorded: %d notes written, the lowest at %u, the highest at %u\n", tw_s(), SV[st], n, n ? P->ev[lo].tick : 0, n ? P->ev[hi].tick : 0);
+        EXPECT(n == 4, "CHORD 7TH, STRUM %d: %d notes written (4)", SV[st], n);
+        if (n == 4 && SV[st]) EXPECT(SV[st] > 0 ? P->ev[lo].tick < P->ev[hi].tick : P->ev[hi].tick < P->ev[lo].tick, "STRUM %d: the wrong note first", SV[st]);
+    }
+    harm[0].chord = CH_OFF; strum[0] = 0;
+}
+/* (3.4.0, Sam: "a MIDI file imported in the editor shows in the FM-1's sequencer, but PLAY gives no sound") what
+ * midiImport + patWrite send (ED_NOTES2: cond 0, ratchet 1, the playing pattern), then each track alone, playing */
+static double solo_peak(int t, double ms) { for (int u = 0; u < NTRK; u++) solo[u] = u == t; wait_ms(200); double pk = peak_over(ms); for (int u = 0; u < NTRK; u++) solo[u] = 0; return pk; }
+static void midi_pat(int t, int pt, int steps, int base)
+{
+    uint8_t raw[7 + 8 * 16], rep[64]; uint32_t rn;
+    raw[0] = (uint8_t)t; raw[1] = (uint8_t)pt; raw[2] = 0; raw[3] = 0; raw[4] = (uint8_t)steps; raw[5] = 0; raw[6] = 16;
+    for (int i = 0; i < 16; i++) {
+        uint8_t *o = raw + 7 + 8 * i; uint32_t at = (uint32_t)i * (uint32_t)steps / 16u * SEQ_TPS, len = SEQ_TPS * 2;
+        o[0] = (uint8_t)at; o[1] = (uint8_t)(at >> 8); o[2] = (uint8_t)len; o[3] = (uint8_t)(len >> 8);
+        o[4] = (uint8_t)(base < 0 ? i : base + (i % 8) * 2); o[5] = 96; o[6] = 0; o[7] = 1;
+    }
+    int r = tw_ed(ED_NOTES2, raw, 7 + 8 * 16, rep, &rn, 2000);
+    EXPECT(r == ED_NOTES2 && (rep[2] | rep[3] << 8) == 16, "track %d: the notes not written (%d)", t, r);
+}
+static void sc_midiimp(void)
+{
+    boot_wait(); wait_ms(800);
+    for (int pass = 0; pass < 2; pass++) {
+        if (pass) { home_do(HK_NEW); wait_ms(100); home_do(HK_NEW); wait_ms(800); printf("[%8.3f]    a new project\n", tw_s()); }
+        for (int t = 0; t < NTRK; t++) midi_pat(t, 255, 16, is_drum(t) ? -1 : 48);
+        wait_ms(300);
+        tap(B_PLAY); wait_ms(300);
+        for (int t = 0; t < NTRK; t++) {
+            double pk = solo_peak(t, 2500);
+            printf("[%8.3f]    pass %d, track %d (%s, pattern %d, %d notes): peak %.4f\n", tw_s(), pass, t, preset_of[t] >= 0 ? gb_presets[preset_of[t]].name : "-", Q.t[t].cur + 1, Q.t[t].pat[Q.t[t].cur].n, pk);
+            EXPECT(pk > 0.001, "pass %d, track %d: the imported notes not heard (peak %.4f)", pass, t, pk);
+        }
+        tap(B_PLAY); wait_ms(300);
+    }
+    tap(B_PLAY); wait_ms(300);   /* written while it plays */
+    midi_pat(1, 255, 16, 60); wait_ms(800);
+    { double pk = solo_peak(1, 2500); printf("[%8.3f]    track 1 written while playing: %d notes, peak %.4f\n", tw_s(), Q.t[1].pat[Q.t[1].cur].n, pk);
+      EXPECT(pk > 0.001, "written while playing: not heard (peak %.4f)", pk); }
+    tap(B_PLAY); wait_ms(300);
+}
+/* (4.0.8, Sam: "SEL does not walk with SELECT") every button's pages: tapped, then SELECT right to the last, then left
+ * back to the first, on a synth track and on the drums */
+static void sc_selwalk(void)
+{
+    boot_wait(); wait_ms(800);
+    static const uint8_t BT[] = { BTN_EDIT, BTN_FX, BTN_LFO, BTN_ENV, BTN_SEL, BTN_ARP, BTN_GLO, BTN_SEQ };
+    for (int pass = 0; pass < 2; pass++) {
+        if (pass) { for (int t = 0; t < NTRK; t++) if (is_drum(t)) trk = t; }
+        else { set_sound(0, "SAW BASS"); trk = 0; }
+        for (unsigned g = 0; g < sizeof BT; g++) {
+            const uint8_t *l; int n = grp_of(BT[g], &l), want[12], m = 0;
+            for (int i = 0; i < n; i++) if (pg_shown(l[i]) && l[i] != PG_SONG2 && !(is_drum(trk) && (l[i] == PG_STEPS || l[i] == PG_KIT || l[i] == PG_DSOUND))) want[m++] = l[i];
+            if (is_drum(trk) && (BT[g] == BTN_EDIT || BT[g] == BTN_SEQ)) continue;          /* (the drums' own screen: drums285) */
+            tap(B_HOME); wait_ms(150); tap(BT[g]); wait_ms(150);
+            for (int k = 0; k < m + 1; k++) { turn(ENC_SELECT, -1); wait_ms(80); }
+            EXPECT(sticky == want[0], "button %d track %d: SELECT left to the end: page %d, not %d", BT[g], trk, sticky, want[0]);
+            for (int k = 1; k < m; k++) { turn(ENC_SELECT, 1); wait_ms(80); EXPECT(sticky == want[k], "button %d track %d: SELECT right %d: page %d, not %d", BT[g], trk, k, sticky, want[k]); }
+            turn(ENC_SELECT, 1); wait_ms(80); EXPECT(sticky == want[m - 1], "button %d track %d: SELECT past the last: page %d", BT[g], trk, sticky);
+        }
+    }
+    tap(B_HOME);    /* (4.0.8) your theme: the 5th track's colour (synth 4) from bytes 34-35; an older theme (0 there): its default */
+    { uint8_t t[40] = { 0x54, 0x48, 0x4D, 0x32, 'T', 'W', 'I', 'N' }; for (int k = 0; k < 5; k++) { t[12 + 2 * k] = (uint8_t)(k * 40); t[13 + 2 * k] = (uint8_t)(k * 40); }
+      t[34] = 0x1F; t[35] = 0xF8;                                        /* (magenta) */
+      uint32_t c = crc32_ieee(0, t, 36); t[36] = (uint8_t)c; t[37] = (uint8_t)(c >> 8); t[38] = (uint8_t)(c >> 16); t[39] = (uint8_t)(c >> 24);
+      memcpy(us_theme, t, 40); scr_color = UI_NTHEMES; color_apply(); EXPECT(TRK_COL[4] == 0xF81F, "your theme: synth 4's colour %04X", TRK_COL[4]);
+      t[34] = t[35] = 0; c = crc32_ieee(0, t, 36); t[36] = (uint8_t)c; t[37] = (uint8_t)(c >> 8); t[38] = (uint8_t)(c >> 16); t[39] = (uint8_t)(c >> 24);
+      memcpy(us_theme, t, 40); color_apply(); EXPECT(TRK_COL[4] == RGB(240, 110, 200), "an older theme: synth 4 not its default (%04X)", TRK_COL[4]);
+      scr_color = 0; color_apply(); }
+}
+/* (4.0.3) the tour: every page and layer as the firmware fills it, as text (title, sub, the knobs, the tiles), for the
+ * inventory against SLOOP 2.8.5's GUIDE (section 16, section 9) */
+static void dumpv(const char *tag)
+{
+    static ui_view tv; memset(&tv, 0, sizeof tv); fill_view(&tv);
+    printf("@@ %-16s | %-14s | %-30s |", tag, tv.title, tv.sub);
+    for (int i = 0; i < 4; i++) printf(" %s=%s ;", tv.knob[i].label ? tv.knob[i].label : "-", tv.knob[i].label ? tv.knob[i].value : "");
+    if (tv.page == UI_LAYER || tv.page == UI_PUNCH || tv.page == UI_MENU) { printf(" tiles:"); for (int i = 0; i < 16; i++) if (tv.tile[i].text[0]) printf(" %d:%s", i + 1, tv.tile[i].text); }
+    printf("  [page %d sticky %d]\n", tv.page, sticky);
+}
+static void sc_tour(void)
+{
+    boot_wait(); wait_ms(1500);
+    set_sound(0, "SAW BASS"); trk = 0; wait_ms(300); tap(B_PLAY); wait_ms(1500); shot("home"); tap(B_PLAY); wait_ms(300);
+    gb_patch_set(&S.trk[0].patch, SP_SLCR, 1); gb_patch_set(&S.trk[0].patch, SP_SLPAT, 3); base_of_track(0);
+    static const struct { int b, n; const char *nm; } G[] = { { B_EDIT, 7, "EDIT" }, { B_FX, 8, "FX" }, { B_LFO, 4, "LFO" }, { B_ENV, 3, "ENV" },
+        { B_SEL, 3, "SEL" }, { B_ARP, 3, "ARP" }, { B_GLO, 10, "GLO" }, { B_SAVE, 5, "SAVE" }, { B_SEQ, 4, "SEQ" } };
+    for (int pass = 0; pass < 2; pass++) {
+        if (pass) { for (int t = 0; t < NTRK; t++) if (is_drum(t)) trk = t; printf("@@ ---- the drum track (%d)\n", trk); }
+        dumpv("TRACKS");
+        for (unsigned g = 0; g < sizeof G / sizeof *G; g++) {
+            tap(B_HOME); wait_ms(200); char tg[32];
+            for (int i = 0; i < G[g].n; i++) { tap(G[g].b); wait_ms(250); snprintf(tg, sizeof tg, "%s x%d", G[g].nm, i + 1); dumpv(tg); if (!pass && G[g].b == B_FX && i == 2) { tap(B_PLAY); wait_ms(900); shot("slicer"); tap(B_PLAY); } }
+            tap(B_EDIT); wait_ms(200); tap(G[g].b); wait_ms(250); snprintf(tg, sizeof tg, "%s from EDIT", G[g].nm); dumpv(tg);
+            if (G[g].b == B_SAVE) for (int i = 0; i < 5; i++) { tap(B_SAVE); wait_ms(250); snprintf(tg, sizeof tg, "SAVE again x%d", i + 1); dumpv(tg); if (!pass && sticky == PG_PROJ) shot("save-project"); }
+        }
+        tap(B_HOME); wait_ms(300);
+        for (unsigned g = 0; g < sizeof G / sizeof *G; g++) { char tg[32]; press(G[g].b); wait_ms(700); snprintf(tg, sizeof tg, "%s held", G[g].nm); dumpv(tg); release(G[g].b); wait_ms(400); }
+        press(B_HOME); wait_ms(1200); dumpv("HOME held");
+        for (int i = 0; i < 6; i++) { turn(ENC_SELECT, 1); wait_ms(200); char tg[32]; snprintf(tg, sizeof tg, "HOME sel+%d", i + 1); dumpv(tg); }
+        turn(ENC_SELECT, -8); wait_ms(200); dumpv("HOME sel-8"); release(B_HOME); wait_ms(400); tap(B_HOME); wait_ms(300);
+    }
+}
+/* (4.0.2) the low end through the whole firmware: a sub bass at A0..A2 and the kicks, OUT/low-*.wav (tools: the
+ * fundamental's level against the engine's own) */
+static void sc_lowend(void)
+{
+    boot_wait(); wait_ms(1500);
+    printf("[%8.3f]    lowcut %d flt_q %.2f mfilt %.3f dust %.2f duck %.2f filt %.3f %.3f %.3f %.3f %.3f master %.2f\n", tw_s(), S.lowcut, S.flt_q, S.mfilt.cur, S.dust, S.duck,
+           S.trk[0].filt.cur, S.trk[1].filt.cur, S.trk[2].filt.cur, S.trk[3].filt.cur, S.trk[4].filt.cur, S.master.cur);
+    for (int t = 0; t < NTRK; t++) for (int p = 0; p < 8; p++) Q.t[t].pat[p].n = 0;
+    press(BTN_GLO); wait_ms(700); shot("mix-glo"); release(BTN_GLO); wait_ms(300);   /* (4.0.2: SLOOP 3's MIX, GLO held) */
+    shot("home"); press(BTN_FX); wait_ms(700); shot("punch"); locked = 1u << BTN_FX; wait_ms(300); shot("punch-lock"); locked = 0; release(BTN_FX); wait_ms(300);
+    set_sound(0, "SUB BASS"); set_sound(3, "808");
+    static const int N[4] = { 21, 33, 45, 57 };
+    for (int i = 0; i < 4; i++) note(0, i * 4, N[i], 110, 3);
+    wav_on("low-bass"); tap(BTN_PLAY); wait_ms(4000); tap(BTN_PLAY); wait_ms(600); tw_wav_close();
+    for (int t = 0; t < NTRK; t++) Q.t[t].pat[Q.t[t].cur].n = 0;
+    note(3, 0, 0, 120, 1); note(3, 8, 0, 120, 1);
+    wav_on("low-kick"); tap(BTN_PLAY); wait_ms(4000); tap(BTN_PLAY); wait_ms(600); tw_wav_close();
+    hs[HS_LOWCUT] = 1; home_apply();                       /* the same with SPEAKER LOWCUT on */
+    for (int t = 0; t < NTRK; t++) Q.t[t].pat[Q.t[t].cur].n = 0;
+    for (int i = 0; i < 4; i++) note(0, i * 4, N[i], 110, 3);
+    wav_on("low-bass-lc"); tap(BTN_PLAY); wait_ms(4000); tap(BTN_PLAY); wait_ms(600); tw_wav_close();
+    hs[HS_LOWCUT] = 0; home_apply();
 }
 /* the instruments, key by key (3.3.1: "the drum kits and the samples are the wrong instruments"): each sound on its
  * track, its 16 white keys one at a time, OUT/<sound>.wav; tools/inst_check.py holds them against their sources */
@@ -1774,7 +2163,7 @@ static void sc_film2(void)
         seg_film_open(); tap(B_PLAY); mark("play");
         film_wait(3000); tap(B_SAVE); mark("song"); film_wait(3500); tap(B_HOME); film_wait(600);
         press(B_HOME); mark("projects"); film_wait(3500); release(B_HOME); film_wait(800);
-        tap(B_SAVE); film_wait(80); tap(B_SAVE); mark("saved"); film_wait(4500);
+        proj_save_keys(); mark("saved"); film_wait(4500);
     } else if (!strcmp(seg, "hands") || !strcmp(seg, "vis6") || !strcmp(seg, "vis4")) {
         /* (launch video 3.3.6) the golden-era beat: HOME, SAVE and REC held (the keys that light); or the six visualisers */
         seg_reset(92, 26);
@@ -1955,7 +2344,7 @@ static void sc_ukit(void)
     EXPECT(send_sample(1, len, 384) >= 0, "the slot not sent");
     wait_ms(1500);
     int dt = -1; for (int t = 0; t < NTRK; t++) if (is_drum(t)) dt = t;
-    trk = dt; tap(B_HOME); wait_ms(200);
+    trk = dt; tap(B_HOME); wait_ms(200); if (vis_on) { tap(B_HOME); wait_ms(200); }
     int want = UK_BASE + GB_KIT_USR + 1, found = 0, kits = 0;
     for (int i = 0; i < 60 && !found; i++) { turn(ENC_PRESETS, 1); if (preset_of[trk] == want) found = 1; else if (preset_of[trk] >= 0 && preset_of[trk] < gb_npresets) kits++; }
     EXPECT(found && kits >= 30, "PRESETS on the drums: USR2 not among the kits (%d kits walked)", kits);
@@ -1996,8 +2385,9 @@ static void sc_sounds(void)
     wait_ms(800);
     EXPECT(fm6_bank_used == 0xFFFFFu && fb_ok(19) && !fb_ok(20), "the bank's voices: %X", fm6_bank_used);
     EXPECT(!strcmp(fb_name(0), "TWIN VC 1") && !strcmp(fb_name(19), "TWIN VC 20"), "the voices' names: '%s' '%s'", fb_name(0), fb_name(19));
-    /* PRESETS on TRACKS: SOUNDS shows where the knob is, the keys play as ever, and it goes back by itself */
-    tap(B_HOME); wait_ms(200);
+    /* PRESETS on TRACKS: SOUNDS shows where the knob is, the keys play as ever, and it goes back by itself (on the
+     * visualiser: the sound changes, the visualiser stays) */
+    tap(B_HOME); wait_ms(200); if (vis_on) { tap(B_HOME); wait_ms(200); }
     int before = sticky, p0 = preset_of[trk];
     turn(ENC_PRESETS, 1); wait_ms(200);
     EXPECT(sticky == PG_SND && sb_back == before, "PRESETS did not open SOUNDS (page %d, back %d)", sticky, sb_back);
@@ -2030,9 +2420,9 @@ static void sc_sounds(void)
     }
     /* EDIT 6/6: the keys choose. The DX7 category: its tiles are the voices, by name; a key: that voice, heard */
     tap(B_HOME); wait_ms(200);
-    for (int i = 0; i < 6; i++) tap(B_EDIT);
+    for (int i = 0; i < 8 && sticky != PG_SND; i++) tap(B_EDIT);   /* (4.0.1: the last of EDIT's pages, as SLOOP 3) */
     wait_ms(200);
-    EXPECT(sticky == PG_SND && sb_back < 0, "EDIT 6/6 is not SOUNDS (page %d)", sticky);
+    EXPECT(sticky == PG_SND && sb_back < 0, "EDIT: no SOUNDS (page %d)", sticky);
     EXPECT(sb_goto(SB_BANK), "no DX7 category");
     wait_ms(200); shot("sounds-dx7");
     EXPECT(!strncmp(W.tile[2].text, "TWIN VC 3", 9), "DX7 tile 3: '%s'", W.tile[2].text);
@@ -2075,8 +2465,8 @@ static void sc_sounds(void)
     /* SELECT walks the pages, category after category; left of the first: EDIT 5/6 */
     { int cats = 0, last = -1; EXPECT(sb_goto(SB_FAV), "FAVS"); for (int i = 0; i < 40; i++) { if (sb_cat != last) { last = sb_cat; cats++; } turn(ENC_SELECT, 1); if (sb_cat == SB_FAV && i) break; }
       printf("[%8.3f]    SELECT through SOUNDS: %d categories\n", tw_s(), cats); EXPECT(cats >= 10, "SELECT: %d categories", cats); }
-    EXPECT(sb_cat == SB_FAV && sb_pg == 0, "SELECT all round: not back on FAVS"); turn(ENC_SELECT, -1); EXPECT(sticky == PG_USER, "SELECT left of SOUNDS: page %d", sticky);
-    turn(ENC_SELECT, 1); EXPECT(sticky == PG_SND, "SELECT right of EDIT 5/6: page %d", sticky);
+    EXPECT(sb_cat == SB_FAV && sb_pg == 0, "SELECT all round: not back on FAVS"); turn(ENC_SELECT, -1); EXPECT(sticky == PG_VOICE2, "SELECT left of SOUNDS: page %d", sticky);
+    turn(ENC_SELECT, 1); EXPECT(sticky == PG_SND, "SELECT right of VOICE 2: page %d", sticky);
     /* the drum track: the kits */
     tap(B_HOME); wait_ms(200);
     for (int i = 0; i < NTRK && !is_drum(trk); i++) { turn(ENC_ALGORITHM, 1); wait_ms(100); }
@@ -2088,7 +2478,7 @@ static void sc_sounds(void)
     int k1 = preset_of[trk]; tapkey(white_key[7]); wait_ms(100);
     EXPECT(preset_of[trk] != k1 && preset_of[trk] == sb_o[7], "the eighth key did not choose its kit");
     wait_ms(6000); EXPECT(sticky == PG_SND, "EDIT's SOUNDS went away by itself");
-    for (int i = 0; i < NTRK && is_drum(trk); i++) { turn(ENC_ALGORITHM, 1); wait_ms(100); }
+    for (int i = 0; i < NTRK && is_drum(trk); i++) { turn(ENC_ALGORITHM, -1); wait_ms(100); }
     /* the lights: HOME > LIGHTS on, every button glows faint in every frame, none is ever a full light for it */
     tap(B_HOME); wait_ms(200);
     hs[HS_LIGHTS] = 2; hs[HS_KEYS] = 2; home_apply();
@@ -2100,10 +2490,340 @@ static void sc_sounds(void)
     tap(B_HOME); wait_ms(300);
     save_and_wait();
 }
+/* 3.3.8: the free take (REC on an empty project, a drum loop played freely, REC on the next "1" a little late or
+ * early, as a hand presses it): each hit on its step, none moved to the step before, no hole at the loop's end */
+static void ft_play(double step_ms, double rec_ms, int bars, int *bad, int *n_ev, int kind)
+{
+    /* kind 0: a beat; 1: a kick and a snare only (any grid fits them); 2: the beat, then the "1" played again before REC */
+    static const struct { int step, key; } H0[] = { { 0, 0 }, { 2, 4 }, { 4, 2 }, { 6, 4 }, { 7, 0 }, { 8, 0 }, { 10, 4 }, { 12, 2 }, { 14, 4 }, { 15, 2 } },
+        H1[] = { { 0, 0 }, { 12, 2 } };
+    const struct { int step, key; } *H = kind == 1 ? (const void *)H1 : (const void *)H0;
+    const int NH = kind == 1 ? 2 : (int)(sizeof H0 / sizeof H0[0]);
+    new_project(0); trk = 3; wait_ms(300);
+    tap(B_REC); wait_ms(300);
+    uint64_t t0 = tw_ns + 200000000u; uint32_t r = 7;
+    for (int b = 0; b < bars; b++) for (int i = 0; i < NH; i++) {
+        r = r * 1103515245u + 12345u; double jit = (double)((r >> 16) % 41) - 20.0;   /* +-20 ms */
+        if (b == 0 && i == 0) jit = 0;
+        wait_until(t0 + (uint64_t)(((b * 16 + H[i].step) * step_ms + jit) * 1e6));
+        tw_keys |= 1u << H[i].key; wait_ms(40); tw_keys &= ~(1u << H[i].key);
+    }
+    if (kind == 2) { wait_until(t0 + (uint64_t)((bars * 16 * step_ms + 15) * 1e6)); tw_keys |= 1u; wait_ms(40); tw_keys &= ~1u; }
+    wait_until(t0 + (uint64_t)((bars * 16 * step_ms + rec_ms) * 1e6));
+    tw_btn |= 1u << B_REC; wait_ms(60); tw_btn &= ~(1u << B_REC); wait_ms(400);
+    const seq_pat *p = &Q.t[3].pat[Q.t[3].cur];
+    int steps = p->steps, got[128] = { 0 }; *bad = 0; *n_ev = p->n;
+    for (int i = 0; i < p->n; i++) {
+        int32_t t = p->ev[i].tick, g = (t + SEQ_TPS / 2) / SEQ_TPS;
+        int32_t x = Q.t[3].quant ? g : -1;
+        if (x >= 0) got[x % steps]++;
+        else { double fs = (double)t / SEQ_TPS; int nr = (int)(fs + 0.5) % steps; if (fabs(fs - (int)(fs + 0.5)) > 0.25) (*bad)++; got[nr]++; }
+    }
+    for (int b = 0; b < steps / 16; b++) for (int i = 0; i < NH; i++) { int s = b * 16 + H[i].step; if (got[s]) got[s]--; else (*bad)++; }
+    for (int s = 0; s < steps; s++) if (got[s]) *bad += got[s];
+    printf("[%8.3f]    free take (%s) %d bar(s), a step %.1f ms, REC %+.0f ms: %d bars %.1f BPM QUANT %d, %d events, %d off their step\n",
+           tw_s(), kind == 1 ? "kick, snare" : kind == 2 ? "the 1 again" : "a beat", bars, step_ms, rec_ms, steps / 16, Q.bpm, Q.t[3].quant, p->n, *bad);
+    tap(B_PLAY); wait_ms(200);
+}
+/* 3.3.8: SLOOP 2.8.5's drum gestures back: the DRUMS grid (white keys the steps, silent; KNOB STEP HIT LEVEL; the
+ * sheet), a drum step held (KNOB 1 its sound, LEVEL and RATCHET that sound alone), the live mutes (EDIT + a black key,
+ * then the white keys), the hits lighting their keys, HOME held: the menu, open when let go */
+/* 3.3.8: a save while it plays: the flash window off for an erase silences what is read from the flash (samples,
+ * kits): a stutter. The next save's bank erased beforehand (stopped, untouched): a save then writes pages only */
+/* 4.0 (Patrik, Sam: SLOOP 2.8's sections): what plays is changed freely and kept by the autosave, but a pattern changes
+ * only when saved; played again (SAVE + its key) or left for another, it comes back as it was saved, its sound too */
+static void sc_sections(void)
+{
+    boot_wait();
+    new_project(0); wait_ms(200);
+    int t = POS[0]; trk = t; tap(B_HOME); wait_ms(200);
+    seq_add(&Q, t, 0, SEQ_TPS, 60, 100); seq_add(&Q, t, 4 * SEQ_TPS, SEQ_TPS, 62, 100);
+    /* saved: SAVE + 1 held (the one playing) */
+    press(B_SAVE); wait_ms(300); keydown(white_key[0]); wait_ms(1700); keyup(white_key[0]); release(B_SAVE); wait_saved(5000); wait_ms(300);
+    EXPECT(keep[t].n == 2, "SAVE + 1 held: the pattern as saved has %d notes (2)", keep[t].n);
+    /* changed, not saved: a note more, another sound */
+    seq_add(&Q, t, 8 * SEQ_TPS, SEQ_TPS, 64, 100);
+    int po = preset_of[t]; turn(ENC_PRESETS, 3); wait_ms(200);
+    EXPECT(Q.t[t].pat[0].n == 3 && preset_of[t] != po, "the change: %d notes, sound %d (%d)", Q.t[t].pat[0].n, preset_of[t], po);
+    /* the autosave keeps what plays (its saved version too): opened again, the same */
+    save_project(0); wait_saved(5000); load_project(0); wait_ms(300);
+    EXPECT(Q.t[t].pat[0].n == 3 && keep[t].n == 2 && preset_of[t] != po, "opened again: %d notes playing (3), %d saved (2), sound %d", Q.t[t].pat[0].n, keep[t].n, preset_of[t]);
+    /* SAVE + 1 tapped (the one playing): back as saved, notes and sound */
+    press(B_SAVE); wait_ms(200); tapkey(white_key[0]); wait_ms(200); release(B_SAVE); wait_ms(300);
+    EXPECT(Q.t[t].pat[0].n == 2 && preset_of[t] == po, "SAVE + 1 tapped: %d notes (2), sound %d (%d)", Q.t[t].pat[0].n, preset_of[t], po);
+    shot("sections-back");
+    /* changed again, then another pattern played: the first comes back as saved when played again */
+    seq_add(&Q, t, 8 * SEQ_TPS, SEQ_TPS, 64, 100);
+    tap(B_PLAY); wait_ms(100);
+    press(B_SAVE); wait_ms(200); tapkey(white_key[1]); wait_ms(200); release(B_SAVE);
+    for (int i = 0; i < 400 && Q.t[t].cur != 1; i++) wait_ms(10);
+    EXPECT(Q.t[t].cur == 1 && Q.t[t].pat[0].n == 2, "pattern 2 played: pattern 1 has %d notes (2: as saved)", Q.t[t].pat[0].n);
+    /* saved into another pattern: SAVE + 3 held while 2 plays (3 empty: at once) */
+    seq_add(&Q, t, 2 * SEQ_TPS, SEQ_TPS, 67, 100);
+    press(B_SAVE); wait_ms(200); keydown(white_key[2]); wait_ms(1700); keyup(white_key[2]); release(B_SAVE); wait_saved(5000); wait_ms(200);
+    EXPECT(Q.t[t].pat[2].n == 1 && Q.t[t].cur == 1, "SAVE + 3 held: pattern 3 has %d notes (1), playing %d", Q.t[t].pat[2].n, Q.t[t].cur + 1);
+    /* over a saved pattern: held, AGAIN; the key again within 3 s: saved */
+    seq_add(&Q, t, 6 * SEQ_TPS, SEQ_TPS, 69, 100);
+    uint32_t m = msg_mark();
+    press(B_SAVE); wait_ms(200); keydown(white_key[0]); wait_ms(1700); keyup(white_key[0]); wait_ms(200);
+    EXPECT(said_since(m, "AGAIN: SAVE INTO 1") && Q.t[t].pat[0].n == 2, "SAVE + 1 held over a saved pattern: no AGAIN (%d notes)", Q.t[t].pat[0].n);
+    shot("sections-again");
+    tapkey(white_key[0]); wait_ms(200); release(B_SAVE); wait_saved(5000);
+    EXPECT(Q.t[t].pat[0].n == 2 && Q.t[t].pat[0].ev[0].note == 67 && Q.t[t].pat[0].ev[1].note == 69,
+           "the key again: pattern 1 is not what played (%d notes, %d)", Q.t[t].pat[0].n, Q.t[t].pat[0].ev[0].note);
+    /* SAVE + 16: the SONG screen; two keys tapped while SAVE is held: a chain */
+    press(B_SAVE); wait_ms(200); tapkey(white_key[15]); wait_ms(100); release(B_SAVE); wait_ms(200);
+    EXPECT(sticky == PG_SONG2, "SAVE + 16: not the SONG screen (%d)", sticky);
+    tap(B_HOME); wait_ms(200);
+    press(B_SAVE); wait_ms(200); tapkey(white_key[0]); wait_ms(100); tapkey(white_key[2]); wait_ms(100); release(B_SAVE); wait_ms(200);
+    EXPECT(chain_on && chain_n == 2 && chain[0] == 0 && chain[1] == 2, "SAVE + 1, 3 tapped: no chain (%d, %d)", chain_on, chain_n);
+    tap(B_PLAY); wait_ms(200);
+}
+static void sc_savestutter(void)
+{
+    boot_wait();
+    printf("[%8.3f]    stopped, untouched: the next bank erased beforehand\n", tw_s());
+    for (int i = 0; i < 200 && !store_proj_ready(); i++) wait_ms(100);
+    EXPECT(store_proj_ready(), "the next save's bank not prepared after 20 s stopped");
+    seq_step_toggle(&Q, 3, 2, 0, 100); wait_ms(100);           /* (a change: the save writes) */
+    tap(B_PLAY); wait_ms(500);
+    uint32_t d0 = dark_halves; save_and_wait(); uint32_t d1 = dark_halves - d0;
+    printf("[%8.3f]    a save while it plays, prepared: %u halves with the flash off\n", tw_s(), d1);
+    EXPECT(d1 == 0, "a save while it plays (prepared): %u halves with the flash off (a stutter)", d1);
+    seq_step_toggle(&Q, 3, 3, 0, 100); wait_ms(100);
+    d0 = dark_halves; save_and_wait(); uint32_t d2 = dark_halves - d0;   /* (not prepared again: it plays) */
+    printf("[%8.3f]    a save right after, not prepared: %u halves with the flash off\n", tw_s(), d2);
+    tap(B_PLAY); wait_ms(300);
+}
+/* (3.4.1) the CPU over its time (TWIN_HALF_US, host/twin.sh) while it plays and saves: CPU OVERLOAD is said, and nothing
+ * of the window runs while a save has it off (3.4.0 said it from the sound's loop, the window off: a freeze) */
+/* (3.4.1, the monkey's seed 6) REC armed while stopped (REC READY), the menu opened and closed: SAVE still saves */
+static void sc_recsave(void)
+{
+    boot_wait();
+    seq_step_toggle(&Q, 3, 2, 0, 100); wait_ms(100);
+    tap(B_REC); wait_ms(300);
+    printf("[%8.3f]    armed %d sticky %d\n", tw_s(), (int)recording_armed, sticky);
+    press(B_HOME); wait_ms(700); release(B_HOME); wait_ms(300); tap(B_HOME); wait_ms(300);
+    save_and_wait();
+    tap(B_REC); wait_ms(300); save_and_wait();
+}
+extern uint32_t tw_half_us;
+static void sc_oversave(void)
+{
+    boot_wait();
+    tap(B_PLAY); wait_ms(500);
+    for (int k = 0; k < 3; k++) {
+        /* an erase of 300 ms (a slow part's: TWIN_ERASE_MS, host/twin.sh) under way, the window off, and the sound over
+         * its time meanwhile (a heavy moment): the load guard's CPU OVERLOAD comes while the window is off */
+        while (!flash_xip_on()) wait_ms(1);
+        EXPECT(flash_erase_start(0xE1000u) == 0, "an erase in the staging area refused");   /* (SLOOP 2.8 import staging: erasable) */
+        tw_half_us = 6200; wait_ms(200); tw_half_us = 0;
+        wait_ms(5500);                                     /* (CPU OVERLOAD said at most every 5 s) */
+    }
+    EXPECT(said_since(0, "OVERLOAD"), "the CPU over its time: no CPU OVERLOAD said");
+    seq_step_toggle(&Q, 3, 2, 0, 100); wait_ms(100); save_and_wait();
+    tap(B_PLAY); wait_ms(300);
+}
+/* (3.4.0, Sam: "saving the patterns 1 to 8 cuts the sound while it plays; and the autosave must not") playing, a pattern
+ * saved after another (SAVE held + its key held 1.5 s): how many audio halves the flash window was off (the samples and
+ * kits silent meanwhile) */
+static void sc_savepat(void)
+{
+    boot_wait();
+    for (int i = 0; i < 200 && !store_proj_ready(); i++) wait_ms(100);
+    tap(B_PLAY); wait_ms(800);
+    uint32_t total = 0;
+    for (int k = 0; k < 8; k++) {
+        seq_step_toggle(&Q, 3, k, 0, 100); wait_ms(100);              /* (a change: the save writes) */
+        uint32_t d0 = dark_halves;
+        press(B_SAVE); wait_ms(300); keydown(white_key[k]); wait_ms(1700); keyup(white_key[k]); wait_ms(100); release(B_SAVE);
+        wait_ms(300); wait_saved(8000); wait_ms(500);
+        uint32_t d = dark_halves - d0; total += d;
+        { uint32_t a = 0, n = 0; store_proj_find(&a, &n, 0); printf("[%8.3f]    pattern %d saved while playing: %u halves with the flash off (%.0f ms); the copy at %05X, %u bytes\n", tw_s(), k + 1, d, d * 1.451, a, n); }
+    }
+    EXPECT(total == 0, "8 pattern saves while playing: %u halves with the flash off (a stutter)", total);
+    tap(B_PLAY); wait_ms(300);
+    /* the autosave (stopped, untouched 2.5 s): PLAY pressed while it writes; then 8 more saves while it plays */
+    for (int round = 0; round < 3; round++) {
+        seq_step_toggle(&Q, 3, 9 + round, 0, 100);
+        int seen = 0; for (int i = 0; i < 2500 && !seen; i++) { wait_ms(10); seen = saving; }   /* (at most every 20 s) */
+        uint32_t d0 = dark_halves; tap(B_PLAY); wait_ms(300); wait_saved(8000); wait_ms(300);
+        uint32_t d = dark_halves - d0;
+        printf("[%8.3f]    round %d: the autosave %s, PLAY pressed then: %u halves with the flash off\n", tw_s(), round, seen ? "writing" : "not seen", d);
+        EXPECT(seen && d == 0, "round %d: PLAY during the autosave: %u halves with the flash off (seen %d)", round, d, seen);
+        uint32_t t2 = 0;
+        for (int k = 0; k < 8; k++) {
+            seq_step_toggle(&Q, 3, k, 0, 100); wait_ms(100); uint32_t d1 = dark_halves;
+            press(B_SAVE); wait_ms(300); keydown(white_key[k]); wait_ms(1700); keyup(white_key[k]); wait_ms(100); release(B_SAVE);
+            wait_ms(300); wait_saved(8000); wait_ms(300); t2 += dark_halves - d1;
+        }
+        printf("[%8.3f]    round %d: 8 more saves while playing: %u halves with the flash off\n", tw_s(), round, t2);
+        EXPECT(t2 == 0, "round %d: 8 saves while playing: %u halves with the flash off", round, t2);
+        tap(B_PLAY); wait_ms(6000);                                   /* (stopped: the other bank prepared meanwhile) */
+    }
+}
+static void sc_drums285(void)
+{
+    boot_wait();
+    new_project(0); wait_ms(200);
+    int dt = -1; for (int t = 0; t < NTRK; t++) if (is_drum(t)) dt = t;
+    while (trk != dt) { turn(ENC_ALGORITHM, POS[dt] > POS[trk] ? 1 : -1); wait_ms(100); }
+    seq_clear(&Q, dt); wait_ms(100);
+    tap(B_SEQ); wait_ms(300);
+    EXPECT(sticky == PG_STEPS && V.page == UI_DRUMS, "SEQ on the drums: not the DRUMS grid (page %d, view %d)", sticky, V.page);
+    /* the grid: a black key picks SNARE (G#3: SNARE / SNARE 2), white key 5 sets step 5, silently; again clears it */
+    tapkey(3); wait_ms(150);
+    EXPECT((last_note & 15) == 2, "G#3 on the grid: not SNARE (%d)", last_note & 15);
+    double pk0 = tw_peak; tw_peak = 0;
+    tapkey(white_key[4]); wait_ms(200);
+    EXPECT(seq_step_has(&Q, dt, 4, 2) && seq_count(&Q, dt) == 1, "grid key 5: step 5 not set with the snare (%d events)", seq_count(&Q, dt));
+    EXPECT(tw_peak < 0.02, "grid key 5: it sounded (peak %.3f)", tw_peak); (void)pk0;
+    EXPECT(dg_cur == 4, "grid: the step picked %d (4)", dg_cur);
+    tapkey(white_key[4]); wait_ms(200);
+    EXPECT(!seq_step_has(&Q, dt, 4, 2), "grid key 5 again: not cleared");
+    /* KNOB 2 the step, KNOB 3 the hit, KNOB 4 the level */
+    turn(ENC_KNOB2, 3); wait_ms(100);
+    EXPECT(dg_cur == 7, "KNOB 2: step %d (7)", dg_cur);
+    turn(ENC_KNOB3, 1); wait_ms(100);
+    EXPECT(seq_step_has(&Q, dt, 7, 2), "KNOB 3 right: no hit on step 8");
+    turn(ENC_KNOB4, -2); wait_ms(100);
+    { int v = 0; seq_hit_get(&Q, dt, 7, 2, &v, 0); EXPECT(v < 50, "KNOB 4 left twice: not GHOST (%d)", v); }
+    shot("drums-grid-285");
+    /* the sheet: OCT+ held, RATCHET x2, OCT- closes */
+    press(B_OCTU); wait_ms(600); release(B_OCTU); wait_ms(100);
+    EXPECT(dg_sheet, "OCT+ held on the grid: no sheet");
+    turn(ENC_KNOB2, 1); wait_ms(100);
+    { int r = 0; seq_hit_get(&Q, dt, 7, 2, 0, &r); EXPECT(r == 2, "sheet RATCHET +1: x%d", r); }
+    shot("drums-sheet-285");
+    tap(B_OCTD); wait_ms(100);
+    EXPECT(!dg_sheet, "OCT- did not close the sheet");
+    /* a drum step held: a kick and a hat on step 1; KNOB 1 picks the hat, LEVEL lowers the hat alone */
+    seq_step_toggle(&Q, dt, 0, 0, 100); seq_step_toggle(&Q, dt, 0, 4, 100); wait_ms(50);
+    shown_note(0);
+    press(B_SEQ); wait_ms(200); keydown(white_key[0]); wait_ms(200);
+    turn(ENC_KNOB1, 1); wait_ms(150);
+    EXPECT((last_note & 15) == 2 || (last_note & 15) == 4, "a step held, KNOB 1: sound %d", last_note & 15);
+    while ((last_note & 15) != 4) { turn(ENC_KNOB1, 1); wait_ms(100); }
+    turn(ENC_KNOB2, -2); wait_ms(150);
+    keyup(white_key[0]); wait_ms(100); release(B_SEQ); wait_ms(200);
+    { int vk = 0, vh = 0; seq_hit_get(&Q, dt, 0, 0, &vk, 0); seq_hit_get(&Q, dt, 0, 4, &vh, 0);
+      EXPECT(vk == 100 && vh < 50 && seq_step_has(&Q, dt, 0, 0) && seq_step_has(&Q, dt, 0, 4), "a step held, the hat's LEVEL: kick %d hat %d (100, ghost)", vk, vh); }
+    /* the live mutes: EDIT + a black key, then white key 3 (the snare): muted, not erased */
+    int n0 = seq_count(&Q, dt);
+    press(B_EDIT); wait_ms(200); tapkey(1); wait_ms(100);
+    EXPECT(dm_mode, "EDIT + a black key: not MUTE");
+    tapkey(white_key[2]); wait_ms(100); shot("drums-mute-285"); release(B_EDIT); wait_ms(200);
+    EXPECT(((dm_live >> 2) & 1) && seq_count(&Q, dt) == n0, "EDIT + key 3 in MUTE: snare muted %d, events %d (%d)", (dm_live >> 2) & 1, seq_count(&Q, dt), n0);
+    press(B_EDIT); wait_ms(200); tapkey(white_key[2]); wait_ms(100); tapkey(1); wait_ms(100); release(B_EDIT); wait_ms(200);
+    EXPECT(!((dm_live >> 2) & 1) && !dm_mode, "MUTE: the snare back %d, back to erasing %d", (dm_live >> 2) & 1, !dm_mode);
+    /* the hits light their keys: the kick on step 1, playing, on the TRACKS page */
+    tap(B_HOME); wait_ms(200);
+    tap(B_PLAY); int lit = 0; for (int i = 0; i < 300; i++) { wait_ms(10); lit += tw_led[14 + white_key[0]]; } tap(B_PLAY); wait_ms(200);
+    EXPECT(lit > 0, "the kick's key never lit while it played");
+    /* HOME held 0.7 s: the menu; let go, it stays; HOME closes it */
+    press(B_HOME); wait_ms(900);
+    EXPECT(menu_on && V.page != UI_TRACKS && home_sec >= 1, "HOME held: not the menu (section %d)", home_sec);
+    release(B_HOME); wait_ms(300);
+    EXPECT(menu_on, "HOME held 0.9 s and let go: the menu closed");
+    turn(ENC_SELECT, 1); wait_ms(100);
+    EXPECT(home_sec == 2, "the menu open: SELECT, section %d (2)", home_sec);
+    tap(B_HOME); wait_ms(200);
+    EXPECT(!menu_on, "HOME: the menu not closed");
+    /* FX held + HOME tapped: FX locked, and the FX page never gives way to the menu's (it flashed) */
+    tap(B_HOME); wait_ms(200);
+    { int other = 0; press(B_FX); wait_ms(500); press(B_HOME); for (int i = 0; i < 20; i++) { wait_ms(10); other += V.page != UI_LAYER && V.page != UI_PUNCH; } release(B_HOME); for (int i = 0; i < 20; i++) { wait_ms(10); other += V.page != UI_LAYER && V.page != UI_PUNCH; } release(B_FX); wait_ms(300);
+      EXPECT((locked & (1u << BTN_FX)) && !other && !menu_on, "FX + HOME: locked %d, another page %d frames, menu %d", (locked >> BTN_FX) & 1, other, menu_on);
+      tap(B_HOME); wait_ms(300); EXPECT(!locked && !menu_on && sticky != PG_TRACKS + 99, "HOME: FX not let go (%d)", locked); }
+    /* SAVE held + the key of the pattern playing, held: the project saved (it was not: nothing to copy), and seen: the
+     * tile fills while held, then a big green SAVED, SAVE lit */
+    {
+        seq_step_toggle(&Q, dt, 9, 2, 100); wait_ms(100);          /* (a change, so that a save writes) */
+        int cur = Q.t[trk].cur; uint32_t at0, n0 = 0, c0 = 0; store_proj_find(&at0, &n0, &c0);
+        /* (3.3.8) held 1 s and let go: nothing saved (1.5 s it takes: 0.6 s saved by mistake) */
+        press(B_SAVE); wait_ms(500); keydown(white_key[cur]); wait_ms(1000); keyup(white_key[cur]); wait_ms(100); release(B_SAVE); wait_ms(2000);   /* (3.4.0: before the autosave, quicker now: 2.5 s untouched) */
+        { uint32_t a, n, c = 0; store_proj_find(&a, &n, &c); EXPECT(c == c0 && !V.saved, "held 1 s: saved (%d)", V.saved); }
+        press(B_SAVE); wait_ms(500); keydown(white_key[cur]); wait_ms(700);
+        int gauge = V.tile[cur].style == T_GAUGE && V.tile[cur].lvl > 20 && V.tile[cur].lvl < 100;
+        shot("save-hold-gauge");
+        wait_ms(1000); keyup(white_key[cur]); wait_ms(100); release(B_SAVE);
+        int big = 0, save_lit = 0;
+        for (int i = 0; i < 400 && !big; i++) { wait_ms(10); big = V.saved == 1; }
+        if (big) { wait_ms(150); shot("save-saved"); save_lit = tw_led[B_SAVE]; }
+        uint32_t at1, n1 = 0, c1 = 0; store_proj_find(&at1, &n1, &c1);
+        EXPECT(gauge && big && save_lit && c1 != c0, "SAVE + the playing pattern's key held: gauge %d, SAVED shown %d, SAVE lit %d, written %d", gauge, big, save_lit, c1 != c0);
+        wait_ms(2500); EXPECT(!V.saved, "the SAVED banner stayed");
+        /* the same on the SONG page (SAVE tapped): a key held 1 s, nothing; 1.7 s, saved */
+        seq_step_toggle(&Q, dt, 11, 2, 100); wait_ms(100);
+        store_proj_find(&at0, &n0, &c0);
+        tap(B_HOME); wait_ms(200); tap(B_SAVE); wait_ms(300);
+        EXPECT(sticky == PG_SONG2, "SAVE tapped: not the SONG screen (%d)", sticky);   /* (4.0: SLOOP 2.8.5's; its keys: SAVE's) */
+        keydown(white_key[cur]); wait_ms(1000); keyup(white_key[cur]); wait_ms(2500);
+        { uint32_t a, n, c = 0; store_proj_find(&a, &n, &c); EXPECT(c == c0, "SONG page, a key held 1 s: saved"); }
+        /* (4.0, SLOOP 2.8's sections) let go before: a tap, the pattern back as saved, the change gone */
+        EXPECT(!seq_step_has(&Q, dt, 11, 2), "the pattern tapped again: not back as saved (the change kept)");
+        seq_step_toggle(&Q, dt, 11, 2, 100); wait_ms(100);
+        keydown(white_key[cur]); wait_ms(1700); keyup(white_key[cur]);
+        big = 0; for (int i = 0; i < 400 && !big; i++) { wait_ms(10); big = V.saved == 1; }
+        store_proj_find(&at1, &n1, &c1);
+        EXPECT(big && c1 != c0, "SONG page, a key held 1.7 s: SAVED %d, written %d", big, c1 != c0);
+        wait_ms(2500); tap(B_HOME); wait_ms(200);
+    }
+    /* 4.0: on TRACKS, KNOB 4 the pan again, as SLOOP 2.8.5 (the track's swing: SEQ + KNOB 3, SEQ > PATTERN) */
+    {
+        tap(B_HOME); wait_ms(200); if (vis_on) { tap(B_HOME); wait_ms(200); }
+        int s0 = Q.t[trk].swing; float p0 = S.trk[trk].pan.tgt;
+        turn(ENC_KNOB4, 5); wait_ms(200);
+        EXPECT(sticky == PG_TRACKS && Q.t[trk].swing == s0 && S.trk[trk].pan.tgt > p0 && V.knob[3].label && !strcmp(V.knob[3].label, "PAN"), "TRACKS KNOB 4: track swing %d -> %d, pan %.2f -> %.2f", s0, Q.t[trk].swing, p0, S.trk[trk].pan.tgt);
+        shot("tracks-pan");
+        turn(ENC_KNOB4, -5); wait_ms(100);
+        tap(B_SEQ); wait_ms(150); tap(B_SEQ); wait_ms(150);   /* SEQ > PATTERN: KNOB 3 SWG */
+        EXPECT(sticky == PG_PAT || is_drum(trk), "SEQ twice: not PATTERN (%d)", sticky);
+        if (sticky == PG_PAT) { turn(ENC_KNOB3, 5); wait_ms(150); EXPECT(Q.t[trk].swing > s0, "PATTERN KNOB 3: the track's swing %d -> %d", s0, Q.t[trk].swing); shot("pattern-swg"); turn(ENC_KNOB3, -5); }
+        tap(B_HOME); wait_ms(150);
+    }
+    /* 3.3.8: the USB cable pulled while it runs: the battery's level at once (it stayed "on USB" until a restart) */
+    {
+        extern int tw_usb_on;
+        wait_ms(300); int on_usb = V.batt_usb != 0;
+        tw_usb_on = 0; wait_ms(1500);
+        EXPECT(on_usb && V.batt_usb == 0 && V.batt <= 100, "USB pulled: still on USB %d (was %d), level %d", V.batt_usb, on_usb, V.batt);
+        shot("usb-pulled");
+        tw_usb_on = 1; wait_ms(500);
+        EXPECT(V.batt_usb != 0, "USB back: not shown");
+    }
+}
+static void sc_freetake(void)
+{
+    boot_wait();
+    static const double REC[] = { -60, 0, 50, 100, 150, 200 };
+    static const double STEP[] = { 163.0435, 156.25, 170.0 };   /* 92 BPM (the tempo set), 96, 88.2 */
+    for (int s = 0; s < 3; s++) for (int bars = 1; bars <= 2; bars++) for (int i = 0; i < 6; i++) {
+        int bad, n; ft_play(STEP[s], REC[i], bars, &bad, &n, 0);
+        EXPECT(bad == 0, "free take (a step %.1f ms, %d bar(s), REC %+.0f ms): %d hits off their step", STEP[s], bars, REC[i], bad);
+    }
+    for (int i = 0; i < 6; i++) {
+        int bad, n; ft_play(STEP[0], REC[i], 1, &bad, &n, 1);
+        EXPECT(bad == 0, "free take, a kick and a snare (REC %+.0f ms): %d hits off their step", REC[i], bad);
+        ft_play(STEP[0], REC[i] > 50 ? REC[i] : 100, 1, &bad, &n, 2);
+        EXPECT(bad == 0 && n == 10, "free take, the 1 played again (REC %+.0f ms): %d off, %d events (10)", REC[i], bad, n);
+    }
+    /* 3.3.8: NOTES draws a note where it plays: a note a third of a step late, QUANT ON: on its step */
+    {
+        new_project(0); trk = 0; wait_ms(200);
+        seq_add(&Q, 0, 4 * SEQ_TPS + SEQ_TPS / 3, SEQ_TPS, 60, 100);
+        Q.t[0].quant = 100; tap(B_SEQ); wait_ms(300);          /* (4.0, as SLOOP 2.8.5: SEQ tapped, NOTES) */
+        EXPECT(sticky == PG_NOTES && V.page == UI_NOTES && V.nr_n == 1 && V.nr[0].x == 16, "NOTES, QUANT ON: page %d, %d notes, x %d (16: step 5)", sticky, V.nr_n, V.nr[0].x);
+        Q.t[0].quant = 0; wait_ms(300);
+        EXPECT(V.nr_n == 1 && V.nr[0].x == 17, "NOTES, QUANT OFF: x %d (17: as played)", V.nr[0].x);
+        tap(B_SEQ); wait_ms(200);
+    }
+}
 static const struct { const char *name; void (*fn)(void); } SC[] = {
+    { "freetake", sc_freetake }, { "drums285", sc_drums285 }, { "savestutter", sc_savestutter }, { "savepat", sc_savepat }, { "oversave", sc_oversave }, { "recsave", sc_recsave }, { "sections", sc_sections },
     { "boot", sc_boot }, { "reboot", sc_reboot }, { "sounds", sc_sounds }, { "ukit", sc_ukit }, { "pages", sc_pages }, { "record", sc_record },
     { "powercut", sc_powercut }, { "aftercut", sc_after_cut }, { "sample", sc_sample }, { "editor", sc_editor },
-    { "monkey", sc_monkey }, { "import", sc_import }, { "midi", sc_midi }, { "rescue", sc_rescue }, { "calib", sc_calib }, { "settings", sc_settings }, { "play", sc_play }, { "levels", sc_levels }, { "mixui", sc_mixui }, { "fx", sc_fx }, { "editor2", sc_editor2 }, { "serve", sc_serve }, { "vis", sc_vis }, { "banksave", sc_banksave }, { "punch", sc_punch }, { "film", sc_film }, { "inst", sc_inst }, { "film2", sc_film2 }, { "bigproj", sc_bigproj }, { "bigcut", sc_bigcut }, { "punch2", sc_punch2 }, { "crumb", sc_crumb }, { "nan", sc_nan } };
+    { "monkey", sc_monkey }, { "import", sc_import }, { "midi", sc_midi }, { "rescue", sc_rescue }, { "calib", sc_calib }, { "settings", sc_settings }, { "play", sc_play }, { "levels", sc_levels }, { "mixui", sc_mixui }, { "fx", sc_fx }, { "editor2", sc_editor2 }, { "serve", sc_serve }, { "vis", sc_vis }, { "banksave", sc_banksave }, { "punch", sc_punch }, { "film", sc_film }, { "inst", sc_inst }, { "lowend", sc_lowend }, { "tour", sc_tour }, { "saveproj", sc_saveproj }, { "selwalk", sc_selwalk }, { "punchsnd", sc_punchsnd }, { "midiimp", sc_midiimp }, { "arpall", sc_arpall }, { "chordrec", sc_chordrec }, { "songeng", sc_songeng }, { "midi2", sc_midi2 }, { "film2", sc_film2 }, { "bigproj", sc_bigproj }, { "bigcut", sc_bigcut }, { "punch2", sc_punch2 }, { "crumb", sc_crumb }, { "nan", sc_nan } };
 static void (*tw_sc)(void);
 static void *tw_script(void *arg)
 {

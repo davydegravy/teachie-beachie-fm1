@@ -8,6 +8,7 @@
 void usb_midi_open(void);                  /* on the bus (25 ms: before the sound starts) */
 void usb_midi_poll(void);
 int usb_midi_ready(void);                  /* a host has configured us */
+int usb_host_live(void);                  /* (3.3.8) configured and its frames still coming: 0 within 0.1 s of the cable pulled */
 void usb_midi_close(void);                 /* off the bus: the host sees us go */
 int usb_midi_take(uint8_t pk[4]);          /* a packet received: 1, or 0 none */
 int usb_midi_put(const uint8_t pk[4]);     /* a packet queued to send: 1, or 0 the queue full (it is lost) */

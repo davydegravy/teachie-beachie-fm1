@@ -13,7 +13,7 @@ let fails = 0;
 const check = (c, what) => { if (!c) { console.log('FAIL ' + what); fails++; } };
 
 /* the fake FM-1: m-bootloader's MIDI MODE ("FM-1 Update"), inside the page */
-const FAKE = () => {
+const FAKE = (portName) => {
   const KEY = 0x980F, outputs = new Map(), inputs = new Map();
   const access = { outputs, inputs, onstatechange: null };
   function frame(cmd, body) {
@@ -24,7 +24,7 @@ const FAKE = () => {
     if (bits) o.push(acc & 127); o.push(0xF7); return o;
   }
   function unpack(d) { const o = []; let acc = 0, bits = 0; for (const b of d) { acc |= (b & 127) << bits; bits += 7; if (bits >= 8) { o.push(acc & 255); acc >>= 8; bits -= 8; } } return o; }
-  const inp = { name: 'FM-1 Update', state: 'connected', onmidimessage: null };
+  const inp = { name: portName, state: 'connected', onmidimessage: null };
   const toPage = d => setTimeout(() => inp.onmidimessage && inp.onmidimessage({ data: Uint8Array.from(d) }), 0);
   let pending = null; window.__fm1 = { reads: 0, wrote: false, slow: 0 };
   const read = (addr, len) => new Promise(res => { pending = res; toPage(frame(0x30, [0, addr & 255, addr >> 8 & 255, addr >> 16 & 255, addr >>> 24, len & 255, len >> 8 & 255, len >> 16 & 255])); });
@@ -40,7 +40,7 @@ const FAKE = () => {
     window.__fm1.wrote = true;
     await read(0xF0000000, 8);
   }
-  const out = { name: 'FM-1 Update', state: 'connected', send: d => setTimeout(() => {
+  const out = { name: portName, state: 'connected', send: d => setTimeout(() => {
     if (d.length === 6 && d[4] === 0x7F) { install(); return; }
     const m = unpack(d.slice(1, d.length - 1));
     if (m[2] === 0x12) {
@@ -54,6 +54,9 @@ const FAKE = () => {
       toPage(frame(0x23, body));
     } else if (m[2] === 0x30 && pending) { const r = pending; pending = null; r(m); }
   }, 0) };
+  /* (issue #2: a Mac keeps old names; a firmware's port that never answers 0x12 is passed over) */
+  if (/Felucca/.test(portName)) { const so = { name: 'Felucca', state: 'connected', send() {} }, si = { name: 'Felucca', state: 'connected', onmidimessage: null };
+    outputs.set('old', so); inputs.set('old', si); }
   window.__plug = () => { outputs.set('fm1', out); inputs.set('fm1', inp); if (access.onstatechange) access.onstatechange({ port: inp }); };
   navigator.requestMIDIAccess = async () => access;
 };
@@ -64,7 +67,7 @@ const FAKE = () => {
     const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, locale: lang === 'fr' ? 'fr-FR' : 'en-US', acceptDownloads: true });
     const pg = await ctx.newPage();
     const errs = []; pg.on('pageerror', e => errs.push(e.message));
-    await pg.addInitScript(FAKE);
+    await pg.addInitScript(FAKE, lang === 'fr' ? 'Felucca Update' : 'FM-1 Update');   /* (fr: as a Mac names it after SLOOP 2.8, issue #2) */
     await pg.goto('file://' + path.resolve(page));
     const shot = async (n) => pg.screenshot({ path: path.join(OUT, `installer-${lang}-${n}.png`) });
     check(await pg.evaluate(() => document.documentElement.lang) === lang, lang + ': the language from the browser');
@@ -79,10 +82,10 @@ const FAKE = () => {
     // 3: connect, the FM-1 plugged a moment later
     check(await pg.isVisible('#p3'), lang + ': step 3 shown');
     await pg.click('#con'); await pg.waitForTimeout(200);
-    check(await pg.isVisible('#waiting'), lang + ': waiting for the FM-1');
+    check(lang === 'fr' || await pg.isVisible('#waiting'), lang + ': waiting for the FM-1');
     await shot('3-waiting');
     await pg.evaluate(() => window.__plug());
-    await pg.waitForSelector('#device:not(.hide)', { timeout: 5000 });
+    await pg.waitForSelector('#device:not(.hide)', { timeout: 15000 });
     check((await pg.textContent('#devMeta')).includes('980F'), lang + ': the chip key shown');
     await shot('3-connected');
     await pg.click('#n3');

@@ -255,6 +255,20 @@ static void song_hand_test(void)
     CHECK(ok, "the song made by hand did not play as set");
     run_to(7 * SEQ_BAR + 10); CHECK(seq_song_at(&S) == 0, "entry %d at the loop", seq_song_at(&S));
     seq_play(&S, 0);
+    /* (3.4.2, issue #27) from line 2 (its bar 3): 41, then 42 x4, then round to line 1; stopped or playing */
+    for (int pl = 0; pl < 2; pl++) {
+        if (pl) { seq_song_play(&S, 0); seq_play(&S, 1); run_to(SEQ_BAR / 2); seq_song_play_from(&S, 1, 1); run_to(SEQ_BAR); }
+        else { seq_song_play_from(&S, 1, 1); seq_play(&S, 1); }
+        int w2[6] = { 41, 42, 42, 42, 42, 40 }, ok2 = 1; uint32_t b0 = seq_bar(&S);
+        for (int bar = 0; bar < 6; bar++) {
+            int before = nlog; run_to((b0 + (uint32_t)bar + 1) * SEQ_BAR);
+            int got = -1; for (int i = before; i < nlog; i++) if (log_[i].on && log_[i].trk == 0) got = log_[i].note;
+            if (got != w2[bar]) { ok2 = 0; printf("  from line 2, %s, bar %d: %d (want %d)\n", pl ? "playing" : "stopped", bar + 1, got, w2[bar]); }
+        }
+        CHECK(ok2, "the song from line 2 (%s) did not play from there", pl ? "playing" : "stopped");
+        seq_play(&S, 0);
+    }
+    seq_song_play(&S, 0);
     seq_song_set_count(&S, 2); CHECK(S.song_n == 2 && S.song_len == 3, "2 entries: %d bars", S.song_len);
     seq_song_set_count(&S, 0); CHECK(!S.song_n && !S.song_len && !S.song_play, "no song");
 }
@@ -399,15 +413,21 @@ static void div_test(void)
     for (int st = 0; st < 16; st++) seq_step_toggle(&S, 0, st, 36, 100);
     seq_set_div(&S, 0, SEQ_DIV_16T); seq_play(&S, 1); run_to(4 * SEQ_BAR);
     CHECK(ons(0, 36) == 96, "16T: %d in 4 bars (want 96)", ons(0, 36));
-    /* changed while playing: the step goes on from where it was, nothing doubled or lost */
+    /* (3.4.2, issues #18, #26) changed while playing: the track on the grid as if it had always had this DIV (2.8.5),
+     * back to 1/16 in step with a 1/16 track, nothing doubled or lost */
     reset(120.0f);
-    for (int st = 0; st < 16; st++) seq_step_toggle(&S, 0, st, 36, 100);
-    seq_play(&S, 1); run_to(SEQ_BAR + SEQ_BAR / 2);
-    uint32_t at = seq_step_of(&S, 0);
+    for (int st = 0; st < 16; st++) { seq_step_toggle(&S, 0, st, 36, 100); seq_step_toggle(&S, 1, st, 48, 100); }
+    seq_play(&S, 1); run_to(SEQ_BAR + SEQ_BAR / 2 + SEQ_TPS / 3);
     seq_set_div(&S, 0, SEQ_DIV_8);
-    CHECK(seq_step_of(&S, 0) == at, "the step moved: %u -> %u", at, seq_step_of(&S, 0));
-    int before = ons(0, 36); run_to(SEQ_BAR * 2 + SEQ_BAR / 2);
+    CHECK(seq_step_of(&S, 0) == (seq_local(&S, 0, S.tick) / SEQ_TPS) % 16, "1/8: step %u, the grid's %u", seq_step_of(&S, 0), (seq_local(&S, 0, S.tick) / SEQ_TPS) % 16);
+    int before = ons(0, 36); run_to(SEQ_BAR * 2 + SEQ_BAR / 2 + SEQ_TPS / 3);
     CHECK(ons(0, 36) - before == 8, "a bar at 1/8 after the change: %d notes", ons(0, 36) - before);
+    seq_set_div(&S, 0, SEQ_DIV_16T); run_to(SEQ_BAR * 3 + SEQ_TPS / 5);
+    seq_set_div(&S, 0, SEQ_DIV_16);
+    CHECK(seq_step_of(&S, 0) == seq_step_of(&S, 1), "back to 1/16: step %u, the 1/16 track's %u", seq_step_of(&S, 0), seq_step_of(&S, 1));
+    nlog = 0; run_to(SEQ_BAR * 5);
+    int same = 1; for (int i = 0; i + 1 < nlog; i++) if (log_[i].on && log_[i].trk == 1) { int f = 0; for (int j = 0; j < nlog; j++) if (log_[j].on && log_[j].trk == 0 && log_[j].tick == log_[i].tick) f = 1; if (!f) same = 0; }
+    CHECK(same && ons(0, 36) == ons(1, 48), "then the two tracks together (%d, %d hits)", ons(0, 36), ons(1, 48));
     seq_play(&S, 0);
     CHECK(held_notes == 0, "%d notes left on", held_notes);
     /* GATE 50: the notes last half as long */
@@ -416,6 +436,40 @@ static void div_test(void)
     uint32_t t_on = 0, t_off = 0;
     for (int i = 0; i < nlog; i++) { if (log_[i].on && !t_on) t_on = log_[i].tick + 1; else if (!log_[i].on && t_on && !t_off) t_off = log_[i].tick; }
     CHECK(t_off && t_off - (t_on - 1) <= SEQ_TPS * 3 / 8 + 20 && t_off - (t_on - 1) >= SEQ_TPS * 3 / 8 - 20, "GATE 50: a note of %u ticks (want ~%d)", t_off - (t_on - 1), SEQ_TPS * 3 / 8);
+}
+
+/* (3.4.2) issue #17: a ratchet's hits share the step as swung (2.8.5); issue #24: a pattern change is told before the
+ * new pattern's first notes */
+static int sw_calls, sw_first_on;
+static void sw_(seq_t *s, int t) { (void)s; (void)t; sw_calls++; if (sw_first_on < 0) sw_first_on = nlog; }
+static void swing_switch_test(void)
+{
+    printf("ratchets follow the swing; a pattern change is told before its notes\n");
+    for (int sw = 0; sw <= 100; sw += 50) {
+        reset(120.0f); seq_step_toggle(&S, 0, 0, 36, 100); seq_step_ratchet(&S, 0, 0, 4); seq_step_toggle(&S, 0, 1, 38, 100);
+        seq_set_swing(&S, -1, sw); seq_play(&S, 1); run_to(SEQ_TPS * 2);
+        uint32_t t[5]; int n = 0; for (int i = 0; i < nlog && n < 5; i++) if (log_[i].on) t[n++] = log_[i].tick;
+        uint32_t step = SEQ_TPS + (uint32_t)sw * (SEQ_TPS / 2) / 100u;           /* the even step, swung longer */
+        int ok = n == 5; for (int h = 0; ok && h < 4; h++) { int want = (int)(h * step / 4), d = (int)t[h] - want; if (d < -8 || d > 8) ok = 0; }
+        CHECK(ok && (int)t[4] - (int)step >= -8 && (int)t[4] - (int)step <= 8, "swing %d: hits at %u %u %u %u, the next step at %u (step %u)", sw, t[0], t[1], t[2], t[3], t[4], step);
+    }
+    reset(120.0f); S.switched = sw_; sw_calls = 0; sw_first_on = -1;
+    seq_step_toggle(&S, 0, 0, 36, 100); seq_play(&S, 1); run_to(SEQ_TPS * 4);
+    S.t[0].pat[1] = S.t[0].pat[0]; S.t[0].pat[1].ev[0].note = 40; seq_queue(&S, 0, 1);
+    int at = nlog; run_to(SEQ_BAR + SEQ_TPS);
+    int first40 = -1; for (int i = at; i < nlog; i++) if (log_[i].on && log_[i].note == 40) { first40 = i; break; }
+    CHECK(sw_calls == 1 && first40 >= 0 && sw_first_on >= 0 && sw_first_on <= first40, "told %d time(s), before its first note (%d <= %d)", sw_calls, sw_first_on, first40);
+    seq_play(&S, 0);
+    /* (3.4.2, issue #28) the arp's notes recorded at 1/32 on 1/16 steps play there with QUANT 100 (were pulled onto
+     * the steps: the arp sounded at 1/16) */
+    reset(120.0f); S.t[0].quant = 100; seq_play(&S, 1); seq_record(&S, 1, 0);
+    run_to(SEQ_TPS / 2); S.rec_free = 1; seq_key(&S, 50, 100, 1, 0); run_to(SEQ_TPS / 2 + SEQ_TPS / 4); seq_key(&S, 50, 0, 0, 0);
+    S.rec_free = 0; run_to(2 * SEQ_TPS + SEQ_TPS / 2); seq_key(&S, 52, 100, 1, 0); run_to(2 * SEQ_TPS + 3 * SEQ_TPS / 4); seq_key(&S, 52, 0, 0, 0);
+    seq_record(&S, 0, 0); nlog = 0; run_to(SEQ_BAR + 4 * SEQ_TPS);
+    uint32_t t50 = 0, t52 = 0; for (int i = 0; i < nlog; i++) if (log_[i].on && log_[i].tick >= SEQ_BAR - 16) { if (log_[i].note == 50 && !t50) t50 = log_[i].tick; if (log_[i].note == 52 && !t52) t52 = log_[i].tick; }
+    CHECK(t50 >= SEQ_BAR + SEQ_TPS / 2 - 16 && t50 <= SEQ_BAR + SEQ_TPS / 2 + 16 && t52 >= SEQ_BAR + 3 * SEQ_TPS - 16 && t52 <= SEQ_BAR + 3 * SEQ_TPS + 16,
+          "QUANT 100: an arp note at %u (want %u, as played), a key's at %u (want %u, on the step)", t50 - SEQ_BAR, SEQ_TPS / 2, t52 - SEQ_BAR, 3 * SEQ_TPS);
+    seq_play(&S, 0);
 }
 
 static void accent_slide_test(void)
@@ -500,7 +554,7 @@ static void loop_stack_test(void)
 }
 int main(void)
 {
-    add_test(); div_test();
+    add_test(); div_test(); swing_switch_test();
     timing_test(); polymeter_test(); switch_test(); record_test(); edit_test(); step_test(); song_test(); song_hand_test(); move_test(); lenmax_test(); put_test(); sloop_test(); accent_slide_test(); loop_stack_test();
     printf("%d checks, %d failed\n", checks, fails);
     return fails != 0;

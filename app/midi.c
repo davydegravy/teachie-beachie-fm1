@@ -128,6 +128,7 @@ midi_cc_dest midi_cc(int cc)
     case 5:  d.what = CC_PARAM; d.param = SP_GLIDE; break;
     case 7:  d.what = CC_LEVEL; break;
     case 10: d.what = CC_PAN; break;
+    case 11: d.what = CC_LEVEL; break;                              /* (3.4.2, issue #21) EXPRESSION: the level too */
     case 64: d.what = CC_SUSTAIN; break;
     case 71: d.what = CC_RES; break;                                /* the engine's resonance (RES or Q) */
     case 72: d.what = CC_PARAM; d.param = SP_REL; break;

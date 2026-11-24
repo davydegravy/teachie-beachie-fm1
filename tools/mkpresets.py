@@ -52,12 +52,13 @@ for name, eng, kind, p in rows:
     fx = p['fx'] or [0, 0, 0, 0]
     arp = [a + 1 for a in p['arp']] if p['arp'] else [0, 0, 0, 0]
     xs = []
+    lead = kind == 'K_LEAD'   # (4.0.10, Sam: the leads POLY, to play chords; the basses stay MONO)
     for k, v in p['x']:
-        if k in SP: xs += [SP[k], c(v)]
+        if k in SP and not (lead and k == 'P_VOICE'): xs += [SP[k], c(v)]
     xs = (xs + ['-1'] * 8)[:8]
     g = gains.get(name, 1.0)
     out.append('    { %-14s %s, %s, { %s }, { %s }, %d, %d, { %s }, { %s }, { %s }, %d },' % (
-        '"%s",' % name, eng, kind, ', '.join(map(c, p['e'])), ', '.join(map(c, p['env'])), p['fenv'], p['mono'],
+        '"%s",' % name, eng, kind, ', '.join(map(c, p['e'])), ', '.join(map(c, p['env'])), p['fenv'], 0 if lead else p['mono'],
         ', '.join(map(c, fx)), ', '.join(map(c, arp)), ', '.join(xs), round(g * 1000)))
 for k, name in enumerate(KITS):
     out.append('    { %-14s ENG_DRUM, K_KIT, { %d, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, '

@@ -100,6 +100,7 @@ function drawKits() {
   const ukBtn = (kit, name, ok) => { const v = UK_BASE + kit, b = button(name, () => act(10, DRUM_T, v & 255, v >> 8), 'sm'); b.dataset.i = v; b.disabled = !ok; ul.appendChild(b); KIT.btns.push(b); };
   (async () => { let sl = null; try { const b = await ask(ED.SAMPLE, [0]); sl = []; for (let i = 0; i < b[1]; i++) { const o = 3 + 11 * i; sl.push({ nz: b[o], name: str(b, o + 1, 8) }); } } catch (e) {}
     for (let k = 0; k < 4; k++) { const s = sl && sl[k]; ukBtn(KIT_USR + k, s && s.nz ? s.name + ' (USR' + (k + 1) + ')' : 'USR' + (k + 1) + ' · ' + L('empty'), !!(s && s.nz)); }
+    { const a3 = sl && sl[2] && sl[2].nz, a4 = sl && sl[3] && sl[3].nz; ukBtn(KIT_USR + 4, 'USR3+4' + (a3 || a4 ? '' : ' · ' + L('empty')), !!(a3 || a4)); }   /* (4.0.3: one kit over two slots) */
     for (let k = 0; k < 4; k++) ukBtn(KIT_SYN + k, 'SYN' + (k + 1), true);
     if (LV) KIT.upd(LV); })();
   const g = el('div', 'drumpads'); g.style.marginTop = '12px'; c.appendChild(g); KIT.knobs = [];

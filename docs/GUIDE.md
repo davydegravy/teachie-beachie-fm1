@@ -47,8 +47,9 @@ SLOOP 3 never writes SLOOP 2.8's area: it reads it. At the first start:
 - your **sections A–D** become **your project**, patterns 1–4: notes, ties, nudges, conditions, ratchets, **locks**
   (of the sound and of the mix), each section's sound (the pattern keeps its own), the arpeggiators, the kit and the
   TUNE / DECAY of each drum sound, the mix, the delay, the reverb, the chorus, DUST / DUCK / FILT, TEXTURE, and
-  **your song** (tap SAVE twice to see it);
-- your **32 user presets** become USER SOUNDS (EDIT 5/6), your **favourites** the FAVS category of SOUNDS (EDIT 6/6);
+  **your song** (SAVE on the main screen, then SELECT: SONG 2/3);
+- your **32 user presets** become your sounds (SAVE > USER, and SOUNDS > YOURS), your **favourites** the FAVS category
+  of SOUNDS;
 - your **samples USR1–4**, your **SYN1–4 kits**, your **FM6 bank**: read where they are;
 - your settings: menu, lights, calibration, MIDI LEARN, MIDI settings.
 
@@ -63,11 +64,26 @@ SLOOP 2.8 is still there.
 
 ## What is new or has moved
 
+**3.4.0: SLOOP 2.8.5's pages and gestures.** From 3.4.0, SLOOP 3 has SLOOP 2.8.5's pages, layers and workflow, with
+SLOOP 3's lettering, its SOUNDS and FAVS, the NOTES and DRUMS screens, the MIX page (GLO held) and its 5 tracks,
+8 patterns a track and 128 steps. The table at the end of this section lists where everything is. **A project saved by
+3.4.0 can't be read by 3.3.x**: back up everything with the editor before installing (Projects, BACK UP EVERYTHING).
+
+**Saving as in SLOOP 2.8.** What plays can be changed freely: the autosave keeps it, and it comes back at power-on.
+The 8 patterns only change when you save them: a pattern you leave for another, or play again (SAVE held + its key),
+comes back as it was saved, with its sound. To save the project: SAVE on the main screen, SAVE again (PROJECT 3/3),
+KNOB 1; or SAVE held + a pattern's key held 1.5 s; or HOME held + white key 5.
+
 **Recording (3.3.7).** A new project records **on the steps** (QUANT ON), as SLOOP 2.8 did. To keep your notes exactly
 where you played them: REC armed while stopped (REC READY), KNOB 4 **QUANT OFF**. Recording over a loop adds the notes
 you play; **a note played again where it already is takes its place**, so a chord played on every loop is written
 once. Changing every track's pattern (or a chain, or the song) starts **all the tracks together**, so tracks of the
 same length never drift apart.
+
+**The free take (3.3.8).** On an empty project, REC then just play (REC READY · PLAY FREELY): the take starts on your
+first note. Press REC on the "1" after your last bar: SLOOP makes a loop of 1, 2 or 4 bars at the tempo you played (the one set, if within 3 %).
+The loop's length comes from your notes, so pressing REC a little late (or early) no longer moves the last hits a
+step early or leaves a hole at the end; a "1" played again just before REC is kept once.
 
 **Messages come in two kinds:**
 
@@ -92,7 +108,7 @@ Two ways there:
 
 - **Turn PRESETS**: the sound changes as before, and SOUNDS shows where you are. The keys play as usual. The page
   closes by itself 4 seconds after the last turn. **EDIT** tapped while it shows: it stays, and the keys choose.
-- **Tap EDIT up to SOUNDS (6/6)**: there, **a white key takes its tile's sound and plays it**. The white keys that
+- **Tap EDIT up to SOUNDS (its last page)**: there, **a white key takes its tile's sound and plays it**. The white keys that
   hold a sound glow faintly, the one with the track's sound is lit. The black keys play the track's sound without
   changing anything.
 
@@ -116,34 +132,43 @@ In the web editor, **FM6 bank** tab: **Load DX7 voices (.syx)**. If the bank is 
 B1–B27 by themselves (a DX7 file holds 32, the bank 27). Then **Save the bank to the FM-1**. On the FM-1 they are in
 SOUNDS, category **DX7**, by name, and become favourites like the other sounds.
 
-**On the FM-1's speaker: HOME held + SELECT, AUDIO page, SPEAKER ON.** The small speaker can't play the lows (the body
+**On the FM-1's speaker: HOME held, SELECT to AUDIO, SPEAKER LOWCUT ON.** The small speaker can't play the lows (the body
 of an 808 kick is around 50 Hz): without this setting the drums sound very weak on it. SPEAKER cuts what it can't play
 and brings the drums' lows back as harmonics it can play, about 9 dB more drums on an 808 kit. On headphones or
-speakers, leave it OFF. It is kept with the settings; it is SLOOP 2.8's SPEAKER LOWCUT, taken over at the first start.
+speakers, leave it OFF: it cuts the lows on the jack too (USB audio always keeps them). It is kept with the
+settings; it is SLOOP 2.8's SPEAKER LOWCUT, taken over at the first start, and when it is on the FM-1 says so at
+power-on (SPEAKER LOWCUT ON: HOME > AUDIO).
 
 | Where | What |
 |---|---|
-| ALGORITHM / PRESETS / SELECT | the track / its sound: **PRESETS opens SOUNDS** (above), the next or previous sound, category after category / the tempo, or the next page of a group |
-| 5 tracks | the synths on 1–4 (the 4th, pink, is one more synth), the drums on 5; GLO held: 1–5 mute, 6–10 solo; in MIDI, the synths on channels 1–4, the drums on 10 |
-| SEQ tapped | the steps (drums: the DRUMS grid); **tapped twice** (synth): **NOTES**, the full-screen piano roll |
-| NOTES | the keys write the step; KNOB STEP NOTE LEN FORCE; **PRESETS** the zoom (8 16 32 64 steps); **OCT+ held** the note's sheet: SLIDE NUDGE FILL MOVE COPY DELETE (KNOB 1 the line, KNOB 2 the value, OCT+ tapped does it, OCT- closes) |
-| SEQ held + a step | NOTE VEL RATCH NUDGE; PRESETS a lock, ALGORITHM which one (the sound, LEVEL, PAN, CHO, DLY, REV, FILT, INSERT, SLICER) |
-| REC | **tapped**: REC on or off (when let go); **held 2 s**: the track erased, and nothing else (from 0.5 s: HOLD REC: ERASE THE TRACK; let go before 2 s: ERASE CANCELLED); EDIT + OCT- brings it back |
-| SAVE tapped | SONG (the patterns on the keys); **SELECT**: SONG 2/2, the song line by line (LINE, PAT, BARS, LINES); **on SONG or SONG 2/2, SAVE tapped saves** (the song with its project: PROJECT SAVED, the page stays); HOME leaves; **twice quickly**, anywhere: save the project |
-| SAVE held | (3.3.6: the 8 patterns' keys lit, 1–4 and 5–8 each from faint to full, the pattern playing blinking; 13–16 faint) 1–8 **tapped**: that pattern on the bar, as it is (empty: a new pattern, no notes, with the sound that plays: PATTERN 3: NEW, EMPTY); **held 0.6 s**: the pattern that plays is first copied there, notes and sound (PATTERN 3: COPY OF 1; EDIT + OCT- undoes it), then the project is written: PROJECT SAVED; 13 LOOP / SONG, 14 SONG REC, 15 CHAIN, 16 this track / all |
-| HOME held | **the project** (3.3.5: one, guaranteed to fit at its fullest; MEMORY shows how full it is): white key 1 **OPEN** (the saved one again), key 3 **NEW**, key 5 **SAVE** (3.3.6: a key left empty between them; lit while HOME is held; the one asked again blinks), each asked twice when something would be lost (AGAIN: CHANGES LOST, AGAIN FOR A NEW ONE); + SELECT: the menu (SCREEN: COLOR and ACCEL; LIGHTS; AUDIO; SEQ · SYSTEM, calibration) |
-| EDIT tapped | OSC 1/6, FILTER, VOICE, PLUS, USER SOUNDS (your 32), **SOUNDS** (every sound by category, your 16 favourites) |
-| FX tapped | SENDS, INSERT, INSERT MIX, SLICER, **DELAY** (TIME FDBK COLR MIX), **REV · CHO** (SIZE DAMP CRT CDP), MASTER |
-| FX held + a key | a punch-in effect while the key is held (27, white and black keys); **FX held + HOME** locks the layer: play them one into the next; FX tapped lets go |
-| GLO tapped | GLOBAL, TEXTURE (2 pages), MIDI (2 pages), **REC 6/6** (TRACK: when you change track while recording, **STOP** stops REC (the default), **KEEP** goes on recording on the new track; START: NOTE or CLICK); on these pages **SELECT turns the pages** (3.3.6; the tempo is KNOB 1 on GLOBAL); GLO + F#3: MIDI LEARN |
-| 8 patterns a track | each keeps its own sound; a track can switch on its own (SAVE held + 16). Nothing to save apart: the 8 patterns are in the project. Each write of the project is shown: PROJECT SAVED (SAVE twice quickly, a copy by SAVE held + 1–8 held), PROJECT SAVED (AUTO) (the autosave, when stopped) |
-| Undo | EDIT held + OCT- (8 levels), OCT+ redoes |
+| ALGORITHM / PRESETS / SELECT | the track (it stops at track 1 and track 5) / its sound (**PRESETS opens SOUNDS**, above) / the next or previous page of the button you tapped (it stops at the ends) |
+| The main screen (TRACKS) | KNOB 1 **SWING**, KNOB 2 the track's **LEVEL**, KNOB 3 its **STEPS**, KNOB 4 its **PAN**. Top right: the playing pattern's number in a square, in the track's colour (yellow while it waits for the bar), the battery under it |
+| 5 tracks | the synths on 1–4 (the 4th, pink, is one more synth), the drums on 5. In MIDI: the synths on channels 1–4, the drums on 5 or 10 (out: 10) |
+| EDIT tapped | EDIT 1, EDIT 2 (the engine's values), FILTER (ANALOG), VOICE (VCE GLD GLMOD PRIO), VOICE 2 (TRIM DTUNE PAN MUTE), SOUNDS. The drums: the DRUMS grid, KIT, SOUND |
+| FX tapped | FX (DST CHO DLY REV), FILTER, SLICER (its 16 steps drawn, the one playing marked), INSERT, INSERT 2, DLY, REV · CHO |
+| LFO, ENV tapped | LFO, LFO 2, LFO DEST · ENV, ENV DEST |
+| SEQ tapped | NOTES (the full-screen piano roll), PATTERN (LEN DIV SWG GATE), SONG. The drums: the DRUMS grid, KIT, SOUND (each sound's TUNE, DEC and LEVEL, from -12 to +6 dB; the kit's level: MIX), PATTERN, SONG |
+| SEL tapped / held | SEL (ROOT SCL QNT CHORD), SEL 2 (TRN STRUM VLEAD; STRUM in ms, below 0 from the highest note down) / CHORD, SCALE, KEYS, TRANSPOSE; a key sets the key |
+| ARP tapped / held | ARP, ARP 2 / the roll: RATE |
+| GLO tapped | GLOBAL (BPM SWING CLICK), MASTER, SYSTEM, DRUMS, TEXTURE, TEXTURE 2, MIDI, MIDI 2, REC (TRACK: STOP or KEEP when you change track while recording; START: NOTE or CLICK); GLO + F#3: MIDI LEARN (CC 1, the mod wheel, and CC 11 can be learnt too; the keys' pressure acts as CC 1; CC 11 alone is the track's level) |
+| GLO held: MIX | one column a track: keys 1–5 mute, 6–10 solo, then FILL, BAR, TAP 16 and the tempo; ALGORITHM the track, KNOB 1–4 its LVL, PAN, DLY, REV |
+| SAVE tapped, on the main screen | **SONG 1/3** (the patterns on the keys), **SONG 2/3** (the song line by line), **PROJECT 3/3**: KNOB 1 **SAVE**, KNOB 2 **NEW**, KNOB 3 **LOAD** (the saved project); NEW and LOAD ask for one more turn when something would be lost. SELECT goes from one page to the next, SAVE from SONG to PROJECT and back, HOME leaves |
+| SAVE tapped, on a sound's page | PRESETS, USER (SLOT LOAD ERASE SAVE: your 32 sounds), PATTERNS (PAT ERASE LOAD SAVE), TOOLS (CLRSQ INIT NEW) |
+| SAVE held | 1–8 **tapped**: that pattern, as it was saved, on the bar (stopped: at once); the one playing comes back as saved; several tapped without letting go of SAVE: a **chain**. **Held 1.5 s** (its tile fills): what plays is saved into that pattern, and the project with it; a pattern already used asks once more (AGAIN: SAVE INTO n). A big green **✓ SAVED** says it is done. 13 LOOP / SONG (on the SONG pages: from the LINE shown, then round to line 1), 14 SONG REC, 15 this track / all, 16 the SONG screen |
+| HOME | **tapped**: the main screen (there: the visualiser). **Held 0.7 s: the menu** (SCREEN, LIGHTS, AUDIO, SEQ, SYSTEM), which stays open when you let go; SELECT the sections, KNOB 1–4 their settings, HOME closes it. SYSTEM, KNOB 4: the **VERSION**. While HOME is held, white key 1 **OPEN**, key 3 **NEW**, key 5 **SAVE** |
+| FX held + a key | a punch-in effect while the key is held (27, white and black keys); KNOB FILTER, DUST, DUCK, TRK FILT; FADE shown top left; **FX held + HOME** locks the layer |
+| EDIT held | a key erases its notes (on the drums: its sound); KNOB SHIFT, LENGTH, TRANSPOSE; EDIT held + a black key (drums): **MUTE** mode, the white keys mute their sound (not saved) |
+| DRUMS grid | the **black keys** pick the sound, the **white keys** are the 16 steps of the page for that sound (silently). KNOB 1 SOUND, KNOB 2 STEP, KNOB 3 HIT, KNOB 4 LEVEL; OCT- / OCT+ the page; **OCT+ held** the hit's sheet: RATCHET, NUDGE, FILL, MOVE, COPY, DELETE |
+| NOTES | the keys write the step; KNOB STEP NOTE LEN FORCE; PRESETS the zoom (8 16 32 64 steps); **OCT+ held** the note's sheet: SLIDE NUDGE FILL MOVE COPY DELETE |
+| SEQ held | the track's SOUND / NOTE, DIV, SWING, LENGTH; a step held: that step (on the drums, KNOB 1 picks which sound of the step) |
+| REC | **tapped**: REC on or off; **held 2 s**: the track erased (EDIT + OCT- brings it back) |
+| Undo | EDIT held + OCT- (3 levels), OCT+ redoes |
 
 ## The start and the visualiser
 
 At power-on the **sloop logo** draws itself in (the dial, the hull, the mast, the two sails: the mainsail in five
 bands in the tracks' colours, then the word sloop), about 2.5 s. A button, a key or a knob stops it at once (and does
-what it usually does). No window with the name and the version follows: the version is in HOME. A window shows at the
+what it usually does). No window with the name and the version follows: the version is in the menu (HOME held, SYSTEM, KNOB 4). A window shows at the
 start only when something asks for it (CORE 2: SILENT, SAFE START, SLOOP 2.8 IMPORTED).
 
 **On the TRACKS screen, HOME tapped: the visualiser**, full screen. **SELECT** changes the style (its name shows for a
@@ -166,13 +191,12 @@ is the saves', lent when it is free.
 
 ## The battery
 
-A thin line along the **bottom of the screen** shows the battery, on every page and on the visualiser: as long as
-the charge left. **Green**, then **yellow** under 30 %, **red** under 15 %, and it **blinks** under 8 %: time to
-plug the FM-1 in. It is worked out from the battery's voltage, so it reads a few % lower while the music plays, and
-it moves slowly (it is smoothed, once a second).
+An icon in the **top right corner**, on every page: three bars for the charge left. Under 15 % the last bar blinks red:
+time to plug the FM-1 in. It is worked out from the battery's voltage, so it reads a little lower while the music
+plays, and it moves slowly (it is smoothed, once a second).
 
-Plugged into a **computer**, the FM-1 is powered and charged by the USB: the line turns **blue** and a light runs
-along it. (On a wall charger, the line shows the level, a little high while it charges.)
+Plugged into a **computer**, the FM-1 is powered and charged by the USB: the bars fill in turn. Pull the cable and it
+shows the level again within a second.
 
 ## SLICE: a sample in slices
 

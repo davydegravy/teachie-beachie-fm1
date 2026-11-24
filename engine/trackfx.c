@@ -326,6 +326,8 @@ int tfx_busy(const gb_sound *s, int t)
     const slicer *c = &SLC[t];
     return c->w > 0.0f || (gb_pv(s->trk[t].patch.p, SP_SLCR) == SL_STUT && c->loop) || INS[t].w > 0.0f;
 }
+/* (4.0.3) the SLICER page's picture (as SLOOP 2.8.5's): the pattern's 16 steps, the step playing (bits 16..19) */
+uint32_t tfx_slicer_view(int t, int pat) { return SL_PAT[(pat - 1) & 15] | (uint32_t)(SLC[t].step & 15u) << 16; }
 void tfx_reset(void)
 {
     memset(SLC, 0, sizeof SLC); memset(INS, 0, sizeof INS);

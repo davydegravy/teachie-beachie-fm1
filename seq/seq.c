@@ -8,7 +8,7 @@
 #define SEQ_COLD GB_SECT(".xtext.seq")
 static float tick_per_frame(const seq_t *s) { return s->bpm * 4.0f * (float)SEQ_TPS / 60.0f / s->rate; }
 
-void seq_init(seq_t *s, float rate, float bpm, seq_hist *hist)
+SEQ_COLD void seq_init(seq_t *s, float rate, float bpm, seq_hist *hist)
 {
     memset(s, 0, sizeof *s);
     s->rate = rate; s->bpm = bpm; s->hist = hist; s->rnd = 0x2545F491u;
@@ -116,7 +116,7 @@ static void locks_drop(seq_pat *p, int step)
     for (int i = p->nlock - 1; i >= 0; i--)
         if (p->lk[i].step == step) { memmove(&p->lk[i], &p->lk[i + 1], sizeof(seq_lock) * (size_t)(p->nlock - i - 1)); p->nlock--; }
 }
-void seq_step_toggle(seq_t *s, int trk, int step, int note, int vel)
+SEQ_COLD void seq_step_toggle(seq_t *s, int trk, int step, int note, int vel)
 {
     seq_pat *p = cur(s, trk);
     if (step < 0 || step >= SEQ_MAXSTEPS) return;
@@ -130,7 +130,7 @@ void seq_step_toggle(seq_t *s, int trk, int step, int note, int vel)
     seq_ev e = { (uint16_t)(step * SEQ_TPS), (uint16_t)(SEQ_TPS * 3 / 4), (uint8_t)note, (uint8_t)vel, SEQ_ALWAYS, 1 };
     insert(p, e);
 }
-int seq_add(seq_t *s, int trk, uint32_t tick, uint32_t len, int note, int vel)
+SEQ_COLD int seq_add(seq_t *s, int trk, uint32_t tick, uint32_t len, int note, int vel)
 {
     if (trk < 0 || trk >= SEQ_NTRK) return 0;
     seq_pat *p = cur(s, trk);
@@ -148,7 +148,7 @@ void seq_clear(seq_t *s, int trk)
     edit(s, trk, s->t[trk].cur);
     p->n = 0; p->nlock = 0;
 }
-void seq_erase_note(seq_t *s, int trk, int note)
+SEQ_COLD void seq_erase_note(seq_t *s, int trk, int note)
 {
     seq_pat *p = cur(s, trk);
     int any = 0;
@@ -166,7 +166,7 @@ void seq_copy(seq_t *s, int trk, int from, int to)
 int seq_count(const seq_t *s, int trk) { return s->t[trk].pat[s->t[trk].cur].n; }
 
 /* ---------------------------------------------------------------- per step: locks, condition, ratchet */
-void seq_locks_put(seq_t *s, int trk, int pat, const uint8_t *lk, int n)   /* (the web editor: a pattern's locks, all) */
+SEQ_COLD void seq_locks_put(seq_t *s, int trk, int pat, const uint8_t *lk, int n)   /* (the web editor: a pattern's locks, all) */
 {
     if (trk < 0 || trk >= SEQ_NTRK || pat < 0 || pat >= SEQ_NPAT) return;
     seq_pat *p = &s->t[trk].pat[pat];
@@ -197,7 +197,7 @@ int seq_lock_get(const seq_t *s, int trk, int step, int param)
     for (int i = 0; i < p->nlock; i++) if (p->lk[i].step == step && p->lk[i].param == param) return p->lk[i].value;
     return -1;
 }
-static void step_set(seq_t *s, int trk, int step, int cond, int rat)
+SEQ_COLD static void step_set(seq_t *s, int trk, int step, int cond, int rat)
 {
     seq_pat *p = cur(s, trk);
     int first = 1;
@@ -205,8 +205,33 @@ static void step_set(seq_t *s, int trk, int step, int cond, int rat)
         if (step_of(p, p->ev[i].tick) != step) continue;
         if (first) { edit(s, trk, s->t[trk].cur); first = 0; }
         if (cond >= 0) p->ev[i].cond = (uint8_t)cond;
-        if (rat >= 0) p->ev[i].ratchet = (uint8_t)((p->ev[i].ratchet & 0x30u) | (uint32_t)rat);   /* (its flags kept) */
+        if (rat >= 0) p->ev[i].ratchet = (uint8_t)((p->ev[i].ratchet & 0x70u) | (uint32_t)rat);   /* (its flags kept) */
     }
+}
+/* (3.3.8) one sound of a step (the drums, SLOOP 2.8.5's lanes): its event, its level and ratchet alone */
+SEQ_COLD int seq_hit_find(const seq_t *s, int trk, int step, int note)
+{
+    const seq_pat *p = &s->t[trk].pat[s->t[trk].cur];
+    for (int i = 0; i < p->n; i++) if (step_of(p, p->ev[i].tick) == step && p->ev[i].note == note) return i;
+    return -1;
+}
+SEQ_COLD int seq_hit_get(const seq_t *s, int trk, int step, int note, int *vel, int *rat)
+{
+    int i = seq_hit_find(s, trk, step, note);
+    if (i < 0) return 0;
+    const seq_ev *e = &s->t[trk].pat[s->t[trk].cur].ev[i];
+    if (vel) *vel = e->vel;
+    if (rat) *rat = SEQ_RAT(e->ratchet);
+    return 1;
+}
+SEQ_COLD void seq_hit_set(seq_t *s, int trk, int step, int note, int vel, int rat)
+{
+    int i = seq_hit_find(s, trk, step, note);
+    if (i < 0) return;
+    edit(s, trk, s->t[trk].cur);
+    seq_ev *e = &cur(s, trk)->ev[i];
+    if (vel >= 0) e->vel = (uint8_t)(vel < 1 ? 1 : vel > 127 ? 127 : vel);
+    if (rat >= 0) e->ratchet = (uint8_t)((e->ratchet & 0x70u) | (uint32_t)(rat < 1 ? 1 : rat > 4 ? 4 : rat));
 }
 int seq_step_flags(const seq_t *s, int trk, int step)
 {
@@ -214,7 +239,7 @@ int seq_step_flags(const seq_t *s, int trk, int step)
     for (int i = 0; i < p->n; i++) if (step_of(p, p->ev[i].tick) == step) return p->ev[i].ratchet & (SEQ_SLIDE | SEQ_ACCENT);
     return 0;
 }
-void seq_step_flag(seq_t *s, int trk, int step, int flag, int on)
+SEQ_COLD void seq_step_flag(seq_t *s, int trk, int step, int flag, int on)
 {
     seq_pat *p = cur(s, trk);
     int first = 1;
@@ -231,7 +256,7 @@ SEQ_COLD void seq_ev_set(seq_t *s, int trk, int i, int note, int len, int vel, i
     seq_ev *e = &p->ev[i];
     int nl = len < 0 ? e->len : len < SEQ_TPS / 8 ? SEQ_TPS / 8 : len > (int)p->steps * SEQ_TPS ? (int)p->steps * SEQ_TPS : len;
     int nn = note < 0 ? e->note : note > 127 ? 127 : note, nv = vel < 0 ? e->vel : vel < 1 ? 1 : vel > 127 ? 127 : vel;
-    int nr = flags < 0 ? e->ratchet : (e->ratchet & 7) | (flags & 0x30);
+    int nr = flags < 0 ? e->ratchet : (e->ratchet & 0x47) | (flags & 0x30);
     if (nn == e->note && nl == e->len && nv == e->vel && nr == e->ratchet) return;
     edit(s, trk, s->t[trk].cur);
     e->note = (uint8_t)nn; e->len = (uint16_t)nl; e->vel = (uint8_t)nv; e->ratchet = (uint8_t)nr;
@@ -316,7 +341,7 @@ SEQ_COLD int seq_pat_put2(seq_t *s, int trk, int pat, int first, int steps, cons
         uint32_t t = (uint32_t)(x[0] | x[1] << 8), l = (uint32_t)(x[2] | x[3] << 8);
         if (t >= (uint32_t)p->steps * SEQ_TPS || x[4] > 127) continue;
         l = l < SEQ_TPS / 8 ? SEQ_TPS / 8 : l > (uint32_t)p->steps * SEQ_TPS ? (uint32_t)p->steps * SEQ_TPS : l;
-        seq_ev e = { (uint16_t)t, (uint16_t)l, x[4], (uint8_t)(x[5] < 1 ? 1 : x[5] > 127 ? 127 : x[5]), w >= 8 ? x[6] : SEQ_ALWAYS, w >= 8 ? (uint8_t)((x[7] & 7u) < 1 ? (x[7] & 0x30u) | 1u : (x[7] & 7u) > 4 ? (x[7] & 0x30u) | 4u : x[7] & 0x37u) : 1 };
+        seq_ev e = { (uint16_t)t, (uint16_t)l, x[4], (uint8_t)(x[5] < 1 ? 1 : x[5] > 127 ? 127 : x[5]), w >= 8 ? x[6] : SEQ_ALWAYS, w >= 8 ? (uint8_t)((x[7] & 7u) < 1 ? (x[7] & 0x70u) | 1u : (x[7] & 7u) > 4 ? (x[7] & 0x70u) | 4u : x[7] & 0x77u) : 1 };
         if (!insert(p, e)) break;
     }
     return p->n;
@@ -344,7 +369,7 @@ void seq_step_reset(seq_t *s, int trk, int step)
     seq_pat *p = cur(s, trk);
     locks_drop(p, step);
 }
-int seq_step_info(const seq_t *s, int trk, int step, int *cond, int *ratchet)
+SEQ_COLD int seq_step_info(const seq_t *s, int trk, int step, int *cond, int *ratchet)
 {
     const seq_pat *p = &s->t[trk].pat[s->t[trk].cur];
     if (cond) *cond = SEQ_ALWAYS;
@@ -357,7 +382,7 @@ int seq_step_info(const seq_t *s, int trk, int step, int *cond, int *ratchet)
 }
 
 /* a step's note, velocity, nudge (the first event of the step tells; an edit moves them all) */
-int seq_step_get(const seq_t *s, int trk, int step, int *note, int *vel, int *nudge)
+SEQ_COLD int seq_step_get(const seq_t *s, int trk, int step, int *note, int *vel, int *nudge)
 {
     const seq_pat *p = &s->t[trk].pat[s->t[trk].cur];
     for (int i = 0; i < p->n; i++) {
@@ -371,7 +396,7 @@ int seq_step_get(const seq_t *s, int trk, int step, int *note, int *vel, int *nu
     }
     return 0;
 }
-void seq_step_note(seq_t *s, int trk, int step, int delta)
+SEQ_COLD void seq_step_note(seq_t *s, int trk, int step, int delta)
 {
     seq_pat *p = cur(s, trk);
     int first = 1;
@@ -383,7 +408,7 @@ void seq_step_note(seq_t *s, int trk, int step, int delta)
         p->ev[i].note = (uint8_t)n;
     }
 }
-void seq_step_vel(seq_t *s, int trk, int step, int vel)
+SEQ_COLD void seq_step_vel(seq_t *s, int trk, int step, int vel)
 {
     seq_pat *p = cur(s, trk);
     int first = 1;
@@ -456,16 +481,21 @@ SEQ_COLD void seq_transpose(seq_t *s, int trk, int semis)
     edit(s, trk, s->t[trk].cur);
     for (int i = 0; i < p->n; i++) p->ev[i].note = (uint8_t)(p->ev[i].note + semis);
 }
-void seq_set_div(seq_t *s, int trk, int div)
+static uint32_t global_of(const seq_track *k, uint32_t local);
+/* (3.4.2, issues #18, #26) playing, the track stays on the sequencer's grid: where its pattern began (a bar line,
+ * PLAY) the same moment in its new clock, as if it had always had this DIV (2.8.5's way; until 3.4.1 it went on from
+ * the step it was on, and was off the beat from then on) */
+SEQ_COLD void seq_set_div(seq_t *s, int trk, int div)
 {
     seq_track *k = &s->t[trk];
     div = div < 0 ? 0 : div >= SEQ_NDIV ? SEQ_NDIV - 1 : div;
-    uint32_t before = local_of(k, s->tick);
+    uint32_t og = global_of(k, k->origin), now = s->tick, se[16], ra[8];
+    for (int i = 0; i < 16; i++) se[i] = global_of(k, k->sounding[i].end);
+    for (int i = 0; i < 8; i++) ra[i] = global_of(k, k->rat[i].at);
     k->div = (uint8_t)div;
-    uint32_t d = local_of(k, s->tick) - before;              /* the pattern goes on from the same place */
-    k->origin += d;
-    for (int i = 0; i < 16; i++) k->sounding[i].end += d;
-    for (int i = 0; i < 8; i++) k->rat[i].at += d;
+    k->origin = local_of(k, og);
+    for (int i = 0; i < 16; i++) k->sounding[i].end = local_of(k, se[i]);
+    for (int i = 0; i < 8; i++) k->rat[i].at = local_of(k, ra[i] > now ? ra[i] : now);
 }
 void seq_set_gate(seq_t *s, int trk, int gate) { s->t[trk].gate = (uint8_t)(gate < 10 ? 10 : gate > 200 ? 200 : gate); }
 void seq_set_swing(seq_t *s, int trk, int swing)
@@ -493,8 +523,9 @@ void seq_play(seq_t *s, int on)
     }
     s->playing = on;
     s->song_start = 0;
-    if (on && s->song_play && s->song_n) {                       /* a song starts as it was recorded */
-        for (int t = 0; t < SEQ_NTRK; t++) { s->t[t].cur = s->song[0].pat[t]; s->t[t].mute = (uint8_t)((s->song[0].mute >> t) & 1u); }
+    if (on && s->song_play && s->song_n) {                       /* a song starts as it was recorded (3.4.2: from its LINE) */
+        int i = 0; while (i + 1 < s->song_n && s->song[i + 1].bar <= s->song_from) i++;
+        for (int t = 0; t < SEQ_NTRK; t++) { s->t[t].cur = s->song[i].pat[t]; s->t[t].mute = (uint8_t)((s->song[i].mute >> t) & 1u); }
     }
     if (!on) { s->recording = 0; s->song_rec = 0; memset(s->held, 0, sizeof s->held); }
 }
@@ -509,7 +540,7 @@ uint32_t seq_step_of(const seq_t *s, int trk)
     const seq_track *k = &s->t[trk];
     return (local_of(k, s->tick) - k->origin) % plen(k) / SEQ_TPS;
 }
-void seq_queue(seq_t *s, int trk, int pat)
+SEQ_COLD void seq_queue(seq_t *s, int trk, int pat)
 {
     if (pat < 0 || pat >= SEQ_NPAT) return;
     if (trk < 0 && s->playing) {                     /* (3.3.7) every track: if one changes, all start together at the
@@ -618,10 +649,13 @@ static void play_range(seq_t *s, int trk, uint32_t a, uint32_t b)
         if (e->tick >= len) continue;                    /* past a shortened end: kept, not played */
         uint32_t sw = (uint32_t)s->swing + k->swing; if (sw > 100) sw = 100;
         if (DIV_NUM[k->div < SEQ_NDIV ? k->div : SEQ_DIV_16] == 3) sw = 0;   /* (triplets are never swung) */
-        uint32_t et = eff_tick(e, k->quant, len, sw), d = (et + len - r) % len, t = a + d;
+        uint32_t et = eff_tick(e, (e->ratchet & SEQ_FREE) ? 0u : k->quant, len, sw), d = (et + len - r) % len, t = a + d;
         if (t >= b) continue;
         if (!cond_ok(s, e->cond, t, loop + (r + d >= len))) continue;
-        uint32_t nr = SEQ_RAT(e->ratchet), gap = SEQ_TPS / nr;
+        uint32_t nr = SEQ_RAT(e->ratchet), sd = SEQ_TPS;
+        /* (3.4.2, issue #17) the hits share the step as swung (as 2.8.5): an even step is longer, an odd one shorter */
+        if (sw && nr > 1) { uint32_t o = sw * (SEQ_TPS / 2) / 100u; sd = (((uint32_t)e->tick + SEQ_TPS / 2) / SEQ_TPS & 1u) ? SEQ_TPS - o : SEQ_TPS + o; }
+        uint32_t gap = sd / nr;
         uint32_t l = nr > 1 ? (e->len < gap ? e->len : gap * 3u / 4u) : e->len;
         if (k->gate && k->gate != 100) { l = l * k->gate / 100u; if (l < 4u) l = 4u; }
         int v = e->vel | ((e->ratchet & SEQ_ACCENT) ? SEQ_ON_ACC : 0);
@@ -642,6 +676,13 @@ static uint32_t global_of(const seq_track *k, uint32_t local)    /* a track's ti
     int d = k->div < SEQ_NDIV ? k->div : SEQ_DIV_16;
     return d == SEQ_DIV_16 ? local : (uint32_t)(((uint64_t)local * DIV_DEN[d] + DIV_NUM[d] - 1u) / DIV_NUM[d]);
 }
+/* (4.0.9) the loop's length in the sequencer's ticks: the longest track's pattern (TRACKS' bar.beat counts in it) */
+uint32_t seq_loop_ticks(const seq_t *s)
+{
+    uint32_t m = 0;
+    for (int t = 0; t < SEQ_NTRK; t++) { const seq_track *k = &s->t[t]; uint32_t g = global_of(k, (uint32_t)k->pat[k->cur].steps * SEQ_TPS); if (g > m) m = g; }
+    return m;
+}
 static uint32_t change_point(const seq_t *s, int trk, uint32_t a, uint32_t g)
 {
     const seq_track *k = &s->t[trk];
@@ -661,7 +702,7 @@ static uint32_t change_point(const seq_t *s, int trk, uint32_t a, uint32_t g)
 uint32_t seq_song_bar(const seq_t *s)
 {
     uint32_t b = seq_bar(s) - s->song_start;
-    return s->song_play && s->song_len ? b % s->song_len : b;
+    return s->song_play && s->song_len ? (b + s->song_from) % s->song_len : b;
 }
 static void song_capture(seq_t *s, uint32_t bar)                /* what plays from this bar, if it changed */
 {
@@ -674,10 +715,10 @@ static void song_capture(seq_t *s, uint32_t bar)                /* what plays fr
     }
     if (s->song_n < SEQ_SONG) s->song[s->song_n++] = e;
 }
-void seq_song_record(seq_t *s, int on)
+SEQ_COLD void seq_song_record(seq_t *s, int on)
 {
     if (on) {
-        s->song_rec = 1; s->song_play = 0; s->song_n = 0; s->song_len = 0;
+        s->song_rec = 1; s->song_play = 0; s->song_n = 0; s->song_len = 0; s->song_from = 0;
         s->song_start = s->playing ? seq_bar(s) + 1u : 0u;       /* from the next bar */
         if (!s->playing) song_capture(s, 0);
     } else if (s->song_rec) {
@@ -687,11 +728,13 @@ void seq_song_record(seq_t *s, int on)
         if (!s->song_n) s->song_len = 0;
     }
 }
-void seq_song_play(seq_t *s, int on)
+SEQ_COLD void seq_song_play_from(seq_t *s, int on, int line)
 {
     s->song_play = (uint8_t)(on && s->song_n && s->song_len);
+    s->song_from = (uint16_t)(line > 0 && line < s->song_n && s->song[line].bar < s->song_len ? s->song[line].bar : 0);
     if (s->song_play) { s->song_rec = 0; s->song_start = s->playing ? seq_bar(s) + 1u : 0u; }
 }
+SEQ_COLD void seq_song_play(seq_t *s, int on) { seq_song_play_from(s, on, 0); }
 /* the song by hand (as SLOOP's SONG screen): its entries, each from its bar to the next one's */
 int seq_song_len_of(const seq_t *s, int i)
 {
@@ -735,7 +778,7 @@ SEQ_COLD void seq_song_set_count(seq_t *s, int n)
     }
 }
 /* the entry playing (the song's bar now), -1 none */
-int seq_song_at(const seq_t *s)
+SEQ_COLD int seq_song_at(const seq_t *s)
 {
     if (!s->song_play || !s->song_n || !s->playing || seq_bar(s) < s->song_start) return -1;
     uint32_t b = seq_song_bar(s); int i = 0;
@@ -747,7 +790,7 @@ static void song_bar(seq_t *s, uint32_t bar)
 {
     if (s->song_rec && bar >= s->song_start) song_capture(s, bar);
     if (s->song_play && s->song_len && bar >= s->song_start) {
-        uint32_t sb = (bar - s->song_start) % s->song_len;
+        uint32_t sb = (bar - s->song_start + s->song_from) % s->song_len;
         for (int i = 0; i < s->song_n; i++) if (s->song[i].bar == sb) {
             int any = 0; for (int t = 0; t < SEQ_NTRK; t++) if (s->song[i].pat[t] != s->t[t].cur) any = 1;
             for (int t = 0; t < SEQ_NTRK; t++) {
@@ -783,6 +826,7 @@ void seq_advance_by(seq_t *s, uint64_t inc)
                 if (c < lb) {
                     if (c > x) play_range(s, t, x, c);
                     k->cur = k->next; k->next = SEQ_NONE; k->origin = c;
+                    if (s->switched) s->switched(s, t);          /* (3.4.2, #24) its sound before its first notes */
                     x = c;
                     continue;
                 }
@@ -823,7 +867,7 @@ void seq_key(seq_t *s, int note, int vel, int down, uint32_t latency_frames)
         int64_t rel = (int64_t)st - (int64_t)k->origin;
         uint32_t local = (uint32_t)(((rel % (int64_t)len) + (int64_t)len) % (int64_t)len);
         uint32_t l = now - st; if (l < SEQ_TPS / 8) l = SEQ_TPS / 8; if (l > len - 1) l = len - 1;
-        seq_ev e = { (uint16_t)local, (uint16_t)l, (uint8_t)note, s->held[i].vel, SEQ_ALWAYS, 1 };
+        seq_ev e = { (uint16_t)local, (uint16_t)l, (uint8_t)note, s->held[i].vel, SEQ_ALWAYS, (uint8_t)(s->rec_free ? 1 | SEQ_FREE : 1) };
         seq_pat *p = &k->pat[k->cur];
         /* (3.3.7) the same note played again within half a step of one already there (a loop played over and over):
          * it takes that one's place, as a step holds a note once; the take goes on adding the other notes */

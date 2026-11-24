@@ -1,57 +1,696 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * SLOOP 3's screens (ui.h). Written for this project, after SLOOP's layout (its players know where to look) with
- * what SLOOP's users asked for: text that reads at arm's length. Nothing smaller than font_s (capitals 13 px), the
- * main information in font_m and font_l (18 and 25 px), light on near black. */
+ * SLOOP 3's screens (ui.h), 4.0: SLOOP 2.8.5's screens, which its players know, drawn again for this firmware
+ * (written for this project; the layout, the sizes and the colours are SLOOP 2.8.5's, Felucca's before it, by Leo
+ * Kuroshita, Hügelton Instruments, GPL-3.0). 4.0.1 (Sam): in SLOOP 3's smoother, bigger lettering (fonts.c, Inter Bold),
+ * placed in SLOOP 2.8.5's 16 px cells (font_s), its 32 px ones (font_l), its values in font_m where they fit.
+ *   - the sound's pages: a status line (transport, tempo, track, battery), four 60 px columns (the knobs' label,
+ *     value and gauge), a picture (or the four values large, 2 x 2 as the knobs), the steps and the engine, sound and
+ *     page at the foot;
+ *   - the live screens (TRACKS, DRUMS, REC): the tempo large, the transport, the four beats; the tracks; the dials;
+ *   - the layers (a button held): the title large, 16 tiles as the 16 white keys, the dials.
+ * White is what you touch, red is recording. */
 #include "ui.h"
 #include "gfx.h"
 #include "vis.h"
 #include "../engine/engine.h"   /* (SP_*: which value is which) */
 
-/* the screen's colours: NIGHT (SLOOP 3's), or SLOOP's palettes (five steps of one colour on black), or your theme */
-ui_palette ui_pal = { RGB(8, 8, 12), RGB(30, 30, 40), RGB(52, 52, 68), RGB(64, 64, 80), RGB(255, 255, 255), RGB(160, 160, 180) };
-const char *const ui_theme_name[UI_NTHEMES] = { "NIGHT", "GREEN", "AMBER", "CYAN", "RED", "MONO" };
-static const uint16_t PAL5[UI_NTHEMES - 1][5] = {
+/* ---------------------------------------------------------------- the colours */
+/* SLOOP 2.8.5's: the screen in five steps of one colour (MONO by default) on black, white the accent, its greys for the
+ * tiles and the dials, the tracks' colours in three strengths */
+ui_palette ui_pal = { 0, RGB(40, 40, 40), RGB(80, 80, 80), RGB(40, 40, 40), RGB(226, 226, 226), RGB(130, 130, 130) };
+const char *const ui_theme_name[UI_NTHEMES] = { "MONO", "GREEN", "AMBER", "CYAN", "RED", "SOFT" };
+static const uint16_t PAL5[UI_NTHEMES][5] = {
+    { RGB(40, 40, 40), RGB(80, 80, 80), RGB(130, 130, 130), RGB(186, 186, 186), RGB(226, 226, 226) },
     { RGB(0, 40, 12), RGB(0, 84, 30), RGB(16, 140, 54), RGB(56, 200, 92), RGB(120, 255, 146) },
     { RGB(60, 26, 0), RGB(110, 50, 0), RGB(170, 82, 0), RGB(225, 120, 8), RGB(255, 166, 40) },
     { RGB(0, 30, 50), RGB(0, 62, 96), RGB(16, 112, 160), RGB(56, 172, 222), RGB(140, 222, 255) },
     { RGB(52, 8, 8), RGB(100, 18, 14), RGB(170, 36, 26), RGB(226, 64, 48), RGB(255, 112, 92) },
-    { RGB(40, 40, 40), RGB(80, 80, 80), RGB(130, 130, 130), RGB(186, 186, 186), RGB(226, 226, 226) } };
+    { RGB(36, 36, 44), RGB(70, 70, 84), RGB(120, 120, 140), RGB(176, 176, 196), RGB(220, 220, 236) } };
+static uint16_t P[5] = { RGB(40, 40, 40), RGB(80, 80, 80), RGB(130, 130, 130), RGB(186, 186, 186), RGB(226, 226, 226) };
 void ui_theme_own(const uint16_t c[5], uint16_t bg)
 {
-    ui_pal.bg = bg; ui_pal.line = c[0]; ui_pal.panel = gfx_mix(bg, c[0], 14); ui_pal.panel2 = c[1];
-    ui_pal.dim = c[3]; ui_pal.txt = c[4];
+    for (int k = 0; k < 5; k++) P[k] = c[k];
+    ui_pal.bg = bg; ui_pal.line = c[0]; ui_pal.panel = c[0]; ui_pal.panel2 = c[1]; ui_pal.dim = c[2]; ui_pal.txt = c[4];
 }
-void ui_theme(int i)
+void ui_theme(int i) { ui_theme_own(PAL5[i >= 0 && i < UI_NTHEMES ? i : 0], 0); }
+#define BG      ui_pal.bg
+#define C_LINE  P[0]                       /* rules, separators */
+#define C_DIM   P[1]                       /* inactive, empty steps, units */
+#define C_GRAY  P[2]                       /* labels */
+#define C_AMB   P[3]                       /* secondary text */
+#define C_HI    P[4]                       /* values, curves */
+#define WHITE   RGB(255, 255, 255)
+#define TE_RED  RGB(255, 44, 52)           /* recording, erasing */
+#define GREEN   RGB(60, 220, 110)
+static uint16_t G(int k)                   /* the greys of the tiles: 1 tiles, 2 empty steps, 3 labels, 4 secondary */
 {
-    static const ui_palette NIGHT = { RGB(8, 8, 12), RGB(30, 30, 40), RGB(52, 52, 68), RGB(64, 64, 80), RGB(255, 255, 255), RGB(160, 160, 180) };
-    if (i <= 0 || i >= UI_NTHEMES) { ui_pal = NIGHT; return; }
-    ui_theme_own(PAL5[i - 1], 0);
+    static const uint8_t A[5] = { 0, 3, 7, 15, 25 };
+    return gfx_mix(BG, WHITE, A[k]);
 }
-#define BG     ui_pal.bg
-#define PANEL  ui_pal.panel
-#define PANEL2 ui_pal.panel2
-#define LINE   ui_pal.line
-#define TXT    ui_pal.txt
-#define DIM    ui_pal.dim
-#define GREEN  RGB(80, 240, 120)
-#define RED    RGB(255, 80, 80)
-#define YEL    RGB(255, 210, 60)
-#define CYAN   RGB(80, 220, 255)
+#define G1 G(1)
+#define G2 G(2)
+#define G3 G(3)
+#define G4 G(4)
+/* the knobs' colours, SLOOP 2.8.5's (the colours of tracks 1 .. 4) */
+const uint16_t ui_knob_col[4] = { RGB(40, 124, 255), RGB(30, 204, 112), RGB(255, 198, 24), RGB(255, 98, 26) };
+static uint16_t scale565(uint16_t c, int num, int den)
+{
+    int r = (c >> 11) & 31, g = (c >> 5) & 63, b = c & 31;
+    return (uint16_t)(((r * num / den) << 11) | ((g * num / den) << 5) | (b * num / den));
+}
+static uint16_t dimc(uint16_t c) { return scale565(c, 1, 3); }   /* TE_DIM */
 
-/* the knobs' colours, as on SLOOP: KNOB 1 blue, 2 green, 3 yellow, 4 orange (the colours of tracks 1 .. 4) */
-const uint16_t ui_knob_col[4] = { RGB(80, 160, 255), RGB(80, 230, 120), RGB(255, 220, 60), RGB(255, 150, 40) };
-
-#define TOP_H 34                  /* the top bar: y 0 .. 33 */
-#define HEAD_Y 37                 /* the track header: y 37 .. 74 */
-#define MAIN_Y 80                 /* a page: y 80 .. 177 */
-#define TILE_Y 48                 /* a layer's tiles: y 48 .. 177 */
-#define FOOT_Y 180                /* the dials: y 180 .. 239 */
-
-static uint16_t dim(uint16_t c) { return gfx_mix(BG, c, 11); }
+/* ---------------------------------------------------------------- text: Terminus Bold, by the top of its 16 px cell */
+#define CX_S 90                                  /* (Inter is wider than Terminus: the small type a little narrower) */
+#define CX_L 92
+static int pend;                                  /* (cut: the small type narrower still for the next text, so that it fits) */
+static int ts(int x, int y, const char *s, uint16_t c) { gfx_condense(pend ? pend : CX_S); pend = 0; int r = gfx_text(&font_s, x, y + 2, s, c); gfx_condense(100); return r; }
+static int tl(int x, int y, const char *s, uint16_t c) { pend = 0; gfx_condense(CX_L); int r = gfx_text(&font_l, x, y + 3, s, c); gfx_condense(100); return r; }
+static int tm(int x, int y, const char *s, uint16_t c) { gfx_condense(CX_S); int r = gfx_text(&font_m, x, y, s, c); gfx_condense(100); return r; }
+static int ws(const char *s) { gfx_condense(pend ? pend : CX_S); int r = gfx_text_w(&font_s, s); gfx_condense(100); return r; }
+static int wl(const char *s) { gfx_condense(CX_L); int r = gfx_text_w(&font_l, s); gfx_condense(100); return r; }
+static int wm(const char *s) { gfx_condense(CX_S); int r = gfx_text_w(&font_m, s); gfx_condense(100); return r; }
+static void tsc(int cx, int y, const char *s, uint16_t c) { ts(cx - ws(s) / 2, y, s, c); }
+static void tsr(int rx, int y, const char *s, uint16_t c) { ts(rx - ws(s), y, s, c); }
+/* s cut to n characters and to w px (b holds 24) */
+static const char *cut(char *b, const char *s, int n, int w)   /* (n characters: a UTF-8 one is never split) */
+{
+    int i = 0, c = 0;
+    if (!s) s = "";
+    while (s[i] && c < n) {
+        int l = ((uint8_t)s[i] & 0xE0) == 0xC0 ? 2 : ((uint8_t)s[i] & 0xF0) == 0xE0 ? 3 : 1;
+        if (i + l > 23) break;
+        for (int k = 0; k < l && s[i]; k++, i++) b[i] = s[i];
+        c++;
+    }
+    b[i] = 0;
+    pend = 0;
+    if (ws(b) <= w) return b;
+    for (pend = 84; pend > 70 && ws(b) > w; pend -= 6) { }   /* (narrower first: the whole word kept) */
+    while (i && ws(b) > w) { do i--; while (i && ((uint8_t)b[i] & 0xC0) == 0x80); b[i] = 0; }
+    return b;
+}
+static void rect(int x, int y, int w, int h, uint16_t c) { if (w > 0 && h > 0) gfx_fill(x, y, w, h, c); }
+static void frame1(int x, int y, int w, int h, uint16_t c)
+{
+    rect(x, y, w, 1, c); rect(x, y + h - 1, w, 1, c); rect(x, y, 1, h, c); rect(x + w - 1, y, 1, h, c);
+}
 static char *put_u(char *p, uint32_t v) { char t[12]; int n = 0; do { t[n++] = (char)('0' + v % 10); v /= 10; } while (v); while (n) *p++ = t[--n]; return p; }
-/* text in a box: in the biggest font that fits (from 'big' down to font_s), font_s tightened if need be;
- * align 0 left, 1 centre, 2 right */
-static void fit(const gfx_font *big, int x, int y, int w, int h, const char *s, uint16_t c, int align)
+
+/* ---------------------------------------------------------------- maths for the pictures */
+static void sincos_(float a, float *sn, float *cs)       /* a in radians, to about 1e-4 */
+{
+    float q = a / 1.5707963f; int k = (int)(q + (q >= 0.0f ? 0.5f : -0.5f));
+    float z = a - (float)k * 1.5707963f, z2 = z * z;
+    float s0 = z * (1.0f - z2 / 6.0f * (1.0f - z2 / 20.0f)), c0 = 1.0f - z2 / 2.0f * (1.0f - z2 / 12.0f);
+    int m = ((k % 4) + 4) % 4;
+    *cs = m == 0 ? c0 : m == 1 ? -s0 : m == 2 ? -c0 : s0;
+    *sn = m == 0 ? s0 : m == 1 ? c0 : m == 2 ? -s0 : -c0;
+}
+static void line(int x0, int y0, int x1, int y1, uint16_t c) { gfx_line(x0 * 16 + 8, y0 * 16 + 8, x1 * 16 + 8, y1 * 16 + 8, c); }
+static void disc(int cx, int cy, int r, uint16_t c)
+{
+    if (!gfx_visible(cx - r, cy - r, 2 * r + 1, 2 * r + 1)) return;
+    for (int y = -r; y <= r; y++) for (int x = -r; x <= r; x++) if (x * x + y * y <= r * r + r) rect(cx + x, cy + y, 1, 1, c);
+}
+
+/* ---------------------------------------------------------------- shared parts */
+static int is_drum_v(const ui_view *v) { return v->kind[v->trk] && v->kind[v->trk][0] == 'D' && v->kind[v->trk][1] == 'R'; }
+static uint16_t tcol(const ui_view *v) { return v->col[v->trk] ? v->col[v->trk] : ui_knob_col[0]; }
+static int hot(const ui_view *v, int k) { return v->knob[k].hot || v->hot_k == k; }
+/* the battery: three bars, a host there (USB) they fill in turn; x the right edge (4.0.2, Sam: the icon only) */
+static void battery(const ui_view *v, int rx, int y)
+{
+    int bx = rx - 19, lvl = v->batt_usb ? 1 + (v->batt_usb - 1) % 3 : v->batt > 100 ? 0 : v->batt >= 60 ? 3 : v->batt >= 30 ? 2 : v->batt >= 8 ? 1 : 0;
+    uint16_t c = C_GRAY;
+    rect(bx, y + 4, 17, 1, c); rect(bx, y + 12, 17, 1, c); rect(bx, y + 4, 1, 9, c); rect(bx + 16, y + 4, 1, 9, c);
+    rect(bx + 17, y + 6, 2, 5, c);
+    for (int k = 0; k < lvl; k++) rect(bx + 2 + k * 5, y + 6, 3, 5, !v->batt_usb && v->batt < 15 ? (v->blink ? TE_RED : C_DIM) : C_HI);
+}
+static void dial3(int cx, int cy, int r, int t, int val, uint16_t c, uint16_t needle);
+/* the dial strip of the live screens and the layers, from y0: KNOB 1 .. 4, a dial, its label, its value (white while
+ * turned); a message takes its place (a white bar) */
+static void dials(const ui_view *v, int y0, const char *msg, int bad)
+{
+    if (!gfx_visible(0, y0, GFX_W, GFX_H - y0)) return;
+    if (msg && msg[0]) {
+        char b[32];
+        rect(0, y0 + 10, 240, 32, bad ? TE_RED : WHITE);
+        tsc(120, y0 + 18, cut(b, msg, 29, 232), bad ? WHITE : RGB(0, 0, 0));
+        return;
+    }
+    for (int k = 0; k < 4; k++) {
+        const ui_knob *kn = &v->knob[k];
+        int cx = 30 + 60 * k;
+        char b[24];
+        if (!kn->label || !kn->label[0]) continue;
+        if (kn->dial && kn->bar >= 0) dial3(cx, y0 + 12, 11, 4, kn->bar, ui_knob_col[k], hot(v, k) ? RGB(255, 210, 60) : WHITE);   /* (4.0.1: SLOOP 3's dials) */
+        else gfx_rframe(cx - 11, y0 + 1, 22, 22, 11, 2, gfx_mix(BG, ui_knob_col[k], 12));
+        tsc(cx, y0 + 24, cut(b, kn->label, 7, 58), G3);
+        tsc(cx, y0 + 40, cut(b, kn->value, 7, 58), hot(v, k) ? WHITE : G4);
+    }
+}
+static void play_icon(int x, int y, int playing)
+{
+    if (playing) for (int i = 0; i < 12; i++) rect(x + i, y + i / 2, 1, 14 - i, WHITE);
+    else rect(x, y + 1, 12, 12, G3);
+}
+/* the header of the live screens: the tempo large, the transport, bar.beat, the four beats; REC; the title right,
+ * the pattern playing beside it */
+static void te_header(const ui_view *v, const char *title, uint16_t tc)
+{
+    if (!gfx_visible(0, 0, GFX_W, 40)) return;
+    char b[16];
+    *put_u(b, v->bpm) = 0;
+    tl(4, 4, b, G4);
+    ts(4 + wl(b) + 4, 20, "BPM", G3);
+    play_icon(104, 6, v->playing);
+    if (v->playing) { char *p = put_u(b, v->bar); *p++ = '.'; *put_u(p, v->beat) = 0; ts(122, 5, b, WHITE); }
+    else ts(122, 5, v->status[0] == 'S' && v->status[1] == ' ' ? "SONG" : "LOOP", G3);
+    for (int k = 0; k < 4; k++) rect(104 + k * 9, 26, 7, 7, v->playing && v->beat == k + 1 ? (k ? WHITE : TE_RED) : G2);
+    if (v->recording || v->armed) {
+        disc(224, 12, 8, v->recording || v->blink ? TE_RED : dimc(TE_RED));
+        ts(176, 4, "REC", TE_RED);
+    } else if (!title[0]) {                              /* (4.0.3, Sam) TRACKS: the pattern's square alone, large, in the
+                                                            corner; the battery under it */
+        if (v->pat_badge >= 0) {
+            int nx = v->pat_next < 8;
+            char sb[2] = { (char)('1' + ((nx ? v->pat_next : v->pat_badge) & 7)), 0 };
+            uint16_t bc = nx ? RGB(255, 198, 24) : v->playing ? tcol(v) : dimc(tcol(v));
+            if (!nx || v->blink) { rect(210, 1, 28, 22, bc); tm(224 - wm(sb) / 2, 1, sb, RGB(0, 0, 0)); }
+            else { frame1(210, 1, 28, 22, bc); tm(224 - wm(sb) / 2, 1, sb, bc); }
+        }
+        battery(v, 238, 22);
+    } else {
+        char tb[24]; cut(tb, title, 10, 66);
+        int tx = 240 - ws(tb) - 4;
+        ts(tx, 5, tb, tc);
+        if (v->pat_badge >= 0 && tx - (ws("1") + 8) - 6 >= 158) {   /* the pattern playing, in the track's colour (room: past LOOP);
+                                                            the one waiting for the bar instead, blinking yellow */
+            int nx = v->pat_next < 8;
+            char sb[3] = { (char)('1' + ((nx ? v->pat_next : v->pat_badge) & 7)), 0, 0 };
+            int bw = ws(sb) + 8, bx = tx - bw - 6;
+            uint16_t bc = nx ? RGB(255, 198, 24) : v->playing ? tcol(v) : dimc(tcol(v));
+            if (!nx || v->blink) { rect(bx, 3, bw, 14, bc); ts(bx + 4, 5, sb, RGB(0, 0, 0)); }
+            else { frame1(bx, 3, bw, 14, bc); ts(bx + 4, 5, sb, bc); }
+        }
+        battery(v, 238, 20);
+    }
+    rect(0, 39, 240, 1, G1);
+}
+
+/* ---------------------------------------------------------------- the sound's pages */
+#define H_HEAD 20
+#define Y_LABEL 26
+#define Y_VALUE 44
+#define Y_GAUGE 64
+#define Y_SEP_END 70
+#define Y_GRAPH 74
+#define H_GRAPH 124
+#define G_OY 24
+#define Y_FOOT 202
+/* the status line: the transport, REC, the tempo, the octave, the track, the battery; a message takes it */
+static void draw_head(const ui_view *v, const char *msg, int bad)
+{
+    if (!gfx_visible(0, 0, GFX_W, H_HEAD + 1)) return;
+    char b[24];
+    rect(0, H_HEAD, 240, 1, C_LINE);
+    if (msg && msg[0]) { ts(4, 1, cut(b, msg, 29, 232), bad ? TE_RED : C_HI); return; }
+    if (v->playing) for (int i = 0; i < 5; i++) rect(4 + i * 2, 4 + i, 2, 10 - 2 * i, WHITE);
+    else rect(4, 5, 8, 8, C_HI);
+    if (v->recording || v->armed) disc(21, 9, 4, v->recording || v->blink ? TE_RED : C_GRAY);
+    /* the metronome, then the tempo */
+    *put_u(b, v->bpm) = 0;
+    int x = ts(34, 1, b, C_HI);
+    if (v->octave) {
+        char *p = b; if (v->octave > 0) *p++ = '+'; else *p++ = '-';
+        *put_u(p, (uint32_t)(v->octave > 0 ? v->octave : -v->octave)) = 0;
+        ts(x + 12, 1, "OCT", C_GRAY); ts(x + 40, 1, b, C_HI);
+    }
+    /* the track: its number on its colour */
+    b[0] = (char)('1' + v->trk); b[1] = 0;
+    rect(168, 2, 12, 16, tcol(v)); ts(170, 1, b, RGB(0, 0, 0));
+    battery(v, 236, 0);
+}
+/* one column: LABEL / value / gauge, KNOB c's colour (white while turned, dim when it does nothing) */
+static void column(const ui_view *v, int c)
+{
+    const ui_knob *k = &v->knob[c];
+    int x0 = c * 60 + 4;
+    char b[24];
+    if (!k->label || !k->label[0] || !gfx_visible(x0, Y_LABEL, 56, Y_SEP_END - Y_LABEL)) return;
+    uint16_t vc = hot(v, c) ? WHITE : ui_knob_col[c];
+    if (k->value[0] == '-' && k->value[1] == '-') vc = C_DIM;
+    ts(x0, Y_LABEL, cut(b, k->label, 6, 54), C_GRAY);
+    if (wm(k->value) <= 55) tm(x0, Y_VALUE - 1, k->value, vc);   /* (4.0.1: the value larger where it fits) */
+    else ts(x0, Y_VALUE, cut(b, k->value, 9, 55), vc);
+    if (k->bar >= 0) {
+        int gy = Y_GAUGE, fx = k->bar * 52 / 100;
+        rect(x0, gy + 1, 52, 1, C_LINE);
+        rect(x0, gy, fx, 3, vc == C_DIM ? C_DIM : dimc(ui_knob_col[c]));
+        rect(x0 + fx, gy - 1, 1, 5, vc == C_DIM ? C_HI : vc);
+    }
+}
+static void columns(const ui_view *v)
+{
+    for (int i = 1; i < 4; i++) rect(i * 60 - 1, H_HEAD + 4, 1, Y_SEP_END - H_HEAD - 4, C_LINE);
+    for (int c = 0; c < 4; c++) column(v, c);
+}
+/* the four values large, 2 x 2 as the knobs (one alone: in the middle), the one turned in white */
+static void graph_big(const ui_view *v)
+{
+    int n = 0;
+    for (int c = 0; c < 4; c++) n += v->knob[c].label && v->knob[c].label[0];
+    if (!gfx_visible(0, Y_GRAPH, GFX_W, H_GRAPH)) return;
+    if (n > 1) { rect(119, Y_GRAPH + 6, 1, 112, C_LINE); rect(6, Y_GRAPH + 62, 228, 1, C_LINE); }
+    for (int c = 0; c < 4; c++) {
+        const ui_knob *k = &v->knob[c];
+        char b[24];
+        if (!k->label || !k->label[0]) continue;
+        int x0 = c & 1 ? 126 : 6, y0 = Y_GRAPH + (c & 2 ? 64 : 2);
+        cut(b, k->value, 12, 112);
+        if (wl(b) > 112) {                               /* (too long for the big type: the small one, twice as high) */
+            if (n == 1) { x0 = (240 - ws(b)) / 2; y0 = Y_GRAPH + 30; }
+            ts(x0, y0 + 2, k->label, ui_knob_col[c]);
+            ts(x0, y0 + 28, b, hot(v, c) ? WHITE : C_HI);
+            continue;
+        }
+        if (n == 1) { x0 = (240 - wl(b)) / 2; y0 = Y_GRAPH + 30; }
+        ts(x0, y0 + 2, cut(b, k->label, 8, 112), ui_knob_col[c]);
+        cut(b, k->value, 12, 112);
+        tl(x0, y0 + 20, b, k->value[0] == '-' && k->value[1] == '-' ? C_DIM : hot(v, c) ? WHITE : C_HI);
+    }
+}
+/* the envelope as SLOOP 2.8.5 draws it: attack straight, decay and release falling as the voice does */
+static void graph_adsr(const ui_view *v, uint16_t c)
+{
+    int oy = Y_GRAPH + G_OY;
+    if (!gfx_visible(0, oy, GFX_W, 100)) return;
+    int a = 4 + v->prm[SP_ATK] * 50 / 100, d = 6 + v->prm[SP_DEC] * 50 / 100, r = 6 + v->prm[SP_REL] * 60 / 100;
+    int top = 8, bot = 90, sus = v->prm[SP_SUS] * 10, x0 = 6, x1 = x0 + a, x3 = 232 - r;
+#define EGY(l) (oy + bot - (l) * (bot - top) / 1000)
+    line(x0, oy + bot, x1, oy + top, c);
+    int px = x1, py = oy + top; float e = 1.0f, k = 1.0f - 4.6f / (float)d;
+    for (int i = 1; i <= d; i++) { e *= k; int l = sus + (int)((float)(1000 - sus) * e); line(px, py, x1 + i, EGY(l), c); px = x1 + i; py = EGY(l); }
+    line(px, py, x3, EGY(sus), c); px = x3; py = EGY(sus);
+    e = 1.0f; k = 1.0f - 4.6f / (float)r;
+    for (int i = 1; i <= r; i++) { e *= k; int l = (int)((float)sus * e); line(px, py, x3 + i, EGY(l), c); px = x3 + i; py = EGY(l); }
+    rect(0, oy + bot + 1, 240, 1, C_LINE);
+#undef EGY
+}
+static void graph_lfo(const ui_view *v, uint16_t c)
+{
+    int oy = Y_GRAPH + G_OY;
+    if (!gfx_visible(0, oy, GFX_W, 100)) return;
+    int wv = (v->prm[SP_LWAVE] * 4 + 50) / 100, py = 50;
+    uint32_t r = 0x2545F491u; float sh = 0.0f; int cyc = -1;
+    rect(0, oy + 50, 240, 1, C_LINE);
+    for (int x = 0; x < 240; x++) {
+        float t = (float)x * (2.0f / 240.0f), ph = t - (float)(int)t, l;
+        switch (wv) {
+        case 0: { float sn, cs; sincos_(ph * 6.2831853f, &sn, &cs); l = sn; break; }
+        case 1: l = ph < 0.5f ? 4.0f * ph - 1.0f : 3.0f - 4.0f * ph; break;
+        case 2: l = 1.0f - 2.0f * ph; break;
+        case 3: l = ph < 0.5f ? 1.0f : -1.0f; break;
+        default:
+            if ((int)(t * 6.0f) != cyc) { cyc = (int)(t * 6.0f); r ^= r << 13; r ^= r >> 17; r ^= r << 5; sh = (float)(int32_t)r * (1.0f / 2147483648.0f); }
+            l = sh; break;
+        }
+        int y = 50 - (int)(l * 38.0f);
+        if (x) line(x - 1, oy + py, x, oy + y, c);
+        py = y;
+    }
+}
+/* four bars, as the knobs (FX's sends) */
+static void graph_bars(const ui_view *v, uint16_t c)
+{
+    int oy = Y_GRAPH + G_OY;
+    if (!gfx_visible(0, oy, GFX_W, 100)) return;
+    for (int i = 0; i < 4; i++) {
+        if (!v->knob[i].label || v->knob[i].bar < 0) continue;
+        int h = v->knob[i].bar * 80 / 100, x = i * 60 + 28;
+        rect(x, oy + 10, 1, 80, C_LINE);
+        rect(x, oy + 90 - h, 1, h, c);
+        rect(x - 3, oy + 90 - h, 7, 1, c);
+    }
+}
+/* the arpeggiator: what it plays of the chord held, 16 steps */
+static void graph_arp(const ui_view *v, uint16_t c)
+{
+    int oy = Y_GRAPH + G_OY;
+    if (!gfx_visible(0, oy, GFX_W, 100)) return;
+    for (int i = 0; i < v->arp_n && i < 16; i++) {
+        int x = 6 + i * 14 + i / 4 * 4;
+        if (v->arp_seq[i] == 255) { rect(x, oy + 85, 8, 1, C_DIM); continue; }
+        int y = oy + 80 - v->arp_seq[i] * 60 / 100;
+        rect(x, y, 8, 6, c);
+    }
+}
+/* the foot: the 16 steps in view as thin bars (the playhead under), then the engine, the sound, the page */
+static void draw_foot(const ui_view *v)
+{
+    if (!gfx_visible(0, Y_FOOT - 2, GFX_W, 40)) return;
+    char b[24];
+    rect(0, Y_FOOT - 2, 240, 1, C_LINE);
+    for (int i = 0; i < 16; i++) {
+        uint8_t f = v->cells[v->trk][i];
+        int sx = 6 + i * 14 + i / 4 * 4;
+        if (f & UC_OUT) continue;
+        if (f & UC_NOTE) rect(sx, Y_FOOT + 2, 2, 9, tcol(v));
+        else rect(sx, Y_FOOT + 10, 1, 1, C_DIM);
+        if (f & UC_PLAY) rect(sx - 1, Y_FOOT + 13, 3, 3, WHITE);
+    }
+    const char *en = v->kind[v->trk] ? v->kind[v->trk] : "";
+    int x = ts(4, Y_FOOT + 20, cut(b, en, 8, 72), C_HI);
+    char ti[24]; cut(ti, v->page_name, 16, 120);
+    int room = 236 - ws(ti) - 10 - (x + 10);
+    ts(x + 10, Y_FOOT + 20, cut(b, v->sound[v->trk], 12, room), C_AMB);
+    tsr(236, Y_FOOT + 20, ti, C_GRAY);
+}
+static void page_frame(const ui_view *v)
+{
+    const char *msg = v->toast ? v->toast : v->info;
+    if (v->saving) msg = "SAVING";
+    draw_head(v, msg, v->toast && v->toast_kind);
+    uint16_t c = tcol(v);
+    columns(v);
+    switch (v->page) {
+    case UI_ENV: graph_adsr(v, c); break;
+    case UI_LFO: graph_lfo(v, c); break;
+    case UI_FX: graph_bars(v, c); break;
+    case UI_ARP: graph_arp(v, c); break;
+    case UI_SLICER:                                      /* (4.0.3) as SLOOP 2.8.5: a step that plays a full bar; GATE a closed
+                                                            step as high as it stays open; STUT hatched (it repeats); the playing one */
+        if (gfx_visible(0, Y_GRAPH, GFX_W, H_GRAPH))
+            for (int i = 0; i < 16; i++) {
+                int x = 6 + i * 14 + i / 4 * 2, y0 = Y_GRAPH + 14, h = 90; uint16_t col = v->slc_mode ? c : C_DIM;
+                if ((v->slc_pat >> i) & 1u) rect(x, y0, 11, h, col);
+                else if (v->slc_mode == 2) for (int y = y0; y < y0 + h; y += 4) rect(x, y, 11, 1, col);
+                else { int o = h * (100 - v->slc_depth) / 100; rect(x, y0 + h - 1, 11, 1, C_LINE); if (o) rect(x, y0 + h - o, 11, o, C_DIM); }
+                if (v->slc_mode && i == v->slc_at) rect(x, y0 + h + 4, 11, 3, WHITE);
+            }
+        break;
+    case UI_SOON:
+        if (gfx_visible(0, Y_GRAPH, GFX_W, H_GRAPH)) {
+            char b[40];
+            tsc(120, Y_GRAPH + 50, v->sub[0] ? cut(b, v->sub, 29, 236) : "DRUM TRACK", C_HI);
+            tsc(120, Y_GRAPH + 76, "SEQ  TRACKS  GLO", C_DIM);
+        }
+        break;
+    default: graph_big(v); break;
+    }
+    draw_foot(v);
+}
+
+/* ---------------------------------------------------------------- TRACKS */
+static void page_tracks(const ui_view *v)
+{
+    te_header(v, "", G3);                                /* (4.0.3, Sam: no title, the pattern's square in the corner) */
+    int n = v->ntrk ? v->ntrk : 4, rh = 144 / n;     /* (five tracks: 28 px each, SLOOP 2.8.5's four: 36) */
+    for (int i = 0; i < n; i++) {
+        int y = 40 + i * rh, sel = i == v->trk, silent = v->mute[i] || !v->level[i];
+        if (!gfx_visible(0, y, GFX_W, rh)) continue;
+        uint16_t col = v->col[i], dm = dimc(col);
+        char b[24], e[24], nm[2] = { (char)('1' + i), 0 };
+        int big = rh >= 34, th = big ? 30 : rh - 4, sy = big ? 21 : rh - 11, sh = big ? 9 : 6;
+        rect(2, y + 2, 26, th, sel ? col : dm);
+        ts(11, y + 2 + (th - 16) / 2, nm, sel ? RGB(0, 0, 0) : col);
+        cut(b, v->sound[i] ? v->sound[i] : "", 13, 160); { int pn = pend;
+        ts(34, y + (big ? 1 : 0), b, sel ? WHITE : G4); if (pn) e[0] = 0; }
+        { int i2 = 0; const char *kd = v->kind[i] ? v->kind[i] : ""; for (; kd[i2] && i2 < 23; i2++) e[i2] = kd[i2]; e[i2] = 0; }
+        if (34 + ws(b) + 6 + ws(e) < 196) ts(34 + ws(b) + 6, y + (big ? 1 : 0), e, sel ? col : G3);
+        if (v->rec[i]) { rect(200, y + 2, 36, 15, TE_RED); ts(206, y + 1, "REC", WHITE); }
+        else if (v->solo[i]) { rect(200, y + 2, 36, 15, WHITE); ts(202, y + 1, "SOLO", RGB(0, 0, 0)); }
+        else if (v->mute[i]) ts(204, y + 1, "MUTE", G3);
+        for (int j = 0; j < 16; j++) {
+            uint8_t f = v->cells[i][j];
+            int x = 34 + j * 10;
+            if (f & UC_OUT) continue;
+            uint16_t cc = (f & UC_NOTE) ? (silent ? G3 : sel ? col : dm) : G1;
+            rect(x, y + sy, 8, sh, cc);
+            if ((f & UC_NOTE) && !sel && !silent) rect(x, y + sy, 8, 2, col);
+            if (f & UC_PLAY) rect(x, y + sy + sh + 1, 8, 2, WHITE);
+        }
+        rect(198, y + sy + 2, 38, 5, G1);
+        if (!silent) rect(198, y + sy + 2, v->level[i] * 38 / 100, 5, sel ? col : G3);
+    }
+    dials(v, 184, v->toast ? v->toast : v->info, v->toast && v->toast_kind);
+}
+
+/* ---------------------------------------------------------------- DRUMS (grid, kit, sound) */
+static void page_drums(const ui_view *v)
+{
+    uint16_t dc = tcol(v);
+    char b[24];
+    te_header(v, "DRUMS", dc);
+    int page = v->page == UI_DRUMS ? 0 : v->dpage ? v->dpage : 1;
+    if (gfx_visible(0, 40, GFX_W, 44)) {
+        rect(2, 44, 34, 34, dc);
+        tsc(19, 53, "KIT", RGB(0, 0, 0));
+        { const char *kn = v->sound[v->trk] ? v->sound[v->trk] : "DRUMS"; cut(b, kn, 12, 140); if (wl(b) <= 140) tl(44, 46, b, WHITE); else if (wm(b) <= 140) tm(44, 52, b, WHITE); else ts(44, 54, b, WHITE); }
+        ts(194, 41, "GRID", page == 0 ? WHITE : G3);
+        ts(194, 55, "KIT", page == 1 ? WHITE : G3);
+        ts(194, 69, "SOUND", page == 2 ? WHITE : G3);
+        rect(188, 45 + page * 14, 3, 9, dc);
+    }
+    if (gfx_visible(0, 84, GFX_W, 100)) {               /* KIT, SOUND: the 16 pads, lit on each hit (the GRID: page_drums3) */
+        for (int i = 0; i < 16; i++) {
+            int x = 2 + (i % 4) * 60, y = 84 + (i / 4) * 25, lit = v->pad_hit == i;
+            rect(x, y, 56, 23, lit ? dc : G1);
+            if (page == 2 && i == v->drum_sel) frame1(x, y, 56, 23, WHITE);
+            if ((v->pad_mute >> i) & 1) rect(x + 3, y + 3, 4, 4, TE_RED);
+            tsc(x + 28, y + 4, v->pad_names ? cut(b, v->pad_names[i], 6, 54) : "", lit ? RGB(0, 0, 0) : i == v->drum_sel ? WHITE : G3);
+        }
+    }
+    dials(v, 184, v->toast ? v->toast : v->info, v->toast && v->toast_kind);
+}
+
+/* ---------------------------------------------------------------- REC: armed, its count-in, a free take */
+static void rec_rows(const ui_view *v, int y0)
+{
+    int n = v->ntrk ? v->ntrk : 4, rh = n > 4 ? 15 : 19;
+    for (int i = 0; i < n; i++) {
+        int y = y0 + i * rh, armed = i == v->trk;
+        char b[24];
+        if (!gfx_visible(0, y, GFX_W, rh)) continue;
+        if (armed) { rect(0, y, 240, rh - 1, TE_RED); rect(1, y + 1, 238, rh - 3, BG); }
+        rect(4, y + 2, 11, rh - 5, armed ? v->col[i] : dimc(v->col[i]));
+        ts(22, y + (rh - 16) / 2, cut(b, v->sound[i], 10, 80), armed ? WHITE : G3);
+        for (int j = 0; j < 16; j++) {
+            uint8_t f = v->cells[i][j];
+            rect(106 + j * 8, y + 4, 6, rh - 8, (f & UC_NOTE) ? (armed ? v->col[i] : dimc(v->col[i])) : (f & UC_OUT) ? BG : G1);
+        }
+    }
+}
+static void page_rec(const ui_view *v)
+{
+    static const char *const TT[5] = { "REC READY", "REC READY", "REC READY", "COUNT-IN", "FREE TAKE" };
+    te_header(v, TT[v->rec_kind % 5], TE_RED);
+    char b[24];
+    if (v->rec_kind == 4) {                              /* a free take: its seconds, the loop it would make */
+        if (gfx_visible(0, 42, GFX_W, 106)) {
+            int n = v->take_secs > 99 ? 99 : v->take_secs;
+            disc(18, 72, 9, v->blink ? TE_RED : dimc(ui_knob_col[3]));
+            *put_u(b, (uint32_t)n) = 0; tl(108 - wl(b), 60, b, WHITE);   /* (4.0.1: the seconds in the large type) */
+            ts(112, 86, "S", G3);
+            rect(132, 48, 1, 54, G1);
+            if (v->take_bars) {
+                *put_u(b, v->take_bars) = 0;
+                tl(146, 46, b, tcol(v));
+                ts(146 + wl(b) + 6, 60, v->take_bars == 1 ? "BAR" : "BARS", G3);
+                *put_u(b, v->take_bpm) = 0;
+                int x = ts(146, 84, b, WHITE); ts(x + 4, 84, "BPM", G3);
+            } else tl(146, 46, "-", G3);
+            tsc(120, 122, "PRESS REC ON THE 1", TE_RED);
+        }
+        rec_rows(v, 148);
+        if (gfx_visible(0, 224, GFX_W, 16)) { ts(4, 224, "REC: CLOSE", G3); tsr(236, 224, "PLAY: DROP", G3); }
+        return;
+    }
+    if (gfx_visible(0, 42, GFX_W, 64)) {
+        static const char *const L1[3] = { "PLAY FREELY", "PLAY A NOTE", "PRESS PLAY" };
+        static const char *const L2[3] = { "THEN REC ON THE 1", "IT STARTS THE LOOP", "4 CLICKS, THEN REC" };
+        static const char *const L3[3] = { "THE TEMPO FOLLOWS", "PLAY: GO  REC: OFF", "REC: CANCEL" };
+        if (v->rec_kind == 3) {
+            b[0] = (char)('0' + v->count_n % 10); b[1] = 0; tl(100, 58, b, WHITE);
+            disc(60, 73, 12, TE_RED);
+            ts(144, 56, "COUNT-IN", G4);
+            ts(144, 76, "REC: CANCEL", G3);
+        } else {
+            int m = v->rec_kind % 3;
+            disc(28, 72, 18, v->blink ? TE_RED : dimc(ui_knob_col[3]));
+            disc(28, 72, 7, BG);
+            ts(60, 48, L1[m], WHITE);
+            ts(60, 66, L2[m], G4);
+            ts(60, 84, L3[m], G3);
+        }
+    }
+    rec_rows(v, 106);
+    dials(v, 184, v->toast ? v->toast : v->info, v->toast && v->toast_kind);
+}
+
+/* ---------------------------------------------------------------- the layers: 16 tiles as the 16 white keys */
+static void layer_title(const ui_view *v)
+{
+    if (!gfx_visible(0, 0, GFX_W, 40)) return;
+    char b[40];
+    uint16_t col = v->title_col ? v->title_col : tcol(v);
+    int x = tl(4, 2, v->title, col);
+    const char *sub = v->toast ? v->toast : v->info ? v->info : v->sub;
+    uint16_t sc = v->toast ? (v->toast_kind ? TE_RED : WHITE) : v->info ? WHITE : G3;
+    int lw = ws("LOCK") + 8;                             /* (4.0.2, Sam: PUNCH's FADE beside the title, seen locked too;
+                                                            the LOCK on the top line only, the line under it whole) */
+    int room = 236 - (x + 10) - (v->locked && !v->head_r[0] ? 46 : 0);
+    if (ws(sub) > room && !v->locked) room = 236 - (x + 10);
+    if (ws(sub) <= room) ts(x + 10, 18, sub, sc);
+    else {                                               /* (long: under the title, from the left) */
+        cut(b, sub, 29, room > 0 ? room : 0);
+        ts(x + 10, 18, b, sc);
+    }
+    if (v->locked) { rect(236 - lw, 2, lw, 15, WHITE); ts(240 - lw, 2, "LOCK", RGB(0, 0, 0)); }
+    if (v->head_r[0]) ts(x + 10, 2, cut(b, v->head_r, 9, 236 - lw - 6 - (x + 10)), G3);
+    rect(0, 38, 240, 1, G1);
+}
+static void tile_mark_cond(int x, int flags, uint16_t fg, int y)
+{
+    if (flags & TF_FILL) { rect(x + 4, y + 7, 2, 7, fg); rect(x + 4, y + 7, 5, 2, fg); rect(x + 4, y + 10, 4, 2, fg); }
+    else if (flags & TF_NOFILL) for (int d = 0; d < 6; d++) { rect(x + 4 + d, y + 7 + d, 2, 2, fg); rect(x + 9 - d, y + 7 + d, 2, 2, fg); }
+}
+static void tiles(const ui_view *v)
+{
+    for (int i = 0; i < 16; i++) {
+        const ui_tile *t = &v->tile[i];
+        int r = i / 4, c = i % 4, x = 2 + c * 60, y = 40 + r * 36 + 2;
+        if (!gfx_visible(x, y, 56, 32) || t->style == T_NONE) continue;
+        uint16_t col = t->col ? t->col : tcol(v), bg = G1, fg = G3, top = 0;
+        int blink_off = (t->flags & TF_BLINK) && !v->blink;
+        switch (t->style) {
+        case T_ON: bg = col; fg = RGB(0, 0, 0); break;
+        case T_WHITE: bg = WHITE; fg = RGB(0, 0, 0); break;
+        case T_RED: bg = TE_RED; fg = WHITE; break;
+        case T_FRAME: bg = G1; fg = col; top = col; break;
+        case T_DIM: bg = G1; fg = G4; break;
+        case T_GAUGE: bg = G1; fg = WHITE; break;
+        default: bg = G1; fg = G3; break;               /* T_EMPTY */
+        }
+        if (blink_off) { bg = G1; fg = col; top = col; }
+        if (t->flags & TF_BAR) top = t->style == T_ON ? WHITE : col;
+        if (t->flags & TF_PLAY) top = WHITE;
+        rect(x, y, 56, 32, bg);
+        if (t->style == T_GAUGE) rect(x, y, 56 * t->lvl / 100, 32, col);
+        if (t->flags & TF_LEVEL) { rect(x + 4, y + 26, 48, 3, G2); rect(x + 4, y + 26, 48 * t->lvl / 100, 3, t->style == T_ON ? RGB(0, 0, 0) : col); }
+        if (top) rect(x, y, 56, 3, top);
+        char b[24];
+        const char *s = t->text;
+        int sp = -1;
+        for (int k = 0; s[k]; k++) if (s[k] == ' ') sp = k;
+        pend = 72; int narrow = ws(s) <= 54; pend = 0;      /* (one line while it fits, narrowed: TOM H, CRASH) */
+        if (narrow || ws(s) <= 54 || sp < 0) tsc(x + 28, y + 7 + ((t->flags & TF_LEVEL) ? -3 : 0), cut(b, s, 7, 56), fg);
+        else {                                           /* two words: on two lines */
+            int k; for (k = 0; k < sp && k < 23; k++) b[k] = s[k]; b[k] = 0; tsc(x + 28, y, cut(b, b, 7, 56), fg);
+            tsc(x + 28, y + 15, cut(b, s + sp + 1, 7, 56), fg);
+        }
+        if (t->flags & TF_DOT) rect(x + 50, y + 5, 3, 3, fg);
+        tile_mark_cond(x, t->flags, fg, y - 2);
+    }
+}
+/* FX held: the 27 keys as a keyboard, four rows of four white keys with the black keys between them */
+static void punch_tiles(const ui_view *v)
+{
+    static const uint8_t AFTER[11] = { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14 };   /* the white key each black one follows */
+    char b[24];
+    for (int r = 0; r < 4; r++) {
+        int y0 = 40 + r * 36;
+        if (!gfx_visible(0, y0, GFX_W, 36)) continue;
+        for (int c = 0; c < 4; c++) {
+            const ui_tile *t = &v->tile[r * 4 + c];
+            int x = 2 + c * 60, on = t->style == T_WHITE;
+            rect(x, y0 + 19, 56, 17, on ? WHITE : G1);
+            if (!on) rect(x, y0 + 19, 56, 2, dimc(ui_knob_col[r]));
+            tsc(x + 28, y0 + 20, cut(b, t->text, 7, 56), on ? RGB(0, 0, 0) : G4);
+        }
+        for (int i = 0; i < 11; i++) {
+            const ui_tile *t = &v->btile[i];
+            int w = AFTER[i], x;
+            if (w / 4 != r) continue;
+            x = w % 4 < 3 ? 60 * (w % 4 + 1) - 26 : 238 - 52;
+            int on = t->style == T_WHITE;
+            if (!on) rect(x, y0, 52, 17, G2);
+            rect(x + 1, y0 + 1, 50, 15, on ? WHITE : BG);
+            tsc(x + 26, y0 + 1, cut(b, t->text, 6, 50), on ? RGB(0, 0, 0) : G3);
+        }
+    }
+}
+
+/* ---------------------------------------------------------------- SONG: the song, line by line */
+static void page_song(const ui_view *v)
+{
+    layer_title(v);
+    if (gfx_visible(0, 40, GFX_W, 144)) {
+        char b[24];
+        for (int i = 0; i < v->sg_n; i++) {
+            const ui_songrow *r = &v->sg[i];
+            int y = 44 + i * 27, sel = r->flags & SR_SEL;
+            rect(2, y, 236, 24, sel ? G2 : G1);
+            if (sel) rect(2, y, 3, 24, WHITE);
+            *put_u(b, r->num) = 0; ts(10, y + 4, b, sel ? WHITE : G3);
+            b[0] = (char)('1' + r->pat); b[1] = 0;
+            rect(50, y + 3, 22, 18, r->flags & SR_EMPTY ? G1 : tcol(v)); tsc(61, y + 4, b, r->flags & SR_EMPTY ? G3 : RGB(0, 0, 0));
+            char *p = put_u(b, r->bars); const char *u = r->bars == 1 ? " BAR" : " BARS"; while (*u) *p++ = *u++; *p = 0;
+            ts(84, y + 4, b, sel ? WHITE : G4);
+            if (r->flags & SR_MIX) ts(170, y + 4, "MIX", G3);
+            if (r->flags & SR_MUTE) ts(200, y + 4, "OFF", TE_RED);
+            if (r->flags & SR_PLAY) { rect(2, y + 22, 236, 2, WHITE); }
+        }
+        if (!v->sg_n) tsc(120, 100, "EMPTY: SAVE + 14, PLAY", G3);
+    }
+    dials(v, 184, 0, 0);
+}
+
+/* ---------------------------------------------------------------- the menu (HOME held), SLOOP 2.8.5's */
+static void page_menu(const ui_view *v)
+{
+    static const char *const MS[5] = { "SCREEN", "LIGHTS", "AUDIO", "SEQ", "SYSTEM" };
+    int sec = v->dpage % 5;
+    char b[24];
+    if (gfx_visible(0, 0, GFX_W, 21)) {
+        const char *m = v->toast ? v->toast : v->info;
+        if (m && m[0]) ts(4, 1, cut(b, m, 29, 232), C_HI);
+        else { ts(4, 1, "MENU", C_HI); char *p = b; const char *q = MS[sec]; while (*q) *p++ = *q++; *p++ = ' '; p = put_u(p, (uint32_t)sec + 1u); *p++ = '/'; *p++ = '5'; *p = 0; tsr(236, 1, b, C_GRAY); }
+        rect(0, H_HEAD, 240, 1, C_LINE);
+    }
+    int x = 4;
+    for (int i = 0; i < 5; i++) {                        /* the sections as tabs: this one lit */
+        int w = ws(MS[i]);
+        if (i == sec) rect(x - 2, H_HEAD + 3, w + 4, 18, C_LINE);
+        ts(x, H_HEAD + 4, MS[i], i == sec ? WHITE : C_DIM);
+        x += w + 6;
+    }
+    for (int r = 0; r < 4; r++) {                        /* KNOB r + 1: its row, the value large */
+        const ui_knob *k = &v->knob[r];
+        int y = H_HEAD + 26 + r * 50;
+        if (!k->label || !k->label[0] || !gfx_visible(0, y, GFX_W, 50)) continue;
+        int cur = hot(v, r);
+        rect(4, y + 2, 4, 42, cur ? WHITE : ui_knob_col[r]);
+        char kk[3] = { 'K', (char)('1' + r), 0 };
+        int xv = ts(14, y, kk, ui_knob_col[r]);
+        ts(xv + 6, y, cut(b, k->label, 22, 236 - xv - 6), cur ? WHITE : C_GRAY);
+        if (k->value[0] && wl(k->value) <= 222) tl(14, y + 16, k->value, cur ? WHITE : C_HI);
+        else if (k->value[0]) ts(14, y + 24, k->value, cur ? WHITE : C_HI);
+        else ts(14, y + 24, "TURN RIGHT", cur ? WHITE : C_DIM);
+    }
+}
+
+/* ---------------------------------------------------------------- (4.0.1, Sam) SLOOP 3's sequencer screens: NOTES and the
+ * DRUMS grid as SLOOP 3.3.8 drew them, with its dials (the rest keeps SLOOP 2.8.5's layout) */
+#define TXT    WHITE
+#define DIM    gfx_mix(BG, WHITE, 20)
+#define PANEL  G1
+#define PANEL2 G2
+#define LINE   gfx_mix(BG, WHITE, 9)
+#define YEL    RGB(255, 210, 60)
+#define FOOT_Y 180
+static void fit3(const gfx_font *big, int x, int y, int w, int h, const char *s, uint16_t c, int align)
 {
     const gfx_font *f = big;
     int sp = 0;
@@ -74,53 +713,6 @@ static void fit(const gfx_font *big, int x, int y, int w, int h, const char *s, 
     gfx_text(f, tx, y + (h - f->cap) / 2, s, c);
     gfx_spacing(0); gfx_condense(100);
 }
-/* a sound's name in a tile (3.2, SOUNDS): on one line when it fits there without its letters squeezed; else on two,
- * cut at the space that leaves the two most alike (no space: one line squeezed; and what even that would cut, in
- * its middle), so that no name loses its end ("TRAP PLUCK", "XYLOPHONE") */
-static void fit2(int x, int y, int w, int h, const char *s, uint16_t c)
-{
-    int n = 0, at = -1, skip = 1, best = 0x7FFF;
-    char a[12], b[12];
-    while (s[n]) n++;
-    gfx_spacing(-2); int w1 = gfx_text_w(&font_s, s); gfx_spacing(0);
-    if (w1 <= w || n > 11) { fit(&font_m, x, y, w, h, s, c, 1); return; }
-    for (int i = 1; i < n - 1; i++) if (s[i] == ' ') {
-        int j = 0; for (; j < i; j++) a[j] = s[j];
-        a[j] = 0;
-        int wa = gfx_text_w(&font_s, a), wb = gfx_text_w(&font_s, s + i + 1), m = wa > wb ? wa : wb;
-        if (m < best) { best = m; at = i; }
-    }
-    if (at < 0) {
-        gfx_spacing(-1); gfx_condense(62); int wc = gfx_text_w(&font_s, s); gfx_spacing(0); gfx_condense(100);
-        if (wc <= w) { fit(&font_m, x, y, w, h, s, c, 1); return; }
-        at = (n + 1) / 2; skip = 0;
-    }
-    int j = 0; for (; j < at; j++) a[j] = s[j];
-    a[j] = 0;
-    for (j = 0; s[at + skip + j]; j++) b[j] = s[at + skip + j];
-    b[j] = 0;
-    fit(&font_s, x, y + (h - 28) / 2, w, 13, a, c, 1); fit(&font_s, x, y + (h - 28) / 2 + 15, w, 13, b, c, 1);
-}
-
-/* ---------------------------------------------------------------- maths for the pictures */
-static float ex2(float x)                                /* 2^x, to about 0.1 %: enough to draw */
-{
-    if (x < -30.0f) return 0.0f;
-    if (x > 30.0f) x = 30.0f;
-    int i = (int)(x + 64.0f) - 64; float f = x - (float)i;
-    union { float f; uint32_t u; } r;
-    r.f = 1.0f + f * (0.6951f + f * (0.2262f + f * 0.0781f));
-    r.u += (uint32_t)i << 23;
-    return r.f;
-}
-static float lg2(float x)                                /* log2 x, x > 0 */
-{
-    union { float f; uint32_t u; } r; r.f = x;
-    float e = (float)((int)((r.u >> 23) & 255u) - 127);
-    r.u = (r.u & 0x007FFFFFu) | 0x3F800000u;
-    float f = r.f - 1.0f;
-    return e + f * (1.4425f + f * (-0.7148f + f * 0.2726f));
-}
 static float sqrt_(float x)                              /* a guess from the exponent, three Newton steps */
 {
     if (x <= 0.0f) return 0.0f;
@@ -138,74 +730,7 @@ static float atan2_(float y, float x)                    /* radians, to about 1e
     if (x < 0.0f) r = 3.1415927f - r;
     return y < 0.0f ? -r : r;
 }
-static void sincos_(float a, float *sn, float *cs)       /* a in radians, to about 1e-4 */
-{
-    float q = a / 1.5707963f; int k = (int)(q + (q >= 0.0f ? 0.5f : -0.5f));
-    float z = a - (float)k * 1.5707963f, z2 = z * z;
-    float s0 = z * (1.0f - z2 / 6.0f * (1.0f - z2 / 20.0f)), c0 = 1.0f - z2 / 2.0f * (1.0f - z2 / 12.0f);
-    int m = ((k % 4) + 4) % 4;
-    *cs = m == 0 ? c0 : m == 1 ? -s0 : m == 2 ? -c0 : s0;
-    *sn = m == 0 ? s0 : m == 1 ? c0 : m == 2 ? -s0 : -c0;
-}
-
-/* ---------------------------------------------------------------- the top bar */
-static void info_line(const ui_view *v, int x, int y, int w, int h);
-static void top_bar(const ui_view *v)
-{
-    if (!gfx_visible(0, 0, GFX_W, TOP_H)) return;
-    if (v->info) {                                        /* (the tempo stays; the transport and the status give way) */
-        char t[8], *q = put_u(t, v->bpm); *q = 0;
-        int e = gfx_text(&font_l, 4, 5, t, TXT);
-        gfx_text(&font_s, e + 4, 5 + font_l.cap - font_s.cap, "BPM", DIM);
-        info_line(v, 100, 2, 136, TOP_H - 4);
-        return;
-    }
-    char b[12], *p;
-    /* the tempo */
-    p = put_u(b, v->bpm); *p = 0;
-    int e = gfx_text(&font_l, 4, 5, b, TXT);
-    gfx_text(&font_s, e + 4, 5 + font_l.cap - font_s.cap, "BPM", DIM);
-    /* the transport: an icon, the bar and beat, the four beats */
-    int x = 104;
-    if (v->recording) gfx_disc(x + 7, 13, 7, RED);
-    else if (v->playing) gfx_play(x, 6, 15, GREEN);
-    else if (v->armed) { if (v->blink) gfx_disc(x + 7, 13, 7, RED); else gfx_rframe(x, 6, 14, 14, 7, 2, RED); }
-    else gfx_fill(x + 1, 7, 12, 12, DIM);
-    if (v->playing) { p = put_u(b, v->bar); *p++ = '.'; p = put_u(p, v->beat); *p = 0; }
-    else { p = b; const char *s = v->armed ? "READY" : "STOP"; while (*s) *p++ = *s++; *p = 0; }
-    fit(&font_m, x + 20, 4, 62, font_m.cap, b, v->playing || v->armed ? TXT : DIM, 0);
-    for (int i = 0; i < 4; i++) gfx_fill(x + 20 + i * 10, 27, 7, 4, v->playing && v->beat == i + 1 ? TXT : LINE);
-    /* the status */
-    fit(&font_m, 170, 4, 66, font_m.cap, v->status, v->status_col ? v->status_col : TXT, 2);
-}
-/* 3.3: what just changed, in the title's line: a quiet line in the accent colour, the page under it untouched */
-static void info_line(const ui_view *v, int x, int y, int w, int h)
-{
-    gfx_fill(x, y, w, h, BG);
-    gfx_fill(x, y + h - 2, w, 2, YEL);
-    const gfx_font *f = gfx_text_w(&font_m, v->info) <= w - 4 ? &font_m : &font_s;   /* (the larger letters when they fit) */
-    fit(f, x + 2, y + (h - 2 - f->cap) / 2, w - 4, f->cap, v->info, TXT, 0);
-}
-/* ---------------------------------------------------------------- the track header (on the pages) */
-static void sound_name(char *nm, const ui_view *v, int t)
-{
-    char *p = nm; const char *s = v->sound[t] && v->sound[t][0] ? v->sound[t] : "OWN SOUND";
-    while (*s && p < nm + 16) *p++ = *s++;
-    if (v->edited[t]) *p++ = '*';
-    *p = 0;
-}
-static void track_header(const ui_view *v)
-{
-    if (!gfx_visible(0, HEAD_Y - 6, GFX_W, 46)) return;
-    uint16_t c = v->col[v->trk];
-    gfx_rfill(4, HEAD_Y, 38, 38, 7, c);
-    char n[2] = { (char)('1' + v->trk), 0 };
-    gfx_text_c(&font_l, 23, HEAD_Y + (38 - font_l.cap) / 2, n, BG);
-    char nm[20]; sound_name(nm, v, v->trk);
-    fit(&font_l, 50, HEAD_Y + 1, 186, 36, nm, TXT, 0);
-}
-/* ---------------------------------------------------------------- the dials */
-static void dial(int cx, int cy, int r, int t, int val, uint16_t c, uint16_t needle)
+static void dial3(int cx, int cy, int r, int t, int val, uint16_t c, uint16_t needle)
 {
     if (!gfx_visible(cx - r - 1, cy - r - 1, 2 * r + 3, 2 * r + 3)) return;
     /* a ring of 270 degrees open at the bottom, lit up to the value: each pixel's distance (the ring, its edges
@@ -230,7 +755,7 @@ static void dial(int cx, int cy, int r, int t, int val, uint16_t c, uint16_t nee
         gfx_fill((int)(fx - 0.5f), (int)(fy - 0.5f), 2, 2, needle);
     }
 }
-static void footer(const ui_view *v)
+static void footer3(const ui_view *v)
 {
     if (!gfx_visible(0, FOOT_Y, GFX_W, GFX_H - FOOT_Y)) return;
     for (int i = 0; i < 4; i++) {
@@ -238,20 +763,29 @@ static void footer(const ui_view *v)
         int x = i * 60, top = FOOT_Y;
         if (!k->label || !k->label[0]) continue;
         uint16_t kc = ui_knob_col[i];
-        if (k->dial && k->bar >= 0) dial(x + 30, top + 12, 12, 4, k->bar, kc, k->hot ? YEL : TXT);
+        if (k->dial && k->bar >= 0) dial3(x + 30, top + 12, 12, 4, k->bar, kc, k->hot ? YEL : TXT);
         else if (k->dial) gfx_rframe(x + 18, top, 24, 24, 12, 2, gfx_mix(BG, kc, 12));
         else gfx_rfill(x + 8, top + 9, 44, 5, 2, kc);
-        fit(&font_s, x + 2, top + 26, 56, font_s.cap, k->label, k->hot ? YEL : DIM, 1);
-        fit(&font_m, x + 2, top + 40, 56, font_m.cap, k->value, k->hot ? YEL : TXT, 1);   /* (3.3.6: 2 px up, the battery's line under) */
+        fit3(&font_s, x + 2, top + 26, 56, font_s.cap, k->label, k->hot ? YEL : DIM, 1);
+        fit3(&font_m, x + 2, top + 40, 56, font_m.cap, k->value, k->hot ? YEL : TXT, 1);   /* (3.3.6: 2 px up, the battery's line under) */
     }
 }
 
-/* ---------------------------------------------------------------- the tiles of a layer */
-static void layer_title(const ui_view *v)
+static void info_line3(const char *info, int x, int y, int w, int h)
+{
+    gfx_fill(x, y, w, h, BG);
+    gfx_fill(x, y + h - 2, w, 2, YEL);
+    const gfx_font *f = gfx_text_w(&font_m, info) <= w - 4 ? &font_m : &font_s;   /* (the larger letters when they fit) */
+    fit3(f, x + 2, y + (h - 2 - f->cap) / 2, w - 4, f->cap, info, TXT, 0);
+}
+
+/* (4.0.2, Sam) SLOOP 3's MIX (GLO held): its title, a track a column (mute above, solo below), its dials */
+#define CYAN RGB(80, 220, 255)
+static void layer_title3(const ui_view *v)
 {
     if (!gfx_visible(0, 0, GFX_W, 46)) return;
     int e = gfx_text(&font_l, 4, 8, v->title, v->title_col ? v->title_col : TXT), x = e + 8, w = 236 - x;
-    if (v->info) { info_line(v, x, 4, w, 34); gfx_fill(4, 41, 232, 1, LINE); return; }
+    if (v->info) { info_line3(v->info, x, 4, w, 34); gfx_fill(4, 41, 232, 1, LINE); return; }
     if (!v->sub[0]) { gfx_fill(4, 41, 232, 1, LINE); return; }
     /* the line beside the title: on one line if it fits, else two, cut at its " · " */
     if (gfx_text_w(&font_s, v->sub) <= w) gfx_text(&font_s, x, 8 + font_l.cap - font_s.cap, v->sub, DIM);
@@ -260,7 +794,7 @@ static void layer_title(const ui_view *v)
         for (int k = 0; v->sub[k]; k++) if (v->sub[k] == ' ' && (unsigned char)v->sub[k + 1] == 0xC2) { cut = k; break; }
         if (cut < 0) {                                        /* (squeezed if it fits so; else left out) */
             int n = 0; while (v->sub[n]) n++;
-            if (gfx_text_w(&font_s, v->sub) - 2 * n <= w) fit(&font_s, x, 8 + font_l.cap - font_s.cap, w, font_s.cap, v->sub, DIM, 0);
+            if (gfx_text_w(&font_s, v->sub) - 2 * n <= w) fit3(&font_s, x, 8 + font_l.cap - font_s.cap, w, font_s.cap, v->sub, DIM, 0);
             gfx_fill(4, 41, 232, 1, LINE); return;
         }
         for (; i < cut && i < 39; i++) a[i] = v->sub[i];
@@ -269,17 +803,17 @@ static void layer_title(const ui_view *v)
         while (*r == ' ') r++;
         for (; r[j] && j < 39; j++) b[j] = r[j];
         b[j] = 0;
-        fit(&font_s, x, 6, w, font_s.cap, a, DIM, 0);
-        fit(&font_s, x, 23, w, font_s.cap, b, DIM, 0);
+        fit3(&font_s, x, 6, w, font_s.cap, a, DIM, 0);
+        fit3(&font_s, x, 23, w, font_s.cap, b, DIM, 0);
     }
     gfx_fill(4, 41, 232, 1, LINE);
 }
-static void tiles(const ui_view *v)
+static void tiles3(const ui_view *v)
 {
     int nc = v->cols == 5 ? 5 : 4, pitch = nc == 5 ? 47 : 59, tw = nc == 5 ? 44 : 56;
     for (int i = 0; i < 16; i++) {
         const ui_tile *t = &v->tile[i];
-        int x = 3 + (i % nc) * pitch, y = TILE_Y + (i / nc) * 33, w = tw, h = 30;
+        int x = 3 + (i % nc) * pitch, y = 48 + (i / nc) * 33, w = tw, h = 30;
         if (!gfx_visible(x - 4, y - 4, w + 8, h + 8) || t->style == T_NONE) continue;
         uint16_t c = t->col ? t->col : TXT, fill = PANEL, tc = DIM;
         switch (t->style) {
@@ -287,20 +821,25 @@ static void tiles(const ui_view *v)
         case T_DIM: fill = PANEL2; tc = TXT; break;
         case T_FRAME: fill = PANEL; tc = c; break;
         case T_WHITE: fill = TXT; tc = BG; break;
-        case T_RED: fill = RED; tc = TXT; break;
+        case T_RED: fill = TE_RED; tc = TXT; break;
         default: break;
         }
-        gfx_rfill(x, y, w, h, 4, fill);
+        if (t->style == T_GAUGE) {                            /* (3.3.8) a hold, a save: filled from the left */
+            int gw = w * (t->lvl > 100 ? 100 : t->lvl) / 100;
+            gfx_rfill(x, y, w, h, 4, PANEL2);
+            if (gw > 0) gfx_rfill(x, y, gw < 8 ? 8 : gw, h, 4, c);
+            gfx_rframe(x, y, w, h, 4, 2, c);
+            tc = t->lvl >= 50 ? BG : TXT;
+        } else gfx_rfill(x, y, w, h, 4, fill);
         if (t->flags & TF_BAR) gfx_fill(x + 4, y, w - 8, 3, c);
-        if (t->style == T_FRAME) gfx_rframe(x, y, w, h, 4, 2, (t->flags & TF_BLINK) && !v->blink ? dim(c) : c);
+        if (t->style == T_FRAME) gfx_rframe(x, y, w, h, 4, 2, (t->flags & TF_BLINK) && !v->blink ? dimc(c) : c);
         if (t->flags & TF_PLAY) gfx_rframe(x, y, w, h, 4, 2, TXT);
         if (t->flags & TF_LEVEL) {                            /* the track's level, as GLOBAL's faders lying down */
             uint16_t lc = t->style == T_ON ? BG : c;
-            gfx_fill(x + 4, y + h - 6, w - 8, 3, t->style == T_ON ? dim(c) : PANEL2);
+            gfx_fill(x + 4, y + h - 6, w - 8, 3, t->style == T_ON ? dimc(c) : PANEL2);
             gfx_fill(x + 4, y + h - 6, (w - 8) * (t->lvl > 100 ? 100 : t->lvl) / 100, 3, lc);
         }
-        if (t->flags & TF_WRAP) fit2(x + 3, y, w - 6, h, t->text, tc);
-        else fit(&font_m, x + 3, y, w - 6, t->flags & TF_LEVEL ? h - 7 : h, t->text, tc, 1);
+        fit3(&font_m, x + 3, y, w - 6, t->flags & TF_LEVEL ? h - 7 : h, t->text, tc, 1);
         uint16_t mk = t->style == T_ON || t->style == T_WHITE ? BG : YEL;
         if (t->flags & TF_DOT) gfx_fill(x + w - 8, y + 4, 4, 4, mk);
         if (t->flags & TF_FILL) gfx_fill(x + 4, y + 4, 4, 4, t->style == T_ON ? BG : CYAN);
@@ -308,319 +847,11 @@ static void tiles(const ui_view *v)
     }
 }
 
-/* FX held: the 27 punch-ins as the keys are, the white keys in rows of four, each black key above, between the two
- * white keys it sits between (the one after a row's last white key at that row's right end) */
-static void punch_tiles(const ui_view *v)
-{
-    static const uint8_t AFTER[11] = { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14 };   /* the white key before each black one */
-    for (int i = 0; i < 16; i++) {
-        const ui_tile *t = &v->tile[i];
-        int x = 3 + (i % 4) * 59, y = TILE_Y + (i / 4) * 33 + 15, w = 56, h = 17;
-        if (!gfx_visible(x - 4, y - 4, w + 8, h + 8)) continue;
-        int on = t->style == T_WHITE;
-        gfx_rfill(x, y, w, h, 3, on ? TXT : PANEL2);
-        fit(&font_s, x + 2, y, w - 4, h, t->text, on ? BG : TXT, 1);
-    }
-    for (int j = 0; j < 11; j++) {
-        const ui_tile *t = &v->btile[j];
-        int a = AFTER[j], r = a / 4, sl = a % 4, w = 46, h = 14;
-        int x = sl < 3 ? 3 + sl * 59 + 57 - w / 2 : 236 - w, y = TILE_Y + r * 33;
-        if (!gfx_visible(x - 4, y - 4, w + 8, h + 8)) continue;
-        int on = t->style == T_WHITE;
-        gfx_rfill(x, y, w, h, 3, on ? TXT : PANEL);
-        gfx_rframe(x, y, w, h, 3, 1, on ? TXT : LINE);
-        fit(&font_s, x + 2, y, w - 4, h, t->text, on ? BG : DIM, 1);
-    }
-}
-
-/* ---------------------------------------------------------------- TRACKS */
-static void step_cell(int x, int y, int w, int h, uint8_t f, uint16_t c)
-{
-    if (f & UC_OUT) return;
-    uint16_t fill = f & UC_NOTE ? c : PANEL2;
-    if ((f & UC_PLAY) && !(f & UC_NOTE)) fill = LINE;
-    gfx_fill(x, y, w, h, fill);
-    if (f & UC_PLAY) gfx_fill(x, y + h + 1, w, 2, TXT);
-    if (f & (UC_LOCK | UC_COND | UC_RAT)) gfx_fill(x, y - 3, w, 2, YEL);
-}
-static void page_tracks(const ui_view *v)
-{
-    for (int t = 0; t < v->ntrk && t < 5; t++) {
-        int y = HEAD_Y + t * 28;
-        if (!gfx_visible(0, y - 6, GFX_W, 34)) continue;
-        uint16_t c = v->col[t], cc = v->mute[t] ? dim(c) : c;
-        if (t == v->trk) gfx_rfill(2, y, 236, 27, 5, PANEL);
-        char n[2] = { (char)('1' + t), 0 };
-        if (v->mute[t]) { gfx_rframe(5, y + 3, 21, 21, 4, 2, cc); gfx_text_c(&font_s, 15, y + 3 + (21 - font_s.cap) / 2, n, cc); }
-        else { gfx_rfill(5, y + 3, 21, 21, 4, c); gfx_text_c(&font_s, 15, y + 3 + (21 - font_s.cap) / 2, n, BG); }
-        /* the sound and its kind, a badge */
-        char nm[20]; sound_name(nm, v, t);
-        const char *badge = v->rec[t] ? "REC" : v->solo[t] ? "SOLO" : v->mute[t] ? "MUTE" : 0;
-        uint16_t bc = v->solo[t] && !v->rec[t] ? YEL : RED;
-        int bw = badge ? gfx_text_w(&font_s, badge) + 8 : 0;
-        int e = gfx_text(&font_s, 31, y + 3, nm, t == v->trk ? TXT : DIM);
-        if (v->kind[t] && e + 6 + gfx_text_w(&font_s, v->kind[t]) < 234 - bw) gfx_text(&font_s, e + 6, y + 3, v->kind[t], cc);
-        if (badge) gfx_text_r(&font_s, 234, y + 3, badge, bc);
-        /* the steps, the level */
-        for (int i = 0; i < 16; i++) step_cell(31 + i * 11 + (i / 4) * 2, y + 19, 9, 5, v->cells[t][i], cc);
-        gfx_fill(214, y + 19, 20, 5, LINE);
-        gfx_fill(214, y + 19, 20 * v->level[t] / 100, 5, cc);
-    }
-}
-
-/* ---------------------------------------------------------------- the sound's pages */
-#define VIS_X 8
-#define VIS_W 224
-#define VIS_Y (MAIN_Y + 22)
-#define VIS_H 72
-static void curve(const float *y, uint16_t c, int area)
-{
-    int prev = -1;
-    for (int i = 0; i < VIS_W; i++) {
-        float f = y[i] < 0.0f ? 0.0f : y[i] > 1.0f ? 1.0f : y[i];
-        int yy = VIS_Y + VIS_H - 1 - (int)(f * (float)(VIS_H - 2) + 0.5f);
-        if (area) gfx_fill(VIS_X + i, yy, 1, VIS_Y + VIS_H - yy, dim(c));
-        int a = prev < 0 ? yy : prev, lo = a < yy ? a : yy, hi = a < yy ? yy : a;
-        gfx_fill(VIS_X + i, lo - 1, 1, hi - lo + 2, c);
-        prev = yy;
-    }
-}
-static void page_title(const ui_view *v)
-{
-    if (!gfx_visible(0, MAIN_Y - 4, GFX_W, 22)) return;
-    /* the page's name, and the track's engine at the right if both fit (else the name alone, squeezed if need be) */
-    const char *k = v->kind[v->trk];
-    int kw = k ? gfx_text_w(&font_s, k) : 0, nw = gfx_text_w(&font_s, v->page_name);
-    if (k && nw + 10 + kw <= 228) { gfx_text(&font_s, 6, MAIN_Y + 2, v->page_name, DIM); gfx_text_r(&font_s, 234, MAIN_Y + 2, k, v->col[v->trk]); }
-    else fit(&font_s, 6, MAIN_Y + 2, 228, font_s.cap, v->page_name, DIM, 0);
-}
-static int vis_on(void) { return gfx_visible(0, VIS_Y - 2, GFX_W, VIS_H + 4); }
-static void env_shape(const ui_view *v, float *y, float scale, float base)
-{
-    float S = v->prm[SP_SUS] * 0.01f;
-    int a = 4 + v->prm[SP_ATK] / 2, d = 4 + v->prm[SP_DEC] / 2, h = 40, r = 4 + v->prm[SP_REL] * 6 / 10;
-    for (int i = 0; i < VIS_W; i++) {
-        float l = 0.0f;
-        if (i < a) l = (float)i / (float)a;
-        else if (i < a + d) { float u = 1.0f - (float)(i - a) / (float)d; l = S + (1.0f - S) * u * u * u; }
-        else if (i < a + d + h) l = S;
-        else if (i < a + d + h + r) { float u = 1.0f - (float)(i - a - d - h) / (float)r; l = S * u * u * u; }
-        y[i] = base + scale * l;
-    }
-}
-static void page_osc(const ui_view *v)
-{
-    /* ANALOG's oscillators: two cycles of its WAVE (SAW SQR TRI SIN PWM), osc 2 DTN above as MIX says, the noise */
-    page_title(v);
-    if (!vis_on()) return;
-    int w = (v->prm[SP_E0] * 4 + 50) / 100;
-    float ratio = ex2((float)v->prm[SP_E1] * 1.27f * (1.0f / 1200.0f)), m2 = v->prm[SP_E2] * 0.01f, m1 = 1.0f - m2, mx = 0.001f;
-    float pw = 0.5f, nz = v->prm[SP_E3] * 0.004f;
-    uint32_t r = 0x2545F491u;
-    float y[VIS_W];
-    for (int i = 0; i < VIS_W; i++) {
-        float t = (float)i * (2.0f / VIS_W), val = 0.0f;
-        for (int k = 0; k < 2; k++) {
-            float ph = k ? t * ratio + 0.25f : t; ph -= (float)(int)ph;
-            float o = w == 1 ? (ph < 0.5f ? 1.0f : -1.0f) : w == 2 ? (ph < 0.5f ? 4.0f * ph - 1.0f : 3.0f - 4.0f * ph)
-                    : w == 3 ? 0.0f : w == 4 ? (ph < pw * 0.6f ? 1.0f : -1.0f) : 2.0f * ph - 1.0f;
-            if (w == 3) { float sn, cs; sincos_(ph * 6.2831853f, &sn, &cs); o = sn; }
-            val += (k ? m2 : (v->prm[SP_E2] ? m1 : 1.0f)) * o;
-            if (!v->prm[SP_E2]) break;
-        }
-        r ^= r << 13; r ^= r >> 17; r ^= r << 5;
-        val += nz * (float)(int32_t)r * (1.0f / 2147483648.0f);
-        y[i] = val; if (val > mx) mx = val; if (-val > mx) mx = -val;
-    }
-    for (int i = 0; i < VIS_W; i++) y[i] = 0.5f + 0.48f * y[i] / mx;
-    gfx_fill(VIS_X, VIS_Y + VIS_H / 2, VIS_W, 1, LINE);
-    curve(y, v->col[v->trk], 0);
-}
-static void page_env(const ui_view *v)
-{
-    page_title(v);
-    if (!vis_on()) return;
-    float y[VIS_W]; env_shape(v, y, 1.0f, 0.0f);
-    curve(y, v->col[v->trk], 1);
-}
-static void page_envdest(const ui_view *v)
-{
-    /* the filter's envelope: how far it opens the cutoff (up) or closes it (down), over the note */
-    page_title(v);
-    if (!vis_on()) return;
-    float y[VIS_W]; env_shape(v, y, 0.48f * (v->prm[SP_EFLT] - 50) * 0.02f, 0.5f);
-    gfx_fill(VIS_X, VIS_Y + VIS_H / 2, VIS_W, 1, LINE);
-    curve(y, v->col[v->trk], 0);
-}
-static void page_filter(const ui_view *v)
-{
-    /* the filter's response, 20 Hz .. 20 kHz across, +12 .. -36 dB: low / band / high mixed as the engine does */
-    page_title(v);
-    if (!vis_on()) return;
-    float y[VIS_W];
-    int ft = (v->prm[SP_FTYPE] * 2 + 50) / 100;                      /* ANALOG: LP BP HP, CUT, RES */
-    float k = 2.0f - 1.855f * v->prm[SP_E5] * 0.01f;
-    float lpw = ft == 0 ? 1.0f : 0.0f, hpw = ft == 2 ? 1.0f : 0.0f, bpw = ft == 1 ? k : 0.0f;
-    float co = 0.585f + v->prm[SP_E4] * 0.0906f;                     /* (octaves above 20 Hz: 30 Hz .. 16 kHz) */
-    for (int i = 0; i < VIS_W; i++) {
-        float w2 = ex2(2.0f * ((float)i * (10.0f / VIS_W) - co)), a = 1.0f - w2, den = a * a + k * k * w2;
-        float lp = 1.0f / den, bp = w2 / den, hp = w2 * w2 / den;          /* squared magnitudes */
-        float m = lpw * sqrt_(lp) + bpw * sqrt_(bp) + hpw * sqrt_(hp);
-        y[i] = (6.0206f * lg2(m > 1e-6f ? m : 1e-6f) + 36.0f) * (1.0f / 48.0f);
-    }
-    gfx_fill(VIS_X, VIS_Y + VIS_H - 1 - (int)(36.0f / 48.0f * (VIS_H - 2)), VIS_W, 1, LINE);   /* 0 dB */
-    curve(y, v->col[v->trk], 1);
-}
-static void page_voice(const ui_view *v)
-{
-    /* the sources beside the oscillators: the sub (an octave down), the noise, the unison's spread */
-    page_title(v);
-    if (!vis_on()) return;
-    uint16_t c = v->col[v->trk];
-    static const char *const L[3] = { "SUB", "NOISE", "WIDTH" };
-    int val[3] = { v->prm[4], v->prm[5], v->prm[15] };
-    for (int i = 0; i < 3; i++) {
-        int y = VIS_Y + 6 + i * 23;
-        gfx_text(&font_s, 10, y + 2, L[i], DIM);
-        gfx_rfill(100, y, 132, 17, 4, PANEL);
-        if (val[i] > 0) gfx_rfill(100, y, 132 * val[i] / 100 < 8 ? 8 : 132 * val[i] / 100, 17, 4, c);
-    }
-}
-static void page_fx(const ui_view *v)
-{
-    page_title(v);
-    if (!vis_on()) return;
-    /* the reverb's tail behind, the echoes in front: 4 beats across */
-    int len = 30 + v->rev_size * 190 / 100, sr = v->send_rev;
-    for (int i = 0; i < len && i < VIS_W; i++) {
-        float u = 1.0f - (float)i / (float)len; int hh = (int)((float)(VIS_H - 6) * u * u * (0.25f + 0.75f * sr * 0.01f));
-        gfx_fill(VIS_X + i, VIS_Y + VIS_H - hh, 1, hh, PANEL2);
-    }
-    float lvl, fb = v->dly_fb * 0.0095f, send = v->send_dly * 0.01f;
-    int step = v->dly_beats8 * 56 / 8;
-    gfx_fill(VIS_X, VIS_Y, 5, VIS_H, TXT);                          /* the note */
-    lvl = send > 0.0f ? 0.25f + 0.6f * send : 0.0f;                  /* (drawn bigger than heard: to be seen) */
-    for (int x = step; step > 0 && x < VIS_W - 4 && lvl > 0.04f; x += step) {
-        int hh = (int)((float)VIS_H * lvl);
-        gfx_fill(VIS_X + x, VIS_Y + VIS_H - hh, 5, hh, v->col[v->trk]);
-        lvl *= fb;
-    }
-}
-static void page_lfo(const ui_view *v)
-{
-    /* the LFO's wave, two cycles, drawn as large as its depths add up (flat at 0: it does nothing) */
-    page_title(v);
-    if (!vis_on()) return;
-    int db = 0; for (int k = SP_LPIT; k <= SP_LSHP; k++) db += v->prm[k] > 50 ? v->prm[k] - 50 : 50 - v->prm[k];
-    float y[VIS_W], dep = (float)(2 * db + v->prm[SP_LAMP]) * 0.01f;
-    int wv = (v->prm[SP_LWAVE] * 4 + 50) / 100;
-    uint32_t r = 0x2545F491u; float sh = 0.0f; int cyc = -1;
-    if (dep > 1.0f) dep = 1.0f;
-    for (int i = 0; i < VIS_W; i++) {
-        float t = (float)i * (2.0f / VIS_W), ph = t - (float)(int)t, l;
-        switch (wv) {
-        case 0: { float sn, cs; sincos_(ph * 6.2831853f, &sn, &cs); l = sn; break; }
-        case 1: l = ph < 0.5f ? 4.0f * ph - 1.0f : 3.0f - 4.0f * ph; break;
-        case 2: l = 1.0f - 2.0f * ph; break;
-        case 3: l = ph < 0.5f ? 1.0f : -1.0f; break;
-        default:
-            if ((int)(t * 4.0f) != cyc) { cyc = (int)(t * 4.0f); r ^= r << 13; r ^= r >> 17; r ^= r << 5; sh = (float)(int32_t)r * (1.0f / 2147483648.0f); }
-            l = sh; break;
-        }
-        y[i] = 0.5f + 0.46f * l * (0.15f + 0.85f * dep);
-    }
-    gfx_fill(VIS_X, VIS_Y + VIS_H / 2, VIS_W, 1, LINE);
-    curve(y, dep > 0.0f ? v->col[v->trk] : LINE, 0);
-}
-static void page_kit(const ui_view *v)
-{
-    /* the drum track's 16 pads, as the keys: the one last played in white */
-    page_title(v);
-    for (int i = 0; i < 16; i++) {
-        int x = 3 + (i % 4) * 59, y = MAIN_Y + 20 + (i / 4) * 20, w = 56, h = 18;
-        if (!gfx_visible(x - 4, y - 4, w + 8, h + 8)) continue;   /* (a glyph may lean out of its box) */
-        int on = i == v->pad_hit, mu = (v->pad_mute >> i) & 1;
-        gfx_rfill(x, y, w, h, 3, on ? TXT : PANEL);
-        if (mu) gfx_rframe(x, y, w, h, 3, 1, RED);
-        fit(&font_s, x + 2, y, w - 4, h, v->pad_names ? v->pad_names[i] : "", mu && !on ? RED : on ? BG : DIM, 1);
-    }
-}
-static void page_mixer(const ui_view *v)
-{
-    char b[8], *p;
-    page_title(v);
-    for (int t = 0; t < v->ntrk && t < 5; t++) {
-        int x = 4 + t * 47;
-        if (!gfx_visible(x - 2, MAIN_Y + 16, 48, 82)) continue;
-        uint16_t c = v->mute[t] ? dim(v->col[t]) : v->col[t];
-        if (t == v->trk) gfx_rframe(x - 2, MAIN_Y + 18, 48, 80, 6, 2, TXT);
-        char n[2] = { (char)('1' + t), 0 };
-        gfx_rfill(x, MAIN_Y + 20, 44, 18, 4, c);
-        gfx_text_c(&font_s, x + 22, MAIN_Y + 20 + (18 - font_s.cap) / 2, n, BG);
-        int bh = 36, by = MAIN_Y + 41, lh = bh * v->level[t] / 100;
-        gfx_rfill(x + 10, by, 24, bh, 4, PANEL);
-        if (lh > 0) gfx_rfill(x + 10, by + bh - lh, 24, lh, lh >= 8 ? 4 : 0, c);
-        if (v->mute[t]) gfx_text_c(&font_s, x + 22, MAIN_Y + 80, "OFF", RED);
-        else if (v->solo[t]) gfx_text_c(&font_s, x + 22, MAIN_Y + 80, "SOLO", YEL);
-        else { p = put_u(b, v->level[t]); *p = 0; gfx_text_c(&font_s, x + 22, MAIN_Y + 80, b, TXT); }
-    }
-}
-static void bar_row(int y, const char *label, int val, int bipolar, uint16_t c)
-{
-    gfx_text(&font_s, 10, y + 1, label, DIM);
-    gfx_rfill(110, y, 122, 15, 4, PANEL);
-    if (!bipolar) { if (val > 0) gfx_rfill(110, y, 122 * val / 100 < 8 ? 8 : 122 * val / 100, 15, 4, c); return; }
-    gfx_fill(170, y - 2, 2, 19, LINE);                          /* the centre: off */
-    int w = 60 * (val < 0 ? -val : val) / 100;
-    if (val < 0) gfx_rfill(171 - w, y, w, 15, 3, c);
-    else if (val > 0) gfx_rfill(171, y, w, 15, 3, c);
-}
-static void page_master(const ui_view *v)
-{
-    /* the master bus: the DJ filter (left low-pass, right high-pass), DUST, DUCK; and the track's own filter */
-    page_title(v);
-    if (!vis_on()) return;
-    static const char *const L[4] = { "DJ FILTER", "DUST", "DUCK", "TRACK" };
-    int val[4] = { v->mfilt, v->dust, v->duck, v->tfilt };
-    for (int i = 0; i < 4; i++) bar_row(VIS_Y + 2 + i * 18, L[i], val[i], i == 0 || i == 3, i == 3 ? v->col[v->trk] : ui_knob_col[i]);
-}
-static void page_play(const ui_view *v)
-{
-    /* how the track plays: POLY, MONO or LEGATO; the glide between two notes, drawn */
-    page_title(v);
-    if (!vis_on()) return;
-    uint16_t c = v->col[v->trk];
-    static const char *const M[4] = { "POLY", "MONO", "LEG", "UNI" };
-    int m = (v->prm[SP_VOICE] * 3 + 50) / 100;
-    for (int i = 0; i < 4; i++) {
-        int x = 6 + i * 58, on = i == m;
-        gfx_rfill(x, VIS_Y + 2, 54, 24, 5, on ? c : PANEL);
-        fit(&font_s, x + 2, VIS_Y + 2, 50, 24, M[i], on ? BG : DIM, 1);
-    }
-    int g = v->prm[SP_GLIDE], y0 = VIS_Y + 64, y1 = VIS_Y + 38, x0 = 70, w = 2 + g * 130 / 100;
-    gfx_fill(VIS_X + 4, y0, x0 - VIS_X - 4, 3, TXT);
-    for (int i = 0; i < w; i++) { int y = y0 + (y1 - y0) * i / w; gfx_fill(x0 + i, y, 2, 3, g ? c : TXT); }
-    gfx_fill(x0 + w, y1, VIS_X + VIS_W - x0 - w - 4, 3, TXT);
-}
-static void page_arp(const ui_view *v)
-{
-    /* the arpeggio: 16 notes as it would play the chord held (C E G when nothing is) */
-    page_title(v);
-    if (!vis_on()) return;
-    uint16_t c = v->col[v->trk];
-    gfx_fill(VIS_X, VIS_Y + VIS_H - 1, VIS_W, 1, LINE);
-    for (int i = 0; i < 16 && i < v->arp_n; i++) {
-        int x = VIS_X + i * 14, h = v->arp_seq[i];
-        if (h == 255) { gfx_fill(x + 3, VIS_Y + VIS_H - 4, 8, 2, LINE); continue; }
-        int y = VIS_Y + VIS_H - 6 - h * (VIS_H - 10) / 100;
-        gfx_rfill(x + 1, y, 12, 6, 2, c);
-    }
-}
-static void page_drums(const ui_view *v)
+static void page_drums3(const ui_view *v)
 {
     /* every sound of the kit, its 16 steps: the sound the keys write on in its colour, the others dim */
     if (gfx_visible(0, 0, GFX_W, 46)) {
-        gfx_text(&font_l, 4, 8, "DRUMS", v->col[v->trk]);
+        gfx_text(&font_l, 4, 8, v->drum_sheet ? v->page_name : "DRUMS", v->col[v->trk]);
         if (v->pad_names) gfx_text_r(&font_m, 236, 8 + font_l.cap - font_m.cap, v->pad_names[v->drum_sel & 15], TXT);
         gfx_fill(4, 41, 232, 1, LINE);
     }
@@ -633,36 +864,25 @@ static void page_drums(const ui_view *v)
             int x = 8 + i * 14 + (i / 4) * 2, on = (v->drum_row[r] >> i) & 1;
             uint16_t f = on ? (sel ? v->col[v->trk] : TXT) : (i == v->drum_at ? LINE : PANEL2);
             if (!on && sel) f = PANEL2;
+            if (on && sel) {                                 /* (3.3.8) the sound picked: its level a shade, GHOST darkest */
+                static const uint8_t SH[4] = { 12, 18, 25, 32 };
+                int lv = (int)(v->drum_lvl >> (2 * i)) & 3;
+                f = gfx_mix(PANEL2, v->col[v->trk], SH[lv]);
+            }
             gfx_fill(x, y, 12, 7, f);
+            if (on && sel) { int rt = (int)(v->drum_rat >> (2 * i)) & 3; for (int j = 0; j < rt; j++) gfx_fill(x + 2 + j * 3, y + 5, 2, 2, BG); }   /* its ratchets: notches */
+            if (sel && i == v->drum_cur) gfx_rframe(x - 1, y - 1, 14, 9, 1, 1, TXT);   /* (3.3.8) the step picked */
             if (i == v->drum_at && r == 0) gfx_fill(x, y - 3, 12, 2, TXT);   /* the playhead, above the grid */
         }
     }
 }
-static void page_generic(const ui_view *v)
-{
-    /* an engine's page: each knob's value as a bar, in its colour, its name and value beside */
-    page_title(v);
-    if (!vis_on()) return;
-    for (int i = 0; i < 4; i++) {
-        const ui_knob *k = &v->knob[i];
-        if (!k->label || !k->label[0]) continue;
-        int y = VIS_Y + 2 + i * 18;
-        gfx_text(&font_s, 10, y + 1, k->label, DIM);
-        gfx_rfill(76, y, 104, 15, 4, PANEL);
-        if (k->bar > 0) gfx_rfill(76, y, 104 * k->bar / 100 < 8 ? 8 : 104 * k->bar / 100, 15, 4, ui_knob_col[i]);
-        fit(&font_s, 184, y, 50, 15, k->value, TXT, 2);
-    }
-}
-/* NOTES: the steps shown (16, or zoomed: 8 32 64) as a piano roll; each note a bar as long as it lasts, the one edited outlined in white,
- * the step edited a lighter column, the beats ruled, the playhead a line; an accent a white cap, a slide a dash on
- * to where the next note starts, a soft note dimmer, a ghost hollow */
-static void page_notes(const ui_view *v)
+static void page_notes3(const ui_view *v)
 {
     /* the whole screen, as DRUMS: the page's name in the track's colour, the track's number beside, then the roll
      * from under the title to the dials; the black keys' rows a shade darker, each C ruled and named */
     uint16_t c = v->col[v->trk];
     if (gfx_visible(0, 0, GFX_W, 46)) {
-        fit(&font_l, 4, 8, 190, font_l.cap, v->page_name, c, 0);
+        fit3(&font_l, 4, 8, 190, font_l.cap, v->page_name, c, 0);
         gfx_rfill(204, 6, 32, 30, 6, c);
         char n[2] = { (char)('1' + v->trk), 0 };
         gfx_text_c(&font_m, 220, 6 + (30 - font_m.cap) / 2, n, BG);
@@ -673,7 +893,10 @@ static void page_notes(const ui_view *v)
     int lo = v->nr_lo, hi = v->nr_hi > v->nr_lo ? v->nr_hi : v->nr_lo + 1, rows = hi - lo + 1, rh = h / rows;
     if (rh < 3) rh = 3;
     int top = y0 + (h - rh * rows) / 2;
-    int cols = v->nr_cols ? v->nr_cols : 16, rule = cols > 32 ? 16 : 4;   /* (64 steps: a line a bar) */
+    /* (3.3.8) the lines by the track's DIV: a beat (16T: every 6 steps, 8T: 3), the bars darker; many steps: a bar */
+    int cols = v->nr_cols ? v->nr_cols : 16, bar = v->nr_bar ? v->nr_bar : 16, rule = bar % 4 ? bar / 2 : bar / 4;
+    if (rule < 1) rule = 1;
+    if (cols > 32 || cols / rule > 16) rule = bar;
     for (int n = lo; n <= hi; n++) {
         int y = top + (hi - n) * rh, k = n % 12;
         int black = k == 1 || k == 3 || k == 6 || k == 8 || k == 10;
@@ -682,7 +905,7 @@ static void page_notes(const ui_view *v)
     }
     if (v->nr_cur < cols) { int cx = x0 + v->nr_cur * w / cols, cw = x0 + (v->nr_cur + 1) * w / cols - cx;
         gfx_fill(cx, top, cw < 2 ? 2 : cw, rh * rows, gfx_mix(PANEL2, TXT, 5)); }
-    for (int b = 0; b <= cols; b += rule) gfx_fill(x0 + b * w / cols, top, 1, rh * rows, b % (rule * 4) ? LINE : DIM);
+    for (int b = 0; b <= cols; b += rule) gfx_fill(x0 + b * w / cols, top, 1, rh * rows, b % bar ? LINE : DIM);
     /* the names: each C, else the lowest; the edited note's row in white */
     static const char NM[12][3] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
     int named = 0, sel_p = -1;
@@ -700,7 +923,7 @@ static void page_notes(const ui_view *v)
         int clash = 0; for (int i = 0; i < ny; i++) if (y - ys[i] < font_s.cap + 2 && ys[i] - y < font_s.cap + 2) clash = 1;
         if (clash || ny >= 16) continue;
         ys[ny++] = y;
-        fit(&font_s, 0, y, 28, font_s.cap, b, n == sel_p ? TXT : DIM, 2);
+        fit3(&font_s, 0, y, 28, font_s.cap, b, n == sel_p ? TXT : DIM, 2);
     }
     for (int i = 0; i < v->nr_n && i < UI_NOTES_MAX; i++) {
         const ui_note *n = &v->nr[i];
@@ -717,135 +940,45 @@ static void page_notes(const ui_view *v)
     }
     if (v->nr_play < 64) gfx_fill(x0 + v->nr_play * w / 64, top, 2, rh * rows, GREEN);
 }
-/* SONG 2/2: five entries of the song, each its number, its pattern in the track's colour (dim: no notes there; a
- * dot: the other tracks play others; a bar under: the track muted), its length as a bar (64 bars: the width) and in
- * words, the one the knobs edit framed, the one playing marked with how far it has gone */
-static void page_song(const ui_view *v)
+
+/* ---------------------------------------------------------------- the big SAVED (3.3.8, Sam: a save you can see) */
+static void saved_banner(const ui_view *v)
 {
-    layer_title(v);
-    uint16_t c = v->col[v->trk];
-    if (!v->sg_n && gfx_visible(4, 70, 232, 60)) {
-        gfx_rfill(4, 74, 232, 60, 8, PANEL);
-        fit(&font_m, 12, 78, 216, 24, "NO SONG", TXT, 1);
-        fit(&font_s, 12, 106, 216, 18, "KNOB 4: ADD LINES", DIM, 1);
-        return;
-    }
-    for (int i = 0; i < v->sg_n && i < 5; i++) {
-        const ui_songrow *r = &v->sg[i];
-        int y = TILE_Y + i * 26;
-        if (!gfx_visible(0, y, GFX_W, 26)) continue;
-        int sel = r->flags & SR_SEL;
-        if (sel) gfx_rfill(0, y + 1, GFX_W, 24, 4, PANEL);
-        char b[12], *p = put_u(b, r->num); *p = 0;
-        fit(&font_s, 2, y + 1, 24, 24, b, (r->flags & SR_PLAY) ? GREEN : sel ? TXT : DIM, 2);
-        int empty = r->flags & SR_EMPTY;
-        gfx_rfill(30, y + 3, 26, 20, 4, empty ? PANEL2 : c);
-        p = put_u(b, (uint32_t)r->pat + 1u); *p = 0;
-        fit(&font_m, 30, y + 3, 26, 20, b, empty ? c : BG, 1);
-        if (r->flags & SR_MIX) gfx_fill(58, y + 4, 4, 4, YEL);
-        if (r->flags & SR_MUTE) gfx_fill(30, y + 24, 26, 2, RED);
-        int w = (r->bars > 64 ? 64 : r->bars) * 80 / 64 + 4;
-        gfx_rfill(66, y + 9, w, 8, 2, empty ? LINE : sel ? c : PANEL2);
-        p = put_u(b, r->bars); { const char *q = " BARS"; while (*q) *p++ = *q++; } *p = 0;
-        int tx = 66 + w + 6, tw = gfx_text_w(&font_s, b);
-        gfx_text(&font_s, tx + tw > 236 ? 236 - tw : tx, y + 6, b, sel ? TXT : DIM);
-        if (r->flags & SR_PLAY) {
-            int n = r->bars ? r->bars : 1;
-            gfx_fill(66, y + 19, (r->at + 1 > n ? n : r->at + 1) * w / n, 2, GREEN);
+    if (!v->saved || !gfx_visible(4, 2, 232, 50)) return;
+    uint16_t c = v->saved == 1 ? GREEN : TE_RED;
+    gfx_rfill(4, 2, 232, 50, 6, c);
+    if (v->saved == 1) {
+        for (int d = -40; d <= 40; d += 8) {
+            gfx_line(30 * 16, 27 * 16 + d, 40 * 16, 37 * 16 + d, BG);
+            gfx_line(40 * 16, 37 * 16 + d, 58 * 16, 15 * 16 + d, BG);
         }
-    }
-}
-static void page_soon(const ui_view *v)
-{
-    page_title(v);
-    if (!gfx_visible(0, MAIN_Y + 18, GFX_W, 80)) return;
-    gfx_rfill(4, MAIN_Y + 22, 232, 64, 8, PANEL);
-    fit(&font_m, 12, MAIN_Y + 30, 216, 22, "NEXT VERSION", TXT, 1);
-    fit(&font_s, 12, MAIN_Y + 58, 216, 18, v->sub, DIM, 1);
-}
-static void toast(const ui_view *v)                       /* (3.1.2, as Sam asked: at the top, over the bar; the page stays seen) */
-{
-    if (v->saving) {
-        if (!gfx_visible(4, 2, 232, 42)) return;
-        gfx_rfill(4, 2, 232, 42, 8, PANEL2);
-        gfx_rframe(4, 2, 232, 42, 8, 2, YEL);
-        gfx_text_c(&font_s, 120, 8, "SAVING", YEL);
-        gfx_fill(24, 29, 192, 8, LINE);
-        gfx_fill(24, 29, 192 * v->save_pct / 100, 8, YEL);
-        return;
-    }
-    if (!v->toast || !v->toast[0] || !gfx_visible(4, 2, 232, 42)) return;
-    gfx_rfill(4, 2, 232, 42, 8, PANEL2);
-    gfx_rframe(4, 2, 232, 42, 8, 2, v->toast_kind ? RED : GREEN);
-    int n = 0; while (v->toast[n]) n++;
-    if (gfx_text_w(&font_s, v->toast) - 2 * n <= 220) { fit(&font_m, 10, 2, 220, 42, v->toast, TXT, 1); return; }
-    /* too long for a line: two, cut at the space nearest the middle */
-    char a[48], b[48]; int cut = -1;
-    for (int i = 0; i < n && i < 47; i++) if (v->toast[i] == ' ' && (cut < 0 || (i > n / 2 ? i - n / 2 : n / 2 - i) < (cut > n / 2 ? cut - n / 2 : n / 2 - cut))) cut = i;
-    if (cut < 0 || n > 94) { fit(&font_m, 10, 2, 220, 42, v->toast, TXT, 1); return; }
-    for (int i = 0; i < cut; i++) a[i] = v->toast[i];
-    a[cut] = 0;
-    int j = 0; for (const char *r = v->toast + cut + 1; *r && j < 47; r++) b[j++] = *r;
-    b[j] = 0;
-    fit(&font_s, 10, 5, 220, 17, a, TXT, 1);
-    fit(&font_s, 10, 23, 220, 17, b, TXT, 1);
+        tl(136 - wl("SAVED") / 2, 11, "SAVED", BG);
+    } else tl(120 - wl("SAVE FAILED") / 2, 11, "SAVE FAILED", WHITE);
 }
 
-/* (3.3.6) the battery: a line 2 px high along the bottom of the screen, as full as the battery (green, yellow under
- * 30 %, red under 15 %, blinking under 8 %); a computer on the USB powers and charges it: a light runs along */
-#define BATT_H 2
-static void batt_bar(const ui_view *v)
-{
-    if ((v->batt > 100 && !v->batt_usb) || !gfx_visible(0, GFX_H - BATT_H, GFX_W, BATT_H)) return;
-    int y = GFX_H - BATT_H;
-    uint16_t track = gfx_mix(BG, DIM, 9);
-    if (v->batt_usb) {
-        gfx_fill(0, y, GFX_W, BATT_H, gfx_mix(BG, CYAN, 9));
-        int x = ((v->batt_usb - 1) & 7) * 40 - 40;
-        gfx_fill(x, y, 60, BATT_H, gfx_mix(BG, CYAN, 22)); gfx_fill(x + 15, y, 30, BATT_H, CYAN);
-        return;
-    }
-    int w = (v->batt * GFX_W + 50) / 100;
-    uint16_t c = v->batt >= 30 ? gfx_mix(BG, GREEN, 24) : v->batt >= 15 ? YEL : RED;
-    if (v->batt < 8 && !v->blink) c = track;
-    gfx_fill(0, y, w, BATT_H, c);
-    gfx_fill(w, y, GFX_W - w, BATT_H, track);
-}
 void ui_draw(const ui_view *v)
 {
-    if (v->page == UI_VIS) { vis_draw(); if (v->info && gfx_visible(0, 0, GFX_W, 26)) info_line(v, 0, 0, GFX_W, 26); batt_bar(v); toast(v); return; }
+    gfx_spacing(0); gfx_condense(100);
+    if (v->page == UI_VIS) {
+        vis_draw();
+        const char *m = v->toast ? v->toast : v->info;
+        if (m && m[0] && gfx_visible(0, 0, GFX_W, 20)) { char b[32]; rect(0, 0, 240, 20, BG); ts(4, 2, cut(b, m, 29, 232), C_HI); }
+        saved_banner(v);
+        return;
+    }
     if (v->page == UI_SPLASH) { vis_splash_draw(); return; }
     gfx_fill(0, 0, GFX_W, GFX_H, BG);
-    if (v->page == UI_LAYER) { layer_title(v); tiles(v); }
-    else if (v->page == UI_PUNCH) { layer_title(v); punch_tiles(v); }
-    else if (v->page == UI_DRUMS) page_drums(v);
-    else if (v->page == UI_SONG) page_song(v);
-    else if (v->page == UI_NOTES) page_notes(v);
-    else {
-        top_bar(v);
-        if (v->page == UI_TRACKS) page_tracks(v);
-        else {
-            track_header(v);
-            switch (v->page) {
-            case UI_OSC: page_osc(v); break;
-            case UI_FILTER: page_filter(v); break;
-            case UI_VOICE: page_voice(v); break;
-            case UI_ENV: page_env(v); break;
-            case UI_ENVDEST: page_envdest(v); break;
-            case UI_FX: page_fx(v); break;
-            case UI_KIT: page_kit(v); break;
-            case UI_MIXER: page_mixer(v); break;
-            case UI_LFO: page_lfo(v); break;
-            case UI_MASTER: page_master(v); break;
-            case UI_PLAY: page_play(v); break;
-            case UI_ARP: page_arp(v); break;
-            case UI_GENERIC: page_generic(v); break;
-            default: page_soon(v); break;
-            }
-        }
+    switch (v->page) {
+    case UI_TRACKS: page_tracks(v); break;
+    case UI_LAYER: if (v->cols == 5) { layer_title3(v); tiles3(v); footer3(v); } else { layer_title(v); tiles(v); dials(v, 184, 0, 0); } break;
+    case UI_PUNCH: layer_title(v); punch_tiles(v); dials(v, 184, 0, 0); break;
+    case UI_DRUMS: page_drums3(v); footer3(v); if ((v->toast || v->info) && gfx_visible(0, 0, GFX_W, 40)) info_line3(v->toast ? v->toast : v->info, 0, 2, GFX_W, 36); break;
+    case UI_NOTES: page_notes3(v); footer3(v); if ((v->toast || v->info) && gfx_visible(0, 0, GFX_W, 40)) info_line3(v->toast ? v->toast : v->info, 0, 2, GFX_W, 36); break;
+    case UI_KIT: if (is_drum_v(v)) page_drums(v); else page_frame(v); break;
+    case UI_REC: page_rec(v); break;
+    case UI_SONG: page_song(v); break;
+    case UI_MENU: page_menu(v); break;
+    default: page_frame(v); break;
     }
-    footer(v);
-    if (v->info && (v->page == UI_DRUMS || v->page == UI_SONG || v->page == UI_NOTES) && gfx_visible(0, 0, GFX_W, 26)) info_line(v, 0, 0, GFX_W, 26);
-    batt_bar(v);
-    toast(v);
+    saved_banner(v);
 }

@@ -1,4 +1,4 @@
-build/
-toolchain/
-toolchain.tar.xz
 __pycache__/
+build/
+toolchain
+toolchain.tar.xz

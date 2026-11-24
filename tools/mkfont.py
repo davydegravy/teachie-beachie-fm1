@@ -8,8 +8,9 @@ from PIL import Image, ImageDraw, ImageFont
 FONT = '/usr/share/fonts/opentype/inter/Inter-Bold.otf'
 # ASCII 32..95, then the accented capitals French needs (ui text is UTF-8: gfx.c maps them to these codes)
 CHARS = [chr(c) for c in range(32, 96)] + ['É', 'È', 'À', 'Ç', 'Ê', '→', '·'] + list('mbdisu')   # (chord names: Dm, Bdim, Csus)
-SIZES = [('font_s', 18, 3, None), ('font_m', 24, 2, None),
-         ('font_l', 34, 2, set('0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ.:-/%>ÉÈÀÇ·'))]
+SIZES = [('font_s', 18, 2, set(c for c in CHARS if c not in 'ÉÈÀÇÊ')),   # (4.0.1: 2 bits, as the others: the room before the sample bank)
+         ('font_m', 24, 2, set([chr(c) for c in range(32, 96) if chr(c) not in '!"$&*;@[\\]^_'] + ['·', '→'])),   # (4.0.1: values, messages: no accents, small letters, rare signs)
+         ('font_l', 34, 2, set('0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ.:-/%+#·'))]   # (4.0.1: no accents: the interface is in English)
 
 def build(name, px, bpp, subset):
     f = ImageFont.truetype(FONT, px)

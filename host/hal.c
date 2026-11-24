@@ -8,6 +8,7 @@
  *   the screen (240 x 240), the panel (buttons, keys, knobs, LEDs), the audio's two halves, the second core (its job
  *   run when waited for), USB MIDI (a queue each way), the pot. */
 #define _GNU_SOURCE
+#include <pthread.h>
 #include "twin.h"
 #include <execinfo.h>
 #include "../hal/fm1/board.h"
@@ -40,7 +41,8 @@ void tw_draw_cost(void) { static int us = -1; if (us < 0) { const char *e = gete
 /* 3.3.4: the timer read before time_init started it: on the FM-1 a wait that never ends (3.3.3's black screen) */
 static int time_on;
 static void time_check(void) { if (!time_on) { fprintf(stderr, "!! TWIN: the timer used before time_init (on the FM-1: it may not run, a wait never ends)\n"); twin_end(7); } }
-void time_init(uint32_t m) { lsb_mhz = m; time_on = 1; }
+static pthread_t fw_thread; static int fw_thread_set;     /* (the firmware's own thread: the scenario's is not checked) */
+void time_init(uint32_t m) { lsb_mhz = m; time_on = 1; fw_thread = pthread_self(); fw_thread_set = 1; }
 /* TWIN_DENORM=1 (3.1.8): the FPU traps on a denormal operand and on an underflow; each place is counted once per
  * arming (the clock's reads arm it: several times a block) and listed at the end, for addr2line. The firmware's own
  * loop, the sequencer, the screen: what tests/denorm_test.c does for the sounds alone. */
@@ -166,8 +168,37 @@ int flash_busy(void)
     finish(); win_set(0); return 0;
 }
 void flash_wait_idle(void) { while (flash_busy()) { } }
+/* (3.3.8) the window off, the code that started the work must be RAM's: the twin runs the store's window functions
+ * (XT) natively, so a call from one is caught here (3.3.8's store_proj_prep: the FM-1 froze at the logo) */
+#ifdef __MACH__
+static char *const __start_tw_xt = 0, *const __stop_tw_xt = 0;   /* (Teachie Beachie: a Mac's twin has no tw_xt, Mach-O: these checks are off there) */
+#else
+extern char __start_tw_xt[] __attribute__((weak)), __stop_tw_xt[] __attribute__((weak));
+#endif
+static void from_ram(const void *ret, const char *what)
+{
+    if (__start_tw_xt && (const char *)ret >= __start_tw_xt && (const char *)ret < __stop_tw_xt) {
+        fprintf(stderr, "TWIN: %s started from a window function (XT, %p): it cannot go on with the window off\n", what, ret);
+        twin_fail_hook(); exit(70);
+    }
+}
+/* (3.4.1) a window function (tw_xt: the window's files, COLD, XT) entered while the window is off: on the FM-1 the
+ * CPU fetches it from a flash that is not there (a freeze, or a restart by the watchdog). Every call into the twin's
+ * code is seen (-finstrument-functions, Makefile) */
+__attribute__((no_instrument_function)) void __cyg_profile_func_enter(void *fn, void *site)
+{
+    if (win_off && __start_tw_xt && (char *)fn >= __start_tw_xt && (char *)fn < __stop_tw_xt && fw_thread_set &&
+        pthread_equal(pthread_self(), fw_thread)) {
+        char b[160]; int n = snprintf(b, sizeof b, "TWIN: a window function (%p, called from %p) ran with the window off: the FM-1 would freeze\n", fn, site);
+        write(2, b, (size_t)n);
+        { void *bt[24]; int k = backtrace(bt, 24); backtrace_symbols_fd(bt, k, 2); }
+        twin_fail_hook(); _exit(72);
+    }
+}
+__attribute__((no_instrument_function)) void __cyg_profile_func_exit(void *fn, void *site) { (void)fn; (void)site; }
 int flash_erase_start(uint32_t a)
 {
+    from_ram(__builtin_return_address(0), "an erase");
     if ((a & 4095u) || a >= TW_FLASH || flash_busy()) return -1;
     if (a < 0x4000u) { fprintf(stderr, "TWIN: an erase of m-bootloader's sector 0x%X\n", a); twin_fail_hook(); exit(71); }
     twin_flash_op(1, a, 4096);
@@ -175,11 +206,13 @@ int flash_erase_start(uint32_t a)
     memset(tw_flash + a, 0xFF, 4096);
     for (uint32_t i = 0; i < 4096u; i++) rt_written[(a + i) >> 3] |= (uint8_t)(1u << ((a + i) & 7));
     if (a >= 0x4000u) stale[a / 4096u] = 1;
-    win_set(1); busy_kind = 1; busy_addr = a; busy_until = tw_ns + 45000000ull;   /* 45 ms */
+    static int ems = -1; if (ems < 0) { const char *e = getenv("TWIN_ERASE_MS"); ems = e ? atoi(e) : 45; }   /* (3.4.1: a slower part's) */
+    win_set(1); busy_kind = 1; busy_addr = a; busy_until = tw_ns + (uint64_t)ems * 1000000ull;   /* 45 ms */
     return 0;
 }
 int flash_program_start(uint32_t a, const void *src, uint32_t n)
 {
+    from_ram(__builtin_return_address(0), "a write");
     if (!n || (a & 255u) + n > 256u || a + n > TW_FLASH || flash_busy()) return -1;
     if (a < 0x4000u) { fprintf(stderr, "TWIN: a write to m-bootloader at 0x%X\n", a); twin_fail_hook(); exit(71); }
     twin_flash_op(2, a, n);
@@ -276,7 +309,15 @@ int audio_half_free(void) { return abuf && tw_ns >= next_half; }
 uint64_t tw_half_cpu_ns;                       /* the host's time to render the last half (the cost's proxy) */
 static uint64_t half_t0;
 static uint64_t cpu_ns(void) { struct timespec t; clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t); return (uint64_t)t.tv_sec * 1000000000ull + (uint64_t)t.tv_nsec; }
-int32_t *audio_free_half(void) { half_t0 = cpu_ns(); return abuf + (uint32_t)afill * ahalf; }
+/* (3.4.1) TWIN_HALF_US, or tw_half_us (a scenario's): each half's sound costs that much CPU time (a heavy project:
+ * the load guard, CPU OVERLOAD) */
+uint32_t tw_half_us;
+int32_t *audio_free_half(void)
+{
+    static int us = -1; if (us < 0) { const char *e = getenv("TWIN_HALF_US"); us = e ? atoi(e) : 0; }
+    half_t0 = cpu_ns(); if (tw_half_us) adv((uint32_t)tw_half_us * 1000u); else if (us) adv((uint32_t)us * 1000u);
+    return abuf + (uint32_t)afill * ahalf;
+}
 int audio_playing_half(void) { return afill ^ 1; }
 void audio_half_done(void)
 {
@@ -354,7 +395,9 @@ int tw_usb_in_empty(void) { return qin_r == qin_w; }
 uint32_t tw_usb_take_out(uint8_t (*out)[4], uint32_t cap) { uint32_t n = qout_n < cap ? qout_n : cap; memcpy(out, qout, n * 4u); memmove(qout, qout + n, (qout_n - n) * 4u); qout_n -= n; return n; }
 void usb_midi_open(void) { }
 void usb_midi_poll(void) { adv(1000); }
+int tw_usb_on = 1;
 int usb_midi_ready(void) { return 1; }
+int usb_host_live(void) { return tw_usb_on; }   /* (3.3.8: the cable pulled: tw_usb_on 0) */
 void usb_midi_close(void) { }
 int usb_midi_take(uint8_t pk[4]) { if (qin_r == qin_w) return 0; memcpy(pk, qin[qin_r++ % QN], 4); return 1; }
 int usb_midi_put(const uint8_t pk[4]) { if (qout_n >= QN) { lost++; return 0; } memcpy(qout[qout_n++], pk, 4); return 1; }

@@ -699,10 +699,36 @@ static double play_rms(int eng, int e0, int t, int note, int blocks)
     double a = 0; for (int b = 0; b < blocks; b++) { snd_render(&S, out); for (int n = 0; n < GB_BLOCK; n++) a += (double)snd_last_l[n] * snd_last_l[n]; }
     return sqrt(a / (blocks * (double)GB_BLOCK));
 }
+/* (3.4.2, issue #25) a drum sound's own level: -6 dB is half as loud, the others not changed; its decay kept; an old
+ * byte (decay alone) reads level 0 */
+static double drum_rms(int lane, int lev)
+{
+    reset(); sm_jump(&S.master, 1.0f); sm_jump(&S.trk[0].level, 1.0f);
+    gb_patch *p = &S.trk[0].patch; gb_patch_default(p, ENG_DRUM); p->poly = 8; p->ddec[lane] = gb_dpack(-1, lev);
+    snd_note_on(&S, GB_OWNER(OWN_KEY, 0), 0, lane, 0.2f);   /* (soft: under the master's limiter) */
+    double a = 0; for (int b = 0; b < 60; b++) { snd_render(&S, out); for (int n = 0; n < GB_BLOCK; n++) a += (double)snd_last_l[n] * snd_last_l[n]; }
+    return sqrt(a / (60.0 * GB_BLOCK));
+}
+static void drum_level_test(void)
+{
+    printf("a drum sound's own level (#25)\n");
+    int ok = 1;
+    for (int d = -4; d <= 3; d++) for (int l = GB_DLEV_MIN; l <= GB_DLEV_MAX; l++) { int8_t b = gb_dpack(d, l); if (GB_DDEC(b) != d || gb_dlev(b) != l) ok = 0; }
+    for (int d = -4; d <= 3; d++) if (gb_dlev((int8_t)d) != 0 || GB_DDEC((int8_t)d) != d) ok = 0;
+    CHECK(ok, "the decay and level don't pack and unpack");
+    double a = drum_rms(2, 0), b = drum_rms(2, -6), c = drum_rms(0, 0);
+    CHECK(a > 1e-4 && fabs(b / a - 0.501) < 0.03, "the snare at -6 dB: %.3f of its level", a > 0 ? b / a : 0.0);
+    reset(); sm_jump(&S.master, 1.0f); sm_jump(&S.trk[0].level, 1.0f);
+    gb_patch *q = &S.trk[0].patch; gb_patch_default(q, ENG_DRUM); q->poly = 8; q->ddec[0] = gb_dpack(-1, 0); q->ddec[2] = gb_dpack(-1, -12);
+    snd_note_on(&S, GB_OWNER(OWN_KEY, 0), 0, 0, 0.2f);
+    double k = 0; for (int i = 0; i < 60; i++) { snd_render(&S, out); for (int n = 0; n < GB_BLOCK; n++) k += (double)snd_last_l[n] * snd_last_l[n]; }
+    k = sqrt(k / (60.0 * GB_BLOCK));
+    CHECK(c > 1e-4 && fabs(k / c - 1.0) < 0.01, "the kick changed with the snare's level (%.3f)", c > 0 ? k / c : 0.0);
+}
 /* 3.3.6: a note's pitch, from the output's autocorrelation (the strongest lag past the first dip) */
 static double pitch_of(int eng, int e0, int note)
 {
-    static float o[72 * GB_BLOCK];       /* (Teachie Beachie: 72, not 64: the lags below read up to block 16 + 32 + 1199 samples) */
+    static float o[72 * GB_BLOCK];   /* (4.0.9, issue #10, davydegravy: 72 blocks: the autocorrelation reads up to 16 + 32 blocks + 1200 samples) */
     reset(); sm_jump(&S.master, 1.0f); sm_jump(&S.trk[1].level, 1.0f);
     gb_patch *p = &S.trk[1].patch; gb_patch_default(p, eng); gb_patch_set(p, SP_E0, e0); gb_patch_set(p, SP_SUS, 127);
     snd_note_on(&S, GB_OWNER(OWN_KEY, 0), 1, note, 1.0f);
@@ -942,7 +968,7 @@ static void texture_test(void)
 int main(void)
 {
     smp_bank_load("assets/samples.bin");
-    owner_test(); retrig_test(); zipper_test(); steal_test(); guard_test(); pitch_test(); unison_test(); output_test(); split_test(); lfo_test(); mono_test(); master_test(); punch_test(); grain_test(); kits_test(); tfx_test(); fm6_bank_test(); usr_test(); slice_test(); texture_test(); engines_test();
+    owner_test(); retrig_test(); zipper_test(); steal_test(); guard_test(); pitch_test(); unison_test(); output_test(); split_test(); lfo_test(); mono_test(); master_test(); punch_test(); grain_test(); kits_test(); tfx_test(); fm6_bank_test(); usr_test(); slice_test(); texture_test(); engines_test(); drum_level_test();
     printf("%d checks, %d failed\n", checks, fails);
     return fails != 0;
 }

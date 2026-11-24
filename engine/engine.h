@@ -89,10 +89,22 @@ typedef struct {
     uint8_t unison;                 /* (kept for the projects' bytes; UNISON is a voice mode) */
     uint8_t protect;                /* stolen last (a kick, a bass) (G4) */
     float gain;                     /* the sound's own level (its preset's: all presets as loud) */
-    int8_t dtune[16], ddec[16];     /* DRUM: each sound's tune (semitones, -8 .. +7) and decay (-4 .. +3 steps) */
+    int8_t dtune[16], ddec[16];     /* DRUM: each sound's tune (semitones, -8 .. +7) and decay (-4 .. +3 steps): GB_DDEC,
+                                     * and (3.4.2, issue #25) its level in the bits above (gb_dlev, dB) */
     uint16_t dmute;                 /* DRUM: the sounds the sequencer does not play (bit = sound) */
     float p[GB_NPARAM];             /* the sound's parameters, 0..1 (SP_*) */
 } gb_patch;
+/* (3.4.2, issue #25) a drum sound's decay and level, in its ddec byte: the decay in the low 3 bits (-4 .. +3, as
+ * before: a project from before reads the same), the level (dB, GB_DLEV_MIN .. GB_DLEV_MAX) above, 0 in an old byte */
+#define GB_DDEC(b) ((int)(int8_t)((uint8_t)((uint8_t)(b) << 5)) >> 5)
+#define GB_DLEV_MIN (-12)
+#define GB_DLEV_MAX 6
+static inline int gb_dlev(int8_t b) { int x = ((uint8_t)b >> 3) ^ (GB_DDEC(b) < 0 ? 31 : 0); return x & 16 ? x - 32 : x; }
+static inline int8_t gb_dpack(int dec, int lev)
+{
+    dec = dec < -4 ? -4 : dec > 3 ? 3 : dec; lev = lev < GB_DLEV_MIN ? GB_DLEV_MIN : lev > GB_DLEV_MAX ? GB_DLEV_MAX : lev;
+    return (int8_t)(uint8_t)((dec & 7) | (((lev ^ (dec < 0 ? -1 : 0)) & 31) << 3));
+}
 GB_INLINE int gb_ev(const gb_patch *p, int k);     /* an engine value E0..E7 in its units (after gb_engines) */
 void gb_patch_default(gb_patch *p, int engine);    /* every value its default (the engine's for E0..E7) */
 void gb_patch_set(gb_patch *p, int k, int v);      /* a value in its units */
@@ -267,7 +279,9 @@ typedef struct gb_sound {
     float rev_lp[8], rev_fb, rev_damp;
     /* the limiter */
     float lim_gain, lim_env;
-    uint8_t lowcut;                                    /* HOME > AUDIO SPEAKER: the speaker's low cut (12 dB/oct ~110 Hz), the drums' lows carried up */
+    float mix_gain;                 /* (3.4.2, issue #16) the mix before the limiter: 1 (snd_init), the FM-1's 2 (fw/main.c) */
+    uint8_t lowcut;                                    /* HOME > AUDIO SPEAKER: the speaker's low cut (12 dB/oct ~110 Hz), the drums' lows carried up;
+                                                        * 2 (4.0.2): the drums' only, the firmware cuts the DAC's out itself (the USB audio stays whole) */
     float lc[4];
     float flt_q;                                       /* HOME > AUDIO > FILTER RESO: the tracks' filters' Q */
     uint8_t usb_full;                                  /* HOME > AUDIO > USB FULL: usb_l / usb_r the mix before MASTER */
@@ -335,6 +349,7 @@ typedef struct { float l[GB_NTRACK][GB_BLOCK], r[GB_NTRACK][GB_BLOCK]; uint32_t 
 /* a track's SLICER and INSERT (trackfx.c) */
 int tfx_slicer(gb_sound *s, int t, float *l, float *r), tfx_insert(gb_sound *s, int t, float *l, float *r);
 int tfx_busy(const gb_sound *s, int t);
+uint32_t tfx_slicer_view(int t, int pat);
 void tfx_reset(void);
 void texture_mix(gb_sound *s, float *ml, float *mr, float duck0, float duck1);
 void texture_reset(void);

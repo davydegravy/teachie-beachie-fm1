@@ -25,6 +25,21 @@ run reboot reboot $O/boot/flash.bin
 same boot reboot
 run pages pages -
 run record record -
+run drums285 drums285 -                  # 3.3.8: SLOOP 2.8.5's drum gestures, the hits lit, HOME held: the menu
+run savestutter savestutter -            # 3.3.8: a save while it plays: no half with the flash off
+run punchsnd punchsnd -                  # 4.0.9, issue #6: FX + 1/4 on the sound browsers, at 40 BPM too
+run midiimp midiimp -                    # 3.4.0, Sam: notes from the editor (a MIDI file) heard, each track alone
+run arpall arpall -                      # 3.4.2, issue #22: ARP on every synth track, stopped and playing
+run chordrec chordrec -                  # 3.4.2, issues #28, #30: a SEL chord recorded whole, STRUM both ways
+run songeng songeng -                    # 3.4.2, issue #24: a song changing a track's engine: step 1 heard each bar
+run midi2 midi2 -                        # 3.4.2, Sam: every track's channel (CCs, bend, pedal, programs), MIDI LEARN of CC 1 / 11, the pressure, notes out, REMOTE, FX channel
+run savepat savepat -                    # 3.4.0, Sam: patterns saved while it plays, the autosave with PLAY: no erase, no cut
+TWIN_ERASE_MS=300 run oversave oversave -   # 3.4.1: CPU OVERLOAD during a slow erase: said once the window is back (3.4.0 froze)
+run recsave recsave -                    # 3.4.1 (the monkey, seed 6): REC armed, SAVE > PROJECT still saves
+run selwalk selwalk -                    # 4.0.8: every button's pages, SELECT right and left
+run saveproj saveproj -                  # 4.0.4: SAVE > PROJECT (SAVE, NEW)
+run sections sections -                  # 4.0: SLOOP 2.8's sections: a pattern changes only when saved
+run freetake freetake -                  # 3.3.8: the free take: REC pressed late on the "1", every hit on its step
 run record-reboot reboot $O/record/flash.bin
 same record record-reboot
 run settings settings $O/boot/flash.bin

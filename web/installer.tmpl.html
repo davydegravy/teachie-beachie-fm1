@@ -376,7 +376,7 @@ en: {
   mb: 'm-bootloader ', stage: ' (RAM stage)', key: ', chip key 0x', badpkg: 'The package does not check out ({e}). Nothing is sent.',
   fwready: 'Connected. SLOOP 3 is ready for this FM-1 ({n} bytes, encrypted for its chip).',
   devMeta: 'm-bootloader {v} · chip key {k} · flash {f}',
-  noans: 'The FM-1 does not answer.', noansFix: 'Switch it off, then on while holding PLAY, choose MIDI MODE, and click Connect again.',
+  noans: 'The FM-1 does not answer.', noansFix: 'Switch it off, then on while holding PLAY, choose MIDI MODE, and click Connect again. Still nothing: close what else may be using MIDI (another tab with the editor or this page, M-Flasher, a music program), or quit the browser completely and open this page again; Edge works too.',
   inst: 'Installing... Do not unplug the FM-1 and keep this tab in front.', check: 'Checking the package', write: 'Writing SLOOP 3',
   done: 'Installed! The FM-1 restarts on SLOOP 3.',
   refused: 'The FM-1 refused the package (code {c}).', intact: ' Nothing was written: the FM-1 is as it was.', refusedFix: 'Switch it off and on in MIDI MODE, reload this page and try again. If it happens again, tell us the code.',
@@ -400,7 +400,7 @@ fr: {
   mb: 'm-bootloader ', stage: ' (en RAM)', key: ', clé de la puce 0x', badpkg: 'Le paquet n\'est pas valide ({e}). Rien n\'est envoyé.',
   fwready: 'Connecté. SLOOP 3 est prêt pour ce FM-1 ({n} octets, chiffrés pour sa puce).',
   devMeta: 'm-bootloader {v} · clé de la puce {k} · flash {f}',
-  noans: 'Le FM-1 ne répond pas.', noansFix: 'Éteins-le, puis rallume-le en tenant PLAY, choisis MIDI MODE, et clique de nouveau sur Connecter.',
+  noans: 'Le FM-1 ne répond pas.', noansFix: 'Éteins-le, puis rallume-le en tenant PLAY, choisis MIDI MODE, et clique de nouveau sur Connecter. Toujours rien : ferme ce qui peut utiliser le MIDI (un autre onglet avec l\'éditeur ou cette page, M-Flasher, un logiciel de musique), ou quitte complètement le navigateur et rouvre cette page ; Edge marche aussi.',
   inst: 'Installation... Ne débranche pas le FM-1 et garde cet onglet au premier plan.', check: 'Vérification du paquet', write: 'Écriture de SLOOP 3',
   done: 'Installé ! Le FM-1 redémarre sur SLOOP 3.',
   refused: 'Le FM-1 a refusé le paquet (code {c}).', intact: ' Rien n\'a été écrit : le FM-1 est comme avant.', refusedFix: 'Éteins-le et rallume-le en MIDI MODE, recharge cette page et réessaie. Si ça recommence, donne-nous le code.',
@@ -607,15 +607,19 @@ function attach(o, i) {
   if (inp) inp.onmidimessage = null;
   out = o; inp = i; inp.onmidimessage = onMsg;
 }
-/* m-bootloader's MIDI MODE: "FM-1 Update" until 2.2; from 2.3 it answers as M-VAVE's update loaders do,
- * "ota-FM-1_900". Each port that may be it is asked who it is (0x12): the one that says MBOOT is used */
-const UPD = /FM-1 Update|ota-FM-1/i;
+/* m-bootloader's MIDI MODE: "FM-1 Update" until 2.2; from 2.3 it may answer as M-VAVE's update loaders do,
+ * "ota-FM-1_900"; and a Mac keeps the name it first saw for a USB device ("Felucca Update" after SLOOP 2.8: issue #2).
+ * So no name is trusted: each port that may be the FM-1 is asked who it is (0x12), the update's names first, and the
+ * one that answers MBOOT is used */
+const UPD = /Update|ota-/i, FM1 = /FM-1|Felucca|SLOOP|CRITICAL|H[üu]gelton/i;
 function candidates() {
-  const outs = [...midi.outputs.values()].filter(p => UPD.test(p.name) && p.state !== 'disconnected');
-  const ins = [...midi.inputs.values()].filter(p => UPD.test(p.name) && p.state !== 'disconnected');
-  return outs.map(o => [o, ins.find(i => i.name === o.name) || ins[0]]).filter(x => x[1]);
+  const live = p => p.state !== 'disconnected';
+  const outs = [...midi.outputs.values()].filter(p => live(p) && (UPD.test(p.name) || FM1.test(p.name)));
+  outs.sort((a, b) => (UPD.test(b.name) ? 1 : 0) - (UPD.test(a.name) ? 1 : 0));
+  const ins = [...midi.inputs.values()].filter(live);
+  return outs.map(o => [o, ins.find(i => i.name === o.name)]).filter(x => x[1]);
 }
-let probing = false;
+let probing = false, again = false;      /* again: a port came or went while asking: ask once more */
 async function tryPort() {
   const cs = candidates();
   if (!cs.length || probing) return cs.length > 0;
@@ -623,12 +627,16 @@ async function tryPort() {
   for (const [o, i] of cs) {
     attach(o, i);
     state = 'asking'; clearTimeout(hintT); show('err3', false); show('waiting', false); say(T.found + out.name + T.reading);
-    out.send(frame(0x12, []));
-    for (let w = 0; w < 30 && state === 'asking'; w++) await new Promise(r => setTimeout(r, 50));
+    /* (3.4.2, issue #13: "Chrome never connects, Edge at once") the ports opened before the first word (a send on a port
+     * still opening can be lost), and the question asked again every half second, 4 times */
+    try { await i.open(); await o.open(); } catch (e) {}
+    for (let w = 0; w < 40 && state === 'asking'; w++) { if (w % 10 === 0) out.send(frame(0x12, [])); await new Promise(r => setTimeout(r, 50)); }
     if (state !== 'asking') { probing = false; return true; }          /* (it answered: ready, or refused) */
   }
   probing = false;
-  state = 'waiting'; show('waiting', true); problem('err3', T.noans, T.noansFix);
+  if (again) { again = false; return tryPort(); }
+  state = 'waiting'; show('waiting', true);
+  if (cs.some(([o]) => !UPD.test(o.name))) problem('err3', T.running, T.runningFix); else problem('err3', T.noans, T.noansFix);
   return true;
 }
 $('con').onclick = async () => {
@@ -636,15 +644,14 @@ $('con').onclick = async () => {
     if (!navigator.requestMIDIAccess) { problem('err3', T.nomidi, ''); return; }
     try { midi = midi || await navigator.requestMIDIAccess({ sysex: true }); }
     catch (e) { problem('err3', T.denied, T.deniedFix); return; }
+    const names = () => [...midi.outputs.values()].map(p => p.name);
+    /* (the FM-1 plugged or restarted later: found when it appears; a firmware's port asked again then too) */
+    midi.onstatechange = () => { if (probing) again = true; else if (state === 'waiting') setTimeout(() => { if (state === 'waiting') tryPort(); }, 400); };
     if (await tryPort()) return;
     state = 'waiting'; show('waiting', true); show('device', false); show('err3', false);
     const st = $('status'); st.textContent = ''; st.className = 'status';
-    const names = () => [...midi.outputs.values()].map(p => p.name);
-    const firmware = () => names().some(n => /SLOOP|Felucca|CRITICAL|FM-1/i.test(n) && !UPD.test(n));
-    if (firmware()) problem('err3', T.running, T.runningFix);
     clearTimeout(hintT);
-    hintT = setTimeout(() => { if (state === 'waiting' && !firmware()) problem('err3', fmt(T.noport, { n: names().join(', ') || '—' }), T.noportFix); }, 8000);
-    midi.onstatechange = () => { if (state === 'waiting') setTimeout(async () => { if (state === 'waiting' && !(await tryPort()) && firmware()) problem('err3', T.running, T.runningFix); }, 400); };
+    hintT = setTimeout(() => { if (state === 'waiting' && !candidates().length) problem('err3', fmt(T.noport, { n: names().join(', ') || '—' }), T.noportFix); }, 8000);
   } catch (err) { problem('err3', T.err + err.message, ''); }
 };
 /* ---------------------------------------------------------------- keeping the screen on, the tab in front */
