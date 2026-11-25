@@ -1,0 +1,349 @@
+# What the 30 lessons rely on (made by a script from tutorial/lessons/, for the 3.4.2 review)
+
+Each line: a thing a lesson relies on, then the lessons that use it.
+
+
+## check
+
+- `N patterns or more` — 23
+- `N tracks or more` — 15
+- `bass has notes on box N` — 8
+- `bass has notes on boxes N N N N N` — 8
+- `bass insert is CRUSH` — 20
+- `bass insert is FUZZ` — 20
+- `bass is muted` — 5
+- `bass is not muted` — 5
+- `chords has N notes or more` — 12
+- `chords is muted` — 5
+- `chords is not muted` — 27
+- `chords level below N` — 14
+- `drums has HAT on boxes N N N N` — 3
+- `drums has HAT on boxes N N N N N N N N` — 3
+- `drums has KICK on box N` — 2
+- `drums has KICK on boxes N N` — 16
+- `drums has KICK on boxes N N N` — 6
+- `drums has KICK on boxes N N N N` — 2
+- `drums has N fill notes or more` — 17 23
+- `drums has N hard notes or more` — 28
+- `drums has N notes or more` — 7 15 29
+- `drums has SNARE on boxes N N` — 3
+- `drums has TOM H on box N` — 17
+- `drums has no KICK on boxes N N N` — 6
+- `drums is empty` — 29
+- `drums is muted` — 27
+- `drums is solo` — 5
+- `drums on pattern N` — 16 25
+- `drums pattern N has notes and drums on pattern N` — 16
+- `drums sound changed` — 4
+- `fill on` — 17
+- `lead ATK above N` — 21
+- `lead E4 above N` — 21
+- `lead E4 below N` — 21
+- `lead REL above N` — 21
+- `lead delay above N` — 19
+- `lead has C5 on box N` — 13
+- `lead has N notes or more` — 10
+- `lead has N notes or more and not recording` — 10
+- `lead has nothing on box N` — 13
+- `lead is empty` — 10
+- `lead is muted` — 5
+- `lead is not muted` — 27
+- `lead longest note above N.N` — 13
+- `lead reverb above N` — 19
+- `lead reverb below N` — 19
+- `lead sound changed` — 9
+- `master filter above N` — 20
+- `master filter below -N` — 20
+- `master filter is N` — 20 27
+- `not recording` — 10 12
+- `nothing muted` — 5 27
+- `nothing muted and nothing solo` — 5
+- `nothing solo` — 5
+- `pad LFLT above N` — 22
+- `pad LRATE changed` — 22
+- `pad is muted` — 5
+- `pad is not muted` — 27
+- `pad level below N` — 14
+- `page is ARP` — 22
+- `page is DELAY` — 19
+- `page is ENV` — 21
+- `page is FILTER` — 21
+- `page is INSERT` — 20
+- `page is KEY` — 11 12
+- `page is LFO` — 22
+- `page is LFO N` — 22
+- `page is NOTES` — 13
+- `page is SENDS` — 19
+- `page is SONG` — 25 26
+- `page is SONG N` — 26
+- `page is SOUNDS` — 9
+- `page is STEPS` — 2 6 8 16 28
+- `page is TRACKS` — 9 11 13 19 20 22
+- `page is TRACKS and playing` — 21
+- `page is TRACKS and stopped` — 25
+- `played N keys` — 4 8 11 21 22
+- `playing` — 1 2 3 4 5 6 8 9 10 11 12 13 14 16 17 18 19 20 22 25 27 28 29
+- `pressed FX` — 18
+- `pressed SAVE twice` — 30
+- `punch on` — 18
+- `recording` — 10 12
+- `says CHAIN` — 25
+- `says CHAIN DONE` — 25
+- `says FAV` — 9
+- `says KEY A` — 11
+- `says LOCK` — 18
+- `says LOOP` — 25
+- `says PROJECT SAVED` — 6 7 15 23 29
+- `says SONG` — 25
+- `says UNDONE` — 6
+- `song has N lines or more` — 26
+- `song line N has N bars` — 26
+- `song line N is pattern N` — 26
+- `song playing` — 25
+- `song playing and playing` — 26
+- `song recording` — 25
+- `stopped` — 1 2 3 4 5 6 8 9 10 11 12 13 14 16 17 18 19 20 21 22 27 28
+- `swing above N` — 28
+- `tempo above N` — 6
+- `tempo above N and tempo below N` — 6
+- `tempo below N` — 6
+- `track is chords` — 14
+- `track is drums` — 2
+- `track is lead` — 5 22
+- `track is pad` — 14
+
+## move
+
+- `answer left` — 24
+- `hold A3` — 22
+- `hold ARP` — 17
+- `hold C4` — 22
+- `hold E4` — 22
+- `hold EDIT` — 6 10
+- `hold FX` — 18 19 20 27
+- `hold GLO` — 5 17 27
+- `hold HOME` — 29
+- `hold OCT+` — 28
+- `hold OCT-` — 28
+- `hold REC` — 10 29
+- `hold SAVE` — 16 23 30
+- `hold SEL` — 11
+- `hold SEQ` — 2 3 6 7 8 15 16 17 23 28 30
+- `hold box N` — 17 23 28
+- `let go` — 2 7 8 15 17 23 28 30
+- `long box N` — 16 17 18 23 30
+- `press ARP` — 22
+- `press EDIT` — 9 13 21
+- `press ENV` — 21
+- `press FX` — 18 19 20
+- `press HOME` — 9 11 13 18 19 20 21 22 25 30
+- `press LFO` — 22
+- `press OCT+` — 10 17 19 23
+- `press OCT-` — 6 10
+- `press PLAY` — 1 2 3 4 5 6 8 9 10 11 12 13 14 16 17 18 19 20 21 22 25 26 27 28 29
+- `press REC` — 10 12
+- `press SAVE` — 25 26 30
+- `press SAVE twice` — 6 7 15 23 30
+- `press SEL` — 11 12
+- `press SEQ` — 2 6 8 13 16 28 30
+- `tap A3` — 8 15 30
+- `tap A3 C4 E4` — 8
+- `tap A4` — 8 10 11 12 30
+- `tap A4 C5 D5 E5` — 11
+- `tap A4 C5 E5` — 10 21
+- `tap B4` — 12
+- `tap C4` — 8 12
+- `tap C5` — 10 30
+- `tap E4` — 12
+- `tap E4 or any key` — 1
+- `tap E5` — 10
+- `tap F#N G#N A#N C#N` — 11
+- `tap box N` — 2 3 5 7 8 9 15 16 17 23 25 26 27 28 29 30
+- `tap box N N` — 3 7 16 30
+- `tap box N N N` — 2 5 6 15
+- `tap box N N N N` — 3 4 7 8 15 30
+- `turn ALGORITHM left N` — 14 22
+- `turn ALGORITHM right N` — 2 5 14 15 30
+- `turn KNOB N left N` — 13 14 19 20 21 26
+- `turn KNOB N right N` — 9 11 12 13 17 19 20 21 22 26 27 28 30
+- `turn PRESETS right N` — 4 9
+- `turn SELECT left N` — 6 26
+- `turn SELECT right N` — 6 26 30
+- `wait N` — 30
+- `wait N.N` — 10 12 13 23 25 29 30
+
+## named in words
+
+- `[10]` — 5 6
+- `[11]` — 3 8 17
+- `[12]` — 17 23 27 28 30
+- `[13]` — 2 3 17 25 26 30
+- `[14]` — 8 25 30
+- `[15]` — 3 18 25 30
+- `[16]` — 8 16 17 28
+- `[1]` — 2 3 5 16 25 29 30
+- `[2]` — 5 16 23 25 27
+- `[3]` — 3 5 18 25 27 28 29
+- `[4]` — 5 8 27 28
+- `[5]` — 1 2 3 17 27 28 29 30
+- `[6]` — 5 6 18
+- `[7]` — 3 8 18
+- `[8]` — 16 28
+- `[9]` — 2 3 18
+- `[ALGORITHM]` — 2 5 14 15 22 30
+- `[ARP]` — 17 22 30
+- `[EDIT]` — 6 7 9 10 13 15 21 30
+- `[ENV]` — 21
+- `[FX]` — 18 19 20 23 27 30
+- `[GLO]` — 5 17 23 27 30
+- `[HOME]` — 9 11 13 18 19 20 21 22 25 29
+- `[KEY 10]` — 8 11
+- `[KEY 1]` — 2 5 8
+- `[KEY 2]` — 6
+- `[KEY 3]` — 3 25
+- `[KEY 4]` — 4
+- `[KEY 5]` — 1
+- `[KNOB1]` — 9 13 17 19 20 21 22 26 27 28 30
+- `[KNOB2]` — 11 13 14 19 20 22 26 28 30
+- `[KNOB3]` — 12 13 19 22 26
+- `[KNOB4]` — 9 11 19 21 26
+- `[LFO]` — 22 30
+- `[MASTER]` — 1
+- `[OCT+]` — 1 2 3 4 5 6 7 8 9 10 11 12 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 30
+- `[OCT-]` — 6 7 10 15 24 28 30
+- `[PLAY]` — 1 2 3 4 5 6 7 8 9 10 11 12 13 14 16 17 18 19 20 21 22 25 26 27 28 29 30
+- `[PRESETS]` — 4 9 30
+- `[REC]` — 10 12 15 29 30
+- `[SAVE]` — 6 7 15 16 23 25 26 29 30
+- `[SELECT]` — 6 26 30
+- `[SEL]` — 11 12 30
+- `[SEQ]` — 2 3 6 7 8 13 15 16 17 23 28 30
+
+## page
+
+- `ARP` — 22
+- `DELAY` — 19
+- `ENV` — 21
+- `FILTER` — 21
+- `INSERT` — 20
+- `KEY` — 11 12
+- `LFO` — 22
+- `LFO 2` — 22
+- `NOTES` — 13
+- `SENDS` — 19
+- `SONG` — 25 26
+- `SONG 2` — 26
+- `SOUNDS` — 9
+- `STEPS` — 2 3 7 8 16 17 28
+- `TRACKS` — 14 28
+
+## screen word
+
+- `A4` — 13
+- `ATK` — 21
+- `BARS` — 26
+- `BPM` — 6
+- `CHAIN` — 25
+- `COPY` — 16 23
+- `CRUSH` — 18 20
+- `CUT` — 21
+- `D5` — 13
+- `DELAY` — 19
+- `E5` — 13
+- `ECHO` — 18
+- `FASTER` — 1
+- `FAT LEAD` — 21
+- `FAVS` — 9
+- `FILL` — 17
+- `FILT` — 20 27
+- `FLT` — 21 22
+- `FUZZ` — 20
+- `HARD` — 28
+- `HAT` — 28
+- `HOUSE ONE` — 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
+- `HP 40` — 20
+- `INSERT` — 20
+- `KEY` — 11 12
+- `KICK` — 3 6
+- `LEN` — 13
+- `LFO` — 22
+- `LFO 1/3` — 22
+- `LFO DEST` — 22
+- `LINE` — 26
+- `LINES` — 26
+- `LP 40` — 20
+- `MIN` — 11
+- `NEW` — 29
+- `NOTE` — 13
+- `OCT 2` — 22
+- `OFF` — 20 27
+- `OPEN` — 29
+- `P1` — 16
+- `P2` — 16 26
+- `P3` — 26
+- `P4` — 26
+- `PAT` — 26
+- `PROJECT` — 29
+- `RATE` — 22
+- `REL` — 21
+- `REV` — 18
+- `RUN` — 1
+- `SAVE` — 29
+- `SCALE` — 11
+- `SENDS` — 19
+- `SNAP` — 11
+- `SNARE` — 17 27
+- `SONG` — 25 26 30
+- `SONG REC` — 25
+- `SOUNDS` — 9
+- `STEP` — 13
+- `STEP 12` — 17
+- `STEPS` — 3 4 7 15 17 23
+- `STOP` — 18
+- `SWING` — 28
+- `TRACKS` — 2 5 6 7 8 9 10 11 12 13 14 15 16 18 19 20 21 22 23 24 25 26 27 28 29 30
+- `TYPE` — 20
+- `UPDN` — 22
+
+## setup
+
+- `bass empty` — 8 15
+- `bass level N` — 14
+- `chords empty` — 12 15
+- `chords level N` — 14
+- `drums KICK on N N N N` — 3
+- `drums empty` — 2 3 7 15
+- `drums fill SNARE on N N N N` — 17 27
+- `drums level N` — 14
+- `key A minor` — 12
+- `lead N on N` — 13
+- `lead empty` — 10 13 15
+- `lead level N` — 14
+- `lead sound FAT LEAD` — 21
+- `master filter -N` — 27
+- `mute bass lead chords pad` — 2 3 7
+- `mute chords` — 10
+- `mute lead` — 11 21 22
+- `mute lead chords pad` — 4 8 27
+- `new project` — 30
+- `pad empty` — 15
+- `pad level N` — 14
+- `page STEPS` — 3 4 7 15 17 23
+- `page TRACKS` — 2 5 6 7 8 9 10 11 12 13 14 15 16 18 19 20 21 22 23 24 25 26 27 28 29 30
+- `patterns A B C D` — 24 25 26
+- `pick HAT` — 28
+- `pick KICK` — 6
+- `play` — 2 3 4 7 8 10 15 23 24 30
+- `song HOUSE ONE section A` — 24 25 26
+- `song HOUSE ONE section C` — 1 5 6 9 11 12 14 18 19 20 21 22 29
+- `song HOUSE ONE section C, N bar` — 2 3 4 7 8 10 13 15 16 17 23 27 28
+- `song lines N N N N N N` — 24
+- `song mode off` — 24 26
+- `song mode on` — 24 30
+- `stop` — 7 15 23 24 26 30
+- `track bass` — 2 5 8 14 20 24
+- `track chords` — 12
+- `track drums` — 3 4 6 7 15 16 17 23 25 26 27 28 29
+- `track lead` — 1 9 10 11 13 18 19 21
+- `track pad` — 22
+- `unmute` — 2 3 4 7 8 10
