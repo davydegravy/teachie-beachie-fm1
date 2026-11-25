@@ -145,6 +145,45 @@ limit: about 7 minutes, more if several lessons stop at the limit.
     freezes. On a Mac the twin's check of exactly that (`tw_xt`) is off, so this scenario is the only warning.
     Could also be the Mac build being slower; to be told apart on Linux, or by turning the guide off in the twin.
 
+## The review of SLOOP's changes (2026-11-24, evening)
+
+Everything the lessons rely on was listed by a script (`tutorial/upgrade/inventory.md`), then SLOOP's changes from
+3.3.7 to 3.4.2 were read against it in three parts: `fw/main.c` with our `fw/course.inc`; what the pages show
+(`app/ui.c`, page and knob names, fonts); the sequencer, saving, the song and the sounds. Read from the code; none
+of this is seen on a real FM-1 yet. Beyond what is above (SAVE, SEQ on a synth track, the drum grid, the page
+orders):
+
+**Would break a lesson or teach the wrong thing**
+
+| What changed | Lessons |
+|---|---|
+| **Each pattern keeps a saved copy (`keep[]`); leaving a pattern puts that copy back.** Our lesson setups write only the playing pattern and never update the saved copy, so a lesson's song on page 1 empties the first time the FM-1 leaves page 1, and a learner's unsaved changes vanish on a page switch (`fw/main.c` 462-476, `if (was < SEQ_NPAT) Q.t[t].pat[was] = keep[t];`). Fix for the setups: `keep_all()` after `c_setup`'s writes (`fw/course.inc`); the learner's side needs teaching (save into a pattern). The computer's setups (`ED_NOTES`) have the same gap. | 16, 23, 24, 25, 26, 30 |
+| SAVE + a key held 1.5 s **saves into** that pattern and **does not switch** to it; the screen says `PATTERN 2 FROM 1 · SAVING`, never COPY. SAVE + a tap on the playing pattern's key **puts back its saved copy** on every track (`AS SAVED`). | 16, 23 |
+| **[15] is no longer CHAIN:** it switches `PATTERNS: THIS TRACK ONLY` / every track, and stays switched; [16] opens SONG. A chain is now several pattern keys tapped within one SAVE hold; `CHAIN DONE` is never said. If track-only is left on, lesson 26's line check reads the wrong track. | 25, 26, 30 |
+| SAVE + [13] plays the song **from the LINE shown** (lesson 26 step 16 skips the intro). | 26 |
+| **SEL tapped opens `SEL 1/2`, a knob page with no tiles:** ROOT, SCL, QNT, CHORD (was ROOT, SCALE, CHORD, KEYS). [KNOB4] now turns chords on (TRIAD), not SNAP; [KNOB3] now SNAP, not chords. This is why lesson 12 stopped in the computer-led run. | 11, 12 |
+| **HOME held 0.7 s opens a MENU** (SCREEN, LIGHTS ...) that stays open; there is no PROJECT page with OPEN, NEW, SAVE (keys 1, 3, 5 still work, unlabelled); a second HOME + [1] within 0.3 s is ignored. | 29 (and any slow `Press [HOME]`) |
+| On the drum grid **OCT+ held 0.4 s opens the hit SHEET** and OCT- turns the page: soft and hard hits by hand (OCT- / OCT+ held + a drum) no longer work there. | 28 |
+| **Sound pages are laid out the other way up** (SLOOP 2.8.5's): knob labels and values at the top, the page's title small and grey at the bottom right. Bottom strips now hide the title the learner is asked to find; one-line top strips cover the knob labels. | 11, 12, 19, 20, 21, 22 |
+| **Names on screen:** SENDS is `FX 1/7` (its ECHO knob is `DLY`), DELAY is `DLY 6/7`, FX held: FILT is `FILTER` (FILT is now the track filter, on FX 2/7), SCALE is `SCL`; EDIT now has `FILTER 3/6` next to `FLT 2/6`. | 11, 19, 20, 21, 27 |
+| **Undo keeps 3 moves** (was 8). Lesson 6's card says 8; its step needing 3 undos still works. | 6 |
+| The FX + HOME lock happens on HOME's release, and only if FX is still held. | 18 (likely) |
+| Our player's message `That played a drum. Hold [SEQ] first.` now fires when a learner picks a drum on the grid (black keys, KNOB1). `pressed SAVE twice` passes though nothing is saved. | 7, 15, 30 |
+
+**To look into:** a chain playing during a save may run code from the flash window while it is off (SLOOP's own,
+low risk); the `bigproj` freeze above.
+
+**Unchanged** (checked): every sound and kit name the lessons and HOUSE ONE use, and their order; the editor
+protocol and the LIVE status; conditions, FILL / NO FILL, GLO's mutes, solos and fills; ARP and rolls; ENV, LFO
+RATE and LFO DEST; INSERT; the piano roll's STEP, NOTE, LEN; the tracks page's knobs and tempo; SEQ + a step held
+(`STEP 12`); the SOUNDS page and favorites; the messages UNDONE, KEY A, PROJECT SAVED, LOOP, the SONG messages;
+undo and redo; REC, erase, count-in. Harmless: a new project's tracks all at level 45, leads POLY, the mix 6 dB
+hotter, the project format (17). Our cards keep their own font; SLOOP's pages draw text a little narrower.
+
+**What it adds up to:** nine lessons stop, and about fifteen more need their words or steps changed. With the
+firmware's room (6.5 KB to cut) and the setups' saved copy, moving to 3.4.2 is a rewrite of most of the course,
+not an update.
+
 ## Not done
 
 - **The fixes** for the nine stopped lessons and the drum lessons above: mostly the lessons' words and steps
