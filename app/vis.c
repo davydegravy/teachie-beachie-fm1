@@ -344,43 +344,35 @@ __attribute__((unused)) static uint32_t SPL_MS; __attribute__((unused)) static c
 void vis_splash(uint32_t ms, const char *ver, const uint16_t *col) { SPL_MS = ms; SPL_VER = ver; for (int k = 0; k < 5; k++) SPL_COL[k] = col[k]; }
 __attribute__((unused)) static float ease(float x) { x = x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; return 1.0f - (1.0f - x) * (1.0f - x) * (1.0f - x); }
 __attribute__((unused)) static float back(float x) { x = x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; float c = 1.7f; return 1.0f + (c + 1.0f) * (x - 1.0f) * (x - 1.0f) * (x - 1.0f) + c * (x - 1.0f) * (x - 1.0f); }
-#include "tp_logo.h"
-/* Teachie Beachie: its logo from tp_logo.h (tools/mklogo.py), only the rows of the tile being drawn. A row is its
- * runs (a byte each: the length, the colour), or 0xFF and the row above with each run's start moved (a nibble each,
- * -8..7): read from the 16th row above the tile's first, the rows before it not drawn */
+/* Teachie Beachie: its logo, kept at the end of the lesson slot (tools/mklogo.py; found by fw/course.inc), in full
+ * colour, only the rows of the tile being drawn: "TPL1", W, H, the place of every 16th row, then the rows: runs of
+ * b < 0x80: b + 1 pixels of the colour after it; b >= 0x80: (b & 0x7F) + 1 pixels, each its own colour */
+const uint8_t *tp_logo;
+static uint16_t tp_u16(const uint8_t *p) { return (uint16_t)(p[0] | p[1] << 8); }
 static void tp_logo_draw(int x0, int y0)
 {
-    int tx, ty, tw, th; gfx_tile(&tx, &ty, &tw, &th); (void)tx; (void)tw;
+    const uint8_t *d = tp_logo; int w = d[4], h = d[5];
+    int tx, ty, tw, th; gfx_tile(&tx, &ty, &tw, &th);
     int r0 = ty - y0, r1 = ty + th - y0;
-    if (r1 <= 0 || r0 >= TP_LOGO_H) return;
+    if (r1 <= 0 || r0 >= h || tx >= x0 + w || tx + tw <= x0) return;
     if (r0 < 0) r0 = 0;
-    if (r1 > TP_LOGO_H) r1 = TP_LOGO_H;
-    const uint8_t *p = tp_logo_rle + tp_logo_row16[r0 >> 4];
-    uint8_t at[TP_LOGO_RUNS + 1], col[TP_LOGO_RUNS]; int k = 0;      /* the row's runs: where each starts, its colour */
-    for (int r = r0 & ~15; r < r1; r++) {
-        if (*p == 0xFF) {
-            for (int i = 1; i < k; i++) at[i] = (uint8_t)(at[i] + (i & 1 ? *++p >> 4 : *p & 15u) - 8u);
-            p++;
-        } else {
-            unsigned x = 0; k = 0;
-            do {
-                unsigned b = *p++, n = (b >> 4) + 1u;
-                if (n > 15u) n = *p++;
-                at[k] = (uint8_t)x; col[k++] = b & 15u; x += n;
-            } while (x < TP_LOGO_W);
-            at[k] = TP_LOGO_W;
+    if (r1 > h) r1 = h;
+    const uint8_t *p = d + tp_u16(d + 6 + 2 * (r0 >> 4));
+    for (int r = r0 & ~15; r < r1; r++)
+        for (int x = 0; x < w;) {
+            unsigned b = *p++, n = (b & 0x7Fu) + 1u;
+            if (b < 0x80u) { if (r >= r0) gfx_fill(x0 + x, y0 + r, (int)n, 1, tp_u16(p)); p += 2; }
+            else for (unsigned i = 0; i < n; i++, p += 2) if (r >= r0) gfx_fill(x0 + x + (int)i, y0 + r, 1, 1, tp_u16(p));
+            x += (int)n;
         }
-        if (r >= r0)
-            for (int i = 0; i < k; i++)
-                if (col[i]) gfx_fill(x0 + at[i], y0 + r, at[i + 1] - at[i], 1, tp_logo_pal[col[i]]);   /* (0 is the background round it: the page already) */
-    }
 }
 void vis_splash_draw(void)
 {
     /* Teachie Beachie: its logo on the cards' peach, SLOOP 3 credited under it in their red (SLOOP's sailboat: logo(), no
-     * longer drawn here) */
+     * longer drawn here). With no lessons on the FM-1 (the logo is kept with them), its name */
     gfx_fill(0, 0, GFX_W, GFX_H, TP_PAPER);
-    tp_logo_draw((GFX_W - TP_LOGO_W) / 2, 6);
+    if (tp_logo) tp_logo_draw((GFX_W - tp_logo[4]) / 2, 4);
+    else { gfx_text_c(&font_l, 120, 80, "TEACHIE", TP_INK); gfx_text_c(&font_l, 120, 116, "BEACHIE", TP_INK); }
     gfx_text_c(&font_s, 120, 212, "WITH SLOOP 3", TP_INK);
 }
 void vis_draw(void)

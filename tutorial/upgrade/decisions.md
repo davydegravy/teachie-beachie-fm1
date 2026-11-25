@@ -29,17 +29,26 @@ Each cut goes behind a switch of our own, so SLOOP's files stay as they are.
 Answer (2026-11-24): **A, the visualizer and SLOOP 2.8's import.** The installer page's "Already use SLOOP?" note
 then says a SLOOP 2.8 user's presets, favorites, kits and bank no longer come along.
 
-**The logo in full colour, later:** liked, "but it's not very important". Not part of this upgrade; its own small
-project once the upgrade is done, or when a later SLOOP needs the room. What was measured
-(`tutorial/upgrade/logo-compare.png`):
+**Changed 2026-11-25: the logo moves into the lesson pack, at the best the screen can show.** (On 2026-11-24 it
+was "later": liked, "but it's not very important".) The course's author is considering a new logo: a round
+sticker, the name over a sunset on the sea, 6 flat colours (peach round it, orange, black, white, yellow, teal).
+Until it is chosen and in `assets/logo/`, today's goes in as a stand-in: do not tune its picture. What was measured
+(`tutorial/upgrade/logo-compare.png`, and again on 2026-11-25):
 
-- The screen is 240 x 240 and the logo already takes 168 x 197 of it, a pixel for a pixel: it cannot get more
-  pixels, only smoother. Today it is 8 flat colours with no shades between them (stair-step edges), 2,118 bytes.
-- Full colour from `assets/logo/teachie-beachie.jpg` (1254 x 1254): about 17 to 20 KB packed, so the lesson pack
-  goes from about 55 KB to about 75 KB of its 80 KB slot. 16 colours: 6 to 9 KB, but the colours chosen by
-  themselves drift (the stem turned orange): it would need its colours picked by hand.
-- The firmware needs a decoder, a few hundred bytes (its own start already unpacks LZ4: `fw/unpack.c`), and the
-  2,118 bytes come out: about 1.8 KB of room gained. With no lessons on the FM-1 the start shows the name only.
+- The screen is 240 x 240. Today the logo is 168 x 197, a pixel for a pixel, in 8 flat colours with no shades
+  between them (stair-step edges), 2,118 bytes. The largest a logo can be with WITH SLOOP 3 under it is about 204
+  high: the round one is 199 x 204, its name larger than today's. More size and smooth edges, not more detail.
+- In full colour (RGB565), packed as rows of runs with every 16th row's place kept (what a tile of the screen
+  needs, as `tp_logo_draw` in `app/vis.c` reads today's): made flat with smooth edges (its flat colours at 8 times
+  the size, then shrunk), the round logo is about 18 KB, today's about 18 KB at 174 x 204. A picture's own colours
+  (the JPEG's shading and noise) come to about 31 to 32 KB. The slot has about 26 KB free beside the lessons
+  (54,558 of 81,408 bytes), so the logo is made flat, with smooth edges.
+- The firmware loses `tp_logo_rle` (2,118 bytes) and keeps a decoder much like today's, reading the slot: about
+  2 KB of room, which decision 11 needs.
+- The pack's offsets are u16 (`tools/mkcourse.py` stops past 64 KB), and the lessons and the logo together pass
+  that. So the logo goes after the pack, outside its offsets: for example at the end of the slot, its place in the
+  512-byte slot header. The blank bytes right after the pack stay free for decision 9.
+- With no lessons on the FM-1 the start shows the name only.
 - Best with the screen's setup table (decision 8): on newer FM-1s the soft shades wash out without it.
 
 ## 2. The drum grid: tap a box, or hold [SEQ] and tap
@@ -216,3 +225,73 @@ Answer (2026-11-24): **A, the simulated FM-1 only, until everything passes** ("I
 emulator before I put anything on my FM-1"). The projects on the FM-1 do not matter ("I don't care about the
 existing projects"), and the children who use it are the testers ("they are doing testing for me"): they get it
 once all 30 lessons pass, to test it on the real buttons.
+
+## 11. Frames that answer the controls (asked 2026-11-25)
+
+The course's author asked for the framed names on the cards and strips ([SEQ], [KNOB1], [5]) to answer the real
+controls, so the cards "feel alive and acknowledge the user's physical interactions without adding visual clutter":
+
+- **A button or a key:** its frame filled and its name in the paper's colour while it is held, outlined again when
+  it is let go. Several held together: each frame answers its own.
+- **A knob:** the frame fills a little each click: from the left turning clockwise, from the right turning
+  anticlockwise, the name in the paper's colour where the fill passes. Driven by the real clicks, not an animation.
+- The same Google Sans, sizes and places; no more of the screen; in one place, for every card and strip; no harm to
+  the sound.
+
+Answer (2026-11-25): **yes, in this upgrade** ("Add both"). It is firmware: the pack holds words, songs and fonts,
+no code. But it is Teachie Beachie's own part, the guide in `fw/main.c`, and 3.4.2 is a reinstall anyway. How, as
+looked into on 2026-11-25:
+
+- **Which control a frame is:** SLOOP already names its 14 buttons (`CAL_BTN`) and 7 knobs (`CAL_ENC`, "KNOB 1"
+  with a space) in `fw/main.c`, for its calibration page, and `white_key[]` turns [5] or [KEY 5] into its key.
+  Matched once when the words change (`guide_wrap`) and kept in `G`, so every card, strip and hint, the [OCT-] and
+  [OCT+] answers and the computer's lessons all have it at once. A name that is no control ([THIS] in lesson 1)
+  stays outlined. A black key's picture (decision 12) needs matching too.
+- **What is held:** `panel_buttons()` and `panel_keys()`, the raw state, so a button the guide takes counts too.
+- **The clicks:** `guide_ev` kinds 5 and 6, already counted for the lessons. About 10 clicks fill a frame; it
+  empties after about half a second at rest.
+- **The fill:** inside the frame, paper and ink swapped pixel by pixel (each channel: paper + ink - the pixel), so
+  the letters keep their soft edges; the frame drawn again over it. Done on `tilebuf` before `gfx_finish`, in our
+  code: SLOOP's `app/gfx.c` stays as it is.
+- **Drawing:** a change bumps `G.gen`, which starts a pass (25 a second at most; 30 tiles of 120 x 16; only
+  changed tiles are sent). The sound is made in the same loop and comes first (`audio_half_free`; `ui_step` stops
+  after 0.25 ms), and a knob already redraws SLOOP's own page at each click. To check on the simulated FM-1: the
+  load (`ld_peak`) with a knob spun fast, and screenshots of a frame held and half filled.
+- **Cost:** about 400 to 600 bytes (estimated, not measured), from the room the logo's move makes (decision 1).
+- **Limits:** [MASTER] is the FM-1's volume knob, which the firmware cannot see (lesson 1): it stays outlined. An
+  [OCT+] answer moves to the next card at once, so its fill only flashes.
+
+When: after the whole course passes, so a shortage of room never holds up the lessons.
+
+## 12. Icons (asked 2026-11-25)
+
+Small pictures in the cards' words, where a picture says it better than a word.
+
+Answer (2026-11-25): **yes, in this upgrade** ("Add both"), with no firmware change. The lessons' fonts are in the
+pack, and `app/gfx.c` draws any of ASCII's 95 characters from them (`glyph_of`: with `FN > 77`, a character's glyph
+is its code less 32). Nine never appear in the lessons' words: `$ % & = @ \ { | }`. Each can hold a picture
+instead:
+
+- drawn by `tools/mklessonfont.py` at both sizes (3 bits a pixel small, 2 bits large), to sit with Google Sans
+  SemiBold, in the ink's colour;
+- named in a lesson file by a short word that `tools/mkcourse.py` and `tutorial/tp/teach.py` swap for its
+  character, and that `tutorial/lessons/README.md` lists; `tutorial/check.py` measures it like a letter;
+- about 100 to 250 bytes each, in the pack.
+
+Which ones:
+
+- **First, the black keys:** decision 2 picks drums with black keys, and the lessons can name only white keys
+  ([5]). A black key's picture with its number from the left, in a frame, names one. Decision 11 then lights that
+  frame when the key is held.
+- **Then only where a picture replaces words:** a curved arrow for a knob's way (one each way), if "up" confuses a
+  tester; a tick on the Done card and a speaker on the nine Listen steps are nice, not needed. The Done card's
+  words are the firmware's (`fw/course.inc`, `c_to_step`), so its tick is a one-character firmware change. White
+  keys stay `[5]`: the testers know it. Which of these, and how they look, is left to the session doing the work
+  (2026-11-25, "Leave it to Fable"), each shown before a lesson uses it.
+- **Each drawn and shown to the course's author before it goes into a lesson,** as words are (Today / Suggested).
+
+A catch: a lesson from the computer on an FM-1 with no lessons on it is drawn in SLOOP's own font, where these
+characters show as `?`. The computer can ask the FM-1 how many lessons it has (`ED_GUIDE` op 6) and send a word
+instead.
+
+When: the black key before part 1 of the lessons, which needs it.

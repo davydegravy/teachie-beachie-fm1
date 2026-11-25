@@ -108,7 +108,11 @@ const said = (p, re) => p.logs.some(l => re.test(l));
   const N = PACK[6];
   check(PACK.slice(0, 4).toString() === 'TPC3' && N > 0, 'the pack inside is a course (TPC3, ' + N + ' lessons)');
   check(HEAD.slice(0, 4).toString() === 'TPCO' && HEAD.readUInt32LE(16) === PACK.length && HEAD.readUInt32LE(20) === zlib.crc32(PACK), 'its header: the length and the CRC');
-  if (packFile) check(same(PACK, fs.readFileSync(packFile)), 'the pack inside is ' + packFile);
+  if (packFile) { const pf = fs.readFileSync(packFile); check(same(PACK.subarray(0, pf.length), pf), 'the pack inside is ' + packFile); }
+  /* (2026-11-25) the slot: the pack, blank bytes, the start's logo at its very end (tools/mkcourse.py slot_image) */
+  const LAT = HEAD.readUInt32LE(24), LN = HEAD.readUInt32LE(28), SLOT = 0x14000 - 512, PN = PACK[4] | PACK[5] << 8;
+  check(PACK.length === SLOT && LAT + LN === SLOT && PACK.subarray(LAT, LAT + 4).toString() === 'TPL1', 'the logo at the end of the slot (' + LN + ' bytes)');
+  check(PN <= LAT && PACK.subarray(PN, LAT).every(b => b === 0xFF), 'blank from the pack (' + PN + ' bytes) to the logo');
   check(new RegExp('const TP_N = ' + N + ';').test(html), 'the page knows how many lessons (' + N + ')');
 
   /* 1. a FM-1 with empty slots: the last one, the pack whole, the start's card before and after */

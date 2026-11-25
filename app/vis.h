@@ -30,4 +30,5 @@ void vis_splash_draw(void);
 /* Teachie Beachie's two colours: the paper of its cards and of the start screen, the ink of its words */
 #define TP_PAPER RGB(0xFF, 0xCB, 0xA4)       /* #FFCBA4, a creamy peach */
 #define TP_INK RGB(0x96, 0x00, 0x00)         /* #960000, a dark red */
+extern const uint8_t *tp_logo;               /* the start screen's logo, in the lesson slot (fw/course.inc); 0: none, its name instead */
 #define VIS_SPLASH_MS 2600u

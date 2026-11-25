@@ -60,7 +60,7 @@ twin: build/twin build/fw/fw.area
 ifeq ($(shell uname),Darwin)
 # (Teachie Beachie: on a Mac the twin is built in one go, without 3.4.1's check of the window's code below: it needs
 # objcopy and ELF sections)
-build/twin: $(TWINSRC) fw/main.c fw/course.inc app/tp_course.h app/tp_logo.h host/twin.h
+build/twin: $(TWINSRC) fw/main.c fw/course.inc app/tp_course.h host/twin.h
 	mkdir -p build && gcc -DHOST -O1 -g -std=gnu11 -w -ffp-contract=off $(SAN) -fno-omit-frame-pointer -pthread -o $@ $(TWINSRC) -lm
 else
 # (3.4.1) the window's code (fw/ram.ld .xtext: these files whole, and main.c's COLD, store.c's XT) in the twin's
@@ -68,7 +68,7 @@ else
 # (host/hal.c), as it would freeze the FM-1 (3.4.0: CPU OVERLOAD said during a save)
 TWINWIN = app/ui.c app/gfx.c app/fonts.c app/presets.c app/preset_data.c app/engdesc.c app/project.c app/harmony.c app/sloopimport.c app/sloop_kinds.c app/usersnd.c app/xbank.c app/vis.c app/demo_song.c engine/slice_scan.c engine/drumkits.c
 TWFLAGS = -DHOST -O1 -g -std=gnu11 -w -ffp-contract=off -fno-reorder-functions -fsanitize=address,undefined -fno-omit-frame-pointer -pthread
-build/twin: $(TWINSRC) fw/main.c fw/course.inc app/tp_course.h app/tp_logo.h host/twin.h
+build/twin: $(TWINSRC) fw/main.c fw/course.inc app/tp_course.h host/twin.h
 	mkdir -p build/twobj && for f in $(TWINWIN); do o=build/twobj/$$(echo $$f | tr / _).o; gcc $(TWFLAGS) -finstrument-functions -c $$f -o $$o && objcopy --rename-section .text=tw_xt $$o || exit 1; done
 	gcc $(TWFLAGS) -finstrument-functions -finstrument-functions-exclude-file-list=engine/,seq/,core/,host/hal.c,app/midi.c,app/arp.c,app/edproto.c,app/psound.c -o $@ $(filter-out $(TWINWIN),$(TWINSRC)) $(foreach f,$(TWINWIN),build/twobj/$(subst /,_,$(f)).o) -lm
 endif

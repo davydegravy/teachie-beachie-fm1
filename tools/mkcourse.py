@@ -19,7 +19,11 @@ The pack (every number little-endian):
                note or pad, velocity, condition, 1)
   Setup's instructions, an answer's effects and Until's conditions are each: length (of what follows), number, values.
   Do's moves are 3 bytes each: number, which, how much.
-In a sample slot the pack sits behind a 512-byte header: "TPCO", u16 1, zeros, u32 size at 16, u32 CRC-32 at 20."""
+In a sample slot the pack sits behind a 512-byte header: "TPCO", u16 2, zeros, u32 size at 16, u32 CRC-32 at 20 (of
+everything after the header: SLOOP's own check when a slot is written), then u32 the logo's place at 24 and u32 its
+length at 28 (from the end of the header). The start screen's logo (assets/logo/teachie-beachie-fm1.bin, made by
+tools/mklogo.py) sits at the end of the slot; the bytes between the pack and the logo are sent blank (0xFF), so they
+are blank on the FM-1 too, free to be written later without an erase."""
 import json, os, re, struct, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "tutorial"))
@@ -237,10 +241,16 @@ def build(first=1, last=99):
     pack = b"TPC3" + struct.pack("<HBB", at, len(lessons), len(p.clips)) + b"".join(struct.pack("<H", o) for o in offs) + b"".join(lessons + p.clips) + toc + bytes(pad) + b"".join(fonts)
     return pack, [len(b) for b in lessons], [len(b) for b in p.clips]
 
+SLOT = 0x14000 - 512                                                          # a sample slot's bytes after its header (SMP_USR_SIZE, engine/sample.h)
 def slot_image(pack):
-    """the pack as it sits in a sample slot: (the 480 bytes of its header, the data that follows at +512)"""
-    head = b"TPCO" + struct.pack("<H", 1) + bytes(10) + struct.pack("<II", len(pack), zlib.crc32(pack) & 0xFFFFFFFF)
-    return head + bytes(480 - len(head)), pack
+    """the pack as it sits in a sample slot: (the 480 bytes of its header, the data that follows at +512): the pack,
+    blank bytes, the logo at the very end"""
+    logo = open(os.path.join(HERE, "..", "assets", "logo", "teachie-beachie-fm1.bin"), "rb").read()
+    if logo[:4] != b"TPL1": raise Cant("assets/logo/teachie-beachie-fm1.bin is not a logo of tools/mklogo.py")
+    if len(pack) + len(logo) > SLOT: raise Cant("the pack (%d bytes) and the logo (%d) are more than a slot holds (%d)" % (len(pack), len(logo), SLOT))
+    data = pack + b"\xff" * (SLOT - len(pack) - len(logo)) + logo
+    head = b"TPCO" + struct.pack("<H", 2) + bytes(10) + struct.pack("<IIII", len(data), zlib.crc32(data) & 0xFFFFFFFF, SLOT - len(logo), len(logo))
+    return head + bytes(480 - len(head)), data
 
 def header():
     out = "/* SPDX-License-Identifier: GPL-3.0-only\n * Teachie Beachie: the numbers of the course's pack, written by tools/mkcourse.py --header: do not edit. */\n"

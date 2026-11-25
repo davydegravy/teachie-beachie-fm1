@@ -1100,6 +1100,13 @@ static void sc_vis(void)
      * the visualiser's cost; a sum over 20 failed now and then on a busy PC) */
     double c0 = cost20();
     tap(B_HOME); wait_ms(300);
+#ifndef TP_VISUALIZER                                  /* (Teachie Beachie: the visualiser left out, for the room: HOME on TRACKS opens
+                                                        * nothing; SAVE on the SONG pages, below, still checked) */
+    (void)c0;
+    EXPECT(!vis_on && V.page == UI_TRACKS && sticky == PG_TRACKS, "HOME on TRACKS: not the tracks (the visualiser is left out)");
+    shot("home-on-tracks");
+    tap(B_PLAY); wait_ms(300);
+#else
     EXPECT(vis_on && V.page == UI_VIS, "HOME on TRACKS: no visualiser");
     for (int st = 0; st < VIS_N; st++) {
         if (st) turn(ENC_SELECT, 1);
@@ -1137,6 +1144,7 @@ static void sc_vis(void)
     EXPECT(VIS_N == 6 && !strcmp(vis_name[vis_from12[0]], "OSCILLOSCOPE") && !strcmp(vis_name[vis_from12[1]], "SPECTRUM") && !strcmp(vis_name[vis_from12[4]], "VU METERS") &&
            !strcmp(vis_name[vis_from12[7]], "LCD") && !strcmp(vis_name[vis_from12[10]], "WIRES") && !strcmp(vis_name[vis_from12[11]], "SLOOP") && vis_from12[2] == 0 && vis_from12[9] == 0,
            "the twelve styles' places among the six");
+#endif
     /* SAVE on the SONG pages (3.1.6): tapped, the song saved and the page kept, as SLOOP 2.8.5's SONG screen */
     /* (4.0, as SLOOP 2.8.5) SAVE tapped on TRACKS: the SONG screen; SAVE on it: saved, the screen kept */
     tap(B_SAVE); wait_ms(700); EXPECT(sticky == PG_SONG2, "SAVE tapped: not the SONG screen (%d)", sticky);

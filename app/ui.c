@@ -959,6 +959,7 @@ static void saved_banner(const ui_view *v)
 void ui_draw(const ui_view *v)
 {
     gfx_spacing(0); gfx_condense(100);
+#ifdef TP_VISUALIZER                                    /* (Teachie Beachie: left out, for the room: fw/main.c never opens it) */
     if (v->page == UI_VIS) {
         vis_draw();
         const char *m = v->toast ? v->toast : v->info;
@@ -966,6 +967,7 @@ void ui_draw(const ui_view *v)
         saved_banner(v);
         return;
     }
+#endif
     if (v->page == UI_SPLASH) { vis_splash_draw(); return; }
     gfx_fill(0, 0, GFX_W, GFX_H, BG);
     switch (v->page) {

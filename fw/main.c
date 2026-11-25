@@ -773,11 +773,13 @@ COLD static void say_bad(const char *s) { say_k(s, 1); }
 static uint32_t held_btn, locked;           /* locked: a layer kept open (its button's bit) */
 static int sticky = PG_TRACKS;              /* the page a tap opened */
 /* the visualiser (app/vis.h): on (HOME tapped on TRACKS), its style (kept with the settings), its name shown (passes) */
-static uint8_t vis_on, vis_style, vis_named;
+static uint8_t vis_on, vis_style, vis_named __attribute__((unused));   /* (Teachie Beachie: vis_named unused without TP_VISUALIZER) */
 /* the start's logo (3.1.6): drawn in for VIS_SPLASH_MS, or until a button, a key or a knob; the first message after it */
 static uint8_t splash_on, splash_bad; static uint32_t splash_t0; static const char *splash_say;
+#ifdef TP_VISUALIZER
 static int8_t vis_ring[2 * GB_VIS_RING];
 _Static_assert(GB_VIS_RING == VIS_RING, "the visualiser's ring");
+#endif
 static int layer_used;                      /* the layer held now did something (its release is no tap) */
 static uint32_t t_btn_down, t_input, t_midi_play;   /* t_midi_play (3.3.8): the last note or control from MIDI */        /* when the layer's button went down; the last touch */
 #define LAYER_BITS ((1u << BTN_SEQ) | (1u << BTN_GLO) | (1u << BTN_SAVE) | (1u << BTN_EDIT) | (1u << BTN_SEL) | (1u << BTN_ARP) | (1u << BTN_FX))
@@ -1828,6 +1830,7 @@ static uint8_t tile_sent[NTILES];
 static int tile_i = -1;
 static uint32_t t_pass, gen_drawn = 0xFFFFFFFFu;
 static ui_view V GB_LOWRAM, W GB_LOWRAM;   /* (W: zeroed and filled each pass; V: copied from it before use) */
+#ifdef TP_VISUALIZER
 COLD static int vis_busy(void);
 _Static_assert(sizeof sbuf >= VIS_MEM, "the visualiser's memory in sbuf");
 /* the visualiser's picture: what the sound left for it, worked out in sbuf (lent: the editor's read starts again) */
@@ -1844,6 +1847,7 @@ COLD static void vis_pass(void)
     in.beats256 = b256; in.style = vis_style; in.name = vis_named; if (vis_named) vis_named--;
     sbuf_used(); vis_frame(sbuf, &in);
 }
+#endif
 /* TEACHIE BEACHIE: the guide (ED_GUIDE). A lesson on the computer shows a card (the screen peach, its words dark red), lights
  * buttons and keys, takes some of them for itself (their presses reported, not acted on) and reads every press and
  * turn. Nothing here acts by itself: with no lesson running, SLOOP 3 is as it was.
@@ -2030,9 +2034,11 @@ COLD static int ui_step(void)
         fill_view(&W);
         if (W.page == UI_SPLASH) {                           /* the start's logo: a picture each pass */
             { uint16_t c[5]; for (int t = 0; t < NTRK; t++) c[POS[t]] = TRK_COL[t]; vis_splash((now - splash_t0) / lsb / 1000u, 0, c);   /* (3.3: the logo alone; the version is in HOME) */ } V = W; gen_drawn = msg_gen; tile_i = 0;
+#ifdef TP_VISUALIZER
         } else if (W.page == UI_VIS) {                       /* the visualiser: a new picture each pass, in sbuf when free */
             if (vis_busy()) return 0;
             vis_pass(); V = W; gen_drawn = msg_gen; tile_i = 0;
+#endif
         } else {
             const uint8_t *a = (const uint8_t *)&W, *b = (const uint8_t *)&V;
             uint32_t i = 0; while (i < sizeof W && a[i] == b[i]) i++;
@@ -2135,7 +2141,7 @@ COLD static void home_apply(void)
     S.lowcut = (uint8_t)(hs[HS_LOWCUT] ? 2 : 0); S.flt_q = 0.75f + 0.45f * (float)hs[HS_RESO];
     S.usb_full = hs[HS_USB]; usb_audio_rate(hs[HS_RATE]);
 }
-static int home_had;                                  /* the settings came from a project (else: SLOOP's, at power-on) */
+static int home_had __attribute__((unused));        /* the settings came from a project (else: SLOOP's, at power-on) (Teachie Beachie: unused without TP_SLOOP28_DATA) */
 COLD static void home_from(const uint8_t *h)
 {
     home_had = 1;
@@ -2562,7 +2568,9 @@ COLD static int sbuf_held(void) { return ed_wr.on || ed_sm.on || ed_bk.on || ed_
 static uint32_t ed_t_last;           /* (3.1.1) the editor's last request: a transfer left 10 s without one is dropped */
 COLD static void sbuf_used(void) { ed_rd.ok = 0; }
 /* sbuf needed elsewhere: a save, the editor's transfer, its read of a file (2 s since its last request) */
+#ifdef TP_VISUALIZER
 COLD static int vis_busy(void) { return saving || sbuf_held() || (ed_rd.ok && (uint32_t)(time_ticks() - ed_t_last) < 2000000u * lsb); }
+#endif
 static int ed_job(uint32_t sector, uint32_t off, const uint8_t *d, uint32_t n, int erase)
 {
     if (store_raw_begin(sector, off, d, n, erase)) return -1;
@@ -3752,7 +3760,9 @@ static uint8_t grp_last[16];                         /* (4.0) the page each butt
 COLD static void open_page(int b)
 {
     int pg = sticky;
+#ifdef TP_VISUALIZER                                 /* (Teachie Beachie: left out, for the room its course needs: app/vis.c's pictures) */
     if (b == BTN_HOME && sticky == PG_TRACKS && !vis_on) { vis_on = 1; vis_named = 25; S.vis_ring = vis_ring; return; }
+#endif
     if (vis_on) { vis_on = 0; S.vis_ring = 0; if (b == BTN_HOME) return; }
     if (b == BTN_HOME) { sticky = PG_TRACKS; return; }
     if (b == BTN_EDIT && sticky == PG_SND && sb_back >= 0) { sb_back = -1; grp_last[BTN_EDIT] = 5; return; }   /* (PRESETS' SOUNDS: it stays, the keys choose) */
@@ -4184,9 +4194,11 @@ COLD static void encoders(void)
         int kn = e >= ENC_KNOB1 && e <= ENC_KNOB4 ? e - ENC_KNOB1 : -1;
         if (kn >= 0) { hot_k = (uint8_t)kn; t_hot = tn; }            /* (4.0, as SLOOP 2.8.5: its value white a moment) */
         uint32_t L = lay();
+#ifdef TP_VISUALIZER
         if (vis_on && sticky == PG_TRACKS && !L && e == ENC_SELECT && hold_step < 0) {   /* the visualiser: SELECT its style */
             vis_style = (uint8_t)(((vis_style + d) % VIS_N + VIS_N) % VIS_N); vis_named = 25; continue;
         }
+#endif
         if ((L & (1u << BTN_HOME)) && hold_step < 0) {          /* HOME: SELECT the sections, the knobs their settings */
             if (e == ENC_SELECT) { layer_used = 1; home_sec = home_sec + d < 1 ? 1 : home_sec + d > HOME_NSEC - 1 ? HOME_NSEC - 1 : home_sec + d; home_last = home_sec; continue; }
             if (home_sec && kn >= 0) { layer_used = 1; home_knob(home_sec, kn, d); continue; }
@@ -4803,11 +4815,17 @@ COLD __attribute__((noinline)) static void boot_flash(void)
         {                                                 /* your sounds: ours, else SLOOP 2.8's user presets (once); first (3.1.2):
                                                            * a project's tracks on one of them are known as such when it loads */
             int n = store_sounds_load(sbuf, sizeof sbuf);
+#ifdef TP_SLOOP28_DATA                               /* (Teachie Beachie: SLOOP 2.8's sounds, favourites and theme left out, for the room) */
             if (n != US_FILE && (n == US_LEN || n == US_FILE_FV || us_from_sloop(flash_read, sbuf + 4096, sbuf) >= 0)) {   /* (a bank without favourites or theme: SLOOP's, once) */
+#else
+            if (n != US_FILE && (n == US_LEN || n == US_FILE_FV)) {
+#endif
                 int had = n == US_FILE_FV;
                 us_from_bytes(sbuf, had ? n : US_LEN);        /* (the places used: the favourites check them) */
+#ifdef TP_SLOOP28_DATA
                 if (!had) sloop_favs(flash_read, sbuf + 8000, us_fav);   /* its favourites */
                 sloop_theme(flash_read, sbuf + 8000, us_theme);         /* its colour theme */
+#endif
                 us_fav_put(sbuf);
                 if (!store_sounds_begin(sbuf, US_FILE)) { int r = ram_store_run(); n = r == 2 ? US_FILE : -1; }
             }
@@ -4882,6 +4900,7 @@ COLD __attribute__((noinline)) static void boot_flash(void)
         }
         slice_scan_all();                                 /* (SLICE's tables: BREAK, the user slots; before the sound) */
         BOOT_STEP(13);
+#ifdef TP_SLOOP28_DATA                               /* (Teachie Beachie: SLOOP 2.8's SYN kits, MIDI and FM6 bank left out, for the room) */
         {                                                 /* SYN1..SYN4: SLOOP's (else as SLOOP starts them); its MIDI */
             int n = sloop_obj(flash_read, 0, sbuf, 3840u);
             if (n > 0 && sloop_synkits(sbuf, n, gb_dsyn, gb_dsyn_crush)) syn_src = 1;
@@ -4899,6 +4918,7 @@ COLD __attribute__((noinline)) static void boot_flash(void)
                 fm6_src = 1;
             }
         }
+#endif
         {                                                 /* yours, once saved from the editor (app/xbank.h): over SLOOP 2.8's */
             uint32_t u;
             if (!flash_read(XB_SYN_AT, sbuf, XB_SYN_LEN) && !xb_check(sbuf, XB_SYN_LEN, 0, 0)) {
@@ -4909,6 +4929,7 @@ COLD __attribute__((noinline)) static void boot_flash(void)
         }
         BOOT_STEP(14);
         BOOT_STEP(15);
+#ifdef TP_SLOOP28_DATA                               /* (Teachie Beachie: SLOOP 2.8's menu and calibration left out, for the room) */
         sloop_set ss;                                     /* none of ours yet: SLOOP 2.8's menu and calibration */
         if (!home_had && sloop_settings(flash_read, sbuf, &ss)) {
             hs[HS_LOWCUT] = ss.lowcut; hs[HS_LIGHTS] = ss.lights; hs[HS_KEYS] = ss.keys; hs[HS_NOTES] = ss.notes;
@@ -4918,6 +4939,7 @@ COLD __attribute__((noinline)) static void boot_flash(void)
             if (ss.cal && !panel_map(ss.btn, ss.enc, ss.dir)) { cal_ok = 1; memcpy(cal_btn, ss.btn, 14); memcpy(cal_enc, ss.enc, 7); memcpy(cal_dir, ss.dir, 7); }
             home_apply();
         }
+#endif
     }
 }
 

@@ -34,13 +34,18 @@ CCOLD static int c_in(const char *hay, const uint8_t *nd)       /* nd somewhere 
     for (; *hay; hay++) { int i = 0; while (nd[i] && hay[i] == (char)nd[i]) i++; if (!nd[i]) return 1; }
     return !*nd;
 }
-CCOLD static int course_find(void)                   /* the pack, in whichever slot holds it */
+CCOLD static uint32_t c_u32(const uint8_t *p) { return c_u16(p) | c_u16(p + 2) << 16; }
+CCOLD static int course_find(void)                   /* the pack, in whichever slot holds it; the start's logo, at the slot's end */
 {
-    tpc = 0;
+    tpc = 0; tp_logo = 0;
     for (int i = SMP_NUSR - 1; i >= 0 && flash_ok; i--) {
         const uint8_t *h = (const uint8_t *)(uintptr_t)(FLASH_WIN + SLOT_AT[i] - 0x4000u);
         if (h[0] == 'T' && h[1] == 'P' && h[2] == 'C' && h[3] == 'O' && h[512] == 'T' && h[513] == 'P' && h[514] == 'C' && h[515] == '3' && h[518]) {
             tpc = h + 512;
+            {                                            /* the logo: its place and length at 24 and 28 (tools/mkcourse.py slot_image) */
+                uint32_t at = c_u32(h + 24), n = c_u32(h + 28); const uint8_t *g = tpc + at;
+                if (n > 6 && at + n <= SMP_USR_SIZE - 512u && g[0] == 'T' && g[1] == 'P' && g[2] == 'L' && g[3] == '1' && g[4] && g[4] <= GFX_W && g[5] && g[5] <= GFX_H) tp_logo = g;
+            }
             for (int k = 0; k < 2; k++) {                /* its two fonts, after the lessons and the clips: 6 bytes, the glyphs, the bits */
                 const uint8_t *b = tpc + c_u16(tpc + 8 + 2 * (tpc[6] + tpc[7] + k));
                 tp_font[k] = (gfx_font){ (const gfx_glyph *)(const void *)(b + 6), b + 6 + 8 * b[0], b[0], b[1], b[2], b[3], b[4], b[5] };

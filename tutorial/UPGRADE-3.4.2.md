@@ -1,11 +1,12 @@
 # Trial: Teachie Beachie on SLOOP 3.4.2
 
 A trial, not for `main`. It answers one question: what does it take to move Teachie Beachie from SLOOP 3.3.7 to
-SLOOP 3.4.2? Started on 2026-11-24. Nothing here is installed on an FM-1, pushed, or published.
+SLOOP 3.4.2? Started on 2026-11-24. Nothing here is installed on an FM-1, merged into `main`, or published.
 
 ## Where it is
 
-- **Branch:** `trial/sloop-3.4.2`, local only (not pushed).
+- **Branch:** `trial/sloop-3.4.2`, pushed to GitHub (since 2026-11-24, at the course's author's word, so a cloud
+  session can pick it up). Not merged into `main`, which serves the live page.
 - **Folder:** `.worktrees/sloop-3.4.2` inside the project's folder: a second copy of the project (a git worktree).
   `main`, the published page and the FM-1 are untouched. `.worktrees/` is ignored locally (`.git/info/exclude`).
 - **Every finished step is a commit on the branch,** so the folder can be thrown away and made again with
@@ -21,8 +22,15 @@ make test                                   # SLOOP's own tests: pass
 make build/twin                             # the simulated FM-1: builds
 dash host/twin.sh 60 "1 2"                  # SLOOP's scenarios on it: all pass (18 s). On a Mac use dash, not sh: see below
 EDITOR_E2E=0 INSTALLER_E2E=0 sh fw/build.sh "$(git rev-parse --git-common-dir)/../toolchain/bin"
-                                            # the firmware: compiles and links, then stops: 6,468 bytes too big
+                                            # the firmware, to the end: build/fw/fw.area, 6,400 bytes to spare (step 1)
 ```
+
+The two Playwright tests `fw/build.sh` runs last (`tests/editor_e2e.js`, `tests/installer_e2e.js`) have never run on
+this Mac: Playwright is not installed, and `EDITOR_E2E=0 INSTALLER_E2E=0` leaves them out. The installer page is
+tested in the Claude app's built-in browser instead, as it was on 2026-11-21: a preview server
+(`installer-page-trial` in the main copy's `.claude/launch.json`, not in git) serves this folder's `build/fw` on port
+8792; a pretend FM-1 put into the page by script (`navigator.requestMIDIAccess`, answering ED_GUIDE and ED_SAMPLE as
+`tests/lessons_sim.js` does) takes the lessons; what it got is read back.
 
 Three files go with this note: `tutorial/upgrade/decisions.md` (the questions for the course's author, to be
 answered before the work starts), `tutorial/upgrade/worksheet.md` (every step that touches a change, with today's
@@ -33,18 +41,8 @@ A clean copy of SLOOP's own 3.4.2, for comparing what is SLOOP's and what is our
 (detached at `159e4b4`, with only the Mac build fixes, not committed). Its `build/twin` and `build/fw/fw.area` are
 built.
 
-The simulated FM-1 needs `build/fw/fw.area` for its sample bank, and the build stops before writing it. Until the
-firmware fits, a stand-in is made from the first 283,360 bytes of `app.bin` (**for the simulated FM-1 only, never
-to install**: its code is cut off):
-
-```sh
-python3 - <<'EOF'
-import re, subprocess
-bank = int(re.search(r"BANK_AT = (0x[0-9a-fA-F]+)", open("tools/mkfw.py").read()).group(1), 16)
-open("build/fw/app-twin-only.bin", "wb").write(open("build/fw/app.bin", "rb").read()[:bank - 0x120])
-subprocess.run(["python3", "tools/mkfw.py", "build/fw/app-twin-only.bin", "build/fw/fw.area", "assets/samples.bin"])
-EOF
-```
+The simulated FM-1 needs `build/fw/fw.area` for its sample bank. Since step 1 (2026-11-25) the firmware fits and
+`fw/build.sh` writes a real one; the stand-in made from a cut-off `app.bin` before step 1 is no longer needed.
 
 ## The plan for the full move
 
@@ -52,9 +50,14 @@ In this order; each step ends with its checks passing and is a commit on this br
 Nothing goes to `main`, is pushed or is installed without the user's say.
 
 0. **Read the answers** in `tutorial/upgrade/decisions.md`. Where one is blank, ask before the step that needs it.
-1. **Make room** (decision 1): the cuts behind switches of our own (as `TP_SLOOP28_PROJECT`), until
+1. **Make room** (decision 1; **done 2026-11-25**: "Step 1: the room made", below): the cuts behind switches of our own (as `TP_SLOOP28_PROJECT`), until
    `fw/build.sh` writes a real `build/fw/fw.area`. Then the stand-in below is no longer needed. Checks:
    `make test`, `make build/twin`, `dash host/twin.sh 60 "1 2"`, `fw/build.sh` to the end.
+   - **The logo into the lesson slot** (decision 1, changed 2026-11-25): full colour, flat with smooth edges, as
+     large as the screen allows over WITH SLOOP 3; after the pack, outside its u16 offsets, leaving the blank bytes
+     after the pack for step 8. Today's picture is a stand-in until the course's author picks the new one: build
+     the way it is drawn, not the picture. The start screen checked in a screenshot of the simulated FM-1, with
+     the lessons on it and without.
 2. **The lesson player** (`fw/course.inc`, `tools/mkcourse.py`; a firmware change, so said first):
    - `keep_all()` after `c_setup`'s writes, so a lesson's song is the patterns' saved copy and does not empty when
      the FM-1 leaves page 1 (the review's first table). The computer's setups (`ED_NOTES`, `tutorial/tp/teach.py`)
@@ -63,19 +66,29 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
      drum is right (decision 2).
    - `pressed SAVE twice` passes though nothing is saved (decision 6); `CHAIN DONE` is never said (decision 5);
      SAVE on the tracks page opens `SONG 2/3`, not `SONG` (lessons 25 and 26).
-3. **The lessons, a part at a time,** from `tutorial/upgrade/worksheet.md`: part 1 (1 to 7, the drum grid), part 2
+   - A new mark for the pack (`TPC4`), so a 3.3.7 Teachie Beachie finds no 3.4.2 lessons ("Step 1: the room made",
+     below).
+3. **The icons** (decision 12; the pack, no firmware): the black key's picture first, drawn into one of the nine
+   spare characters by `tools/mklessonfont.py`, its word in `tools/mkcourse.py`, `tutorial/tp/teach.py` and
+   `tutorial/lessons/README.md`. Shown to the course's author before a lesson uses it. Other pictures only where
+   the lessons in step 4 show a need.
+4. **The lessons, a part at a time,** from `tutorial/upgrade/worksheet.md`: part 1 (1 to 7, the drum grid), part 2
    (8 to 15: SEQ, SEL, the piano roll), part 3 (16 to 23: patterns, the sound pages), part 4 (24 to 30: chains,
    songs, saving). Each change shown first as Today / Suggested, one screen line per line, measured. After each
    lesson: `python3 tutorial/check.py N`, `--run N`, `tutorial/device.py N`. Their notes for the AI assistant too.
-4. **The whole course:** `python3 tutorial/device.py` (about 7 min) and `python3 tutorial/check.py --run` (about
+5. **The whole course:** `python3 tutorial/device.py` (about 7 min) and `python3 tutorial/check.py --run` (about
    4.5 min): all 30 through.
-5. **The screen colors** (decision 8): M-VAVE's table in `lcd_init`, behind a switch of our own (the section on
+6. **The frames that answer the controls** (decision 11; the guide in `fw/main.c`, a firmware change, so said
+   first). Measured after it: the room left, the load with a knob spun fast (`ld_peak`), screenshots of a frame
+   held and one half filled; then step 5's runs again.
+7. **The screen colors** (decision 8): M-VAVE's table in `lcd_init`, behind a switch of our own (the section on
    newer FM-1s, below).
-6. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time.
-7. **The words around it:** SLOOP's version in `README.md`, `TEACHIE-BEACHIE.md`, the installer page's words and
-   `tools/teachie_page.py`'s rules, `AGENTS.md` and `tutorial/AI.md` where they name buttons that changed,
-   `tutorial/NOTES.md`; the lesson screens (`tutorial/lessons/screens/`); the page rebuilt into `docs/`.
-8. **A real FM-1** (decision 10): a backup first (a project saved by 3.4.x can't be opened by 3.3.x).
+8. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time.
+9. **The words around it:** SLOOP's version in `README.md`, `TEACHIE-BEACHIE.md`, the installer page's words and
+   `tools/teachie_page.py`'s rules, `AGENTS.md` and `tutorial/AI.md` where they name buttons that changed (and
+   the frames that answer, and the icons), `tutorial/NOTES.md`; the lesson screens (`tutorial/lessons/screens/`);
+   the page rebuilt into `docs/`.
+10. **A real FM-1** (decision 10): a backup first (a project saved by 3.4.x can't be opened by 3.3.x).
 
 ## Done so far
 
@@ -284,9 +297,78 @@ bad):
   **To check:** the original units look the same with it (the tester's FM-1), and the newer ones look right (the
   friend's). M-VAVE sends the same table to both, so the first should hold.
 
+## Step 1: the room made (2026-11-25)
+
+Decision 1, as answered: the visualizer and SLOOP 2.8's import out, the logo into the lesson slot. **The firmware
+fits, with 6,400 bytes to spare** (`build/fw/app.bin` 276,960 of 283,360).
+
+- **Two switches of our own,** as `TP_SLOOP28_PROJECT`: SLOOP's code stays in its files, left out unless the switch
+  is defined (no build defines them):
+  - `TP_VISUALIZER`: `fw/main.c` (HOME on TRACKS opening it, its pass, SELECT choosing its style, its ring) and
+    `app/ui.c` (its page drawn). HOME on the tracks page now does nothing. `app/vis.c`'s pictures are untouched;
+    the linker drops what nothing calls.
+  - `TP_SLOOP28_DATA`: what was left of reading SLOOP 2.8's data at the start (`fw/main.c`, `boot_flash`): its user
+    sounds, favourites and colour theme, its SYN kits, MIDI LEARN and MIDI settings, the place of its FM6 bank, its
+    menu settings and calibration. Samples in the user slots still come along (they are not an import).
+  - The three unused-variable warnings this made are quieted (`vis_named`, `vis_ring`, `home_had`).
+  - The two cuts gave 10.8 KB, not the 7.2 KB estimated: the linker dropped more of the import than `llvm-nm`
+    counted.
+- **SLOOP's `vis` scenario** (`host/twin.c`, `sc_vis`, run twice by `host/twin.sh`): without `TP_VISUALIZER` it checks
+  that HOME on TRACKS stays on TRACKS, then goes on to what it checks after the visualizer (SAVE on the SONG
+  screen, PROJECT > SAVE). SLOOP's own checks are kept under the switch.
+- **The logo in the lesson slot.** `tools/mklogo.py` is rewritten: the picture made flat in its 8 colours at 8 times
+  the size, then shrunk, each pixel the mean of its 8 x 8: flat colours with smooth edges, in full colour (RGB565),
+  174 x 204 (was 168 x 197), 18,217 bytes, 818 colours. Its file, `assets/logo/teachie-beachie-fm1.bin` (the format
+  is at the top of the tool), is kept in the repository as the lessons' font is, so packing the lessons needs no
+  Pillow. `app/tp_logo.h` is gone, and with it 2,118 bytes of the firmware.
+  - **The slot** (`tools/mkcourse.py`, `slot_image`): the pack, then blank bytes (0xFF), then the logo ending at the
+    slot's last byte; the header's version is 2, the logo's place and length at 24 and 28. SLOOP's slot writing
+    takes data in one run from the start and erases a sector only when it writes it, so the blank bytes are sent:
+    they are then sure to be blank, for step 8 (8,633 of them today). An install sends 81,408 bytes (was 54,558):
+    two sectors more than the pack and the logo alone.
+  - **The firmware:** `course_find` (`fw/course.inc`) finds the logo with the pack, at the start and whenever lessons
+    arrive; `vis_splash_draw` (`app/vis.c`, our part) draws it from the slot, 4 px from the top, WITH SLOOP 3 under
+    it as before. With no lessons on the FM-1, the name instead: TEACHIE / BEACHIE in SLOOP's large capitals.
+  - **Checked:** the tool reads its file back the decoder's way before writing it; the simulated FM-1's start
+    screen, with the lessons, is the file's picture pixel for pixel (0 of 35,496 differ); screenshots with and
+    without lessons (`build/start-with-lessons.png`, `build/start-no-lessons.png`, from `build/twin vis OUT FLASH`).
+  - `tests/lessons_sim.js` (ours) checks the slot's new shape: the pack at the start, blank up to the logo, the logo
+    at the end.
+- **Checks, all passing:** `make test`; `make build/twin`; `dash host/twin.sh 60 "1 2"` (99 ok); `fw/build.sh` to the
+  end with `install_sim` and `lessons_sim` (the two Playwright tests not run: above); `tutorial/device.py 1`.
+- **The page in the built-in browser** (above): the lessons sent to a pretend FM-1 with empty slots: 81,408 bytes in
+  USR4, every message in order, the same bytes as the page carries, the pack (54,558), 8,633 blank bytes, the logo
+  (`TPL1`, 174 x 204, 18,217 bytes) ending on the slot's last byte, header version 2, 30 lessons found, "Teachie
+  Beachie is ready". A full FM-1: the choice of four slots, the question, USR2 written. An older Teachie Beachie
+  and SLOOP 3 alone: their messages, nothing written. No console errors.
+- **The page read through on 2026-11-25** (every word it can show, `build/page-text.txt`; in the built-in browser at
+  desktop size and at the phone preset, 375 x 812: no sideways scroll, the step list scrolls in its own box, the
+  screens two to a row). The course's author: "I think we should update the website as the very last step". So
+  nothing on it was changed; **for step 9:**
+  - **Wrong now:** the last step's "Coming from SLOOP 2.8?" says SLOOP 2.8's presets, favorites, samples, SYN kits,
+    FM6 bank and settings come along (`tools/teachie_page.py`, the "first start" rule). Since step 1 only its
+    samples do.
+  - **Wrong now:** Help, "Updating Teachie Beachie later": "steps 3 to 5" (SLOOP's page has five steps). An update
+    to the 3.4.2 Teachie Beachie needs the new lessons too: steps 3 to 6.
+  - **Wrong once the lessons change:** the twelve pictures of the course are 3.3.7's: lesson 1 shows `P1`, lesson 3
+    "Hold [SEQ]. Hats on ...", lesson 8 the STEPS boxes, lesson 16 copying a page with SAVE, lesson 25 the old
+    chain. Made again from the new lessons (`tutorial/lessons/screens/`).
+  - **The version:** the page says `v0.1 · SLOOP 3.4.2`. Whether the 3.4.2 Teachie Beachie is 0.2 is the course's
+    author's to say.
+  - **Checked, right:** the three cheat cards of the last step (SLOOP's own words for 3.4.2): ALGORITHM picks the
+    track, PRESETS opens SOUNDS, EDIT held + OCT- undoes (`docs/GUIDE.md`), HOME held lights OPEN, NEW and SAVE
+    (`fw/main.c`, 3400). The newer flash chip (step 2's "Good to know", SLOOP's words): m-bootloader 3.0's release
+    notes (22 Nov 2026) still list the UC25HQ80 as not tested, and one unit with it did not start after 1.1 or 1.2;
+    the maintainer's "Yes." on m-bootloader#37 (21 Nov) contradicts 2.4's own notes. Left as SLOOP says it.
+- **For step 2, found while reading the page:** "send the lessons only" on an FM-1 that still runs the 3.3.7
+  Teachie Beachie would be taken: its firmware reads the same mark (`TPC3`), so it would play the 3.4.2 lessons
+  and teach the old buttons wrongly. A new mark for the 3.4.2 pack (`TPC4`, in `tools/mkcourse.py`,
+  `fw/course.inc` and the page's check) makes the old firmware find no lessons, and the page then says to install
+  Teachie Beachie first.
+
 ## Not done
 
-Everything in "The plan for the full move", above. Nothing from here has been on a real FM-1.
+Everything in "The plan for the full move" after step 1. Nothing from here has been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot
@@ -302,6 +384,7 @@ what is held between them.
 | The merged firmware (`build/fw/app.bin`) | 289,828 |
 | Room before the sample bank (3.4.2 moved the bank 5 KB later) | 283,360 |
 | **Over by** | **6,468** |
+| After step 1 (the visualizer, SLOOP 2.8's import and the logo out): `app.bin` 276,960 | **6,400 to spare** |
 
 Remembering the lesson after power-off (NOTES, item 118) needs about 100 more. What could come out, as measured in
 this build's `ram.elf` (`llvm-nm --print-size`):
@@ -315,6 +398,10 @@ this build's `ram.elf` (`llvm-nm --print-size`):
 
 The visualizer and the SLOOP 2.8 import together are about 7.2 KB: enough, with about 700 bytes to spare. Each
 would go behind a switch of our own, as `TP_SLOOP28_PROJECT` does, so SLOOP's files stay mergeable.
+
+Since 2026-11-25 the logo moves into the lesson slot too (decision 1, changed): about 2 KB more, about 2.8 KB in
+all. Spent on: the frames that answer the controls (decision 11, about 400 to 600, estimated), the screen colors
+(40 to 80), remembering the lesson (about 100).
 
 ## What will break in the lessons (from the code, before the run)
 
