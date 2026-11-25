@@ -184,6 +184,60 @@ hotter, the project format (17). Our cards keep their own font; SLOOP's pages dr
 firmware's room (6.5 KB to cut) and the setups' saved copy, moving to 3.4.2 is a rewrite of most of the course,
 not an update.
 
+## The newer FM-1s: the flash chip and the screen (2026-11-24)
+
+Asked because a friend's FM-1 has the newer flash chip, the UCUN UC25HQ80 (M-Flasher shows FLASH CHIP
+`0xB36014`); the tester's has the original (`0x856014`). Found on GitHub (no report on SLOOP 3's own tracker, good or
+bad):
+
+- **m-bootloader on the new chip:** the developer, asked on 2026-11-21 whether 2.4 was tested on it: "1. Yes. 2. No
+  [known issues]. 3. Install it." And holding REC while switching on "bypasses almost all the bootloader code so
+  you should be back to download mode with a very high degree of confidence"
+  ([m-bootloader#37](https://github.com/jvitkauskas/m-bootloader/issues/37)). Earlier, one new-chip unit did not
+  start after m-bootloader 1.1 or 1.2; 3.0's release notes still list the chip under "Not tested".
+- **M-Flasher on the new chip:** an open report that it did not find a new-chip FM-1 in download mode; restarting
+  the installer got round it ([m-flasher#64](https://github.com/jvitkauskas/m-flasher/issues/64)).
+
+### The screen: faded colors on newer units
+
+- **The report** ([sloop-fm1#269](https://github.com/isod89/sloop-fm1/issues/269), SLOOP 2.8, open, 2026-11-19, by
+  an owner of a newer unit, chip key `0x980F`): on M-VAVE's own firmware (V15, V16) the colors are right; on SLOOP
+  2.8.5 and other custom firmware they are faded: greys turn white, and the drum grid's GHOST, SOFT and NORM look
+  the same. On a test card the grey ramps reach full level within the first 2 of 32 steps.
+- **Why:** the screen's controller (an ST7789V) is told its voltages, VCOM and gamma at start-up by M-VAVE's
+  firmware, with one table, the same in V15 and V16, on every unit. SLOOP leaves them all at the controller's reset
+  values. The original units look right that way; the newer ones' panel does not.
+- **SLOOP 3 does the same:** `lcd_init()` in `hal/fm1/board.c` (unchanged from 3.3.7 to 3.4.2) sends only reset
+  (`01`), sleep out (`11`), the pixel format (`3A` `55`), `36` `00`, inversion on (`21`), normal mode (`13`) and
+  display on (`29`). So Teachie Beachie, on 3.3.7 or 3.4.2, very likely looks faded on a newer unit: the peach cards
+  paler, and the subtle shades (the drum grid's levels, the keys' faint glow, dim against bright) hard to tell
+  apart.
+- **M-VAVE's table, as the report gives it** (`COLMOD 55`, `MADCTL 00` and `INVON` are the same as SLOOP's):
+
+  | Register | | Values |
+  |---|---|---|
+  | `B2` | PORCTRL | `0C 0C 0C 00 33` |
+  | `B7` | GCTRL | `56` |
+  | `BB` | VCOMS | `18` |
+  | `C0` | LCMCTRL | `2C` |
+  | `C2` | VDVVRHEN | `01` |
+  | `C3` | VRHS | `1F` |
+  | `C4` | VDVS | `20` |
+  | `C6` | FRCTRL2 | `0F` |
+  | `D0` | PWCTRL1 | `A6 A1` |
+  | `E0` | PVGAMCTRL | `D0 0D 14 0B 0B 07 3A 44 50 08 13 13 2D 32` |
+  | `E1` | NVGAMCTRL | `D0 0D 14 0B 0B 07 3A 44 50 08 13 13 2D 32` |
+
+- **The reporter's fix, tested on their unit** (one commit on SLOOP 2.8.5,
+  [Tragiciy/sloop-fm1@73f00ee](https://github.com/Tragiciy/sloop-fm1/commit/73f00ee270fde8c08bd924e16cb20628abe0ce95)):
+  the table sent after the base setup and before display on (`29`), on every FM-1, as M-VAVE's firmware does; a
+  switch to build without it; a test that records the commands `lcd_init` sends. About 80 bytes on SLOOP 2.8.5.
+- **For Teachie Beachie:** the same table in `lcd_init()`, between `13` and `29`: a short table and a loop, perhaps
+  40 to 80 bytes. On 3.3.7 that is most of the 92 free (the visualizer's cut would give room); on 3.4.2 it is part
+  of the room to make anyway. It is SLOOP's file, so behind a switch of our own, and worth offering to SLOOP 3 too.
+  **To check:** the original units look the same with it (the tester's FM-1), and the newer ones look right (the
+  friend's). M-VAVE sends the same table to both, so the first should hold.
+
 ## Not done
 
 - **The fixes** for the nine stopped lessons and the drum lessons above: mostly the lessons' words and steps
