@@ -113,6 +113,38 @@ and 15 went round and round, and `device.py` had no limit for that. It now stops
 on this branch). The rerun of lessons 6 to 30 took **5 min 58 s** (17:15:23 to 17:21:21). A whole run with the
 limit: about 7 minutes, more if several lessons stop at the limit.
 
+## More checks (2026-11-24, evening)
+
+- **The installer page** built from SLOOP 3.4.2's template with `tools/teachie_page.py`: no rule missed, and both
+  page tests pass (`install_sim.js`, `lessons_sim.js`). The editor protocol (`app/edproto.*`) is unchanged, so the
+  page's lessons step, `tutorial/tp/fm1.py` and an AI assistant's control talk to 3.4.2 as before.
+- **The lessons as the computer leads them** (`python3 tutorial/check.py --run`, 19:00:36 to 19:05:05, **4 min 29
+  s**): 19 through, 11 stopped. Each stopped at a known cause:
+
+  | Lesson, step | Waits for | Cause |
+  |---|---|---|
+  | 3, 6 | snares on 5 and 13 | drum grid: playing [KEY 3] wrote a box instead of picking the snare |
+  | 6, 18 | PROJECT SAVED | SAVE |
+  | 7, 4 and 15, 4 | the beat (no answer) | drum grid |
+  | 8, 4 | the STEPS page | SEQ on a synth track |
+  | 12, 10 | chords: 12 notes or more | **new, not explained yet:** recording the four chords live |
+  | 16, 6 and 23, 4 | the copy of a page | SAVE |
+  | 17, 12 | TOM H on box 12 | drum grid: [11] wrote a box instead of picking the high tom |
+  | 25, 3 and 26, 3 | the SONG page | SAVE |
+
+  Lesson 3 and 17 passed the FM-1-led run only by accident, as suspected; this run catches them. Lesson 13 passes
+  here and stopped in the FM-1-led run: the two paths get to the piano roll differently.
+- **SLOOP's own scenarios for the simulated FM-1** (`sh host/twin.sh 60 "1 2"`): all but two ok.
+  - `settings`: "HOME tapped: the menu (0) or a flash of it (1 frames)". A check new in 3.3.8 (`host/twin.c`,
+    `sc_settings`): a tap of HOME must not show any page but the tracks page or the visualizer for a single frame.
+    Likely Teachie Beachie's start card, which is up at power-on in the twin and is not SLOOP's tracks page. To
+    confirm.
+  - `bigproj`: "the interface stood still 3.0 s (the sound going on): a freeze", during the fullest project's
+    saves. A check new in 3.4.1 (the freeze SLOOP fixed). **Important to look into:** if Teachie Beachie's own code
+    (the guide, the course, `COLD`, run from the flash window) runs while a save has the window off, the FM-1
+    freezes. On a Mac the twin's check of exactly that (`tw_xt`) is off, so this scenario is the only warning.
+    Could also be the Mac build being slower; to be told apart on Linux, or by turning the guide off in the twin.
+
 ## Not done
 
 - **The fixes** for the nine stopped lessons and the drum lessons above: mostly the lessons' words and steps
