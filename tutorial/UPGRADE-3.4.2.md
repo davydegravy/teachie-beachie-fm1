@@ -19,9 +19,19 @@ Run everything from the trial's folder. The FM-1's toolchain is in the main copy
 cd .worktrees/sloop-3.4.2
 make test                                   # SLOOP's own tests: pass
 make build/twin                             # the simulated FM-1: builds
+dash host/twin.sh 60 "1 2"                  # SLOOP's scenarios on it: all pass (18 s). On a Mac use dash, not sh: see below
 EDITOR_E2E=0 INSTALLER_E2E=0 sh fw/build.sh "$(git rev-parse --git-common-dir)/../toolchain/bin"
                                             # the firmware: compiles and links, then stops: 6,468 bytes too big
 ```
+
+Three files go with this note: `tutorial/upgrade/decisions.md` (the questions for the course's author, to be
+answered before the work starts), `tutorial/upgrade/worksheet.md` (every step that touches a change, with today's
+words; made by `tutorial/upgrade/worksheet.py`), and `tutorial/upgrade/inventory.md` (everything the lessons rely
+on).
+
+A clean copy of SLOOP's own 3.4.2, for comparing what is SLOOP's and what is ours: `.worktrees/sloop-upstream-342`
+(detached at `159e4b4`, with only the Mac build fixes, not committed). Its `build/twin` and `build/fw/fw.area` are
+built.
 
 The simulated FM-1 needs `build/fw/fw.area` for its sample bank, and the build stops before writing it. Until the
 firmware fits, a stand-in is made from the first 283,360 bytes of `app.bin` (**for the simulated FM-1 only, never
@@ -35,6 +45,37 @@ open("build/fw/app-twin-only.bin", "wb").write(open("build/fw/app.bin", "rb").re
 subprocess.run(["python3", "tools/mkfw.py", "build/fw/app-twin-only.bin", "build/fw/fw.area", "assets/samples.bin"])
 EOF
 ```
+
+## The plan for the full move
+
+In this order; each step ends with its checks passing and is a commit on this branch (when the user says so).
+Nothing goes to `main`, is pushed or is installed without the user's say.
+
+0. **Read the answers** in `tutorial/upgrade/decisions.md`. Where one is blank, ask before the step that needs it.
+1. **Make room** (decision 1): the cuts behind switches of our own (as `TP_SLOOP28_PROJECT`), until
+   `fw/build.sh` writes a real `build/fw/fw.area`. Then the stand-in below is no longer needed. Checks:
+   `make test`, `make build/twin`, `dash host/twin.sh 60 "1 2"`, `fw/build.sh` to the end.
+2. **The lesson player** (`fw/course.inc`, `tools/mkcourse.py`; a firmware change, so said first):
+   - `keep_all()` after `c_setup`'s writes, so a lesson's song is the patterns' saved copy and does not empty when
+     the FM-1 leaves page 1 (the review's first table). The computer's setups (`ED_NOTES`, `tutorial/tp/teach.py`)
+     have the same gap.
+   - `That played a drum.\nHold [SEQ] first.` (`fw/course.inc` line 481): wrong on the new grid, where picking a
+     drum is right (decision 2).
+   - `pressed SAVE twice` passes though nothing is saved (decision 6); `CHAIN DONE` is never said (decision 5);
+     SAVE on the tracks page opens `SONG 2/3`, not `SONG` (lessons 25 and 26).
+3. **The lessons, a part at a time,** from `tutorial/upgrade/worksheet.md`: part 1 (1 to 7, the drum grid), part 2
+   (8 to 15: SEQ, SEL, the piano roll), part 3 (16 to 23: patterns, the sound pages), part 4 (24 to 30: chains,
+   songs, saving). Each change shown first as Today / Suggested, one screen line per line, measured. After each
+   lesson: `python3 tutorial/check.py N`, `--run N`, `tutorial/device.py N`. Their notes for the AI assistant too.
+4. **The whole course:** `python3 tutorial/device.py` (about 7 min) and `python3 tutorial/check.py --run` (about
+   4.5 min): all 30 through.
+5. **The screen colors** (decision 8): M-VAVE's table in `lcd_init`, behind a switch of our own (the section on
+   newer FM-1s, below).
+6. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time.
+7. **The words around it:** SLOOP's version in `README.md`, `TEACHIE-BEACHIE.md`, the installer page's words and
+   `tools/teachie_page.py`'s rules, `AGENTS.md` and `tutorial/AI.md` where they name buttons that changed,
+   `tutorial/NOTES.md`; the lesson screens (`tutorial/lessons/screens/`); the page rebuilt into `docs/`.
+8. **A real FM-1** (decision 10): a backup first (a project saved by 3.4.x can't be opened by 3.3.x).
 
 ## Done so far
 
@@ -127,23 +168,28 @@ limit: about 7 minutes, more if several lessons stop at the limit.
   | 6, 18 | PROJECT SAVED | SAVE |
   | 7, 4 and 15, 4 | the beat (no answer) | drum grid |
   | 8, 4 | the STEPS page | SEQ on a synth track |
-  | 12, 10 | chords: 12 notes or more | **new, not explained yet:** recording the four chords live |
+  | 12, 10 | chords: 12 notes or more | SEL's knobs: [KNOB3] is SNAP now, so chords were never turned on (the review, below) |
   | 16, 6 and 23, 4 | the copy of a page | SAVE |
   | 17, 12 | TOM H on box 12 | drum grid: [11] wrote a box instead of picking the high tom |
   | 25, 3 and 26, 3 | the SONG page | SAVE |
 
   Lesson 3 and 17 passed the FM-1-led run only by accident, as suspected; this run catches them. Lesson 13 passes
   here and stopped in the FM-1-led run: the two paths get to the piano roll differently.
-- **SLOOP's own scenarios for the simulated FM-1** (`sh host/twin.sh 60 "1 2"`): all but two ok.
-  - `settings`: "HOME tapped: the menu (0) or a flash of it (1 frames)". A check new in 3.3.8 (`host/twin.c`,
-    `sc_settings`): a tap of HOME must not show any page but the tracks page or the visualizer for a single frame.
-    Likely Teachie Beachie's start card, which is up at power-on in the twin and is not SLOOP's tracks page. To
-    confirm.
-  - `bigproj`: "the interface stood still 3.0 s (the sound going on): a freeze", during the fullest project's
-    saves. A check new in 3.4.1 (the freeze SLOOP fixed). **Important to look into:** if Teachie Beachie's own code
-    (the guide, the course, `COLD`, run from the flash window) runs while a save has the window off, the FM-1
-    freezes. On a Mac the twin's check of exactly that (`tw_xt`) is off, so this scenario is the only warning.
-    Could also be the Mac build being slower; to be told apart on Linux, or by turning the guide off in the twin.
+- **SLOOP's own scenarios for the simulated FM-1** (`sh host/twin.sh 60 "1 2"`): all but two ok, `settings`
+  ("HOME tapped: the menu (0) or a flash of it (1 frames)") and `bigproj` ("the interface stood still 3.0 s (the
+  sound going on): a freeze"). **Settled, not ours** (2026-11-24, late evening):
+  - **The Mac's `sh` caused both.** `host/twin.sh` runs some scenarios with a setting of their own,
+    `TWIN_DRAW_US=1500 run boot-slow ...` and `TWIN_ERASE_MS=300 run oversave ...`. On a Mac `sh` is bash 3.2 in
+    POSIX mode, which keeps such a setting for the rest of the script when it comes before a function. So every
+    scenario after `boot-slow` drew slowly, and every one after `oversave` erased slowly. Linux's `sh` (dash) does
+    not; macOS has dash too, `/bin/dash`.
+  - **The slow drawing alone fails `settings`, the slow erases alone fail `bigproj`,** in exactly the same way on
+    SLOOP's own 3.4.2 (the clean copy above) as on the trial. Without them both pass, on both, also with every
+    core of the computer busy.
+  - **With `dash host/twin.sh 60 "1 2"` the trial passes everything:** 99 lines ok, none failed, in 18 s.
+  - **For SLOOP's author, perhaps:** with 300 ms erases (a real sector erase can take 400 ms, `hal/fm1/flash.h`)
+    SLOOP's own 3.4.2 also stands still 3 s while it saves the fullest project. SLOOP's tests do not run it that
+    way on Linux. Not Teachie Beachie's to fix.
 
 ## The review of SLOOP's changes (2026-11-24, evening)
 
@@ -171,7 +217,7 @@ orders):
 | Our player's message `That played a drum. Hold [SEQ] first.` now fires when a learner picks a drum on the grid (black keys, KNOB1). `pressed SAVE twice` passes though nothing is saved. | 7, 15, 30 |
 
 **To look into:** a chain playing during a save may run code from the flash window while it is off (SLOOP's own,
-low risk); the `bigproj` freeze above.
+low risk). The `bigproj` freeze above is settled: the Mac's `sh`, not ours.
 
 **Unchanged** (checked): every sound and kit name the lessons and HOUSE ONE use, and their order; the editor
 protocol and the LIVE status; conditions, FILL / NO FILL, GLO's mutes, solos and fills; ARP and rolls; ENV, LFO
@@ -240,19 +286,14 @@ bad):
 
 ## Not done
 
-- **The fixes** for the nine stopped lessons and the drum lessons above: mostly the lessons' words and steps
-  (SAVE, SEQ, the drum grid), and in a few places what the lesson player checks (the SONG page's number, STEPS).
-- **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
-  from a copy's top folder. It plays the lesson as `device.py` does up to the
-  step, then makes that step's robot moves exactly as `L.moves()` gives them (presses, releases, timing), and after
-  each release prints the FM-1's phase, step and drum notes (`f.pattern(3)`), with a screenshot. The control ran
-  on today's 3.3.7 build through a folder of links to the main copy. Running moves one at a time through
-  `device.hands()` is wrong: it lets go of what is held between them.
-- **`python3 tutorial/check.py --run`** (the lessons as the computer's program plays them): not run.
-- **Making the firmware fit** (below).
-- **The installer page:** the build stops before it, so `tools/teachie_page.py` has not met SLOOP's new page
-  template yet. Its rules report any sentence they no longer find.
-- **A real FM-1:** nothing from here has been on one.
+Everything in "The plan for the full move", above. Nothing from here has been on a real FM-1.
+
+**How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
+from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot
+moves exactly as `L.moves()` gives them (presses, releases, timing), and after each release prints the FM-1's
+phase, step and drum notes (`f.pattern(3)`), with a screenshot. The control ran on today's 3.3.7 build through a
+folder of links to the main copy. Running moves one at a time through `device.hands()` is wrong: it lets go of
+what is held between them.
 
 ## The room
 
@@ -298,6 +339,9 @@ added after the old ones), so nothing is silently wrong; but which button opens 
 
 ## To check
 
-- The firmware build now says `xipcheck: ... roots not found: trs_midi_poll`. It did not on 3.3.7. See whether
-  SLOOP's own 3.4.2 build says the same before reading anything into it.
+- The firmware build says `xipcheck: ... roots not found: trs_midi_poll`. **Settled:** SLOOP's own 3.4.2 build
+  says exactly the same (`xipcheck: 237 functions may run with the window off; 514 in the window; roots not
+  found: trs_midi_poll`). It is SLOOP's, not ours.
 - 3.4.1's fixes for the random freezes are in this merge. They are the main reason to move.
+- Before starting: `git ls-remote --tags upstream` for a SLOOP newer than `v3.4.2-beta` (none on 2026-11-24;
+  `upstream/main` was still `159e4b4`).
