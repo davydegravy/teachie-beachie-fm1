@@ -25,6 +25,7 @@ EDITOR_E2E=0 INSTALLER_E2E=0 sh fw/build.sh "$(git rev-parse --git-common-dir)/.
                                             # the firmware, to the end: build/fw/fw.area, and its five rooms (tools/tp_room.py)
 python3 tutorial/upgrade/keepcheck.py       # a lesson's song kept over a change of pattern (step 2)
 python3 tutorial/upgrade/drumcheck.py       # the drum picked: the lesson's check of it, its words for the wrong one (step 2)
+python3 tutorial/upgrade/rollcheck.py       # the piano roll: the key to play blinks once STEP is on its step; SHOW ME (step 4, part 2)
 git checkout -- docs/index.html tutorial/lessons/screens   # after a build or a lesson run, until step 9: what they rewrote
 ```
 
@@ -586,10 +587,67 @@ shown at once, each changed card as Today / Suggested, after it has played throu
 (`trylesson.py` in the session's scratch folder: a lesson file from a folder, packed alone, played by `device.play`
 and by `Player.play` with a robot).
 
+### Part 2, lessons 8 to 15 (2026-11-26)
+
+Asked for this part: "can we prepare multiple lessons at once and then go through it one at a time and then run the
+tests when we are done so there is less waiting between lessons." So all eight were drafted in scratch copies and
+played both ways first, then shown one lesson at a time and written into their files as each was approved, and the
+checks ran once at the end.
+
+| Lesson | Stands | What changed |
+|---|---|---|
+| 8, A bass line in boxes | done; all three checks pass (it had stopped at [SEQ] with the FM-1 leading) | The same bass line, written on the piano roll (decision 3): the A played on the tracks page first, `Press [SEQ]: / the piano roll.`, a card for the roll (`16 steps across. / A step is a box.`), then `STEP says 1. Play [KEY 3].`, `[KNOB1] to step 4: [3].` (the course's author's wording), `The same on 7, 11 and 14.`, `[KNOB1] to step 16: [10].`, the free step with [EDIT] to delete, a cheat sheet. Strips on the roll at the top, one line. The key to play blinks only once STEP is on its step ("yes make the key wait until the knob is turned"). 21 steps |
+| 9, Pick your sound | done; unchanged; all three checks pass | Nothing of it touches a change of 3.4.2: the SOUNDS page looks and works as before |
+| 10, Record it live | done; unchanged; all three checks pass | Nothing of it touches a change of 3.4.2 |
+| 11, No wrong notes | done; all three checks pass (it played through before, with the wrong knob) | [SEL]'s page: `Press [SEL]: / the key's page.`, `... SCL says MIN.`, and SNAP on [KNOB3]: `[KNOB3]: one click right. / QNT says SNAP.` (the old [KNOB4] is CHORD now). Both knob strips at the top ("I think Strip 12 should move to the top"), which changes decision 7 for this page. 20 steps |
+| 12, One-finger chords | done; all three checks pass (it had stopped at the recording with the computer leading) | Chords on [KNOB4]: `[KNOB4]: one click right. / CHORD says TRIAD.` (was [KNOB3] and `Tiles show chords.`: the page has no tiles); the last card names [KNOB4]. 16 steps |
+| 13, The piano roll | done; all three checks pass (it had stopped at step 8 with the FM-1 leading) | `Press [SEQ]: / the piano roll.` (once, not twice); `[KNOB3] until LEN says 5.` on one line; the last card; the keys play nothing while the roll is open. The note's sheet and the zoom, planned for it on 2026-11-24, are left out of the steps and are in its notes for the AI assistant. 20 steps |
+| 14, Mix the tracks | done; unchanged; all three checks pass | Nothing of it touches a change of 3.4.2: [KNOB2] is still the level on the tracks page |
+| 15, Your own loop | done; all three checks pass (it had stopped at its first free step both ways) | The card of moves for the drum grid and the piano roll; the two free strips at the top on one line (`Next track, then [OCT+].`, `Keep going, then [OCT+].`); saving as in lessons 6 and 7; the tracks page before the second track, for listening and before the save. 15 steps |
+
+**Part 2 (lessons 8 to 15) is done:** lessons 1 to 15 play through both ways, and the build's page tests pass with
+them. The pack is 56,064 bytes (55,428 before part 2); the slot keeps 7,127 blank bytes (1,024 is the least).
+
+**The lesson player, changed for the piano roll** (`fw/course.inc`, the guide's answer in `fw/main.c`,
+`tutorial/tp/lesson.py`, `tutorial/tp/fm1.py`; the test is `tutorial/upgrade/rollcheck.py`, with its lesson in
+`tutorial/upgrade/rollcheck/`):
+
+- **Which key blinks.** A step that waits for notes in boxes used to blink the white keys of the boxes still empty,
+  on every track. On 3.4.2 only the drum grid has boxes on the white keys; on the piano roll those keys would write
+  other notes. Now, for a track that is not the drums, the keys the step's Do names blink, and on the piano roll only
+  while STEP is on a step that still lacks its note: the key waits for the knob, and stops again when the knob goes
+  past. The firmware reads `ne_step`; the computer reads it from the guide's answer.
+- **The guide's answer, byte 3:** bits 4 to 7 are "what a key writes to": the drum picked, as before, and on NOTES of a
+  track that is not the drums the step shown (bit 3 set when it is past the 16th). `FM1.step` in `tutorial/tp/fm1.py`
+  (None off the piano roll); `FM1.picked` keeps its last value there.
+- **SHOW ME on the FM-1** writes a note where a step asks for "notes" on a track that is not the drums: the track's
+  last note, into the steps with none. Before, it wrote nothing for such a step and moved on.
+- 204 bytes of the flash before the sample bank (4,992 free; the other four rooms as they were).
+
+**To carry into the lessons that follow:**
+
+- **The piano roll** (SLOOP's NOTES, [SEQ]'s first page on a track that is not the drums): every key played is
+  written at the step shown, and STEP moves on by one. So: strips at the top and one line long (the dials at the
+  bottom have to show, and a strip of two lines hides the roll's top row, where the highest note sits); `Keys: silent`
+  on the cards shown over it and on steps that need no key; the listening step on the tracks page. A step is "a box"
+  (lesson 8, step 6). The words: `[KNOB1] to step 4: [3].`
+- **A key's name:** the full one first (`[KEY 3]`), then the short one (`[3]`), as lessons 2 and 8 do.
+- **[ALGORITHM] with the drum grid open** shows an old page of boxes for the other tracks (STEPS, 16 numbered
+  tiles), where keys only play: go to the tracks page before a learner changes track (lesson 15). [ALGORITHM] stops at
+  track 1 and at track 5.
+- **[SAVE] on the piano roll opens other pages** (PRESETS, USER ...): go to the tracks page before the save strips.
+- **3.4.2's knob pages show each value twice,** small in the row at the top and big below. A two-line strip at the
+  top covers only the small row; a strip at the bottom cuts the lower two big values in half and hides the page's name
+  in the corner. On the [SEL] page the knob strips are at the top (decision 7, changed 2026-11-26). Lessons 19 to 22:
+  look at each page in a picture first.
+- **[EDIT]'s pages** before SOUNDS are four or five, by the sound's engine: never count taps of [EDIT].
+- **Not built, possible now:** an `Until` word for the piano roll's STEP (`step is 7`), since the lesson player can
+  read it. Lesson 13's three `[KNOB1] to step N.` strips still count clicks.
+
 ## Not done
 
-Lessons 2 to 30 of step 4, then steps 5 to 10 of "The plan for the full move". Nothing from here has been on a real
-FM-1.
+Lessons 16 to 30 of step 4 (parts 3 and 4), then steps 5 to 10 of "The plan for the full move". Nothing from here has
+been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot
@@ -608,6 +666,7 @@ what is held between them.
 | After step 1 (the visualizer, SLOOP 2.8's import and the logo out): `app.bin` 276,960 | **6,400 to spare** |
 | After step 2: `app.bin` 276,908 | 6,452 to spare |
 | After the review (SLOOP 2.8's settings and calibration back, about 1 KB; the fixes): `app.bin` 278,164 | **5,196 to spare** |
+| After part 2 of the lessons (the piano roll's blinking key, SHOW ME's note): `app.bin` 278,368 | **4,992 to spare** |
 
 **The flash before the bank is one limit of five** (the review, finding 3; `tools/tp_room.py` prints them at the end
 of `fw/build.sh`). Free bytes:

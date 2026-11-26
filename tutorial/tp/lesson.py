@@ -265,6 +265,7 @@ class Seen:
 
 class Cond:
     def __init__(self, text): self.text, self.fn, self.miss, self.needs_base, self.drum = text, None, None, None, None   # drum: the pad its boxes ask for
+    roll = None                                                                    # the steps another track's notes still lack (miss: the drums' boxes)
     def ok(self, seen): return self.fn(seen)
 
 def boxes(text): return [int(x) - 1 for x in re.findall(r"\d+", text)]
@@ -350,7 +351,9 @@ def parse_until(text):
             def missing(s, t=t, pad=pad, bx=bx):
                 have = {int(round(n[0])) for n in s.pattern(t)[1] if pad is None or n[2] == pad}
                 return [b for b in bx if b not in have]
-            k.miss = missing; k.fn = lambda s, missing=missing: not missing(s)
+            k.fn = lambda s, missing=missing: not missing(s)
+            if t == TRACK["drums"]: k.miss = missing                             # (SLOOP 3.4) the white keys are boxes on the drum grid only: elsewhere the Do's own keys blink,
+            else: k.roll = missing                                                # on NOTES once STEP is on a step that still lacks the note (do_until)
             if what in PADS and t == TRACK["drums"]: k.drum = PADS.index(what)
         elif rest.startswith("has ") and " after box" in rest:
             b = boxes(rest)[0]; k.fn = lambda s, t=t, b=b: any(n[0] >= b for n in s.pattern(t)[1])
@@ -663,9 +666,11 @@ class Player:
             how = {}
             if conds:
                 miss = [b for c in conds if c.miss for b in c.miss(s)]
+                roll = [b for c in conds if c.roll for b in c.roll(s)]              # (SLOOP 3.4) NOTES, and a step still lacks its note: the key waits
+                wait = bool(roll) and self.fm1.page == PAGES["NOTES"] and self.fm1.track != TRACK["drums"] and self.fm1.step not in roll   # until [KNOB1] has brought STEP there (fw/course.inc says the same)
                 for op in ops:
                     if op[0] in ("hold", "press"): how[op[1]] = BLINK
-                    elif op[0] in ("tap", "long", "khold") and not any(c.miss for c in conds): how[light_of_key(op[1])] = BLINK
+                    elif op[0] in ("tap", "long", "khold") and not any(c.miss for c in conds) and not wait: how[light_of_key(op[1])] = BLINK
                 for b in miss: how[light_of_key(WHITE[b % 16])] = BLINK
                 if need is not None and self.picked != need:                       # (SLOOP 3.4) another drum picked than the boxes ask for:
                     how = {l: v for l, v in how.items() if l < 14}                  # its black key blinks, not the boxes, until it is picked

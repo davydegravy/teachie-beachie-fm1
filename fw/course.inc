@@ -280,7 +280,8 @@ CCOLD static int c_true(const uint8_t *c, int i)     /* condition number i of th
     default: return 1;
     }
 }
-/* the step's conditions: 1 all true (0 none to weigh: *any 0). miss: the boxes a HAS still lacks; need: the drum it asks for */
+/* the step's conditions: 1 all true (0 none to weigh: *any 0). miss: the boxes a HAS still lacks, the drums' in bits 0..15
+ * and another track's in bits 16..31; need: the drum it asks for */
 CCOLD static int c_until(int *any, uint32_t *miss, int *need)
 {
     int n, i = 0, ok = 1; const uint8_t *e = c_field(CT_UNTIL, 0, &n);
@@ -288,7 +289,10 @@ CCOLD static int c_until(int *any, uint32_t *miss, int *need)
     if (need) *need = 255;
     *any = e != 0;
     for (const uint8_t *end = e ? e + n : 0; e && e < end; e += 1 + e[0], i++) {
-        if (e[1] == CC_HAS) { if (miss) *miss |= c_miss(e + 1); if (need && e[2] == C_DRUM && e[3] < 16) *need = e[3]; }
+        /* (SLOOP 3.4) the white keys are boxes on the drum grid only. On another track the step's Do blinks its own keys:
+         * on NOTES the key played is written at the step shown, so there it blinks while STEP is on a step that still
+         * lacks the note (PH_DO, below) */
+        if (e[1] == CC_HAS) { if (miss) *miss |= c_miss(e + 1) << (e[2] == C_DRUM ? 0 : 16); if (need && e[2] == C_DRUM && e[3] < 16) *need = e[3]; }
         if (!c_true(e + 1, i)) ok = 0;
     }
     return ok;
@@ -299,7 +303,7 @@ CCOLD static void c_fix(void)                        /* SHOW ME: what can be don
     for (const uint8_t *end = e ? e + n : 0; e && e < end; e += 1 + e[0]) {
         const uint8_t *c = e + 1; int t = c[1] < NTRK ? c[1] : 0;
         switch (c[0]) {
-        case CC_HAS: if (c[2] != 255) c_add(t, c[2], 100, 0, c_u16(c + 3)); break;
+        case CC_HAS: if (c[2] != 255) c_add(t, c[2], 100, 0, c_u16(c + 3)); else if (!is_drum(t)) c_add(t, last_notes[t], 100, 0, c_miss(c)); break;   /* (any note asked for, as on NOTES: the track's last one, in the steps with none) */
         case CC_PLAYING: transport(1); break;
         case CC_STOPPED: transport(0); break;
         case CC_TRACKIS: select_track(c[1]); break;
@@ -503,6 +507,9 @@ CCOLD static void course_tick(void)                  /* each round of the interf
     case PH_ANSWER: case PH_DO: {
         int any, need, dn, fn; uint32_t miss; const uint8_t *d = c_field(CT_DO, 0, &dn), *f = c_field(CT_FOLLOW, 0, &fn);
         int ok = c_until(&any, &miss, &need), strip = c_strip(kind);
+        /* (SLOOP 3.4) NOTES, and a step still lacks its note: the key waits until [KNOB1] has brought STEP to such a step */
+        int wait = miss >> 16 && sticky == PG_NOTES && !is_drum(trk) && !(ne_step < 16 && (miss >> (16 + ne_step)) & 1u);
+        miss &= 0xFFFFu;
         c_leds(); G.only = !strip;
         if (C.ph == PH_ANSWER) { for (int b = 0; b < 2; b++) if ((G.cap_btn >> b) & 1u) G.led[b] = 5; }
         else {
@@ -511,7 +518,7 @@ CCOLD static void course_tick(void)                  /* each round of the interf
             /* the lights: what to hold, what is still to press */
             for (int i = 0; 3 * i < dn; i++) {
                 const uint8_t *op = d + 3 * i; int key = op[0] == CD_TAP || op[0] == CD_LONG || op[0] == CD_KHOLD || (op[0] == CD_ANY && op[1] != 255);
-                if (any) { if (op[0] == CD_PRESS || op[0] == CD_HOLD) G.led[op[1]] = 5; else if (key && C.need == 255 && !miss) G.led[14 + op[1]] = 5; }
+                if (any) { if (op[0] == CD_PRESS || op[0] == CD_HOLD) G.led[op[1]] = 5; else if (key && C.need == 255 && !miss && !wait) G.led[14 + op[1]] = 5; }
                 else if (i < C.at) { if (op[0] == CD_HOLD) G.led[op[1]] = 5; else if (op[0] == CD_KHOLD) G.led[14 + op[1]] = 5; }
                 else if (i == C.at) { if (op[0] == CD_PRESS || op[0] == CD_HOLD) G.led[op[1]] = 5; else if (key) G.led[14 + op[1]] = 5; }
             }

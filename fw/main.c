@@ -3296,7 +3296,10 @@ COLD static void ed_request(void)
         else if (op == 7 && n >= 2) { for (int t = 0; t < NTRK; t++) if ((r[1] >> t) & 1u) commit_trk(t); }
         uint32_t k = 0;
         while (G.ev_r != G.ev_w && k < 32) { r[5 + 2 * k] = G.ev[G.ev_r & 31][0]; r[6 + 2 * k] = G.ev[G.ev_r & 31][1]; G.ev_r++; k++; }
-        r[0] = (uint8_t)op; r[1] = (uint8_t)sticky; r[2] = (uint8_t)trk; r[3] = (uint8_t)(G.card | G.home << 1 | (G.ask == 1) << 2 | (last_notes[3] & 15) << 4); r[4] = (uint8_t)k;   /* (last_notes[3]: the drum track's, C_DRUM) */
+        /* (Teachie Beachie: bits 4..7, what a key writes to: the drum picked (last_notes[3]: the drum track's, C_DRUM); on NOTES
+         * of another track the step shown, bit 3 set when it is past the 16th) */
+        r[0] = (uint8_t)op; r[1] = (uint8_t)sticky; r[2] = (uint8_t)trk; r[4] = (uint8_t)k;
+        r[3] = (uint8_t)(G.card | G.home << 1 | (G.ask == 1) << 2 | (sticky == PG_NOTES && !is_drum(trk) ? (ne_step > 15) << 3 | (ne_step & 15) << 4 : (last_notes[3] & 15) << 4));
         ed_send(cmd, 5 + 2 * k); return;
     }
     default: ed_err(ED_ERR_BAD); return;

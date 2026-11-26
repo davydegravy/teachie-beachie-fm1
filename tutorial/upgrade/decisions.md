@@ -119,6 +119,14 @@ and it is SLOOP 3.4's own way: [SEQ] opens NOTES first, and SLOOP's guide says "
   (or [EDIT] takes a stray note out).
 - Lesson 13 goes further on the same page: LEN, the NOTE knob, OCT+ held (the note's sheet), the zoom.
 
+- **2026-11-26, as built** (each lesson's Tester notes have the words). Lesson 8: the A is played on the tracks page
+  first; STEP stands at 1 when the roll opens, so no knob is needed for the first note; the strips are
+  `STEP says 1. Play [KEY 3].`, `[KNOB1] to step 4: [3].`, `The same on 7, 11 and 14.`, `[KNOB1] to step 16: [10].`;
+  the key to play blinks only once [KNOB1] has brought STEP to its step ("yes make the key wait until the knob is
+  turned"). Lesson 13 keeps its three fixes (NOTE, LEN, [EDIT]) and **leaves the note's sheet and the zoom out of its
+  steps** ("Yes, all of it"): the sheet is a held button with its own meanings for the knobs, the zoom changes
+  nothing useful on 16 steps. Both are in lesson 13's notes for the AI assistant.
+
 ## 4. "Pages" or "patterns"
 
 On 3.4.2 the screen says PATTERN (`PATTERN 2 FROM 1 · SAVING`). Each pattern keeps a saved copy, and leaving a
@@ -193,6 +201,13 @@ the bottom-right corner, so on those pages:
 - **a find-the-page step: the strip at the top**, pointing at the corner ("until the bottom corner says FX 1/7").
 
 SLOOP's pages stay as SLOOP draws them; only our strips move.
+
+- **2026-11-26, changed on the [SEL] page (lesson 11): a knob step's strip at the top after all.** "I think Strip 12
+  should move to the top"; then "Yes, both at the top". On 3.4.2 these pages show each value twice: small in the row
+  at the top, and big in the block below. A two-line strip at the top covers only the small row; a strip at the bottom
+  cuts the lower two big values in half and hides the page's name in the corner. So on the [SEL] page the knob strips
+  are at the top, where they were before the move. Lessons 19 to 22 use pages of the same kind: each is looked at in a
+  picture before its strips are placed.
 
 ## 8. The screen colors for newer FM-1s
 

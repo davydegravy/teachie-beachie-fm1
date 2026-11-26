@@ -90,3 +90,9 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 - FAVORITE is applied on the lesson's three cards (steps 12, 13 and 17), since step 12 was being rewritten.
   SLOOP's own messages keep their spelling.
 - Step 10 (KNOB 1, the family) stays at the bottom: the family's name is at the top left.
+
+2026-11-26, the move to SLOOP 3.4.2.
+
+- Nothing in this lesson touches what SLOOP 3.4.2 changed: it plays through both ways as it is, and the SOUNDS page
+  looks and works as before. How many taps of [EDIT] reach SOUNDS depends on the sound (four or five pages come before
+  it), which is why step 8 says `until you see / sound names` and counts nothing.

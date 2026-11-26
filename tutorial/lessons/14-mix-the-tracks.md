@@ -63,3 +63,8 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   second meeting with solo, which lesson 5 teaches. As written it does nothing for the mix: the bass is heard
   alone and then everything is as before. Decided the same day: the two steps are taken out, so the lesson is
   only about levels. Done.
+
+2026-11-26, the move to SLOOP 3.4.2.
+
+- Nothing in this lesson touches what SLOOP 3.4.2 changed: it plays through both ways as it is. On the tracks page
+  [KNOB2] is still the track's level (LEVEL), and the strips at the top leave the four dials in view.

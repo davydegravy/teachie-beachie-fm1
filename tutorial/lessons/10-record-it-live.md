@@ -86,3 +86,9 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   brings the take back (`REDO BRINGS IT BACK: / HOLD [EDIT], PRESS [OCT+].`), a card (`THERE IS A BIGGER ERASER.
   ...`), then `HOLD [REC] FOR TWO SECONDS.` The track is empty again for the learner's own tune. 19 steps: old step
   12 is 15.
+
+2026-11-26, the move to SLOOP 3.4.2.
+
+- Nothing in this lesson touches what SLOOP 3.4.2 changed: it plays through both ways as it is. Recording, undo, redo
+  and the two-second erase work as before, and the screen's words are the same (REC READY, HOLD REC: ERASE THE TRACK,
+  TRACK ERASED).

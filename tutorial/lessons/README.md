@@ -211,7 +211,7 @@ A step marked `*(beginners only)*` is left out on the path for people who know g
 | **Play**, **Echo** | As above, on a step that also has words. |
 | **Follow** | Keys to play along with in time: one for each bar, blinking while its bar plays. |
 | **Wait** | How long the step stays up. |
-| **Keys** | `silent`: the keys belong to the lesson and play nothing. |
+| **Keys** | `silent`: the keys belong to the lesson and play nothing. Used on the piano roll, where every key played is written: on its cards, and on steps that need no key (lessons 8, 13). |
 | **Lights** | Keys lit faintly, as part of the picture. |
 | **Page** | The page of SLOOP the step needs. If the learner wanders off, the lesson brings them back. |
 | **Right**, **Wrong** | A quiz's replies. |
@@ -227,6 +227,16 @@ Buttons: `OCT-` `OCT+` `FX` `SEL` `ENV` `LFO` `EDIT` `GLO` `HOME` `SAVE` `ARP` `
 Knobs: `SELECT` `ALGORITHM` `PRESETS` `KNOB 1` to `KNOB 4`.
 Keys: a note's name from `F3` to `G5`, `box 1` to `box 16` for the white keys from the lowest up, or `black 1` to
 `black 11` for the black keys.
+
+**Which keys blink** when the step waits for notes (`Until: ... has ... on boxes ...`):
+
+- **On the drums,** the boxes still empty: on SLOOP 3.4.2's drum grid a white key is a box. If another drum is picked
+  than the boxes ask for, that drum's black key blinks instead, and the lesson says so.
+- **On another track** there are no boxes on the keys: the piano roll writes the key played at the step its STEP dial
+  shows. There the keys the Do names blink, and only while STEP is on a step that still lacks its note. So with
+  `Do: turn KNOB 1 right 2, tap A3` and `Until: bass has notes on boxes 1 4`, the A's key waits until [KNOB1] has
+  brought STEP to 4: a blinking key always means "press this". A knob has no light. Off the piano roll the Do's keys
+  blink at once.
 
 ### The words of Until
 

@@ -102,12 +102,15 @@ class Midi:
     def close(self): self.i.close(); self.o.close()
 
 class FM1:
-    def __init__(self, link): self.link = link; self.page = self.track = 0; self._names = None; self.lost = 0; self.state = 0; self.picked = 0; self.pending = []   # presses and turns not looked at yet
+    def __init__(self, link): self.link = link; self.page = self.track = 0; self._names = None; self.lost = 0; self.state = 0; self.picked = 0; self.step = None; self.pending = []   # presses and turns not looked at yet
     def _absorb(self, r):
         """a guide's answer taken in: the page, the track, the state, and the presses and turns it brings (each answer
         brings them once, so every one that arrives is read, even a late one)"""
         self.page, self.track, self.state = r[1], r[2], r[3]   # state: bit 0 a card, 1 the start's card, 2 START pressed
-        self.picked = r[3] >> 4                                # (SLOOP 3.4.2's Teachie Beachie) the drum picked, the one boxes write: 0 KICK .. 15
+        # (SLOOP 3.4.2's Teachie Beachie) bits 4..7, what a key writes to: the drum picked, the one boxes write (0 KICK .. 15);
+        # on NOTES (page 23) of a track that is not the drums (3), the step shown, from 0 (bit 3: it is past the 16th)
+        if r[1] == 23 and r[2] != 3: self.step = None if r[3] & 8 else r[3] >> 4
+        else: self.picked = r[3] >> 4; self.step = None
         self.pending += [(EVENT.get(r[5 + 2 * i], "?"), r[6 + 2 * i]) for i in range(r[4])]
     def _drain(self):
         """answers that came too late for their question (the FM-1 was busy, saving for instance): out of the way"""
