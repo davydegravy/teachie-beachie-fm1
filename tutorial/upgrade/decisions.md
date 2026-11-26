@@ -81,6 +81,12 @@ Answer (2026-11-24): **A, and the drum picked with a black key on the grid.**
   a hint catches KICK2. [KNOB1] is shown once as the other way.
 - **Lesson 4** ("Play every white key. The top names each drum") moves to the tracks page, where a white key still
   plays its drum and picks it.
+- **2026-11-26, lesson 4 is a new lesson, on the grid** ("yes lets use this, this is great"). The tracks page, tried,
+  plays the drums but names none; SLOOP's KIT page names all 16, and the lesson was moved there first. Then the
+  question of what it is for: "if we are just trying to preserve an old lesson that doesn't seem like it should be a
+  priority". On 3.4.2 nobody needs to know which white key is which drum to write a beat. The lesson now adds drums
+  to lesson 3's beat on the grid: the clap with its black key, the two toms that share one ("tap again"), any of the
+  16 with [KNOB1]; then the kits, as before. The white keys as drums wait for lesson 17 (rolls).
 - **2026-11-25, in the review of step 2:**
   - **A lesson can wait for the drum picked** ("Yes, approve"): a new `Until` word, `drums picked SNARE`. Without it
     a "pick the snare" step ended at the tap, whichever drum it gave, and no hint could catch KICK2.

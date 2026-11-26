@@ -32,8 +32,8 @@
 9. **Strip:** Press [SEQ] for the drum grid.
    - **Do:** press SEQ
    - **Until:** page is STEPS
-10. **Strip:** Hold [SEQ]. Tap [KEY 2], [6] and [10].
-    - **Do:** hold SEQ, tap box 2 6 10
+10. **Strip:** Tap [KEY 2], [6] and [10].
+    - **Do:** tap box 2 6 10
     - **Until:** drums has KICK on boxes 2 6 10
 11. **Strip:** Kicks in the wrong places. Ouch.
     - **Wait:** 2 bars
@@ -47,19 +47,23 @@
     - **Until:** drums has no KICK on boxes 2 6 10
     - **Hint:** Hold [EDIT], press [OCT-]. Once for each kick.
 15. **Reply:** All back.
-16. **Card:** Undo will remember / your last 8 moves. / Went too far? / To redo hold [EDIT] / and press [OCT+].
+16. **Card:** Undo will remember / your last 3 moves. / Went too far? / To redo hold [EDIT] / and press [OCT+].
     - **OCT+:** Next
-17. **Card:** Save keeps your work when the FM-1 is switched off.
+17. **Card:** Save keeps your work / when the FM-1 is / switched off. // SLOOP also saves by / itself when the music / is stopped.
     - **OCT+:** Next
-18. **Strip:** Press [SAVE] twice, quickly.
+18. **Strip top:** Press [SAVE] twice: / the PROJECT page.
     - **Do:** press SAVE twice
+    - **Until:** page is PROJECT
+    - **Hint:** Press [SAVE] until the / bottom corner says / PROJECT.
+19. **Strip top:** Turn [KNOB1]: SAVE.
+    - **Do:** turn KNOB 1 right 1
     - **Until:** says PROJECT SAVED
-    - **Hint:** Two quick taps on [SAVE].
-19. **Setup:** page TRACKS
-20. **Strip:** Press [PLAY] to stop.
+    - **Hint:** One click to the right.
+20. **Setup:** page TRACKS
+21. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-21. **Card:** Tempo: [SELECT]. / Undo: [EDIT] + [OCT-]. / Redo: [EDIT] + [OCT+]. / Save: [SAVE] twice. // Now nothing can / go wrong.
+22. **Card:** Tempo: [SELECT]. / Undo: [EDIT] + [OCT-]. / Redo: [EDIT] + [OCT+]. / Save: [SAVE] twice, / then [KNOB1]. // Now nothing can / go wrong.
     - **OCT+:** Done
 
 ## Screens
@@ -74,8 +78,14 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   seem nervous about pressing things, come back to this.
 - SELECT changes the tempo only on the TRACKS page and the drum grid. On other pages it turns the page. If the
   number is not moving, press HOME first.
-- A slow double tap on SAVE opens SLOOP's SONG page instead. The second tap still saves. The lesson goes back to
-  the TRACKS page by itself afterwards.
+- Saving on SLOOP 3.4.2: from the tracks page or a drum page, [SAVE] opens SONG 2/3 and [SAVE] again opens PROJECT
+  3/3 (SLOOP writes the page's name small in the bottom right corner). There [KNOB1] is SAVE: one click to the right
+  saves, and a green SAVED shows at the top. A third [SAVE] goes back to SONG. [KNOB2] is NEW and [KNOB3] LOAD: leave
+  them alone here (lesson 29). The lesson goes back to the tracks page by itself afterwards.
+- SLOOP also saves by itself, a moment after the music is stopped and nothing is touched. Step 17's card says so.
+- From a synth track's pages [SAVE] opens other pages (PRESETS, USER, PATTERNS, TOOLS). To save from there, a short
+  tap of [HOME] first (the tracks page); [HOME] held longer opens SLOOP's menu.
+- Undo keeps the last 3 moves on 3.4.2 (it kept 8). The lesson asks for exactly three.
 
 ## Tester notes
 
@@ -96,3 +106,19 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
 
 - Applied: `THE BIG NUMBER IS THE TEMPO. TURN [SELECT] UP PAST 135.`
+
+2026-11-26, the move to SLOOP 3.4.2. The lesson stopped at the save both ways: "Press [SAVE] twice" no longer saves.
+The whole lesson was shown at once ("Yes, all of it").
+
+- **Step 10:** `Tap [KEY 2], [6] and [10].` (was `Hold [SEQ]. Tap [KEY 2], [6] and [10].`): a box is tapped by itself.
+- **Step 16:** `Undo will remember / your last 3 moves. ...` (was 8).
+- **Step 17:** the save card gains `// SLOOP also saves by / itself when the music / is stopped.` (decision 6).
+- **Saving, two strips along the top** (decision 6: [SAVE], [SAVE], [KNOB1], the first way in SLOOP's guide, every
+  step named on the screen): step 18 `Press [SAVE] twice: / the PROJECT page.`, until the page is PROJECT, with the
+  hint `Press [SAVE] until the / bottom corner says / PROJECT.`; step 19 `Turn [KNOB1]: SAVE.`, until PROJECT SAVED,
+  with the hint `One click to the right.` First shown as `Press [SAVE] twice: the / corner says PROJECT.` and the
+  second strip along the bottom, which sat on the very corner it named: "can you tell me about: corner says PROJECT.
+  I don't see that in the screenshot". With both strips at the top the page shows its big SAVE and `PROJECT 3/3` in
+  the corner.
+- **The cheat sheet:** `Save: [SAVE] twice, / then [KNOB1].` (was `Save: [SAVE] twice.`).
+- 22 steps: from old step 19 on, add one.

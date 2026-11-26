@@ -77,7 +77,7 @@ Each file also has a picture of the lesson's screens, in order, taken from the r
 | 1 | [Hello](01-hello.md) | A blinking light means "press this". SLOOP has five tracks. |
 | 2 | [Sixteen boxes](02-sixteen-boxes.md) | A sequencer is a row of boxes and a walking light. |
 | 3 | [Kick, snare, hat](03-kick-snare-hat.md) | A beat is three simple layers. |
-| 4 | [The drum kit](04-the-drum-kit.md) | The 16 drum sounds are on the 16 white keys. |
+| 4 | [The drum kit](04-the-drum-kit.md) | A kit has 16 drums to pick from, and a new kit swaps them all. |
 | 5 | [Meet the tracks](05-meet-the-tracks.md) | Each track plays its own instrument. |
 | 6 | [Faster, slower, oops](06-faster-slower-oops.md) | Tempo, undo and save. |
 | 7 | [Your own beat](07-your-own-beat.md) | A beat made alone. |
@@ -234,7 +234,8 @@ Joined with `and`. Tracks are `bass`, `lead`, `chords`, `pad`, `drums`.
 
 - **The transport:** `playing` · `stopped` · `recording` · `not recording` · `rec ready` · `song playing` ·
   `song recording` · `fill on` · `punch on`
-- **Where the learner is:** `track is drums` · `page is STEPS` · `drums picked SNARE` (the drum that boxes write: on the
+- **Where the learner is:** `track is drums` · `page is STEPS` (SLOOP 3.4.2's pages too: `page is PROJECT`, `page is
+  PATTERN`) · `drums picked SNARE` (the drum that boxes write: on the
   grid a black key or [KNOB1] picks it, on the tracks page playing it does)
 - **What is written:** `drums has KICK on boxes 1 5 9 13` · `drums has no KICK on boxes 2 6 10` ·
   `bass has notes on boxes 1 4 7` · `lead has C5 on box 7` · `lead has nothing on box 13` ·

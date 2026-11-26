@@ -35,7 +35,8 @@ BLACK = [k for k in range(27) if k not in WHITE]                                
 PADS = ["KICK", "KICK2", "SNARE", "CLAP", "HAT", "OPEN", "PEDAL", "RIM", "SNR 2", "TOM L", "TOM H", "CRASH", "RIDE", "SHAKE", "CONGA", "BELL"]
 PAGES = dict(TRACKS=0, STEPS=1, OSC=2, FILTER=3, VOICE=4, ENV=5, **{"ENV 2": 6}, SENDS=7, KIT=8, GLOBAL=9, SONG=10, LFO=11, KEY=12, ARP=13,
              **{"LFO 2": 14}, MASTER=15, PLUS=16, **{"ARP 2": 17}, DELAY=18, **{"DRUM SOUND": 19, "KEY 2": 20}, MIDI=21, **{"MIDI 2": 22}, NOTES=23,
-             **{"LFO 3": 24}, INSERT=25, **{"INSERT MIX": 26}, SLICER=27, YOURS=28, TEXTURE=29, **{"TEXTURE 2": 30, "SONG 2": 31}, SOUNDS=32, REVERB=33, REC=34)
+             **{"LFO 3": 24}, INSERT=25, **{"INSERT MIX": 26}, SLICER=27, YOURS=28, TEXTURE=29, **{"TEXTURE 2": 30, "SONG 2": 31}, SOUNDS=32, REVERB=33, REC=34,
+             PATTERN=35, PROJECT=44)                                                # (SLOOP 3.4.2: PG_PAT, PG_PROJ in fw/main.c)
 GROUP = {}                                                                          # a page -> the button whose taps go through its pages
 for _b, _names in dict(EDIT="OSC,FILTER,VOICE,PLUS,YOURS,SOUNDS,KIT,DRUM SOUND", FX="SENDS,INSERT,INSERT MIX,SLICER,DELAY,REVERB,MASTER", ARP="ARP,ARP 2",
                        SEL="KEY,KEY 2", ENV="ENV,ENV 2", LFO="LFO,LFO 2,LFO 3", GLO="GLOBAL,TEXTURE,TEXTURE 2,MIDI,MIDI 2,REC").items():

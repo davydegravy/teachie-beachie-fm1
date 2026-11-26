@@ -2,8 +2,8 @@
 
 - **Part:** 1, your first beat
 - **The idea:** a beat is three simple layers.
-- **The learner does:** adds the snare on boxes 5 and 13 and the hats between the kicks, picking each drum by
-  playing its key first.
+- **The learner does:** adds the snare on boxes 5 and 13 and the hats between the kicks, picking each drum with
+  its black key first.
 - **Got it when:** they can name the three layers and pick a drum without being told which key.
 - **Song:** HOUSE ONE, section C, its first bar. The drums start with only the four kicks from lesson 2.
 - **Style in the end:** house, then hip-hop from lesson 4 on
@@ -11,51 +11,57 @@
 
 ## Steps
 
-1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; drums KICK on 1 5 9 13; mute bass lead chords pad; track drums; page STEPS
+1. **Setup:** song HOUSE ONE section C, 1 bar; drums empty; drums KICK on 1 5 9 13; mute bass lead chords pad; track drums; pick KICK; page STEPS
 2. **Card:** Last lesson had / four kicks. / A beat has three layers: / kick, snare and hat. // Now let's take a look / at the other two.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY]. / Your four kicks.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Card:** Each key is / a different drum. / Play one to pick it. / The selected drum / can then be put / into the boxes.
+4. **Card:** Each black key is / a different drum. / Tap one to pick it. / The selected drum / can then be put / into the boxes.
    - **OCT+:** Next
-5. **Strip:** Pick the snare: / play [KEY 3].
-   - **Do:** tap box 3
+5. **Card:** The top names / the selected drum. / Now it says KICK. // Some black keys hold / two drums. Tap again / for the other one.
+   - **OCT+:** Next
+6. **Strip:** Pick the snare: tap [BLACK 2].
+   - **Do:** tap black 2
+   - **Until:** drums picked SNARE
+   - **Hint:** Tap [BLACK 2] until / the top says SNARE.
    - **Page:** STEPS
-6. **Strip:** Now hold [SEQ] and tap [5] and [13].
-   - **Do:** hold SEQ, tap box 5 13
+7. **Strip:** Now tap [5] and [13].
+   - **Do:** tap box 5 13
    - **Until:** drums has SNARE on boxes 5 13
-   - **Hint:** If the top says KICK, play [3] first.
-7. **Reply:** Good.
-8. **Card:** Every 4 boxes is a beat. / Kick on every beat. / Snare on beats 2 and 4: / the backbeat. / Most songs you know / have a backbeat. *(beginners only)*
+   - **Hint:** Tap each blinking key.
+8. **Reply:** Good.
+9. **Card:** Every 4 boxes is a beat. / Kick on every beat. / Snare on beats 2 and 4: / the backbeat. / Most songs you know / have a backbeat. *(beginners only)*
    - **OCT+:** Next
-9. **Strip:** Now pick the hat: / play [5].
-   - **Do:** tap box 5
-   - **Page:** STEPS
-10. **Strip:** Hold [SEQ]. Hats on [3], [7], [11], [15]: between the kicks.
-    - **Do:** hold SEQ, tap box 3 7 11 15
+10. **Strip:** Pick the hat: tap [BLACK 5].
+    - **Do:** tap black 5
+    - **Until:** drums picked HAT
+    - **Hint:** Tap [BLACK 5] until / the top says HAT.
+    - **Page:** STEPS
+11. **Strip:** Hats on [3], [7], [11], [15]: / between the kicks.
+    - **Do:** tap box 3 7 11 15
     - **Until:** drums has HAT on boxes 3 7 11 15
-    - **Hint:** If the top does not say HAT, play [5] first.
-11. **Reply:** Nice.
-12. **Card:** The grid has a row / for each drum. // The keys for the selected / drum will light up.
+    - **Hint:** Tap each blinking key.
+12. **Reply:** Nice.
+13. **Card:** The grid has a row / for each drum. // The keys for the selected / drum will light up. // [KNOB1] picks one too.
     - **OCT+:** Next
-13. **Card:** More hats? / One in every odd box / makes it rush along. // Write them, or / have them written.
+14. **Card:** More hats? / One in every odd box / makes it rush along. // Write them, or / have them written.
     - **OCT-:** I will
     - **OCT+:** Finish it → drums HAT on 1 5 9 13
-14. **Strip:** Hold [SEQ]. Hats on [1], [5], [9], [13] too.
-    - **Do:** hold SEQ, tap box 1 5 9 13
+15. **Strip:** Hats on [1], [5], / [9] and [13] too.
+    - **Do:** tap box 1 5 9 13
     - **Until:** drums has HAT on boxes 1 3 5 7 9 11 13 15
-    - **Hint:** If the top does not say HAT, play [5] first.
-    - **Robot:** tap box 5, hold SEQ, tap box 1 5 9 13
-15. **Setup:** unmute; play
-16. **Strip:** Kick, snare, hat. / And the band.
+    - **Hint:** Tap each blinking key.
+    - **Robot:** tap box 1 5 9 13
+16. **Setup:** unmute; play
+17. **Strip:** Kick, snare, hat. / And the band.
     - **Wait:** 4 bars
-17. **Strip:** Wrong box? Hold [SEQ] / and tap it again. / [OCT+] when done.
+18. **Strip:** Wrong box? Tap it again. / [OCT+] when done.
     - **OCT+:** Done
-18. **Strip:** Press [PLAY] to stop.
+19. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-19. **Card:** Kick, snare, hat. / Three layers, / one drum beat. // And you made it.
+20. **Card:** Kick, snare, hat. / Three layers, / one drum beat. // And you made it.
     - **OCT+:** Done
 
 ## Screens
@@ -66,9 +72,17 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Notes for the AI assistant
 
-- The one trap: the drum that boxes write is the drum played last. If the learner plays the kick key and then taps
-  box 5 with SEQ held, the kick in box 5 is removed. The hints say how to get back; if kicks have gone missing,
-  say so and help put them back (white key 1, then SEQ and the box).
+- The one trap: the boxes write the drum selected, the one named at the top of the grid. If the kick is selected and
+  the learner taps box 5, the kick in box 5 is removed. The lesson notices a wrong drum by itself: it says `Another
+  drum is picked. / Tap the blinking key.` and blinks the right drum's black key, not the boxes. If kicks have gone
+  missing, say so and help put them back (`[BLACK 1]`, then the box).
+- On the grid a black key picks the drum and makes no sound; a white key is a box (SLOOP 3.4.2). The picture in
+  `[BLACK 2]` is a black key, the second from the left; lesson 1 introduced it.
+- Five black keys hold two drums in turns: `[BLACK 1]` KICK and KICK2, `[BLACK 2]` SNARE and SNR 2, `[BLACK 5]` HAT and
+  PEDAL, `[BLACK 7]` TOM L and TOM H, `[BLACK 10]` SHAKE and CONGA. Tapped again, the key gives the other; step 5's
+  card says so, and the pick steps wait until the top names the right one.
+- [KNOB1] on the grid (SOUND) goes through all 16 drums by name. Step 13's card names it once; the lessons use the
+  black keys.
 - "Backbeat" is the only new music word. Use it again in later lessons.
 - If they choose I WILL in step 13 and then struggle, FINISH IT is still there next time round.
 
@@ -89,3 +103,25 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   DRUM. / THE BOXES THEN WRITE IT. / SO FIRST PICK THE SNARE.`), and the strips say `PICK THE SNARE: / PLAY [KEY
   3].` and `NOW PICK THE HAT: / PLAY [5].`
 - The free step near the end says `WRONG BOX? TAP IT AGAIN.` 19 steps: from old step 4 on, add one.
+
+2026-11-25, the move to SLOOP 3.4.2. On its drum grid a black key picks the drum (in silence), a white key is a box
+with no [SEQ] held, and playing a drum's white key there no longer picks it: this lesson stopped at step 6 when a
+computer led it. The whole lesson was shown at once ("can you show me all of the next lesson all at once?").
+
+- **Step 4, the explanation, kept** ("for step 4 we have what amounts to an explanatory step. I'm worried we lose that
+  with this suggestion. maybe we can add a card and then have the suggestion?"): `Each black key is / a different drum.
+  / Tap one to pick it. / The selected drum / can then be put / into the boxes.` Two words changed: "black key" for
+  "key", "Tap" for "Play". The first suggestion had replaced it with a shorter card.
+- **A new card after it, step 5:** `The top names / the selected drum. / Now it says KICK. // Some black keys hold /
+  two drums. Tap again / for the other one.` Its second half is the course's author's: "if they hit the black key
+  again its another drum right? shouldn't we mention that too?"
+- **The pick steps, on one line** ("for that strip can it all fit on one line?"): `Pick the snare: tap [BLACK 2].` (was
+  `Pick the snare: / play [KEY 3].`) and `Pick the hat: tap [BLACK 5].` (was `Now pick the hat: / play [5].`; with
+  "Now" it is 223 px of 220). Each waits for the drum picked (`drums picked SNARE`) and has a hint: `Tap [BLACK 2]
+  until / the top says SNARE.`
+- **The boxes without [SEQ]:** `Now tap [5] and [13].`, `Hats on [3], [7], [11], [15]: / between the kicks.`, `Hats on
+  [1], [5], / [9] and [13] too.`, `Wrong box? Tap it again. / [OCT+] when done.` Their hints are `Tap each blinking
+  key.`: the old ones (`If the top says KICK, play [3] first.`) are the lesson's own doing now.
+- **Step 13, the card about the grid,** one line more: `[KNOB1] picks one too.` (decision 2: [KNOB1] shown once as the
+  other way).
+- The setup picks the kick, so the lesson starts with KICK at the top. 20 steps: from old step 5 on, add one.

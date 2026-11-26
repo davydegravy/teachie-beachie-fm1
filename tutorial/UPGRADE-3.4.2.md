@@ -80,7 +80,7 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
    spare characters by `tools/mklessonfont.py`, its word in `tools/mkcourse.py`, `tutorial/tp/teach.py` and
    `tutorial/lessons/README.md`. Shown to the course's author before a lesson uses it. Other pictures only where
    the lessons in step 4 show a need.
-4. **The lessons, a part at a time,** from `tutorial/upgrade/worksheet.md`: part 1 (1 to 7, the drum grid), part 2
+4. **The lessons, a part at a time** (**begun 2026-11-25**: "Step 4: the lessons", below), from `tutorial/upgrade/worksheet.md`: part 1 (1 to 7, the drum grid), part 2
    (8 to 15: SEQ, SEL, the piano roll), part 3 (16 to 23: patterns, the sound pages), part 4 (24 to 30: chains,
    songs, saving). Each change shown first as Today / Suggested, one screen line per line, measured. After each
    lesson: `python3 tutorial/check.py N`, `--run N`, `tutorial/device.py N`. Their notes for the AI assistant too.
@@ -546,9 +546,50 @@ their letters.
   the lessons (the picture) and without (the words).
 - **Other pictures:** none yet. Decision 12 has them only where a lesson in step 4 shows the need.
 
+## Step 4: the lessons (begun 2026-11-25)
+
+One lesson and one choice at a time, each change shown as Today / Suggested with its lines measured. What changed
+and why, with the course's author's words, is in each lesson's own Tester notes; here, where each lesson stands.
+After a lesson: `python3 tutorial/check.py N`, `--run N` and `tutorial/device.py N`, then the picture the run
+rewrote put back (`git checkout -- tutorial/lessons/screens`).
+
+| Lesson | Stands | What changed |
+|---|---|---|
+| 1, Hello | done 2026-11-25; all three checks pass | Nothing of it touches a change of 3.4.2 (no flag in the worksheet; it played through both ways as it was; its counts, 153 sounds and 37 drum kits, are 3.4.2's too). One card added, step 6, with its `Good.`: the black key's picture introduced with the cards' other rules and tapped at once ("Yes, add it"). 23 steps |
+
+| 2, Sixteen boxes | done 2026-11-25; all three checks pass | The drum grid: a white key is a box by itself. The kick is played on the tracks page, before [SEQ] (it was played on the grid, where that key now writes in silence); the card says once that a tap fills a box and makes no sound; three strips and two hints lose "hold [SEQ]"; the free step in the course's author's words (`Tap it again: removed.`). 17 steps |
+
+| 3, Kick, snare, hat | done 2026-11-25; all three checks pass (it had stopped at step 6 with the computer leading) | A drum is picked with its black key: `Pick the snare: tap [BLACK 2].`, `Pick the hat: tap [BLACK 5].`, each waiting for `drums picked ...`, with a hint. The explanatory card kept, with "black key" and "Tap" ("I'm worried we lose that"), and a new card after it: the top names the selected drum; some black keys hold two drums ("shouldn't we mention that too?"). The boxes without [SEQ]; [KNOB1] named once. Shown whole, at once. 20 steps |
+
+| 4, The drum kit | done 2026-11-26; all three checks pass | A new lesson under the old name, on the grid: lesson 3's beat, then the clap with its black key, the two toms that share one (tap again for the other), any of the 16 with [KNOB1], then the kits as before. First moved whole to SLOOP's KIT page and approved, then rethought ("if we are just trying to preserve an old lesson that doesn't seem like it should be a priority"). Gone: playing every white key, the play-along step. 20 steps |
+
+| 5, Meet the tracks | done 2026-11-26; unchanged; plays through both ways | Nothing of it touches a change of 3.4.2: [GLO] held still shows the MIX page, with the mutes on 1 to 5 and the solos on 6 to 10 |
+
+| 6, Faster, slower, oops | done 2026-11-26; all three checks pass (it had stopped at the save both ways) | The boxes without [SEQ]; undo's 3 moves (the card said 8); saving as SLOOP 3.4.2 has it: `Press [SAVE] twice: / the PROJECT page.`, then `Turn [KNOB1]: SAVE.`, both strips along the top so the page's big SAVE and its name in the corner show ("I don't see that in the screenshot": the first placing covered the corner it named); the save card says SLOOP also saves by itself. `PROJECT` and `PATTERN` are page names for the lessons now (`tutorial/tp/lesson.py`). 22 steps |
+
+| 7, Your own beat | done 2026-11-26; all three checks pass (it had stopped at its free step both ways) | Its purpose and shape kept: a beat made alone, then saved. The card of moves for the new grid (`Pick a drum: a black key / or [KNOB1]. / A white key: a box fills. / Tap again: it empties.`); saving as in lesson 6, two strips along the top. 11 steps |
+
+**Part 1 (lessons 1 to 7) is done:** all seven play through both ways, together as well as one by one, and the build's
+page tests pass with them. The pack is 55,428 bytes (54,466 before part 1); the slot keeps 7,763 blank bytes (1,024 is
+the least).
+
+**To carry into the lessons that follow:** the picture is known from lesson 1, step 6, and lesson 3 says what a
+black key does on the grid (steps 4 and 5: it picks the drum; some hold two). The words the course's author keeps:
+"selected" for the drum the boxes write, "pick" for the act, "the top" for where its name shows. **A lesson is
+kept for what it teaches on 3.4.2, not for its old shape** (lesson 4): ask first what a learner needs it for now.
+The white keys as drums (the tracks page; SLOOP's KIT page names all 16) are left for lesson 17, where a roll is
+played on one; lessons 2 to 4 use them as boxes. With a key's first drum already selected, one tap gives its second. **A strip never points at something it, or
+the next strip, covers** (lesson 6): look at the step's screenshot for the thing the words name. On SLOOP 3.4.2's
+knob pages the page's name is small in the bottom right corner and the knob names are at the top. Saving: `Press
+[SAVE] twice: / the PROJECT page.`, `Turn [KNOB1]: SAVE.` (strips at the top), from the tracks page or a drum page. A whole lesson is
+shown at once, each changed card as Today / Suggested, after it has played through both ways from a scratch copy
+(`trylesson.py` in the session's scratch folder: a lesson file from a folder, packed alone, played by `device.play`
+and by `Player.play` with a robot).
+
 ## Not done
 
-Everything in "The plan for the full move" after step 3's black key. Nothing from here has been on a real FM-1.
+Lessons 2 to 30 of step 4, then steps 5 to 10 of "The plan for the full move". Nothing from here has been on a real
+FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot

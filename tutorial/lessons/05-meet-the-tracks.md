@@ -80,3 +80,6 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 2026-11-20, the round from the notes ("go back and make adjustment based on all of the notes").
 
 - Framed key names (`TAP [KEY 1]`, `[GLO] AND [4], [3], [2]`), and `NOT YET. BRING EVERY TRACK BACK FIRST.`
+
+2026-11-26, the move to SLOOP 3.4.2: nothing changed. [GLO] held still shows SLOOP's MIX page (`1-5 MUTE`, `6-10 SOLO`),
+and the mutes and solos work as before; the lesson plays through both ways as it was.
