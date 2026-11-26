@@ -75,7 +75,8 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
      SAVE on the tracks page opens `SONG 2/3`, not `SONG` (lessons 25 and 26).
    - A new mark for the pack (`TPC4`), so a 3.3.7 Teachie Beachie finds no 3.4.2 lessons ("Step 1: the room made",
      below).
-3. **The icons** (decision 12; the pack, no firmware): the black key's picture first, drawn into one of the nine
+3. **The icons** (decision 12; the pack, no firmware; **the black key's picture done 2026-11-25**: "Step 3", below):
+   the black key's picture first, drawn into one of the nine
    spare characters by `tools/mklessonfont.py`, its word in `tools/mkcourse.py`, `tutorial/tp/teach.py` and
    `tutorial/lessons/README.md`. Shown to the course's author before a lesson uses it. Other pictures only where
    the lessons in step 4 show a need.
@@ -83,6 +84,7 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
    (8 to 15: SEQ, SEL, the piano roll), part 3 (16 to 23: patterns, the sound pages), part 4 (24 to 30: chains,
    songs, saving). Each change shown first as Today / Suggested, one screen line per line, measured. After each
    lesson: `python3 tutorial/check.py N`, `--run N`, `tutorial/device.py N`. Their notes for the AI assistant too.
+   The first card that shows the black key's picture (`[BLACK 1]`) says what it is.
 5. **The whole course:** `python3 tutorial/device.py` (about 7 min) and `python3 tutorial/check.py --run` (about
    4.5 min): all 30 through.
 6. **The frames that answer the controls** (decision 11; the guide in `fw/main.c`, a firmware change, so said
@@ -515,9 +517,38 @@ ran them, a new run would need this same review, and step 1 was already on GitHu
 `tutorial/upgrade/drumcheck.py`; the start screen with the lessons, drawn once, the logo's file pixel for pixel at
 0.7 s and 1.7 s, and the name without them. The 30 lessons: on the FM-1's own course (`tutorial/device.py`, 6 min 26 s) 21 play through and the same nine stop at the same steps as before step 2 (6, 7, 8, 13, 15, 16, 23, 25, 26); with the computer leading (`tutorial/check.py --run`, 4 min 12 s) 22 play through and eight stop (6, 7, 8, 15, 16, 23, 25, 26). Lessons 3 and 17 get through since step 2, because the computer now picks the drum the 3.4.2 way at a step's start; their words still teach the old way. Lesson 12 got through this once by accident: the robot repeated its four keys until twelve single notes had piled up, and the chords are still not on ([KNOB3] is SNAP now). All of these are still for step 4.
 
+## Step 3: the black key's picture (2026-11-25)
+
+Decision 12, the first picture. No firmware change: the lessons' fonts are in the pack, and the picture is one of
+their letters.
+
+- **The picture:** two white keys in outline and the black key between them, filled, as high as a capital, in the
+  letters' ink. It takes the place of `@`, which no lesson's words use, at both sizes (11 x 13 px on cards and
+  strips, 21 x 25 on big cards). `tools/mklessonfont.py` draws it (at 8 times the size, then shrunk) with the font;
+  every other letter of `assets/fonts/lessons-font.bin` is byte for byte what it was. The pack is 92 bytes smaller
+  (the picture is smaller than the letter it replaces): 54,466 bytes, 8,725 blank in the slot.
+- **Chosen from three,** each shown on the simulated FM-1's screens (a strip over the drum grid, a card, a big card):
+  this one; the key alone, a bar; this one with the white keys in a lighter ink. The course's author: "The first
+  one shows three keys but its easier to see that they are keys", then "I think I like the first one better at the
+  beginning we can just tell the user that this is supposed to be a black key".
+- **In a lesson file:** `[BLACK 2]` on a card, a strip or a hint is the second black key from the left (of eleven):
+  `tutorial/tp/lesson.py`, `words()`, turns it into the picture and the number in a frame, so the pack and the
+  computer both get it and `tutorial/check.py` measures it as it will be drawn. In Do, Robot, Lights and Follow:
+  `black 2` (`keys_of`; `black 1` to `black 11`). `tutorial/lessons/README.md` has both.
+- **An FM-1 with no lessons on it, led by a computer,** draws cards in SLOOP's own letters, which have no pictures:
+  `tutorial/tp/fm1.py`, `card()`, asks once whether the lessons are there (`has_lessons`) and sends the words
+  `[BLACK 2]` instead.
+- **For step 4:** the first card that uses the picture says what it is (the first drum lesson). For step 6 (the
+  frames that answer the controls): a frame with the picture is that black key's.
+- **Checked:** `tutorial/upgrade/drumcheck.py`, whose test lesson now says `tap [BLACK 2]` on its strip and
+  `black 2` in its Do (the snare's black key blinks; the lesson plays through both ways); `tutorial/check.py`
+  reads all 30 lessons; `fw/build.sh` with `install_sim` and `lessons_sim`; the two screens side by side, with
+  the lessons (the picture) and without (the words).
+- **Other pictures:** none yet. Decision 12 has them only where a lesson in step 4 shows the need.
+
 ## Not done
 
-Everything in "The plan for the full move" after step 2. Nothing from here has been on a real FM-1.
+Everything in "The plan for the full move" after step 3's black key. Nothing from here has been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot

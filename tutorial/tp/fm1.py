@@ -135,7 +135,13 @@ class FM1:
     def card(self, words, left="", right="", big=False, strip=0):
         """strip: 0 a whole card, 1 a band at the top, 2 at the bottom, 3 a tag in the top left corner (the page stays live around it)"""
         t = lambda s: s.encode("ascii", "replace") + b"\0"
+        if "@" in words and not self.has_lessons():                     # (no lessons on this FM-1: SLOOP's own letters, which have no pictures)
+            import re; words = re.sub(r"\[@(\d*)\]", lambda m: "[BLACK %s]" % m.group(1) if m.group(1) else "[BLACK]", words)
         return self.guide(1, bytes([1 | (2 if big else 0) | strip << 2]) + t(words) + t(left) + t(right))
+    def has_lessons(self):
+        """the lessons are on this FM-1 (so its cards are drawn in their font, pictures and all); asked once"""
+        if getattr(self, "_has", None) is None: self._has = self.course()[3] > 0
+        return self._has
     def no_card(self): return self.guide(1, bytes([0, 0, 0, 0]))
     def keep(self, tracks):
         """(SLOOP 3.4) these tracks' patterns and sounds, as they play now, made their saved copy, so a change of pattern
@@ -250,6 +256,7 @@ class FM1:
                 except Refused as e:
                     if e.reason != 2 or time.time() > end: raise
                     time.sleep(0.05)
+        self._has = None                                                # (the lessons may come or go with this slot)
         job(bytes([1, k])); off = 0
         while off < len(data): c = data[off:off + 400]; job(bytes([2, k]) + off.to_bytes(4, "little") + c); off += len(c)
         return job(bytes([3, k]) + head)

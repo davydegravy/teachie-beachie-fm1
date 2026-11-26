@@ -165,6 +165,13 @@ name in `[ ]` is drawn in a thin border, as the cards say it (`A name with a bor
 that starts with `_` is a heading: small, and underlined (`_Repeat after me`); on a Big card, a line that starts
 with `^` is small without the line. The mark itself is not drawn.
 
+**A black key** is written `[BLACK 2]`: the second black key from the left (there are eleven). The FM-1 draws a small
+picture of a black key between two white ones, and the number, in the border; a white key stays `[5]`. On SLOOP
+3.4.2's drum grid a black key picks the drum: `[BLACK 1]` the kick, `[BLACK 2]` the snare, `[BLACK 5]` the hat. The
+first card that uses the picture says what it is. The picture is one letter of the lessons' font
+(`tools/mklessonfont.py`), measured like any other; an FM-1 with no lessons on it, led by a computer, shows the words
+`[BLACK 2]` in its place.
+
 Two more marks, for a card (2026-11-22):
 - **A gap, ` // `** (two slashes, a space on each side): a new line with a little air before it, where a second
   thought begins (`This tune has / one wrong note. // No need to start over.`). The FM-1 draws it 8 px high, and 16
@@ -218,7 +225,8 @@ A step marked `*(beginners only)*` is left out on the path for people who know g
 
 Buttons: `OCT-` `OCT+` `FX` `SEL` `ENV` `LFO` `EDIT` `GLO` `HOME` `SAVE` `ARP` `SEQ` `PLAY` `REC`.
 Knobs: `SELECT` `ALGORITHM` `PRESETS` `KNOB 1` to `KNOB 4`.
-Keys: a note's name from `F3` to `G5`, or `box 1` to `box 16` for the white keys from the lowest up.
+Keys: a note's name from `F3` to `G5`, `box 1` to `box 16` for the white keys from the lowest up, or `black 1` to
+`black 11` for the black keys.
 
 ### The words of Until
 

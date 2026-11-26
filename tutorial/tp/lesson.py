@@ -31,6 +31,7 @@ from .song import load_spec, TRACK, PAD as GM_PAD
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 WHITE = [k for k in range(27) if (53 + k) % 12 in (0, 2, 4, 5, 7, 9, 11)]          # the 16 white keys, F3 to G5
+BLACK = [k for k in range(27) if k not in WHITE]                                    # the 11 black keys, F#3 to F#5, from the left
 PADS = ["KICK", "KICK2", "SNARE", "CLAP", "HAT", "OPEN", "PEDAL", "RIM", "SNR 2", "TOM L", "TOM H", "CRASH", "RIDE", "SHAKE", "CONGA", "BELL"]
 PAGES = dict(TRACKS=0, STEPS=1, OSC=2, FILTER=3, VOICE=4, ENV=5, **{"ENV 2": 6}, SENDS=7, KIT=8, GLOBAL=9, SONG=10, LFO=11, KEY=12, ARP=13,
              **{"LFO 2": 14}, MASTER=15, PLUS=16, **{"ARP 2": 17}, DELAY=18, **{"DRUM SOUND": 19, "KEY 2": 20}, MIDI=21, **{"MIDI 2": 22}, NOTES=23,
@@ -62,11 +63,14 @@ def midi_of(word):
     return 12 * (int(m.group(3)) + 1) + "C D EF G A B".index(m.group(1)) + (1 if m.group(2) else 0) if m else None
 
 def keys_of(text, phrases=None):
-    """the keys a few words name: note names, "box 1 5 9", "white key 3", "pad SNARE", or a phrase by its name"""
+    """the keys a few words name: note names, "box 1 5 9", "white key 3", "black 2" (the second black key from the left),
+    "pad SNARE", or a phrase by its name"""
     out, mode = [], None
     for w in text.replace(",", " ").split():
         u = w.upper()
         if phrases and u in phrases: out += phrases[u]; continue
+        if u == "BLACK": mode = "black"; continue
+        if u in ("KEY", "KEYS") and mode == "black": continue
         if u in ("BOX", "BOXES", "KEY", "KEYS", "WHITE"): mode = "white"; continue
         if u == "PAD": mode = "pad"; continue
         if mode == "pad":
@@ -76,6 +80,7 @@ def keys_of(text, phrases=None):
         k = key_of(w)
         if k is not None: out.append(k); continue
         if u.isdigit() and mode == "white" and 1 <= int(u) <= 16: out.append(WHITE[int(u) - 1]); continue
+        if u.isdigit() and mode == "black" and 1 <= int(u) <= 11: out.append(BLACK[int(u) - 1]); continue
         raise Bad("not a key: %s (in \"%s\")" % (w, text))
     return out
 
@@ -150,7 +155,9 @@ def wrap(text, font):
 def words(text):
     """the words as the FM-1 gets them. In the file " / " is a new line on the screen and " // " a gap between two thoughts:
     an empty line, which the FM-1 draws 8 px high and does not count as a line. On a card of 4 lines or fewer each gap is
-    two of them, 16 px (2026-11-22)"""
+    two of them, 16 px (2026-11-22). A black key, [BLACK 2] in the file, becomes its picture and its number in the frame:
+    the picture is the character @ of the lessons' fonts (tools/mklessonfont.py)"""
+    text = re.sub(r"\[BLACK(?: (\d+))?\]", lambda m: "[@%s]" % (m.group(1) or ""), text)
     w = re.sub(r"\s+/\s+", "\n", re.sub(r"\s+//\s+", "\n\n", text.strip()))
     if "\n\n" in w and len([x for x in wrap(w, "s") if x]) <= 4: w = w.replace("\n\n", "\n\n\n")
     return w

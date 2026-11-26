@@ -306,3 +306,9 @@ characters show as `?`. The computer can ask the FM-1 how many lessons it has (`
 instead.
 
 When: the black key before part 1 of the lessons, which needs it.
+
+**2026-11-25, the black key's picture chosen:** two white keys in outline and the black key between them, filled.
+Shown beside the key alone (a bar) and beside itself with the white keys in a lighter ink: "The first one shows three
+keys but its easier to see that they are keys"; "I think I like the first one better at the beginning we can just
+tell the user that this is supposed to be a black key". So the first card that uses it says what it is. In a lesson
+file it is `[BLACK 2]` (the second black key from the left), and `black 2` in Do.

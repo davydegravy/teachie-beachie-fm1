@@ -56,6 +56,8 @@ def fm1(seed):
         if not until(lambda: f.course()[0] == PH["TOC"], 6): check(False, "START begins the FM-1's own course"); return
         device.tap(link, "button", BTN["OCT_UP"]); device.tap(link, "button", BTN["OCT_UP"])
         check(until(lambda: at() == (PH["DO"], 1, 1), 6), "step 2, Pick the snare: waiting (%s, step %d)" % (NAME.get(at()[0]), at()[2] + 1))
+        time.sleep(0.3); link.shot("pick-the-snare")                # (its strip: the black key's picture and 2, in a frame)
+        check(blinks(link, light_of_key(G_SHARP)), "black 2 in its Do: the snare's black key blinks")
         tap(link, A_SHARP); time.sleep(0.4)
         check(picked() == RIM and at()[2] == 1, "the rim's black key: RIM picked, the step waits (picked %s, step %d)" % (L.PADS[picked()], at()[2] + 1))
         tap(link, G_SHARP)
