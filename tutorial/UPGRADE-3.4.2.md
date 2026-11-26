@@ -644,9 +644,68 @@ them. The pack is 56,064 bytes (55,428 before part 2); the slot keeps 7,127 blan
 - **Not built, possible now:** an `Until` word for the piano roll's STEP (`step is 7`), since the lesson player can
   read it. Lesson 13's three `[KNOB1] to step N.` strips still count clicks.
 
+### Part 3, lessons 16 to 23 (2026-11-26)
+
+Prepared and shown as part 2 was: all eight drafted in scratch copies and played both ways first, then one lesson at
+a time, each written into its file when approved, and the checks once at the end. No firmware change in this part.
+
+| Lesson | Stands | What changed |
+|---|---|---|
+| 16, Eight patterns | done; all three checks pass (it had stopped at the copy both ways) | Renamed (was "Eight pages": the file, its picture, the tables in `tutorial/lessons/README.md` and `tutorial/PLAN.md`) and reworked in a new order (decision 4): 3.4.2 has no "copy this page". The learner adds two kicks, saves that into pattern 2 (`Hold [SAVE] + [2] until / the top says SAVED.`) and stays on pattern 1; then [SAVE] + [1] brings pattern 1 back as saved and the kicks go away. "Page" is "pattern" throughout. The save step puts itself right when the key is let go too early (its first hint; played both ways). 15 steps |
+| 17, Fills and rolls | done; all three checks pass (it had stopped at the fill note both ways) | The fill note is made on the note's sheet, with nothing held while something else is pressed: `[BLACK 7]` picks the tom, a tap on [12] writes it, [OCT+] held opens the sheet, [KNOB1] to the line FILL, [OCT+] once, [OCT-] closes. The three-finger move ([SEQ] + a key + [OCT+]) and its card are gone: the tester notes call it the most confusing step of the course. The roll's card says the white keys play the drums while [ARP] is held. 22 steps |
+| 18, Play the effects | done; unchanged; all three checks pass | Nothing of it touches a change of 3.4.2: the map with [FX] held and the lock are as before. 3.4.2 adds four dials along the map's bottom |
+| 19, Echo and space | done; all three checks pass (it played through before, with the old names) | The pages' names (`FX 1/7`, `DLY 6/7`) and the knobs' (DLY, REV, TIME, FDBK). The knob strips at the bottom; the two that look for a page at the top, saying which corner: `Tap [FX] until the bottom / corner says FX 1/7.` ("where does it say FX 1/7"). 17 steps |
+| 20, Color a track | done; all three checks pass (it played through before) | `Tap [FX] until the bottom / corner says INSERT 4/7.`, at the top ("I see it now, It changes to insert"); FILTER for FILT in the four filter strips and their hint. The strips keep their sides. 19 steps |
+| 21, Shape a sound | done; all three checks pass (it played through before) | The two [ENV] strips at the bottom; `[EDIT] until the bottom / corner says FLT 2/6.` (two pages sound alike, `FLT 2/6` and `FILTER 3/6`). 19 steps |
+| 22, Wobble and arps | done; all three checks pass (it played through before) | The five knob strips at the bottom; the two page strips at the top: `[LFO] until the bottom / corner says LFO DEST.`, `... LFO 1/3.` 22 steps |
+| 23, Your own piece, live | done; all three checks pass (it had stopped at the copy both ways) | Lesson 16's and lesson 17's moves, in lesson 16's order: change the beat, mark a fill note on the sheet, save all of it into pattern 2. The card of moves; saving as in lessons 6, 7 and 15; hints for a box emptied by the tap (`NO HIT HERE`) and for a key let go too early (played both ways). 14 steps |
+
+**Part 3 (lessons 16 to 23) is done:** lessons 1 to 23 play through both ways, and the build's page tests pass with
+them. The pack is 56,460 bytes (56,064 before part 3); the slot keeps 6,731 blank bytes (1,024 is the least). The
+firmware is as it was after part 2.
+
+**Left for step 9:** the top-level `README.md` still lists lesson 16 as "Eight pages"; `tutorial/upgrade/worksheet.md`
+keeps the old name, as the record of what was to change.
+
+**To carry into the lessons that follow:**
+
+- **3.4.2's knob pages are of two kinds, and a strip's side follows from the kind** (decision 7, as built):
+  - *Four big values in the middle,* repeating the small row at the top (`SEL 1/2`, `INSERT 4/7`, `FLT 2/6`): a knob
+    strip at the top.
+  - *A picture in the middle* (sliders, a wave, the sound's shape, the arpeggio's notes), with the knobs' names and
+    values only in the small row at the top (`FX 1/7`, `DLY 6/7`, `ENV 1/2`, `LFO 1/3`, `LFO DEST 3/3`, `ARP 1/2`): a
+    knob strip at the bottom.
+  - A strip that looks for a page is at the top on both, and says where to look: `Tap [FX] until the bottom / corner
+    says FX 1/7.` With a wider button the line starts with it: `[EDIT] until the bottom / corner says FLT 2/6.`
+  - With a button held the dials are along the bottom ([FX]: the map and FILTER, DUST, DUCK, TRK FLT; the note's
+    sheet: LINE, its value, OCT+, OCT- CLOSE): strips at the top. With [SAVE] held the message waited for (SAVED) is
+    at the top: strips at the bottom.
+- **A page button opens the page it showed last** ([FX] and [LFO], tried; after [HOME] and in the next lesson too).
+  Never count taps: "until the bottom corner says". The pages, by their corner names: [FX] `FX 1/7`, `FILTER 2/7`,
+  `SLICER 3/7`, `INSERT 4/7`, `INSERT 2 5/7`, `DLY 6/7`, `REV/CHO 7/7`; [ENV] `ENV 1/2`, `ENV DEST 2/2`; [EDIT] on an
+  analog sound `OSC 1/6`, `FLT 2/6`, `FILTER 3/6`, `VOICE 4/6`, `VOICE 2 5/6`, then the sounds; [LFO] `LFO 1/3`, `LFO 2
+  2/3`, `LFO DEST 3/3`; [ARP] `ARP 1/2`, `ARP 2 2/2`.
+- **A lesson's picture is taken as each step begins,** before the button is pressed: it cannot show a page's name
+  that appears with the press. Where a strip names something on the screen, take a picture after the move, with the
+  strip in both placings, and show it with the lesson.
+- **Patterns** (part 4 builds on them): [SAVE] + a key held 1.5 s saves what plays into that pattern and stays where
+  it is; tapped, it goes there as saved, at the end of the bar, and a change not saved is gone. A key let go too
+  early goes to the pattern: if that one is empty the music stops and the change is lost, so the step's hint has to
+  give the way back (lessons 16 and 23). A pattern already used asks once more (`AGAIN: SAVE INTO 2`). Keys tapped one
+  after another with [SAVE] held make a chain (lesson 25). The robot's `long` hold (0.95 s) is too short for the save:
+  `Robot: hold SAVE, hold box 2, wait 2.2, let go`.
+- **A condition on drum boxes and a Do that taps a pattern's key do not go in one step:** the players take the key
+  for a box (the robot drops it and the key does not blink). Lesson 16's save step counts notes instead (`drums has
+  20 notes or more`).
+- **The note's sheet on the drum grid** is the sheet of the picked drum's hit in the box tapped last. A tap on a box
+  that already holds that drum empties it, and the sheet then says `NO HIT HERE`. LINE stays where it was left. FILL
+  marks every drum in the box. [SAVE] held closes an open sheet. SHOW ME does not make the mark; it only moves on.
+- **Still not built:** an `Until` word for the piano roll's STEP; the lesson cannot read the arpeggiator's settings
+  (lesson 22 counts clicks) nor the sheet's line.
+
 ## Not done
 
-Lessons 16 to 30 of step 4 (parts 3 and 4), then steps 5 to 10 of "The plan for the full move". Nothing from here has
+Lessons 24 to 30 of step 4 (part 4), then steps 5 to 10 of "The plan for the full move". Nothing from here has
 been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run

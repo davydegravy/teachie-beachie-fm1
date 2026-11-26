@@ -15,7 +15,7 @@
 3. **Strip:** Press [PLAY]. Track 1, / the bass, is chosen.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip:** Tap [FX] until / the screen says INSERT.
+4. **Strip top:** Tap [FX] until the bottom / corner says INSERT 4/7.
    - **Do:** press FX
    - **Until:** page is INSERT
    - **Robot:** press FX, press FX, press FX, press FX, press FX, press FX, press FX
@@ -40,17 +40,17 @@
     - **OCT+:** Next
 12. **Card:** _The filter knob / Left is LP: only / the low sounds stay. / Right is HP: only / the high sounds stay. / Middle is OFF.
     - **OCT+:** Next
-13. **Strip top:** [FX] and [KNOB1] left: / FILT goes past LP 40.
+13. **Strip top:** [FX] and [KNOB1] left: / FILTER goes past LP 40.
     - **Do:** hold FX, turn KNOB 1 left 5
     - **Until:** master filter below -40
-    - **Hint:** Hold [FX]. FILT is / the first dial below.
-14. **Strip top:** [FX] and [KNOB1] right / until FILT says OFF.
+    - **Hint:** Hold [FX]. FILTER is / the first dial below.
+14. **Strip top:** [FX] and [KNOB1] right / until FILTER says OFF.
     - **Do:** hold FX, turn KNOB 1 right 3
     - **Until:** master filter is 0
-15. **Strip top:** Keep turning right: / FILT goes past HP 40.
+15. **Strip top:** Keep turning right: / FILTER goes past HP 40.
     - **Do:** hold FX, turn KNOB 1 right 5
     - **Until:** master filter above 40
-16. **Strip top:** [FX] and [KNOB1] left / until FILT says OFF.
+16. **Strip top:** [FX] and [KNOB1] left / until FILTER says OFF.
     - **Do:** hold FX, turn KNOB 1 left 3
     - **Until:** master filter is 0
 17. **Strip:** Press [HOME].
@@ -72,9 +72,16 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 - The insert types in order on KNOB 1: OFF, SOFT, HARD, FOLD, FUZZ, CRUSH, PHASR, FLANG, CHOR. The other three
   knobs change meaning with the type; the screen names them.
+- The insert's page is `INSERT 4/7`, named in the bottom right corner (SLOOP 3.4.2). [FX] opens the FX page that was
+  shown last and goes round seven: after lesson 19 the first tap shows `DLY 6/7`, and it takes five more. The learner
+  taps until the corner says `INSERT 4/7`; a tap too many comes round again.
+- On the way there is a page called `FILTER 2/7`. That is a filter for one track, on a page of its own, and this
+  lesson does not use it. The lesson's filter is the first dial with [FX] held, over the whole song.
+- With [FX] held the screen is the map of the effects, with four dials along the bottom: FILTER, DUST, DUCK, TRK FLT.
+  That is why the filter's strips are at the top.
 - The filter knob stops at OFF in the middle, so it is easy to find again. Left of it is LP (dark), right is HP
   (thin).
-- FX held with KNOB 4 is the same filter for the chosen track only.
+- FX held with KNOB 4 (TRK FLT) is the same filter for the chosen track only.
 - A slow filter opening over four or eight bars is the classic build-up. Lesson 27 uses it.
 
 ## Tester notes
@@ -130,3 +137,16 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   KNOB.` 18 steps; the four turns are steps 12 to 15. The HP line says the same thing the other way round
   (`RIGHT IS HP: ONLY THE HIGH SOUNDS STAY.`, "Yes, match it"), so that L and H explain themselves.
 
+2026-11-26, the move to SLOOP 3.4.2. Its goal is the same and it played through as it was. Two names are 3.4.2's now;
+the strips keep their sides. Shown whole ("Yes, all of it").
+
+- **Step 4, along the top:** `Tap [FX] until the bottom / corner says INSERT 4/7.` (was, at the bottom, `Tap [FX] until
+  / the screen says INSERT.`). The course's author asked whether it should be at the bottom; then, of the corner: "I
+  see it now, It changes to insert". The name is in the bottom right corner and changes with each tap, so the strip
+  has to leave it in view. [FX] opens the FX page shown last, so the number of taps is not fixed.
+- **Steps 13 to 16 say FILTER, the dial's name on 3.4.2** (was FILT): `[FX] and [KNOB1] left: / FILTER goes past LP
+  40.`, `[FX] and [KNOB1] right / until FILTER says OFF.`, `Keep turning right: / FILTER goes past HP 40.`, `[FX] and
+  [KNOB1] left / until FILTER says OFF.`; the hint `Hold [FX]. FILTER is / the first dial below.`
+- **Step 3 stays at the bottom** (asked too): at the top it would cover track 1's row, which the strip talks about.
+- The insert strips stay at the top: the page shows its four values big in the middle, and its name shows under
+  them. Still 19 steps.

@@ -10,7 +10,7 @@
 
 ## Steps
 
-1. **Setup:** song HOUSE ONE section C, 1 bar; drums fill SNARE on 13 14 15 16; track drums; page STEPS
+1. **Setup:** song HOUSE ONE section C, 1 bar; drums fill SNARE on 13 14 15 16; track drums; pick KICK; page STEPS
 2. **Card:** A fill is a short / burst of drums. // It says: something / new is coming.
    - **OCT+:** Go
 3. **Strip:** Press [PLAY].
@@ -31,36 +31,46 @@
    - **Wait:** 2 bars
 9. **Card:** Now a fill note / of your own. // A note can be marked / to play only in a fill.
    - **OCT+:** Next
-10. **Strip:** Let go of [GLO]. / Pick the high tom: [11].
-    - **Do:** tap box 11
+10. **Strip:** Let go of [GLO]. / Pick the high tom: tap / [BLACK 7] until TOM H.
+    - **Do:** tap black 7
+    - **Until:** drums picked TOM H
+    - **Hint:** Tap [BLACK 7] until / the top says TOM H.
     - **Page:** STEPS
-11. **Card:** _Three at once / Hold [SEQ], hold [12], / then press [OCT+]. // Use both hands. Keep / the first two down.
-    - **OCT+:** Next
-12. **Strip:** Hold [SEQ] + hold [12]. / The top says STEP 12.
-    - **Do:** hold SEQ, hold box 12
+11. **Strip:** Tap [12]: a tom in box 12.
+    - **Do:** tap box 12
     - **Until:** drums has TOM H on box 12
-    - **Hint:** Hear a crash? [SEQ] was not held. Hold [SEQ] first.
-13. **Strip:** Keep holding both. / Press [OCT+] once.
-    - **Do:** hold SEQ, hold box 12, press OCT+
-    - **Until:** drums has 5 fill notes or more
-    - **Hint:** Hold [SEQ] + [12], then [OCT+] once. The top says FILL.
-    - **Hint:** Top says NO FILL? [OCT-] puts it back. Then [OCT+] once.
-14. **Card:** FILL. It worked. / Let go of everything. // The tom now plays / only in a fill.
+    - **Page:** STEPS
+12. **Card:** _The note's sheet / Hold [OCT+]: a sheet / opens for the tom in / box 12. // [KNOB1] picks a line. / [OCT+] changes it. / [OCT-] closes the sheet.
     - **OCT+:** Next
-15. **Strip:** Now [GLO], not [SEQ]: / hold [GLO], tap [12].
+13. **Strip:** Hold [OCT+] until / the top says SHEET.
+    - **Do:** hold OCT+, wait 1
+    - **Until:** says SHEET
+    - **Page:** STEPS
+14. **Strip top:** Turn [KNOB1] until / LINE says FILL. / Then [OCT+] once.
+    - **Do:** turn KNOB 1 right 2, press OCT+
+    - **Until:** drums has 5 fill notes or more
+    - **Hint:** [KNOB1]: LINE says FILL. / Then press [OCT+] once.
+    - **Hint:** Top says NO FILL? / [OCT+] twice more.
+    - **Page:** STEPS
+15. **Card:** FILL. It worked. // The tom now plays / only in a fill.
+    - **OCT+:** Next
+16. **Strip top:** [OCT-] closes the sheet.
+    - **Do:** press OCT-
+    - **Page:** STEPS
+17. **Strip:** Hear it: hold [GLO], / tap [12].
     - **Do:** hold GLO, tap box 12
     - **Wait:** 2 bars
-16. **Card:** A roll is one drum, / repeated fast. // Hold [ARP] and hold / a drum key.
+18. **Card:** A roll is one drum, / repeated fast. // Hold [ARP]: the white / keys play the drums. / Hold one: it rolls.
     - **OCT+:** Next
-17. **Strip:** Hold [ARP], hold [5]: / a hat roll.
+19. **Strip:** Hold [ARP], hold [5]: / a hat roll.
     - **Do:** hold ARP, long box 5
-18. **Strip top:** Speed: [ARP] + [KNOB1]. / Hear it: [ARP] + [5]. / [OCT+] when done.
+20. **Strip top:** Speed: [ARP] + [KNOB1]. / Hear it: [ARP] + [5]. / [OCT+] when done.
     - **OCT+:** Done
     - **Robot:** hold ARP, turn KNOB 1 right 1, long box 5, let go
-19. **Strip:** Press [PLAY] to stop.
+21. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-20. **Card:** _Fills and rolls / Fill: [GLO] + [11] or [12]. / Fill note: / [SEQ] + a key + [OCT+]. / Roll: [ARP] + a key.
+22. **Card:** _Fills and rolls / Fill: [GLO] + [11] or [12]. / Fill note: hold [OCT+], / LINE to FILL, [OCT+]. / Roll: [ARP] + a key.
     - **OCT+:** Done
 
 ## Screens
@@ -73,17 +83,32 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 - A fill does nothing unless some notes are marked FILL. That is why the lesson hides four snares in the beat
   first.
-- With SEQ and a box held, each press of OCT+ moves the box's rule on: ALWAYS, FILL, NO FILL, then others (1 OF 2,
-  chances). If the learner presses twice they get NO FILL: the note plays except in a fill. OCT- puts the box
-  back to ALWAYS.
-- The fill note is taught in stages (steps 11 to 14): a card says the move takes three fingers; SEQ and key 12
-  held puts the tom in and the top says STEP 12; OCT+ once makes it FILL; a card then says to let go. A crash
-  heard on the way means SEQ was not down when the key was pressed.
+- With [GLO] held the screen is the MIX page: key 11 is the fill while it is held (its FILL tile lights), key 12 the
+  fill for one whole bar. The other keys there mute and solo, which is why step 10 starts with "Let go of [GLO]".
+- The fill note is made on the note's sheet (SLOOP 3.4.2), one move at a time, with nothing held while something
+  else is pressed (steps 10 to 16):
+  - `[BLACK 7]` picks the tom: TOM L on the first tap, TOM H on the second. The top of the screen names it.
+  - A tap on key 12 puts the tom in box 12, in silence, and leaves the cursor there.
+  - [OCT+] held for half a second opens the sheet of the note under the cursor. The top says `SHEET 12 TOM H`; the
+    bottom shows LINE, the line's value, OCT+ and OCT- CLOSE.
+  - [KNOB1] picks the line: RATCHET, NUDGE, FILL, MOVE, COPY, DELETE. FILL is two clicks to the right.
+  - [OCT+] changes the line shown. On FILL each press moves on: NORMAL, FILL (`FILL: ONLY IN A FILL`), NO FILL, and
+    round again. Pressed twice it says NO FILL, the note plays except in a fill; two more presses bring FILL back.
+  - [OCT-] closes the sheet.
+- The sheet has lines past FILL: MOVE, COPY, DELETE. [OCT+] on one of those changes the note itself. If the tom is
+  gone or has moved: [OCT-] to close, tap [12] again with TOM H picked, and start again from step 13. The FM-1's
+  SHOW ME only moves the lesson on here; it does not make the mark.
+- The sheet belongs to the box tapped last. If the learner tapped another box after key 12, the sheet is that
+  box's: the top names the box and the drum.
+- The card in step 15 takes [OCT+] for itself, so a press too many does not move FILL on to NO FILL. The sheet is
+  still open under it; step 16 closes it.
 - Marking a box marks every drum in it: the hat on box 12 becomes a fill note with the tom. That is SLOOP's rule.
 - A step that waits for a fill or an effect does not go by on one still held from the step before: the learner
   has to let go and do it again.
 - The lesson cannot see key 12's one-bar fill, only that the key was pressed.
-- The roll is live: it is heard, and it is written down only if REC is on.
+- With [ARP] held on the drums the screen is the ROLL page: the drums' names on sixteen tiles. The white keys play
+  the drums there and write no box; one held rolls. RATE, the roll's speed, is [KNOB1]. The roll is live: it is
+  heard, and it is written down only if REC is on.
 
 ## Tester notes
 
@@ -178,3 +203,28 @@ fill note above is still open.
 - The two fills in a row (steps 5 and 6) can no longer be ended by one long hold: a step that waits for a fill does
   not go by on one still held.
 - Still as it was: marking box 12 also marks the hat in it. 20 steps.
+
+2026-11-26, the move to SLOOP 3.4.2. Its goal is the same: a fill by hand, a note that plays only in a fill, a roll.
+The lesson stopped at the fill note both ways: on 3.4.2's drum grid a white key writes a box, so key 11 no longer
+picks the tom, and the three-finger move ([SEQ] + a key + [OCT+]) is gone. The mark is on the note's sheet now.
+Shown whole ("Yes, all of it").
+
+- **The fill note, steps 10 to 17, with nothing held while something else is pressed.** This replaces the move the
+  notes above call the most confusing of the course:
+  - step 10 `Let go of [GLO]. / Pick the high tom: tap / [BLACK 7] until TOM H.` (was `... Pick the high tom: [11].`),
+    hint `Tap [BLACK 7] until / the top says TOM H.`;
+  - step 11 `Tap [12]: a tom in box 12.` (was `Hold [SEQ] + hold [12]. / The top says STEP 12.`);
+  - step 12, a new card: `_The note's sheet / Hold [OCT+]: a sheet / opens for the tom in / box 12. // [KNOB1] picks a
+    line. / [OCT+] changes it. / [OCT-] closes the sheet.` The card `_Three at once` is gone;
+  - step 13 `Hold [OCT+] until / the top says SHEET.`;
+  - step 14, along the top, the sheet's dials being at the bottom: `Turn [KNOB1] until / LINE says FILL. / Then
+    [OCT+] once.` (was `Keep holding both. / Press [OCT+] once.`), hints `[KNOB1]: LINE says FILL. / Then press [OCT+]
+    once.` and `Top says NO FILL? / [OCT+] twice more.`;
+  - step 15 `FILL. It worked. // The tom now plays / only in a fill.` (`Let go of everything.` is gone);
+  - step 16, along the top: `[OCT-] closes the sheet.`;
+  - step 17 `Hear it: hold [GLO], / tap [12].` (was `Now [GLO], not [SEQ]: / ...`).
+- **Step 18, the roll's card:** `A roll is one drum, / repeated fast. // Hold [ARP]: the white / keys play the drums. /
+  Hold one: it rolls.` (was `... // Hold [ARP] and hold / a drum key.`). With [ARP] held the screen names the drums.
+- **The last card:** `Fill note: hold [OCT+], / LINE to FILL, [OCT+].` (was `Fill note: / [SEQ] + a key + [OCT+].`).
+- The setup picks the kick, so the top says KICK at the start. Still as it was: marking box 12 also marks the hat in
+  it. 22 steps (were 20).

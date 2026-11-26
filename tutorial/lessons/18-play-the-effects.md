@@ -148,3 +148,9 @@ cannot end) are still open.
     between the rows. The card now reads `WHILE [FX] IS HELD, / THE SCREEN IS A MAP. / 4 BRIGHT ROWS OF 4: / THE 16
     WHITE KEYS. / THE DIM NAMES / BETWEEN THE ROWS: / THE BLACK KEYS.`
 
+2026-11-26, the move to SLOOP 3.4.2.
+
+- Nothing in this lesson touches what SLOOP 3.4.2 changed: it plays through both ways as it is. With [FX] held the
+  screen is still the map of the 27 effects, the white keys' names in four bright rows, and [FX] + [HOME] still
+  locks. 3.4.2 adds four dials along the bottom of the map (FILTER, DUST, DUCK, TRK FLT); the two-line strips cover
+  those dials and leave the map's four rows of names readable. Lesson 20 uses the first of the dials.

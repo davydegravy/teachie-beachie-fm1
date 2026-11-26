@@ -142,6 +142,14 @@ Lessons: 16, 23, 24, 25, 26, 30.
 Answer (2026-11-24): **A, "pattern"**, what SLOOP uses ("lets go with what Sloop uses"). Lesson 16 becomes
 "Eight patterns" and teaches saving into a pattern: hold [SAVE] + hold its key 1.5 s.
 
+- **2026-11-26, as built** (lessons 16 and 23; their Tester notes have the words). 3.4.2 has no "copy this page", so
+  lesson 16's order turns round: the learner adds two kicks, saves that into pattern 2 (`Hold [SAVE] + [2] until / the
+  top says SAVED.`) and stays on pattern 1; then [SAVE] + [1] brings pattern 1 back as it was saved and the kicks go
+  away, which shows the rule the last card states: `A change not saved is / gone when you switch.` The file is
+  `16-eight-patterns.md`. Lesson 23 builds its second pattern the same way: change the beat, mark a fill note, save
+  into pattern 2. A key let go too early goes to the empty pattern and loses the change; both lessons' hints give the
+  way back.
+
 ## 5. Chains
 
 [15] is no longer CHAIN. A chain is now made by tapping pattern keys while [SAVE] is held, and CHAIN DONE is never
@@ -208,6 +216,19 @@ SLOOP's pages stay as SLOOP draws them; only our strips move.
   cuts the lower two big values in half and hides the page's name in the corner. So on the [SEL] page the knob strips
   are at the top, where they were before the move. Lessons 19 to 22 use pages of the same kind: each is looked at in a
   picture before its strips are placed.
+- **2026-11-26, as built in lessons 19 to 22: the side follows from the kind of page.** Looked at in pictures, 3.4.2's
+  knob pages are of two kinds:
+  - **four big values in the middle,** repeating the small row at the top (`SEL 1/2`, `INSERT 4/7`, `FLT 2/6`): a knob
+    step's strip at the top, as on the [SEL] page;
+  - **a picture in the middle** (sliders, a wave, the sound's shape, the arpeggio's notes), where the small row at
+    the top is the only place with the knobs' names and values (`FX 1/7`, `DLY 6/7`, `ENV 1/2`, `LFO 1/3`, `LFO DEST
+    3/3`, `ARP 1/2`): a knob step's strip at the bottom, as answered on 2026-11-24.
+  A find-the-page step's strip is at the top on both, and its words say which corner: `Tap [FX] until the bottom /
+  corner says FX 1/7.` Asked of lesson 19, then of lesson 20: "For step 4 should the strip be on the bottom? where
+  does it say FX 1/7"; after a picture of both placings, "I see it now, It changes to insert". The name is in the
+  bottom right corner and changes with each tap, so a strip at the bottom covers the thing it points at. With a wider
+  button the line starts with it (`[EDIT] until the bottom / corner says FLT 2/6.`, `[LFO] until the bottom / corner
+  says LFO DEST.`).
 
 ## 8. The screen colors for newer FM-1s
 

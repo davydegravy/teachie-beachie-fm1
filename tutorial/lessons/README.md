@@ -99,7 +99,7 @@ Each file also has a picture of the lesson's screens, in order, taken from the r
 
 | # | Lesson | The one idea |
 |---|---|---|
-| 16 | [Eight pages](16-eight-pages.md) | A pattern is a page, and each track has eight. |
+| 16 | [Eight patterns](16-eight-patterns.md) | A song is made of patterns, and there are eight. |
 | 17 | [Fills and rolls](17-fills-and-rolls.md) | A fill says "something new is coming". |
 | 18 | [Play the effects](18-play-the-effects.md) | Some effects are played like notes. |
 | 19 | [Echo and space](19-echo-and-space.md) | A delay repeats a sound; a reverb puts it in a room. |

@@ -313,7 +313,7 @@ drafted in `lessons/`.
 
 | # | Lesson | The one idea | What the learner does |
 |---|---|---|---|
-| 16 | Eight pages | A pattern is a page, and each track has eight. | Holds SAVE, starts page 2, copies page 1 onto it and changes it: a verse beat and a chorus beat. |
+| 16 | Eight patterns | A song is made of patterns, and there are eight. | Changes the beat, holds SAVE and saves it into pattern 2, switches between the two: a verse beat and a chorus beat. |
 | 17 | Fills and rolls | A fill says "something new is coming". | Plays a fill by hand (GLO + a key), writes one that only plays as a fill, makes a hat roll (ARP + a key). |
 | 18 | Play the effects | Some effects are played like notes. | Holds FX and presses keys for the punch-in effects, then locks them on (FX + HOME). |
 | 19 | Echo and space | Delay repeats a sound. Reverb puts it in a room. | Sends the melody to the echo and the reverb, finds what too much sounds like, changes the echo itself. |
