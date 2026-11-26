@@ -17,10 +17,10 @@
 3. **Strip:** Press [PLAY]. / Bass and drums, / underwater.
    - **Do:** press PLAY
    - **Until:** playing
-4. **Strip top:** [FX] and [KNOB1] right until FILT says OFF.
+4. **Strip top:** [FX] and [KNOB1] right / until FILTER says OFF.
    - **Do:** hold FX, turn KNOB 1 right 3
    - **Until:** master filter is 0
-   - **Hint:** Hold [FX]. FILT is / the first dial below.
+   - **Hint:** Hold [FX]. FILTER is / the first dial below.
 5. **Strip:** Bring in the pad: / [GLO] and [4].
    - **Do:** hold GLO, tap box 4
    - **Until:** pad is not muted
@@ -60,7 +60,23 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 - Timing is the whole lesson. The moves are ones the learner knows; what is new is when to make them. Suggest
   counting bars: a change every four or eight.
 - If the learner rushes through, ask them to do the build again taking twice as long. The song still plays.
+- The filter is lesson 20's: with [FX] held the screen is the map of the effects, and the first of the four dials
+  along its bottom is FILTER (SLOOP 3.4.2's name for it). It starts here at LP 70 and stops at OFF on the way up.
+  The strip is at the top so that dial stays in view.
+- The mutes and the fill are [GLO] held with a key, as in lessons 5 and 17: keys 1 to 5 mute a track, key 12 is
+  the fill for one bar.
 - In a written song (lesson 26) each line can carry its own mutes. That is set in SLOOP's web editor for now.
 
 ## Tester notes
 
+2026-11-26, the move to SLOOP 3.4.2. Its goal is the same and it played through as it was: the mutes and the fill
+with [GLO] held work as before. One name is 3.4.2's now. Shown whole ("Yes, all of it").
+
+- **Step 4, along the top:** `[FX] and [KNOB1] right / until FILTER says OFF.` (was `[FX] and [KNOB1] right until FILT
+  says OFF.`, one line that wrapped by itself), with the hint `Hold [FX]. FILTER is / the first dial below.` The same
+  change as in lesson 20. Looked at in a picture with [FX] held: FILTER goes from LP 70 to OFF, in view under the
+  strip.
+- Asked of the first card: "what was the first card before?" It is not changed by this move; it has read `A build-up
+  adds / a little at a time. / A drop is when / it all arrives. // Taking tracks away can / be just as powerful / as
+  adding them.` since the card review of 2026-11-22.
+- Still 15 steps.

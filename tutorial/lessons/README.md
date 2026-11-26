@@ -113,7 +113,7 @@ Each file also has a picture of the lesson's screens, in order, taken from the r
 | # | Lesson | The one idea |
 |---|---|---|
 | 24 | [Songs have parts](24-songs-have-parts.md) | Intro, verse, chorus, break. |
-| 25 | [Chain the pages](25-chain-the-pages.md) | Pages played in a row make a song. |
+| 25 | [Chain the patterns](25-chain-the-patterns.md) | Patterns played in a row make a song. |
 | 26 | [Write it line by line](26-write-it-line-by-line.md) | A song can be written down and edited. |
 | 27 | [Build-ups and drops](27-build-ups-and-drops.md) | Taking tracks away is as strong as adding them. |
 | 28 | [Swing and feel](28-swing-and-feel.md) | The same beat can march or dance. |

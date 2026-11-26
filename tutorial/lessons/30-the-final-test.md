@@ -2,7 +2,7 @@
 
 - **Part:** 4, make a song (the piece of the learner's own, and the end of the course)
 - **The idea:** a whole song from nothing, with no lights and no hints.
-- **The learner does:** starts from an empty project and makes a song: three pages or more, four tracks or more,
+- **The learner does:** starts from an empty project and makes a song: three patterns or more, four tracks or more,
   some effects, a song of three lines or more. Then saves it.
 - **Got it when:** the song exists, it is saved, and they made it alone. The learner is the judge: the lesson names
   the goal and does not hold anyone back.
@@ -14,30 +14,30 @@
 1. **Setup:** new project; page TRACKS
 2. **Card:** _The final test / An empty project. / No blinking lights. / No hints.
    - **OCT+:** Go
-3. **Card:** Make a whole song: / 3 pages or more. / 4 tracks or more. / Some effects. / A song that plays / 3 pages in a row.
+3. **Card:** Make a whole song: / 3 patterns or more. / 4 tracks or more. / Some effects. / A song that plays / 3 patterns in a row.
    - **OCT-:** Cheat sheet → go to 4
    - **OCT+:** Next → go to 8
-4. **Card:** _Your first beat / Play, stop: [PLAY]. / Pick a drum: play its key. / Boxes: [SEQ] + a key. / Tempo: [SELECT]. / Undo: [EDIT] + [OCT-]. / Mute: [GLO] + [1] to [5].
+4. **Card:** _Your first beat / Play, stop: [PLAY]. / Pick a drum: a black key. / A box: a white key. / Tempo: [SELECT]. / Undo: [EDIT] + [OCT-]. / Mute: [GLO] + [1] to [5].
    - **OCT-:** Back → go to 3
    - **OCT+:** Next
-5. **Card:** _Notes and chords / Track: [ALGORITHM]. / Sound: [PRESETS]. / Record live: [REC]. / Key and chords: [SEL]. / Piano roll: [SEQ] twice. / Level: [KNOB2].
+5. **Card:** _Notes and chords / Track: [ALGORITHM]. / Sound: [PRESETS]. / Record live: [REC]. / Key and chords: [SEL]. / Piano roll: [SEQ]. / Level: [KNOB2].
    - **OCT-:** Back → go to 4
    - **OCT+:** Next
 6. **Card:** _Effects and sound / Effects: hold [FX] + a key. / Filter: [FX] + [KNOB1]. / Echo, reverb: [FX]. / Fill: [GLO] + [12]. / Wobble: [LFO]. / Arpeggio: [ARP].
    - **OCT-:** Back → go to 5
    - **OCT+:** Next
-7. **Card:** _Make a song / Page: [SAVE] + a key. / Copy: [SAVE], hold a key. / SONG page: [SAVE]. / Chain: [15]. / Record a song: [14]. / Play the song: [13].
+7. **Card:** _Make a song / Hold [SAVE], then tap: / [1] to [8]: that pattern. / Hold it: save into it. / Keys in a row: a chain. / [14]: record. [13]: play. / SONG page: [SAVE].
    - **OCT-:** Back → go to 6
    - **OCT+:** Next
-8. **Card:** When your song is done, / press [SAVE] twice. // The corner of the / screen reminds you: / [SAVE] x2
+8. **Card:** When your song is done, / save it: [SAVE] twice, / then [KNOB1]. // The corner of the / screen reminds you.
    - **OCT+:** Start
 9. **Strip corner:** [SAVE] x2
-   - **Until:** pressed SAVE twice
-   - **Robot:** press SEQ, tap A3, hold SEQ, tap box 1 5, let go, turn ALGORITHM right 1, tap A4, hold SEQ, tap box 3, let go, turn ALGORITHM right 1, tap C5, hold SEQ, tap box 1, let go, turn ALGORITHM right 2, tap box 1, hold SEQ, tap box 1 5 9 13, let go, press HOME, hold SAVE, long box 2, let go, wait 2, hold SAVE, long box 3, let go, wait 2, press SAVE, wait 0.8, turn SELECT right 1, turn KNOB 4 right 3, wait 0.3, press HOME, wait 0.6, press SAVE twice, wait 1.5
-10. **Card:** Is your song finished? // The goal: 3 pages, / 4 tracks, some effects, / and 3 pages in a row. // You decide.
+   - **Until:** says only PROJECT SAVED
+   - **Robot:** press SEQ, tap A3, tap A3, press HOME, turn ALGORITHM right 1, press SEQ, tap A4, press HOME, turn ALGORITHM right 1, press SEQ, tap C5, press HOME, turn ALGORITHM right 2, press SEQ, tap box 1 5 9 13, press HOME, hold SAVE, hold box 2, wait 2.2, let go, wait 2, hold SAVE, hold box 3, wait 2.2, let go, wait 2, press SAVE, wait 0.8, turn KNOB 4 right 3, wait 0.3, press SAVE, wait 0.6, turn KNOB 1 right 1, wait 1.5
+10. **Card:** Is your song finished? // The goal: 3 patterns, / 4 tracks, some effects, / and 3 patterns in a row. // You decide.
     - **OCT-:** Not yet → go to 3
     - **OCT+:** Yes
-11. **Setup:** song mode on; play
+11. **Setup:** page TRACKS; song mode on; play
 12. **Strip:** Your song. / [OCT+] when it's done.
     - **OCT+:** Done
 13. **Setup:** stop
@@ -53,10 +53,19 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 ## Notes for the AI assistant
 
 - Help only when asked, and then with a question back before an answer.
-- Step 5 ends on the learner's own two quick taps of SAVE. Copying a page also saves, and that does not end it.
-- The lesson checks nothing. The question card names the goal (three pages, four tracks, a song of three lines)
-  and the learner says whether the song is finished. A YES is taken as it is, and the course's last card
-  congratulates either way. The assistant can read the song from the FM-1 after step 8 and say one true thing about it.
+- Step 9 ends when the project is saved by the learner's own hand: [SAVE] twice (the PROJECT page), then one click
+  of [KNOB1]. It waits for exactly `PROJECT SAVED`. Saving into a pattern also saves the project, and so does the
+  FM-1 by itself when the music is stopped (`PROJECT SAVED (AUTO)`); neither ends the step.
+- The lesson checks nothing else. The question card names the goal (three patterns, four tracks, some effects,
+  three patterns in a row) and the learner says whether the song is finished. A YES is taken as it is, and the
+  course's last card congratulates either way. The assistant can read the song from the FM-1 after step 10 and say
+  one true thing about it.
+- "Three patterns in a row" can be a chain, a song recorded live (lesson 25) or a song written in lines (lesson
+  26). Only the last two are kept; the lesson's last step plays the song, and with none it loops the pattern that
+  is up.
+- The cheat sheets are the course in four cards, with SLOOP 3.4.2's moves. On "Make a song" the hold is said once,
+  at the top: every line under it is [SAVE] held and a key tapped, except `Hold it`, which keeps a pattern's key
+  down for a second and a half, and the last, a tap of [SAVE] alone.
 - The empty project has SLOOP's own starting sounds and a tempo of 92. Choosing sounds and a tempo is part of the
   test.
 - With an empty project, REC pressed while stopped starts SLOOP's free take, which sets the tempo from what is
@@ -107,3 +116,26 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 - The goal reads `A SONG: 3 PAGES IN A ROW, OR MORE.` (and on the question card `A SONG OF 3 PAGES IN A ROW`).
 - The tag stays in the top left corner, as built: the question of the corner was not answered.
 - Copying a page is its own step in lesson 23 now, and erasing a track is taught in lesson 10.
+
+2026-11-26, the move to SLOOP 3.4.2. Its goal and its shape are the same. It played through as it was, but its step
+ended on two presses of [SAVE] with nothing saved, and its cheat sheets named moves that 3.4.2 no longer has. Shown
+whole, then one card reworked.
+
+- **The save:** the card before the song reads `When your song is done, / save it: [SAVE] twice, / then [KNOB1]. // The
+  corner of the / screen reminds you.` (was `... press [SAVE] twice. // The corner of the / screen reminds you: / [SAVE]
+  x2`), and the step waits for exactly PROJECT SAVED (was `pressed SAVE twice`). The tag in the corner stays `[SAVE]
+  x2`: with `[KNOB1]` added it is twice as wide, over the screen for the whole of the learner's work, and the PROJECT
+  page names SAVE on its first knob.
+- **"Page" is "pattern"** on the goal card and the question card: `3 patterns or more.`, `3 patterns in a row.`
+- **The cheat sheets:** "Your first beat": `Pick a drum: a black key. / A box: a white key.` (were `Pick a drum: play its
+  key. / Boxes: [SEQ] + a key.`). "Notes and chords": `Piano roll: [SEQ].` (was `[SEQ] twice.`). "Effects and sound": as
+  it was.
+- **"Make a song", in two rounds.** Suggested: `Pattern: [SAVE] + a key. / Save into it: hold the key. / Chain: [SAVE] +
+  keys. / Record it: [SAVE] + [14]. / Play it: [SAVE] + [13]. / SONG page: [SAVE].` The course's author: "for step 7 do
+  you need to hold save and press [14] to hold it?" (it is [SAVE] held and [14] tapped; only the second line keeps a
+  key down), then, of that answer: "can we put that into the cheat sheet or is it too long?" The whole of it is; said
+  once at the top it fits ("Yes, use it"): `_Make a song / Hold [SAVE], then tap: / [1] to [8]: that pattern. / Hold
+  it: save into it. / Keys in a row: a chain. / [14]: record. [13]: play. / SONG page: [SAVE].` (was `Page: [SAVE] + a
+  key. / Copy: [SAVE], hold a key. / SONG page: [SAVE]. / Chain: [15]. / Record a song: [14]. / Play the song: [13].`).
+- The lesson goes to the tracks page before it plays the finished song. The robot makes its test song with 3.4.2's
+  moves. Still 14 steps.

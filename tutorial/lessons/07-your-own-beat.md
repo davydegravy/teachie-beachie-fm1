@@ -32,7 +32,7 @@
    - **Hint:** Press [SAVE] until the / bottom corner says / PROJECT.
 9. **Strip top:** Turn [KNOB1]: SAVE.
    - **Do:** turn KNOB 1 right 1
-   - **Until:** says PROJECT SAVED
+   - **Until:** says only PROJECT SAVED
    - **Hint:** One click to the right.
 10. **Setup:** page TRACKS; stop
 11. **Card:** Part 1 is done. // Now you can make / a beat on your own. // Next: the rest / of the band.
@@ -74,3 +74,10 @@ kept; shown whole ("Yes, all of it").
 - **Saving, two strips along the top,** as in lesson 6: step 8 `Save it: [SAVE] twice.` (until the PROJECT page), step 9
   `Turn [KNOB1]: SAVE.` (until PROJECT SAVED), with lesson 6's hints. Was one strip, `Save it: press [SAVE] twice.`
 - The setup selects the kick, so the top says KICK at the start. 11 steps: the last two are one further on.
+
+2026-11-26, a check line, no words ("Yes, both", with lesson 29).
+
+- **The save step waits for exactly PROJECT SAVED:** `Until: says only PROJECT SAVED` (was `says PROJECT SAVED`). The
+  FM-1 saves by itself when the music is stopped and untouched for about two and a half seconds, and then says
+  `PROJECT SAVED (AUTO)`; the step took that for the learner's own save and ended without [KNOB1] being turned.
+  The music plays during this lesson's save, so it could only happen if the learner stopped it.

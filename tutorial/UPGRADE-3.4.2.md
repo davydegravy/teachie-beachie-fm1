@@ -81,13 +81,14 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
    spare characters by `tools/mklessonfont.py`, its word in `tools/mkcourse.py`, `tutorial/tp/teach.py` and
    `tutorial/lessons/README.md`. Shown to the course's author before a lesson uses it. Other pictures only where
    the lessons in step 4 show a need.
-4. **The lessons, a part at a time** (**begun 2026-11-25**: "Step 4: the lessons", below), from `tutorial/upgrade/worksheet.md`: part 1 (1 to 7, the drum grid), part 2
+4. **The lessons, a part at a time** (**done 2026-11-26**: "Step 4: the lessons", below), from `tutorial/upgrade/worksheet.md`: part 1 (1 to 7, the drum grid), part 2
    (8 to 15: SEQ, SEL, the piano roll), part 3 (16 to 23: patterns, the sound pages), part 4 (24 to 30: chains,
    songs, saving). Each change shown first as Today / Suggested, one screen line per line, measured. After each
    lesson: `python3 tutorial/check.py N`, `--run N`, `tutorial/device.py N`. Their notes for the AI assistant too.
    The first card that shows the black key's picture (`[BLACK 1]`) says what it is.
 5. **The whole course:** `python3 tutorial/device.py` (about 7 min) and `python3 tutorial/check.py --run` (about
-   4.5 min): all 30 through.
+   4.5 min): all 30 through. (**Done 2026-11-26** with part 4's checks. Still open: the `--clumsy` robot needs a new
+   slip for the new grid, a black key tapped twice, and neither it nor `--sticky` has been run on the new lessons.)
 6. **The frames that answer the controls** (decision 11; the guide in `fw/main.c`, a firmware change, so said
    first). Measured after it: the room left, the load with a knob spun fast (`ld_peak`), screenshots of a frame
    held and one half filled; then step 5's runs again.
@@ -547,7 +548,7 @@ their letters.
   the lessons (the picture) and without (the words).
 - **Other pictures:** none yet. Decision 12 has them only where a lesson in step 4 shows the need.
 
-## Step 4: the lessons (begun 2026-11-25)
+## Step 4: the lessons (2026-11-25 and 26)
 
 One lesson and one choice at a time, each change shown as Today / Suggested with its lines measured. What changed
 and why, with the course's author's words, is in each lesson's own Tester notes; here, where each lesson stands.
@@ -703,10 +704,58 @@ keeps the old name, as the record of what was to change.
 - **Still not built:** an `Until` word for the piano roll's STEP; the lesson cannot read the arpeggiator's settings
   (lesson 22 counts clicks) nor the sheet's line.
 
+### Part 4, lessons 24 to 30 (2026-11-26)
+
+Prepared and shown as parts 2 and 3 were. Where a strip names something on the screen, a picture was taken after the
+move and shown with the lesson. No firmware change in this part.
+
+| Lesson | Stands | What changed |
+|---|---|---|
+| 24, Songs have parts | done; unchanged; all three checks pass | Nothing of it touches a change of 3.4.2. Its header says "pattern" |
+| 25, Chain the patterns | done; all three checks pass (it had stopped at step 3 both ways) | Renamed (was "Chain the pages": the file, its picture, the tables in `tutorial/lessons/README.md` and `tutorial/PLAN.md`) and reworked around one move, "[SAVE] + a key" (decision 5): one tap of [SAVE] now opens the song's lines, and key [15] is no longer CHAIN. `Hold [SAVE]: [1], [2], [3]. / Then let go.`; `[SAVE] + [1]: / the chain ends.`; `Hold [SAVE], tap [14].` (SONG REC); `[SAVE] + [13] plays / the song you recorded.` The learner never leaves the tracks page. 18 steps |
+| 26, Write it line by line | done; all three checks pass (it had stopped at step 3 both ways) | One tap of [SAVE] opens the page (`SONG 2/3`): the [SELECT] step is gone. A new step turns LINE back to 1 (the song plays from the line shown); playing is `[SAVE] + [13]. / Then [PLAY].` The last card names the page: `SONG page: [SAVE].` ("what is that page called?"). 18 steps |
+| 27, Build-ups and drops | done; all three checks pass (it played through before) | FILTER for FILT in step 4 and its hint, as in lesson 20. 15 steps |
+| 28, Swing and feel | done; all three checks pass (it played through before, by accident) | Loud and soft hats with the grid's own dials, nothing held: `[KNOB2] to STEP 4. / Then [KNOB4] to HARD.` The three-finger move and `Play [5]: the hat.` are gone. Soft and hard by hand happen on the tracks page. 18 steps |
+| 29, Keep it and share it | done; all three checks pass (it played through before, on the old shortcuts) | SLOOP's PROJECT page on three knobs (decision 6): `[KNOB1]: SAVE. / [KNOB2]: NEW. / [KNOB3]: LOAD.`; the save as in lesson 6; `[KNOB3], LOAD: / two clicks right.`, at the bottom so the top's `AGAIN: CHANGES LOST` shows. 17 steps |
+| 30, The final test | done; all three checks pass (it played through before, ending with nothing saved) | The cheat sheets for 3.4.2's moves; "Make a song" says the hold once (`Hold [SAVE], then tap:`); the step ends on a real save. 14 steps |
+
+**Part 4 (lessons 24 to 30) is done, and with it step 4 and step 5:** all 30 lessons play through both ways in one
+run (`python3 tutorial/device.py`, `python3 tutorial/check.py --run`), and the build's page tests pass with them. The
+pack is 56,816 bytes (56,460 before part 4); the slot keeps 6,375 blank bytes (1,024 is the least). The firmware is as
+it was after part 2.
+
+**Every save step waits for exactly PROJECT SAVED** (`Until: says only PROJECT SAVED`: lessons 6, 7, 15, 23, 29, 30).
+The FM-1 saves by itself when the music is stopped and untouched for about two and a half seconds, and says `PROJECT
+SAVED (AUTO)`; a step waiting for `says PROJECT SAVED` took that for the learner's save. Found in part 4 and played on
+the simulated FM-1 with lesson 23 as it was committed: a learner who changed the beat in the show and then only waited
+at `Turn [KNOB1]: SAVE.` was moved on, both ways. With `says only` the step waits for the knob.
+
+**Left for step 9:** the top-level `README.md` still lists lessons 16 and 25 by their old names ("Eight pages", "Chain
+the pages"); the lesson pictures in `tutorial/lessons/screens/` are the old ones, two of them renamed.
+
+**What part 4 found, for the notes and the steps that follow:**
+
+- **[SAVE] tapped on the tracks page** goes round three pages: `SONG 2/3` (the song's lines; its title is at the top),
+  `PROJECT 3/3`, and back. [SELECT] one click left from the lines shows the patterns on tiles, as [SAVE] held does.
+  On the SONG pages the keys work with no button held (1 to 8 patterns, 13 LOOP or SONG, 14 SONG REC), but a chain
+  needs [SAVE] held: its taps are counted in one hold.
+- **With [SAVE] held** the screen shows the eight patterns and, under them, the names of keys 13 to 16. A strip of
+  two lines at the bottom leaves all of it and the top's message in view; a third line covers the names.
+- **What SLOOP says, for a lesson's `says`:** `PATTERN 3 ON THE BAR`, `PATTERN 1 · AS SAVED`, `CHAIN 1 2 3`, `SONG REC ON
+  THE BAR`, `SONG KEPT`, `EMPTY SONG`, `SONG ON THE BAR`, `SONG FROM LINE 2`, `LOOP`, `NO SONG: REC`, `PROJECT SAVED`,
+  `PROJECT SAVED (AUTO)`, `AGAIN: CHANGES LOST`, `PROJECT OPENED`, `AGAIN FOR A NEW ONE`, `TRACK ERASED`. `says X` is
+  true when the words are anywhere in what is said; `says only X` when they are all of it.
+- **The lines page:** one click is one step (a line, a pattern, a bar). The song plays from the line shown.
+- **The drum grid's dials** are SOUND, STEP, HIT, LEVEL; LEVEL goes GHOST, SOFT, NORM, HARD. On the tracks page a
+  drum played with [OCT-] held is soft, with [OCT+] held hard; on the grid [OCT+] held is the note's sheet.
+- **A page is called what its own screen calls it** (decision 4, part 4): "the SONG page", not a description of it.
+- **A cheat-sheet card of moves that share a hold says the hold once, at the top** (lesson 30: `Hold [SAVE], then
+  tap:`), and the lines under it name only the key.
+
 ## Not done
 
-Lessons 24 to 30 of step 4 (part 4), then steps 5 to 10 of "The plan for the full move". Nothing from here has
-been on a real FM-1.
+Steps 6 to 10 of "The plan for the full move", and the two other robots of step 5 (`--clumsy`, `--sticky`). Nothing
+from here has been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot

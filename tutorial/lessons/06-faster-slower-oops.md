@@ -57,7 +57,7 @@
     - **Hint:** Press [SAVE] until the / bottom corner says / PROJECT.
 19. **Strip top:** Turn [KNOB1]: SAVE.
     - **Do:** turn KNOB 1 right 1
-    - **Until:** says PROJECT SAVED
+    - **Until:** says only PROJECT SAVED
     - **Hint:** One click to the right.
 20. **Setup:** page TRACKS
 21. **Strip:** Press [PLAY] to stop.
@@ -122,3 +122,10 @@ The whole lesson was shown at once ("Yes, all of it").
   the corner.
 - **The cheat sheet:** `Save: [SAVE] twice, / then [KNOB1].` (was `Save: [SAVE] twice.`).
 - 22 steps: from old step 19 on, add one.
+
+2026-11-26, a check line, no words ("Yes, both", with lesson 29).
+
+- **The save step waits for exactly PROJECT SAVED:** `Until: says only PROJECT SAVED` (was `says PROJECT SAVED`). The
+  FM-1 saves by itself when the music is stopped and untouched for about two and a half seconds, and then says
+  `PROJECT SAVED (AUTO)`; the step took that for the learner's own save and ended without [KNOB1] being turned.
+  The music plays during this lesson's save, so it could only happen if the learner stopped it.

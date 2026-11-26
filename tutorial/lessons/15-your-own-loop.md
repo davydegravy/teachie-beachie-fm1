@@ -43,7 +43,7 @@
     - **Hint:** Press [SAVE] until the / bottom corner says / PROJECT.
 13. **Strip top:** Turn [KNOB1]: SAVE.
     - **Do:** turn KNOB 1 right 1
-    - **Until:** says PROJECT SAVED
+    - **Until:** says only PROJECT SAVED
     - **Hint:** One click to the right.
 14. **Setup:** page TRACKS; stop
 15. **Card:** Part 2 is done. // Now you can build / a whole loop: / drums, bass, chords / and a tune. // Next: effects and sound.
@@ -98,3 +98,10 @@ first free step both ways: the moves on its card and its way of saving were the 
 - **The tracks page, three times** (new setups, nothing to read): before step 6, for the listening step, and before
   the save. The notes for the AI assistant say why.
 - The setup selects the kick; the keys play nothing on the card in step 7. 15 steps (were 12).
+
+2026-11-26, a check line, no words ("Yes, both", with lesson 29).
+
+- **The save step waits for exactly PROJECT SAVED:** `Until: says only PROJECT SAVED` (was `says PROJECT SAVED`). The
+  FM-1 saves by itself when the music is stopped and untouched for about two and a half seconds, and then says
+  `PROJECT SAVED (AUTO)`; the step took that for the learner's own save and ended without [KNOB1] being turned.
+  The music plays during this lesson's save, so it could only happen if the learner stopped it.

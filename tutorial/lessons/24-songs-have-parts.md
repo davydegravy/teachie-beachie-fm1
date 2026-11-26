@@ -5,8 +5,8 @@
 - **The learner does:** listens to a whole song while the strip names each part, then names the parts themselves
   with the OCT buttons.
 - **Got it when:** they name four of the five parts by ear.
-- **Song:** HOUSE ONE, the whole song: sections A, B, C, C, D, C, four bars each. A is on page 1, B on 2, C on 3
-  and D on 4.
+- **Song:** HOUSE ONE, the whole song: sections A, B, C, C, D, C, four bars each. A is on pattern 1, B on 2,
+  C on 3 and D on 4.
 - **Style in the end:** dance music
 - **Tied to the song:** its order of parts, and what each part adds or takes away.
 
@@ -84,3 +84,8 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 ## Tester notes
 
+2026-11-26, the move to SLOOP 3.4.2.
+
+- Nothing in this lesson touches what SLOOP 3.4.2 changed: it plays through both ways as it is. The song's parts
+  are patterns 1 to 4 (the word "page" was only in the header above); while the song plays, the number in the square
+  at the top right of the tracks page changes with each part.

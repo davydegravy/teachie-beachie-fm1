@@ -327,8 +327,8 @@ drafted in `lessons/`.
 | # | Lesson | The one idea | What the learner does |
 |---|---|---|---|
 | 24 | Songs have parts | Intro, verse, chorus, ending. | Listens to a full song and names each part as it comes, with the OCT buttons. |
-| 25 | Chain the pages | Pages played in a row make a song. | Holds SAVE and taps pages in order, then records a song live (SONG REC). |
-| 26 | Write it line by line | A song can be written down and edited. | Opens SONG 2/2 and sets each line: which page, how many bars. |
+| 25 | Chain the patterns | Patterns played in a row make a song. | Holds SAVE and taps patterns in order, then records a song live (SONG REC). |
+| 26 | Write it line by line | A song can be written down and edited. | Opens SONG 2/3 and sets each line: which pattern, how many bars. |
 | 27 | Build-ups and drops | Taking tracks away is as strong as adding them. | Arranges with mutes, fills and filter sweeps: a quiet intro, a build, a drop. |
 | 28 | Swing and feel | The same beat can march or dance. | Adds swing, makes some hats louder than others, plays soft and hard hits (OCT− and OCT+ while drumming). |
 | 29 | Keep it and share it | A finished song deserves to be kept. | Saves the project, wrecks it on purpose and opens the saved one again. Recording the song as a sound file is only described so far. |

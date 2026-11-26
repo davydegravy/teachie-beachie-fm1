@@ -149,6 +149,11 @@ Answer (2026-11-24): **A, "pattern"**, what SLOOP uses ("lets go with what Sloop
   `16-eight-patterns.md`. Lesson 23 builds its second pattern the same way: change the beat, mark a fill note, save
   into pattern 2. A key let go too early goes to the empty pattern and loses the change; both lessons' hints give the
   way back.
+- **2026-11-26, part 4:** "pattern" for "page" in lessons 24 to 26 and 30 as well; lesson 25 is "Chain the patterns"
+  (`25-chain-the-patterns.md`). "Page" is now only what the screen shows, and **a page is called what its own screen
+  calls it**: of lesson 26's last card, "I just don't like Song lines, it seems like we are navigating ot a page, what
+  is that page called?" It is `SONG` (its title says `SONG 2/3`), so the lessons say "the SONG page" and `SONG page:
+  [SAVE].`
 
 ## 5. Chains
 
@@ -162,6 +167,14 @@ Lessons: 25, 26, 30.
 
 Answer (2026-11-24): **A, the new chain**, SLOOP's way ("lets go with the Sloops way for 5"): hold [SAVE] and tap the
 patterns in order; hold [SAVE] and tap one to end it. Not kept, as today.
+
+- **2026-11-26, as built (lesson 25).** Tried on the simulated FM-1 first: pattern keys tapped in one hold of [SAVE],
+  two or more, are a chain (`CHAIN 1 2 3`), each pattern played to its end in turn; one pattern tapped alone ends it.
+  On the SONG page, where the keys work with no button held, two taps are only two changes of pattern: a chain needs
+  [SAVE] held. So lesson 25 does everything with [SAVE] held, lesson 16's move, and never leaves the tracks page:
+  `Hold [SAVE]: [1], [2], [3]. / Then let go.`, `[SAVE] + [1]: / the chain ends.`, `Hold [SAVE], tap [14].` (SONG REC),
+  `[SAVE] + [13] plays / the song you recorded.` With [SAVE] held the screen names keys 13 to 16 itself. The lesson
+  waits for `says CHAIN`, `says PATTERN 1`, `says SONG KEPT`, `says LOOP`.
 
 ## 6. How to save the project
 
@@ -188,6 +201,16 @@ group's habit: the PROJECT page (asked for in 3.4), [SAVE] + a pattern's key hel
   (`pat_go`, `save_soon`).
 - **Lesson 29: the whole PROJECT page:** [KNOB1] SAVE, [KNOB3] LOAD (asked twice), [KNOB2] NEW.
 - **[HOME] held + [5] is left out:** nothing on the screen says what [5] does.
+
+- **2026-11-26, as built.** Lesson 29 teaches the PROJECT page on its three knobs, with the page's own words: `[KNOB1]:
+  SAVE. / [KNOB2]: NEW. / [KNOB3]: LOAD.`; LOAD asks once more (`AGAIN: CHANGES LOST`), so `[KNOB3], LOAD: / two clicks
+  right.`, the second within a second and a half. Lesson 30's step ends on a real save ([SAVE] twice, [KNOB1]); it
+  used to end on two presses of [SAVE].
+- **2026-11-26, the autosave and the lessons' check.** The FM-1's own save, when the music is stopped and untouched
+  for about two and a half seconds, says `PROJECT SAVED (AUTO)`; a step waiting for `says PROJECT SAVED` took it for
+  the learner's save (played on the simulated FM-1 with lesson 23: a learner who only waits is moved on). Every save
+  step now waits for exactly that word, `Until: says only PROJECT SAVED`: lessons 6, 7, 15, 23, 29 and 30 ("Yes,
+  both").
 
 ## 7. Strips on the sound pages
 
