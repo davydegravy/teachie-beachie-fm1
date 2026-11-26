@@ -9,7 +9,8 @@ lessons' words and what each step asks for, as small numbered instructions the f
 course"). The numbers are kept in one place, here; `--header` writes them as app/tp_course.h for the firmware.
 
 The pack (every number little-endian):
-    "TPC2"  u16 size  u8 lessons  u8 clip sets  u16 lesson offsets...  u16 clip-set offsets...  u16 small font, u16 large font
+    "TPC4"  u16 size  u8 lessons  u8 clip sets  u16 lesson offsets...  u16 clip-set offsets...  u16 small font, u16 large font
+    (the mark: TPC4 for SLOOP 3.4's lessons, so a firmware of 3.3.7's (TPC3) finds none and teaches no old buttons)
     (the two fonts last, each from an even byte: assets/fonts/lessons-font.bin, made by tools/mklessonfont.py)
   a lesson:    u8 number, u8 steps, its title, 0, then its steps
   a step:      u16 the bytes that follow, u8 kind, u8 flags (1: beginners only), then fields: tag, length, bytes
@@ -23,7 +24,8 @@ In a sample slot the pack sits behind a 512-byte header: "TPCO", u16 2, zeros, u
 everything after the header: SLOOP's own check when a slot is written), then u32 the logo's place at 24 and u32 its
 length at 28 (from the end of the header). The start screen's logo (assets/logo/teachie-beachie-fm1.bin, made by
 tools/mklogo.py) sits at the end of the slot; the bytes between the pack and the logo are sent blank (0xFF), so they
-are blank on the FM-1 too, free to be written later without an erase."""
+are blank on the FM-1 too, free to be written later without an erase (remembering the lesson: RESERVE of them
+are kept, or the pack is refused)."""
 import json, os, re, struct, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "tutorial"))
@@ -38,7 +40,7 @@ SET = dict(NEW=1, SONG=2, PATTERN=3, EMPTY=4, STEPS=5, ADD=6, TRACK=7, TEMPO=8, 
            SOUND=16, LEVEL=17, PICK=18, KEY=19, FILLEMPTY=20, LINES=21, SONGMODE=22, MFILT=23, SEND=24, RECOFF=25)
 CON = dict(PLAYING=1, STOPPED=2, RECORDING=3, NOTREC=4, ARMED=5, SONGPLAY=6, SONGREC=7, FILLON=8, PUNCHON=9, NOMUTE=10, NOSOLO=11, TRACKIS=12, PAGEIS=13,
            MUTED=14, SOLOED=15, HAS=16, HASNO=17, EMPTY=18, NUM=19, SOUNDCHG=20, SOUNDIS=21, INSERT=22, ONPAT=23, PATHAS=24, SAYS=25, SAYSONLY=26,
-           PRESSED=27, TWICE=28, TURNED=29, LINEPAT=30, LINEBARS=31)
+           PRESSED=27, TWICE=28, TURNED=29, LINEPAT=30, LINEBARS=31, PICKED=32)
 NUM = dict(TEMPO=0, SWING=1, MFILT=2, DUST=3, DUCK=4, TRK=5, VALUE=6, NOTES=7, LONGEST=8, SOFTEST=9, LOUDEST=10, FILLS=11, HARD=12, SOFT=13, PATTERNS=14, TRACKS=15, LINES=16, PLAYED=17)
 PROP = dict(level=0, pan=1, chorus=2, delay=3, reverb=4, filter=5, steps=6, swing=7, quant=8, gate=9)
 CMP = {"above": 0, "below": 1, "is": 2, "is not": 3, "at least": 4, "at most": 5, "changed": 6}
@@ -145,6 +147,7 @@ class Pack:
             elif rest in ("is muted", "is not muted"): out += rec(CON["MUTED"], t, int("not" not in rest))
             elif rest in ("is solo", "is not solo"): out += rec(CON["SOLOED"], t, int("not" not in rest))
             elif rest == "is empty": out += rec(CON["EMPTY"], t)
+            elif t == TRACK["drums"] and rest.startswith("picked "): out += rec(CON["PICKED"], L.PADS.index(rest[7:].strip().upper()))   # the drum that boxes write
             elif re.match(r"has nothing on box", rest): out += rec(CON["HASNO"], t, 255, mask(L.boxes(rest)))
             elif re.match(r"has (\d+) notes? or more$", rest): out += rec(CON["NUM"], NUM["NOTES"], t, 0, CMP["at least"], i16(int(rest.split()[1])))
             elif re.match(r"has (\d+) notes? or fewer$", rest): out += rec(CON["NUM"], NUM["NOTES"], t, 0, CMP["at most"], i16(int(rest.split()[1])))
@@ -238,16 +241,22 @@ def build(first=1, last=99):
     for b in fonts: offs.append(at); at += len(b)
     offs.append(at_toc)                                                       # (its offset after the fonts': the firmware of TPC2 read the fonts there)
     if at > 0xFFFF: raise Cant("the pack is %d bytes: more than its offsets can say" % at)
-    pack = b"TPC3" + struct.pack("<HBB", at, len(lessons), len(p.clips)) + b"".join(struct.pack("<H", o) for o in offs) + b"".join(lessons + p.clips) + toc + bytes(pad) + b"".join(fonts)
+    pack = b"TPC4" + struct.pack("<HBB", at, len(lessons), len(p.clips)) + b"".join(struct.pack("<H", o) for o in offs) + b"".join(lessons + p.clips) + toc + bytes(pad) + b"".join(fonts)
     return pack, [len(b) for b in lessons], [len(b) for b in p.clips]
 
 SLOT = 0x14000 - 512                                                          # a sample slot's bytes after its header (SMP_USR_SIZE, engine/sample.h)
+RESERVE = 1024                                                                # blank bytes kept between the pack and the logo, at least
+def slot_room(pack):
+    """the slot's three parts, in bytes: (the lessons' pack, the blank bytes after it, the logo)"""
+    logo = os.path.getsize(os.path.join(HERE, "..", "assets", "logo", "teachie-beachie-fm1.bin"))
+    return len(pack), SLOT - len(pack) - logo, logo
 def slot_image(pack):
     """the pack as it sits in a sample slot: (the 480 bytes of its header, the data that follows at +512): the pack,
     blank bytes, the logo at the very end"""
     logo = open(os.path.join(HERE, "..", "assets", "logo", "teachie-beachie-fm1.bin"), "rb").read()
     if logo[:4] != b"TPL1": raise Cant("assets/logo/teachie-beachie-fm1.bin is not a logo of tools/mklogo.py")
-    if len(pack) + len(logo) > SLOT: raise Cant("the pack (%d bytes) and the logo (%d) are more than a slot holds (%d)" % (len(pack), len(logo), SLOT))
+    if len(pack) + len(logo) + RESERVE > SLOT:
+        raise Cant("the pack (%d bytes) and the logo (%d) leave %d blank bytes in the slot (%d): %d must stay free" % (len(pack), len(logo), SLOT - len(pack) - len(logo), SLOT, RESERVE))
     data = pack + b"\xff" * (SLOT - len(pack) - len(logo)) + logo
     head = b"TPCO" + struct.pack("<H", 2) + bytes(10) + struct.pack("<IIII", len(data), zlib.crc32(data) & 0xFFFFFFFF, SLOT - len(logo), len(logo))
     return head + bytes(480 - len(head)), data
@@ -269,3 +278,6 @@ if __name__ == "__main__":
     except Cant as e: raise SystemExit("NOT PACKED: %s" % e)
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True); open(out, "wb").write(pack)
     print("%s: %d bytes: %d lessons (%d bytes), %d clip sets (%d bytes)" % (out, len(pack), len(ls), sum(ls), len(cs), sum(cs)))
+    try: slot_image(pack)
+    except Cant as e: raise SystemExit("NOT PACKED: %s" % e)
+    print("its slot (%d bytes): the lessons %d, blank %d (%d kept free), the logo %d" % ((SLOT,) + slot_room(pack)[:2] + (RESERVE, slot_room(pack)[2])))

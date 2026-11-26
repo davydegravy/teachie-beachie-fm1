@@ -120,7 +120,10 @@ def install(first, last, slot):
         if not free: raise SystemExit("all four slots hold samples. Name one to give up: --slot N")
         slot = free[-1]
     elif slots[slot][0] and "--force" not in sys.argv: raise SystemExit("slot %d holds samples (%s). Choose another with --slot, or add --force to replace them." % (slot + 1, slots[slot][1]))
+    print("the slot: the lessons %d bytes, blank %d, the logo %d" % mkcourse.slot_room(pack))
+    f.guide(5)                                                      # the start's card: a lesson running on the FM-1 stops (it reads the slot)
     t0 = time.time(); f.write_slot(slot, head, data); time.sleep(0.6); n = f.course()[3]
+    f.guide(5)                                                      # (the start's card again, in the lessons' font)
     print("%d lessons (%d bytes) put in slot %d in %.0f s; the FM-1 finds %d lessons" % (len(ls), len(pack), slot + 1, time.time() - t0, n))
     if n != len(ls): raise SystemExit("the FM-1 does not find them: is this the firmware with the course in it?")
 

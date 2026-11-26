@@ -1852,7 +1852,8 @@ COLD static void vis_pass(void)
  * buttons and keys, takes some of them for itself (their presses reported, not acted on) and reads every press and
  * turn. Nothing here acts by itself: with no lesson running, SLOOP 3 is as it was.
  *   ED_GUIDE op ...  ->  op, the page (PG_*), the track, state (bit 0 a card, 1 the start's card, 2 START pressed,
- *                        waiting for the computer), n, then n presses and turns: kind, which
+ *                        waiting for the computer; bits 4-7 the drum picked, the one boxes write), n, then n presses
+ *                        and turns: kind, which
  *     0                    everything off
  *     1 style words 0 left 0 right 0    a card: style bit 0 shown, bit 1 its words large and centred (a reply), bits
  *                          2-3 a strip (1 at the top, 2 at the bottom: a band over the page, which stays live; 3 a
@@ -1863,6 +1864,8 @@ COLD static void vis_pass(void)
  *     3 keys(u32) buttons(u16) knobs(u8)   what the guide takes for itself
  *     4                    nothing: the presses since the last answer
  *     5                    the start's card again, START and JUST PLAY
+ *     7 tracks             (SLOOP 3.4) these tracks' patterns and sounds, as they play now, made their saved copy
+ *                          (keep[]): a lesson's setup, written by the editor's messages, kept on a change of pattern
  *   kinds: 1 a key down, 2 up, 3 a button down, 4 up, 5 a knob a click right, 6 left */
 /* (its look: peach paper, dark red ink, nothing else; SLOOP's pages are dark, so a card is plainly not SLOOP's) */
 #define G_PAPER TP_PAPER                          /* (app/vis.h: the start screen's too) */
@@ -1993,6 +1996,7 @@ COLD static void guide_home_ask(void)                /* START: the computer is a
 }
 #define CCOLD COLD __attribute__((minsize))
 CCOLD static int course_find(void); CCOLD static void course_start(void); CCOLD static void course_stop(void); CCOLD static void course_tick(void);
+CCOLD static void course_forget(int k); CCOLD static int course_found(void);
 CCOLD static void course_state(uint8_t *o);         /* (the course with no computer: course.inc, below) */
 COLD static void guide_home_tick(void)               /* no lesson 4 s after START: the computer did not answer */
 {
@@ -2033,7 +2037,13 @@ COLD static int ui_step(void)
         uint8_t *z = (uint8_t *)&W; for (uint32_t i = 0; i < sizeof W; i++) z[i] = 0;   /* (the padding too) */
         fill_view(&W);
         if (W.page == UI_SPLASH) {                           /* the start's logo: a picture each pass */
+#ifdef TP_SPLASH_MOVES                               /* (Teachie Beachie: its start is a still picture: drawn when it changes, as any other page; SLOOP's logo drew itself in) */
             { uint16_t c[5]; for (int t = 0; t < NTRK; t++) c[POS[t]] = TRK_COL[t]; vis_splash((now - splash_t0) / lsb / 1000u, 0, c);   /* (3.3: the logo alone; the version is in HOME) */ } V = W; gen_drawn = msg_gen; tile_i = 0;
+#else
+            static const uint8_t *logo_drawn; static uint8_t splash_drawn;   /* (.bss: zero at the start; V is not) */
+            if (splash_drawn && logo_drawn == tp_logo) return 0;
+            splash_drawn = 1; logo_drawn = tp_logo; V = W; gen_drawn = msg_gen; tile_i = 0;
+#endif
 #ifdef TP_VISUALIZER
         } else if (W.page == UI_VIS) {                       /* the visualiser: a new picture each pass, in sbuf when free */
             if (vis_busy()) return 0;
@@ -2141,7 +2151,7 @@ COLD static void home_apply(void)
     S.lowcut = (uint8_t)(hs[HS_LOWCUT] ? 2 : 0); S.flt_q = 0.75f + 0.45f * (float)hs[HS_RESO];
     S.usb_full = hs[HS_USB]; usb_audio_rate(hs[HS_RATE]);
 }
-static int home_had __attribute__((unused));        /* the settings came from a project (else: SLOOP's, at power-on) (Teachie Beachie: unused without TP_SLOOP28_DATA) */
+static int home_had;                                  /* the settings came from a project (else: SLOOP's, at power-on) */
 COLD static void home_from(const uint8_t *h)
 {
     home_had = 1;
@@ -3071,6 +3081,7 @@ COLD static void ed_request(void)
         ed_rep[0] = (uint8_t)sub; ed_rep[1] = (uint8_t)k; ed_rep_n = 2; ed_rep_cmd = cmd;
         if (sub == 1 || sub == 4) {                           /* BEGIN, ERASE: the slot out, its header's sector erased */
             smp_user_drop(k); snd_kill(&S);
+            course_forget(k);                                 /* (Teachie Beachie: its lessons, if this is their slot: course.inc) */
             ed_sm.on = sub == 1; ed_sm.k = (uint8_t)k; ed_sm.cur = 0; ed_sm.got = 0; ed_sm.crc = 0; ed_sm.phase = 0; ed_sm.buf = 0; ed_sm.half = 0;
             for (int i = 0; i < 8192; i++) sbuf[i] = 0xFF;
             if (ed_job(SLOT_AT[k], 0, sbuf, 0, 1)) { ed_sm.on = 0; ed_err(ED_ERR_FLASH); }
@@ -3282,9 +3293,10 @@ COLD static void ed_request(void)
             G.cap_keys = (uint32_t)r[1] | (uint32_t)r[2] << 8 | (uint32_t)r[3] << 16 | (uint32_t)r[4] << 24;
             G.cap_btn = (uint32_t)r[5] | (uint32_t)r[6] << 8; G.cap_enc = r[7];
         }
+        else if (op == 7 && n >= 2) { for (int t = 0; t < NTRK; t++) if ((r[1] >> t) & 1u) commit_trk(t); }
         uint32_t k = 0;
         while (G.ev_r != G.ev_w && k < 32) { r[5 + 2 * k] = G.ev[G.ev_r & 31][0]; r[6 + 2 * k] = G.ev[G.ev_r & 31][1]; G.ev_r++; k++; }
-        r[0] = (uint8_t)op; r[1] = (uint8_t)sticky; r[2] = (uint8_t)trk; r[3] = (uint8_t)(G.card | G.home << 1 | (G.ask == 1) << 2); r[4] = (uint8_t)k;
+        r[0] = (uint8_t)op; r[1] = (uint8_t)sticky; r[2] = (uint8_t)trk; r[3] = (uint8_t)(G.card | G.home << 1 | (G.ask == 1) << 2 | (last_notes[3] & 15) << 4); r[4] = (uint8_t)k;   /* (last_notes[3]: the drum track's, C_DRUM) */
         ed_send(cmd, 5 + 2 * k); return;
     }
     default: ed_err(ED_ERR_BAD); return;
@@ -3313,7 +3325,7 @@ COLD static void ed_job_done(int ok)
         flash_xip_forget(SLOT_AT[ed_sm.k], SMP_USR_SIZE);
         smp_user_scan(ed_sm.k, (const uint8_t *)(uintptr_t)(FLASH_WIN + SLOT_AT[ed_sm.k] - 0x4000u));
         grain_forget(); ed_rep[2] = (uint8_t)smp_user_nz(ed_sm.k); ed_rep_n = 3;
-        say_imp(smp_user_nz(ed_sm.k) ? "SAMPLE RECEIVED" : course_find() ? "LESSONS RECEIVED" : "SAMPLE: BAD SLOT");
+        say_imp(smp_user_nz(ed_sm.k) ? "SAMPLE RECEIVED" : course_found() ? "LESSONS RECEIVED" : "SAMPLE: BAD SLOT");
     }
     for (uint32_t i = 0; i < ed_rep_n; i++) ed_raw[i] = ed_rep[i];
     ed_send(ed_rep_cmd, ed_rep_n);
@@ -4929,7 +4941,6 @@ COLD __attribute__((noinline)) static void boot_flash(void)
         }
         BOOT_STEP(14);
         BOOT_STEP(15);
-#ifdef TP_SLOOP28_DATA                               /* (Teachie Beachie: SLOOP 2.8's menu and calibration left out, for the room) */
         sloop_set ss;                                     /* none of ours yet: SLOOP 2.8's menu and calibration */
         if (!home_had && sloop_settings(flash_read, sbuf, &ss)) {
             hs[HS_LOWCUT] = ss.lowcut; hs[HS_LIGHTS] = ss.lights; hs[HS_KEYS] = ss.keys; hs[HS_NOTES] = ss.notes;
@@ -4939,7 +4950,6 @@ COLD __attribute__((noinline)) static void boot_flash(void)
             if (ss.cal && !panel_map(ss.btn, ss.enc, ss.dir)) { cal_ok = 1; memcpy(cal_btn, ss.btn, 14); memcpy(cal_enc, ss.enc, 7); memcpy(cal_dir, ss.dir, 7); }
             home_apply();
         }
-#endif
     }
 }
 

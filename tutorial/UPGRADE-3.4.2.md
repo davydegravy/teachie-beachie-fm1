@@ -22,8 +22,14 @@ make test                                   # SLOOP's own tests: pass
 make build/twin                             # the simulated FM-1: builds
 dash host/twin.sh 60 "1 2"                  # SLOOP's scenarios on it: all pass (18 s). On a Mac use dash, not sh: see below
 EDITOR_E2E=0 INSTALLER_E2E=0 sh fw/build.sh "$(git rev-parse --git-common-dir)/../toolchain/bin"
-                                            # the firmware, to the end: build/fw/fw.area, 6,400 bytes to spare (step 1)
+                                            # the firmware, to the end: build/fw/fw.area, and its five rooms (tools/tp_room.py)
+python3 tutorial/upgrade/keepcheck.py       # a lesson's song kept over a change of pattern (step 2)
+python3 tutorial/upgrade/drumcheck.py       # the drum picked: the lesson's check of it, its words for the wrong one (step 2)
+git checkout -- docs/index.html tutorial/lessons/screens   # after a build or a lesson run, until step 9: what they rewrote
 ```
+
+After a change to the firmware, `make build/twin` before `fw/build.sh`: the build's `tests/lessons_sim.js` runs the
+simulated FM-1 as it is.
 
 The two Playwright tests `fw/build.sh` runs last (`tests/editor_e2e.js`, `tests/installer_e2e.js`) have never run on
 this Mac: Playwright is not installed, and `EDITOR_E2E=0 INSTALLER_E2E=0` leaves them out. The installer page is
@@ -58,7 +64,8 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
      after the pack for step 8. Today's picture is a stand-in until the course's author picks the new one: build
      the way it is drawn, not the picture. The start screen checked in a screenshot of the simulated FM-1, with
      the lessons on it and without.
-2. **The lesson player** (`fw/course.inc`, `tools/mkcourse.py`; a firmware change, so said first):
+2. **The lesson player** (`fw/course.inc`, `tools/mkcourse.py`; a firmware change, so said first; **done 2026-11-25**,
+   and reviewed: "Step 2: the lesson player" and "The review of steps 1 and 2", below):
    - `keep_all()` after `c_setup`'s writes, so a lesson's song is the patterns' saved copy and does not empty when
      the FM-1 leaves page 1 (the review's first table). The computer's setups (`ED_NOTES`, `tutorial/tp/teach.py`)
      have the same gap.
@@ -83,12 +90,27 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
    held and one half filled; then step 5's runs again.
 7. **The screen colors** (decision 8): M-VAVE's table in `lcd_init`, behind a switch of our own (the section on
    newer FM-1s, below).
-8. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time.
+8. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time. Its rules, from
+   the review (finding 4):
+   - It writes into the slot's blank bytes, between the pack's end (the pack's own length, at 4) and the logo (its
+     place, in the slot's header at 24). `tools/mkcourse.py` keeps 1,024 of them at least (`RESERVE`).
+   - **One new byte for each record, and no byte written twice.** The original FM-1's flash is Puya's (its code
+     begins `85`), and Puya's chips are known for not taking a second write into a byte that already holds
+     something. A blank byte written once is the ordinary case.
+   - **To try on a real FM-1 (step 10):** a byte written there and read back. The install now sends those bytes as
+     blank (0xFF); that should be the same to the chip as leaving them, and the simulated FM-1 cannot say.
+   - The header's CRC covers the blank bytes and stops matching at the first record: nothing reads it after the
+     install, and nothing should. When the blank bytes are used up, no more is written (the last record stays).
 9. **The words around it:** SLOOP's version in `README.md`, `TEACHIE-BEACHIE.md`, the installer page's words and
    `tools/teachie_page.py`'s rules, `AGENTS.md` and `tutorial/AI.md` where they name buttons that changed (and
    the frames that answer, and the icons), `tutorial/NOTES.md`; the lesson screens (`tutorial/lessons/screens/`);
    the page rebuilt into `docs/`.
-10. **A real FM-1** (decision 10): a backup first (a project saved by 3.4.x can't be opened by 3.3.x).
+10. **A real FM-1** (decision 10): a backup first (a project saved by 3.4.x can't be opened by 3.3.x). From the
+    review:
+    - **Before it:** SLOOP's scenarios and the 30 lessons once on Linux, where the simulated FM-1's own check of the
+      flash window works (a cloud session can: the branch is on GitHub).
+    - **On it:** the start screen (the logo there at once, no strips, the buttons quick); a byte written into the
+      slot's blank part and read back (step 8); lessons sent over other lessons with the start card up.
 
 ## Done so far
 
@@ -308,8 +330,9 @@ fits, with 6,400 bytes to spare** (`build/fw/app.bin` 276,960 of 283,360).
     `app/ui.c` (its page drawn). HOME on the tracks page now does nothing. `app/vis.c`'s pictures are untouched;
     the linker drops what nothing calls.
   - `TP_SLOOP28_DATA`: what was left of reading SLOOP 2.8's data at the start (`fw/main.c`, `boot_flash`): its user
-    sounds, favourites and colour theme, its SYN kits, MIDI LEARN and MIDI settings, the place of its FM6 bank, its
-    menu settings and calibration. Samples in the user slots still come along (they are not an import).
+    sounds, favourites and colour theme, its SYN kits, MIDI LEARN and MIDI settings, the place of its FM6 bank.
+    Samples in the user slots still come along (they are not an import). Its menu settings and calibration were cut
+    too at first, and came back in the review (finding 6: "Yes, bring them back").
   - The three unused-variable warnings this made are quieted (`vis_named`, `vis_ring`, `home_had`).
   - The two cuts gave 10.8 KB, not the 7.2 KB estimated: the linker dropped more of the import than `llvm-nm`
     counted.
@@ -328,7 +351,8 @@ fits, with 6,400 bytes to spare** (`build/fw/app.bin` 276,960 of 283,360).
     two sectors more than the pack and the logo alone.
   - **The firmware:** `course_find` (`fw/course.inc`) finds the logo with the pack, at the start and whenever lessons
     arrive; `vis_splash_draw` (`app/vis.c`, our part) draws it from the slot, 4 px from the top, WITH SLOOP 3 under
-    it as before. With no lessons on the FM-1, the name instead: TEACHIE / BEACHIE in SLOOP's large capitals.
+    it as before. With no lessons on the FM-1, the name instead: TEACHIE / BEACHIE in SLOOP's large capitals. Since
+    the review (finding 9) the start is drawn when it changes, not each pass.
   - **Checked:** the tool reads its file back the decoder's way before writing it; the simulated FM-1's start
     screen, with the lessons, is the file's picture pixel for pixel (0 of 35,496 differ); screenshots with and
     without lessons (`build/start-with-lessons.png`, `build/start-no-lessons.png`, from `build/twin vis OUT FLASH`).
@@ -346,8 +370,8 @@ fits, with 6,400 bytes to spare** (`build/fw/app.bin` 276,960 of 283,360).
   screens two to a row). The course's author: "I think we should update the website as the very last step". So
   nothing on it was changed; **for step 9:**
   - **Wrong now:** the last step's "Coming from SLOOP 2.8?" says SLOOP 2.8's presets, favorites, samples, SYN kits,
-    FM6 bank and settings come along (`tools/teachie_page.py`, the "first start" rule). Since step 1 only its
-    samples do.
+    FM6 bank and settings come along (`tools/teachie_page.py`, the "first start" rule). Since step 1 and the review only its
+    samples, menu settings and calibration do.
   - **Wrong now:** Help, "Updating Teachie Beachie later": "steps 3 to 5" (SLOOP's page has five steps). An update
     to the 3.4.2 Teachie Beachie needs the new lessons too: steps 3 to 6.
   - **Wrong once the lessons change:** the twelve pictures of the course are 3.3.7's: lesson 1 shows `P1`, lesson 3
@@ -366,9 +390,134 @@ fits, with 6,400 bytes to spare** (`build/fw/app.bin` 276,960 of 283,360).
   `fw/course.inc` and the page's check) makes the old firmware find no lessons, and the page then says to install
   Teachie Beachie first.
 
+## Step 2: the lesson player (2026-11-25)
+
+Said first, then done at the course's author's word ("Yes, start step 2"); reviewed and corrected the same day ("The
+review of steps 1 and 2", below). This is how it stands after the review.
+
+- **A lesson's song is the patterns' saved copy.** On 3.4.2 leaving a pattern puts its saved copy (`keep[]`) back,
+  so a setup that wrote only what plays emptied the song at the first change of pattern.
+  - **The rule:** a setup saves the tracks whose playing pattern it wrote, and no other. A song: all five. `patterns A
+    B C D` and `pattern 2: section C`: the tracks on which that pattern is the one playing (a pattern that is not
+    playing is its own saved copy already). `fill empty tracks`: the tracks it filled. `empty`, `steps`, `add`,
+    `sound`: that track. A new project saves its own (`new_project`). A setup that only plays, stops, mutes or turns
+    to a page saves nothing. Levels and sends are the mix, not the pattern's (`app/psound.h`), and need nothing.
+  - **On the FM-1** (`fw/course.inc`): `c_clip_load` answers which tracks' playing pattern it wrote; `c_setup` makes
+    those their saved copy at its end, notes and sound (`commit_trk`).
+  - **From the computer:** an op of our guide, `ED_GUIDE 7` with a byte of tracks (`fw/main.c`), does the same;
+    `tutorial/tp/fm1.py` `keep()`, and `tutorial/tp/lesson.py` `setup()` sends it by the same rule. A firmware
+    before it answers and does nothing.
+  - **Checked:** `tutorial/upgrade/keepcheck.py`, four cases: the computer's setup with its keep left out (72 drum
+    notes and 20 bass notes become 0 after SAVE + white key 2, then SAVE + white key 1: the problem, seen); as it
+    is (all back, the lead still FAT LEAD); the FM-1's own course, lesson 24's setup (all back); and a note of the
+    learner's own on the drums, not saved, then `fill empty tracks` (gone after a change of pattern, as SLOOP has
+    it: the lesson did not save it by the way).
+- **The drum picked** (decision 2: on the grid a black key picks, a white key is a box).
+  - **A new `Until` word, `drums picked SNARE`** (`CC_PICKED`, 32; `tools/mkcourse.py`, `app/tp_course.h`,
+    `fw/course.inc`, `tutorial/lessons/README.md`): a step can wait for the drum that boxes write. Without it a
+    "pick the snare" step ended at the tap of a black key, whichever drum that gave (a pair's key tapped twice
+    gives the other: SNR 2, KICK2).
+  - **The FM-1 says which drum is picked:** bits 4 to 7 of the state byte in our guide's answer (`fw/main.c`,
+    `ED_GUIDE`). `tutorial/tp/fm1.py` keeps it as `picked`; `tp/lesson.py` takes the FM-1's word over its own
+    guess from the presses.
+  - **Another drum picked than a step's boxes ask for:** that drum's black key blinks, not the boxes, until it is
+    picked, and the lesson says so once for each wrong drum, for 2.4 s: `Another drum is picked. / Tap the blinking
+    key.` (201 and 172 px of 220; "Yes, add them"). The same on the FM-1 (`fw/course.inc`) and from the computer
+    (`tp/lesson.py`). SLOOP's own lights stay under a strip: the black key of the drum picked is lit, the keys glow.
+  - **`That played a drum. / Hold [SEQ] first.` is gone**, on both: on 3.4.2 picking a drum is the right move. The
+    lesson no longer puts the drum back by itself.
+  - **The computer's own picking** (`tp/lesson.py`): its `pick` (a setup's `pick KICK`, a step's start) goes to
+    TRACKS first if the FM-1 is on the grid, and back; its "do it for me" no longer taps the drum's white key first
+    (on the grid a stray box).
+  - **Checked:** `tutorial/upgrade/drumcheck.py`, with the test lesson in `tutorial/upgrade/drumcheck/`: on the
+    FM-1's own course, key by key (the rim's key: the step waits; the snare's: it ends; the snare picked where the
+    kick is wanted: the words, the kick's black key blinking and not the boxes, not said twice; the same key again,
+    SNR 2: said again; the blinking key: KICK, the boxes blink again; kicks on 1 and 5 and nothing else), and with
+    the computer leading. A robot leaves out keys that are no boxes, so the test presses step 3's keys itself.
+- **No player change needed** for saving, chains and the SONG page: they are the lessons' words, for step 4, with
+  conditions the player already has. Lessons 6, 7, 15, 23 and 29 already wait for `says PROJECT SAVED` (their Do and
+  words say "SAVE twice"); lesson 30 waits for `pressed SAVE twice`, which passes with nothing saved: `says PROJECT
+  SAVED` instead. Lesson 25's `says CHAIN DONE` is never said: 3.4.2 says `CHAIN 1 2 ...` when two or more pattern
+  keys are tapped in one SAVE hold, and `PATTERN n` when one is. Lessons 25 and 26 wait for `page is SONG`, and SAVE
+  on the tracks page opens `SONG 2`: `page is SONG 2` (lesson 26 has it already).
+- **The pack's mark is `TPC4`** (`tools/mkcourse.py`, `fw/course.inc`, `tests/lessons_sim.js`): a 3.3.7 Teachie
+  Beachie (`TPC3`) finds no 3.4.2 lessons, and the page then says to install first.
+- **Until step 4 rewrites the drum lessons** their cards say "hold [SEQ]" while a black key may blink, and the
+  `--clumsy` robot (a box tapped before SEQ is held) sticks on those steps: it needs a new slip to practise (a black
+  key tapped twice), in step 5.
+
+## The review of steps 1 and 2 (2026-11-25)
+
+Steps 1 and 2 were made in a session that ran on Opus by mistake. The course's author asked for them to be looked
+over on Fable: "review the work so far with fresh eyes ... Look for anything wrong or risky, in particular code that
+might run while the flash window is off, the firmware's room, and the pack layout with the logo after it. Tell me
+what you find, one thing at a time, then stop and wait for me before fixing anything". Ten findings, each answered,
+then applied together ("Yes, apply them"). Should it all be run again? No: the checks are the same whichever model
+ran them, a new run would need this same review, and step 1 was already on GitHub.
+
+1. **The flash window's rule holds; this Mac cannot test it by running.** Everything of ours that reads the lesson
+   slot (the lessons, their fonts, the logo) is code in the window itself (`llvm-nm` on `ram.elf`: `course_*`,
+   `c_*`, `guide_*`, the logo's drawing in `app/vis.c`), so it cannot run while a save has the window off;
+   `tools/xipcheck.py` proves nothing that runs then reaches window code; the main loop does only the sound, the
+   panel and the flash while the window is off (`fw/main.c`, `if (!flash_xip_on()) { ... continue; }`) and calls
+   the interface, and with it the lesson player, after that. What step 2 touches during a save is `keep[]`, in RAM.
+   But SLOOP 3.4.1's check in the running simulated FM-1 needs Linux, and the build's check cannot see a read
+   through a pointer (the three into the slot were checked by hand: only window code reads them). **For step 10:**
+   SLOOP's scenarios and the 30 lessons once on Linux before a real FM-1.
+2. **Lessons sent while a card is on the screen: the simulated FM-1 died.** The FM-1 kept its pointers into the slot
+   (the pack, the fonts, since step 1 the logo) while the slot was erased and rewritten, and looked again only at the
+   end. A card redrawn in between took its letters from the bytes being replaced. Since step 1 a slot is sent whole,
+   so with shorter lessons the blank bytes land where the old fonts were, and a letter's place read from them ran
+   past the flash. Tried on the simulated FM-1 (scratch scripts, not kept): all 30 on it and lessons 1 to 15 sent,
+   the start card up: 3.3.7 goes on, the trial died (a lesson running: the same; no card: fine; the same 30 again:
+   fine; 1 to 15 on it and all 30 sent: fine on both). The installer page puts the start card up first;
+   `device.py --install` did nothing first. On a real FM-1 it is not known: a freeze, a restart or junk letters.
+   - **Fixed:** when a slot begins to be written or erased (`ED_SAMPLE` 1 and 4, one line of ours in SLOOP's
+     handler) and it is the pack's slot, `course_forget` (`fw/course.inc`) stops the FM-1's own lesson and forgets
+     the pack, the fonts and the logo; the start card, or a computer's card, is drawn in SLOOP's own letters for
+     the seconds of the transfer; `course_found` at its end finds them again and puts the start card back in the
+     lessons' font. `tutorial/device.py --install` puts the start card up before and after, as the page does.
+   - **Kept as a test:** `tests/lessons_sim.js`, on the simulated FM-1: lessons 1 to 15 (`build/course-short.bin`,
+     made by `fw/build.sh`) sent over all 30 with the start card up, then all 30 again. Against the firmware as it
+     was, this case fails (the twin stops); now it passes.
+3. **The firmware has five limits; the note watched one.** `tools/tp_room.py`, run at the end of `fw/build.sh`,
+   prints them all ("The room", below). The second to watch is the RAM for code outside the window and for
+   variables: what must run during a save, and every new variable, comes out of it. The two small ones are SLOOP's
+   own design, the same on its build. A limit passed stops the build at the link: it cannot reach an FM-1.
+4. **The slot's blank bytes were a leftover.** `tools/mkcourse.py` now keeps `RESERVE` (1,024) of them between the
+   pack and the logo and refuses a pack that leaves fewer; it prints the slot's three parts (`device.py --install`
+   too). The firmware's check of the logo's place no longer adds two numbers that could wrap. **Step 8's rules:**
+   below, in the plan.
+5. **Some setups saved every track,** the learner's own unsaved work with them (`fill empty tracks`, lesson 15 step
+   6; `patterns ...`). Fixed: "Step 2", the rule. Lesson 16 is to teach that an unsaved change goes away (decision 4);
+   a lesson that saves behind the learner's back would work against it.
+6. **The import cut took more than decision 1 named:** also SLOOP 2.8's colour theme, MIDI LEARN and MIDI settings,
+   menu settings and calibration. The calibration is the one whose loss makes buttons and knobs answer wrongly.
+   **The menu settings and the calibration are back** ("Yes, bring them back"), as SLOOP reads them, with no
+   switch; the rest stays out behind `TP_SLOOP28_DATA`. Cost: about 1 KB of the flash.
+7. **The lessons could not check the drum picked.** Added: "Step 2", `drums picked SNARE`.
+8. **The wrong drum: words with the blinking key** ("Yes, add them"): "Step 2".
+9. **The start screen was drawn about 65 times** (25 times a second for 2.6 s, as SLOOP's logo, which moved), each
+   time reading most of the logo again: 18 KB where there were 2. Is there a reason to draw it more than once? No:
+   a piece of the screen is sent only when it differs, so the second drawing sends nothing. Now it is drawn when it
+   changes, as any other page (`fw/main.c`, `ui_step`; SLOOP's way kept under `TP_SPLASH_MOVES`); `V`, what was
+   drawn last, is not zero at the start (`.lowbss`), so a flag of its own says the start was drawn. The simulated
+   FM-1 does not model how slow the flash is to read: **for step 10**, a look at the start screen on the FM-1.
+10. **The runs rewrite files kept in the project:** `check.py --run` saves a picture of every lesson that plays
+    through into `tutorial/lessons/screens/`, and `fw/build.sh` writes the page into `docs/`. Neither is for a
+    commit before step 9 (the pictures of lessons half moved; "update the website as the very last step"). **After
+    a build or a run, until step 9:** `git checkout -- docs/index.html tutorial/lessons/screens`. The pictures kept
+    there are already behind the lessons' words (from before the card reviews of 2026-11-21 to 24); step 9 makes
+    all 30 again.
+
+**The checks after it, all passing:** `make test`; `make build/twin`; `dash host/twin.sh 60 "1 2"` (99 ok);
+`fw/build.sh` with `install_sim` and `lessons_sim` (its new case too); `tutorial/upgrade/keepcheck.py`;
+`tutorial/upgrade/drumcheck.py`; the start screen with the lessons, drawn once, the logo's file pixel for pixel at
+0.7 s and 1.7 s, and the name without them. The 30 lessons: on the FM-1's own course (`tutorial/device.py`, 6 min 26 s) 21 play through and the same nine stop at the same steps as before step 2 (6, 7, 8, 13, 15, 16, 23, 25, 26); with the computer leading (`tutorial/check.py --run`, 4 min 12 s) 22 play through and eight stop (6, 7, 8, 15, 16, 23, 25, 26). Lessons 3 and 17 get through since step 2, because the computer now picks the drum the 3.4.2 way at a step's start; their words still teach the old way. Lesson 12 got through this once by accident: the robot repeated its four keys until twelve single notes had piled up, and the chords are still not on ([KNOB3] is SNAP now). All of these are still for step 4.
+
 ## Not done
 
-Everything in "The plan for the full move" after step 1. Nothing from here has been on a real FM-1.
+Everything in "The plan for the full move" after step 2. Nothing from here has been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot
@@ -385,6 +534,24 @@ what is held between them.
 | Room before the sample bank (3.4.2 moved the bank 5 KB later) | 283,360 |
 | **Over by** | **6,468** |
 | After step 1 (the visualizer, SLOOP 2.8's import and the logo out): `app.bin` 276,960 | **6,400 to spare** |
+| After step 2: `app.bin` 276,908 | 6,452 to spare |
+| After the review (SLOOP 2.8's settings and calibration back, about 1 KB; the fixes): `app.bin` 278,164 | **5,196 to spare** |
+
+**The flash before the bank is one limit of five** (the review, finding 3; `tools/tp_room.py` prints them at the end
+of `fw/build.sh`). Free bytes:
+
+| Limit | After step 2 | After the review | SLOOP's own 3.4.2 |
+|---|---|---|---|
+| Flash before the sample bank | 6,452 | 5,196 | 1,912 |
+| RAM: code outside the window, variables (`slot`) | 2,152 | 2,136 | 1,584 |
+| RAM: the patterns, their saved copies, the stack (`low`) | 200 | 200 | 200 |
+| RAM: buffers (`boot`) | 184 | 184 | 184 |
+| The flash window's own region (`xip`) | 79,940 | 78,692 | 75,308 |
+
+Code in the window (the lesson player, the guide, the pages) costs its full size of the first; what runs from RAM
+is packed in the flash (to about 78 %) and costs its full size of the second, as every new variable does. Still to
+come: the frames that answer the controls (window code, 400 to 600 estimated, and a few variables), the screen
+colors (`hal/fm1/board.c` runs from RAM: about 80 of the second), remembering the lesson (window code, about 100).
 
 Remembering the lesson after power-off (NOTES, item 118) needs about 100 more. What could come out, as measured in
 this build's `ram.elf` (`llvm-nm --print-size`):

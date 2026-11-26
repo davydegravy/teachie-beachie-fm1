@@ -29,6 +29,11 @@ Each cut goes behind a switch of our own, so SLOOP's files stay as they are.
 Answer (2026-11-24): **A, the visualizer and SLOOP 2.8's import.** The installer page's "Already use SLOOP?" note
 then says a SLOOP 2.8 user's presets, favorites, kits and bank no longer come along.
 
+**2026-11-25, in the review of step 1: SLOOP 2.8's menu settings and calibration stay** ("Yes, bring them back").
+The cut had taken them too, with the colour theme and the MIDI settings, which this answer does not name. Without
+its calibration an FM-1 that needed one answers its buttons and knobs wrongly until it is calibrated again (OCT-
+and OCT+ held), and a beginner would not know why. About 1 KB. The theme and the MIDI settings stay out.
+
 **Changed 2026-11-25: the logo moves into the lesson pack, at the best the screen can show.** (On 2026-11-24 it
 was "later": liked, "but it's not very important".) The course's author is considering a new logo: a round
 sticker, the name over a sunset on the sea, 6 flat colours (peach round it, orange, black, white, yellow, teal).
@@ -76,6 +81,12 @@ Answer (2026-11-24): **A, and the drum picked with a black key on the grid.**
   a hint catches KICK2. [KNOB1] is shown once as the other way.
 - **Lesson 4** ("Play every white key. The top names each drum") moves to the tracks page, where a white key still
   plays its drum and picks it.
+- **2026-11-25, in the review of step 2:**
+  - **A lesson can wait for the drum picked** ("Yes, approve"): a new `Until` word, `drums picked SNARE`. Without it
+    a "pick the snare" step ended at the tap, whichever drum it gave, and no hint could catch KICK2.
+  - **Another drum picked than a step's boxes ask for** ("Yes, add them"): that drum's black key blinks, not the
+    boxes, and the lesson says, once for each wrong drum: `Another drum is picked. / Tap the blinking key.` (in place
+    of 3.3.7's `That played a drum. / Hold [SEQ] first.`). It no longer puts the drum back by itself.
 
 ## 3. Lesson 8, "A bass line in boxes"
 

@@ -5,10 +5,13 @@
  * read afterwards. Checked: the pack the page carries is PACK (tools/mkcourse.py's), it goes whole into the last slot
  * that holds no samples, a busy FM-1 is asked again, a full FM-1 asks which slot to give up, and each thing that can
  * be wrong (no FM-1, MIDI MODE, SLOOP 3 without Teachie Beachie, an older Teachie Beachie) says so.
- *   node tests/lessons_sim.js PAGE.html [PACK] [OUT] */
+ * (2026-11-25) And on the twin, shorter lessons sent over longer ones while the start's card shows: the blank bytes
+ * of the new slot land where the old lessons' fonts were, and a card drawn from them read past the flash (the twin
+ * died). The FM-1 now forgets the lessons when their slot begins to be written (fw/course.inc, course_forget).
+ *   node tests/lessons_sim.js PAGE.html [PACK] [OUT] [SHORTER PACK] */
 const fs = require('fs'), path = require('path'), zlib = require('zlib');
 const { spawn } = require('child_process');
-const [page, packFile, OUT = 'build/lessons-sim'] = process.argv.slice(2);
+const [page, packFile, OUT = 'build/lessons-sim', shortFile] = process.argv.slice(2);
 const html = fs.readFileSync(page, 'utf8');
 const js = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
 let fails = 0;
@@ -93,7 +96,7 @@ function fm1(o = {}) {
       const len = (h[16] | h[17] << 8 | h[18] << 16 | h[19] << 24) >>> 0, crc = (h[20] | h[21] << 8 | h[22] << 16 | h[23] << 24) >>> 0;
       if (r.length < 482 || String.fromCharCode(...h.slice(0, 4)) !== 'TPCO' || len !== data.length || crc !== zlib.crc32(data)) { dev.cur = null; say(0, [4]); return; }
       dev.written[k] = { head: Buffer.from(h), data }; dev.cur = null;
-      if (!o.older && data.slice(0, 4).toString() === 'TPC3') dev.lessons = data[6];   /* (an older Teachie Beachie does not read this pack) */
+      if (!o.older && data.slice(0, 4).toString() === 'TPC4') dev.lessons = data[6];   /* (an older Teachie Beachie does not read this pack) */
       say(13, [3, k, 0]); return;
     }
     say(0, [1]);
@@ -106,7 +109,7 @@ const said = (p, re) => p.logs.some(l => re.test(l));
   check(PACK && HEAD && HEAD.length === 480, 'the page carries the lessons and their header');
   if (!PACK || !HEAD) { console.log('1 FAILED'); process.exit(1); }
   const N = PACK[6];
-  check(PACK.slice(0, 4).toString() === 'TPC3' && N > 0, 'the pack inside is a course (TPC3, ' + N + ' lessons)');
+  check(PACK.slice(0, 4).toString() === 'TPC4' && N > 0, 'the pack inside is a course (TPC4, ' + N + ' lessons)');
   check(HEAD.slice(0, 4).toString() === 'TPCO' && HEAD.readUInt32LE(16) === PACK.length && HEAD.readUInt32LE(20) === zlib.crc32(PACK), 'its header: the length and the CRC');
   if (packFile) { const pf = fs.readFileSync(packFile); check(same(PACK.subarray(0, pf.length), pf), 'the pack inside is ' + packFile); }
   /* (2026-11-25) the slot: the pack, blank bytes, the start's logo at its very end (tools/mkcourse.py slot_image) */
@@ -185,6 +188,24 @@ const said = (p, re) => p.logs.some(l => re.test(l));
     /* a second time, as newer lessons would go: the same slot again */
     await p.send();
     check(p.shown('tpDone') && /USR4/.test(p.els.tpMeta.textContent), 'the twin: sent again, the same slot');
+    /* shorter lessons over these, the start's card showing (the page leaves it up): the slot's image as
+     * tools/mkcourse.py slot_image makes it, sent with the sample messages themselves */
+    if (shortFile && fs.existsSync(shortFile)) {
+      const sp = fs.readFileSync(shortFile), logo = PACK.subarray(LAT, LAT + LN), data = Buffer.concat([sp, Buffer.alloc(SLOT - sp.length - LN, 0xFF), logo]);
+      const head = Buffer.alloc(480); head.write('TPCO'); head.writeUInt16LE(2, 4); head.writeUInt32LE(data.length, 16); head.writeUInt32LE(zlib.crc32(data), 20); head.writeUInt32LE(LAT, 24); head.writeUInt32LE(LN, 28);
+      const ask = (cmd, raw, ms = 8000) => new Promise((res, rej) => { const t = setTimeout(() => { dev.tap = null; rej(new Error('no answer')); }, ms);
+        dev.tap = m => { if (m[4] === cmd || m[4] === 0) { clearTimeout(t); dev.tap = null; res({ cmd: m[4], r: unpack(m.slice(5, m.length - 1)) }); } }; dev.rx(frame(cmd, raw)); });
+      const job = async raw => { for (;;) { const a = await ask(13, raw); if (a.cmd === 0 && a.r[0] === 2) { await sleep(30); continue; } if (a.cmd === 0) throw new Error('refused (' + a.r[0] + ')'); return a.r; } };
+      let found = -1, why = '';
+      try {
+        await job([1, 3]);
+        for (let off = 0; off < data.length; off += 400) await job([2, 3, off & 255, off >> 8 & 255, off >> 16 & 255, off >>> 24, ...data.subarray(off, off + 400)]);
+        await job([3, 3, ...head]); await sleep(600);
+        found = (await ask(21, [6], 2000)).r[4];
+      } catch (e) { why = e.message; }
+      check(tw.exitCode === null && found === sp[6], 'the twin: shorter lessons (' + sp[6] + ') over longer ones, the start\'s card showing: it goes on, and finds them (' + (why || found) + (tw.exitCode === null ? '' : '; the twin stopped') + ')');
+      if (tw.exitCode === null) { await p.send(); check(p.shown('tpDone'), 'the twin: the longer lessons again, over the shorter'); }
+    }
     tw.stdin.write('Q\n'); await Promise.race([gone, sleep(8000)]); try { tw.kill(); } catch (e) {}
     const fl = fs.existsSync(path.join(OUT, 'flash.bin')) ? fs.readFileSync(path.join(OUT, 'flash.bin')) : null, AT = 0xE7000;   /* (USR4: SLOT_AT[3], fw/main.c) */
     check(fl && same(fl.subarray(AT, AT + 480), HEAD) && same(fl.subarray(AT + 512, AT + 512 + PACK.length), PACK), 'the twin: its flash holds the header and the pack, byte for byte');

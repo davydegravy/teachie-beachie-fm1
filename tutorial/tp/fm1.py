@@ -102,11 +102,12 @@ class Midi:
     def close(self): self.i.close(); self.o.close()
 
 class FM1:
-    def __init__(self, link): self.link = link; self.page = self.track = 0; self._names = None; self.lost = 0; self.state = 0; self.pending = []   # presses and turns not looked at yet
+    def __init__(self, link): self.link = link; self.page = self.track = 0; self._names = None; self.lost = 0; self.state = 0; self.picked = 0; self.pending = []   # presses and turns not looked at yet
     def _absorb(self, r):
         """a guide's answer taken in: the page, the track, the state, and the presses and turns it brings (each answer
         brings them once, so every one that arrives is read, even a late one)"""
         self.page, self.track, self.state = r[1], r[2], r[3]   # state: bit 0 a card, 1 the start's card, 2 START pressed
+        self.picked = r[3] >> 4                                # (SLOOP 3.4.2's Teachie Beachie) the drum picked, the one boxes write: 0 KICK .. 15
         self.pending += [(EVENT.get(r[5 + 2 * i], "?"), r[6 + 2 * i]) for i in range(r[4])]
     def _drain(self):
         """answers that came too late for their question (the FM-1 was busy, saving for instance): out of the way"""
@@ -136,6 +137,10 @@ class FM1:
         t = lambda s: s.encode("ascii", "replace") + b"\0"
         return self.guide(1, bytes([1 | (2 if big else 0) | strip << 2]) + t(words) + t(left) + t(right))
     def no_card(self): return self.guide(1, bytes([0, 0, 0, 0]))
+    def keep(self, tracks):
+        """(SLOOP 3.4) these tracks' patterns and sounds, as they play now, made their saved copy, so a change of pattern
+        does not put an older one back (ED_GUIDE 7; a firmware before it answers and does nothing)"""
+        return self.guide(7, bytes([sum(1 << t for t in tracks) & 0x1F]))
     def lights(self, how=None, only=False):
         """how: {light number: 1..4 or BLINK}; nothing: the guide's lights off. only: SLOOP's own lights dark too, but the
         fourteen buttons keep a faint glow (level 1: as bright as HOME > LIGHTS says), so their names can still be read"""

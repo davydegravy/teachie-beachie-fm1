@@ -11,7 +11,7 @@
 enum { PH_OFF, PH_BEGIN, PH_LIST, PH_STEP, PH_PLAY, PH_ECHO, PH_DO, PH_ANSWER, PH_WAIT, PH_MSG, PH_STUCK, PH_END, PH_BYE, PH_TOC };   /* (PH_TOC: the card of the whole course, after START) */
 static const uint8_t *tpc;                          /* the pack, read through the flash window; 0: none found */
 static struct {
-    uint8_t ph, ret, les, nstep, step, hint, at, turned, need, kplay, lastb, ev_r, gen, clip, go, said, turnedk, reshow, bar, held;
+    uint8_t ph, ret, les, nstep, step, hint, at, turned, need, kplay, lastb, ev_r, gen, clip, go, said, turnedk, reshow, bar, held, wrong;   /* wrong: the drum picked that the step did not ask for, once said (its number + 1) */
     uint16_t pressed, twice, played;
     const uint8_t *st;                              /* the step under way (its length, then its kind) */
     uint32_t ms, last, t0, t_hint, t_end, t_off, t_lastb, t_out;   /* ms: our own clock (the firmware's wraps every 72 s) */
@@ -40,11 +40,11 @@ CCOLD static int course_find(void)                   /* the pack, in whichever s
     tpc = 0; tp_logo = 0;
     for (int i = SMP_NUSR - 1; i >= 0 && flash_ok; i--) {
         const uint8_t *h = (const uint8_t *)(uintptr_t)(FLASH_WIN + SLOT_AT[i] - 0x4000u);
-        if (h[0] == 'T' && h[1] == 'P' && h[2] == 'C' && h[3] == 'O' && h[512] == 'T' && h[513] == 'P' && h[514] == 'C' && h[515] == '3' && h[518]) {
+        if (h[0] == 'T' && h[1] == 'P' && h[2] == 'C' && h[3] == 'O' && h[512] == 'T' && h[513] == 'P' && h[514] == 'C' && h[515] == '4' && h[518]) {   /* (TPC4: SLOOP 3.4's lessons; TPC3 was 3.3.7's) */
             tpc = h + 512;
             {                                            /* the logo: its place and length at 24 and 28 (tools/mkcourse.py slot_image) */
                 uint32_t at = c_u32(h + 24), n = c_u32(h + 28); const uint8_t *g = tpc + at;
-                if (n > 6 && at + n <= SMP_USR_SIZE - 512u && g[0] == 'T' && g[1] == 'P' && g[2] == 'L' && g[3] == '1' && g[4] && g[4] <= GFX_W && g[5] && g[5] <= GFX_H) tp_logo = g;
+                if (n > 6 && n <= SMP_USR_SIZE - 512u && at <= SMP_USR_SIZE - 512u - n && g[0] == 'T' && g[1] == 'P' && g[2] == 'L' && g[3] == '1' && g[4] && g[4] <= GFX_W && g[5] && g[5] <= GFX_H) tp_logo = g;
             }
             for (int k = 0; k < 2; k++) {                /* its two fonts, after the lessons and the clips: 6 bytes, the glyphs, the bits */
                 const uint8_t *b = tpc + c_u16(tpc + 8 + 2 * (tpc[6] + tpc[7] + k));
@@ -56,6 +56,24 @@ CCOLD static int course_find(void)                   /* the pack, in whichever s
     }
     tp_fonts = 0;
     return 0;
+}
+/* a slot is about to be erased or rewritten (the editor's sample messages): if it is the one the pack is in, the
+ * course stops and the pack, its fonts and the logo are forgotten, for they are read from that slot: a card drawn in
+ * the pack's font while its bytes were being replaced read past the flash (2026-11-25). The start's card, in SLOOP's
+ * own font, until course_found */
+CCOLD static void course_stop(void); COLD static void guide_home(void);
+CCOLD static void course_forget(int k)
+{
+    if (!tpc || tpc != (const uint8_t *)(uintptr_t)(FLASH_WIN + SLOT_AT[k] - 0x4000u) + 512) return;
+    int was = C.ph != PH_OFF || G.home;
+    course_stop(); tpc = 0; tp_logo = 0; tp_fonts = 0;
+    if (was) guide_home(); else { guide_wrap(); G.gen++; }
+}
+CCOLD static int course_found(void)                  /* a slot written: the pack looked for again; the start's card in its font */
+{
+    int ok = course_find();
+    if (ok && G.home) guide_home();
+    return ok;
 }
 /* ---- what the learner sees */
 CCOLD static void c_leds(void) { for (int i = 0; i < 41; i++) G.led[i] = 0; G.only = 0; }
@@ -99,10 +117,10 @@ CCOLD static int c_preset(const uint8_t *name, int drum)
     return -1;
 }
 /* a clip set's notes into pattern pat of every track (pat < 0: the patterns playing, and its sounds, levels and tempo
- * too); only_empty: the tracks with nothing on them alone */
-CCOLD static void c_clip_load(int id, int pat, int only_empty)
+ * too); only_empty: the tracks with nothing on them alone. Answers the tracks whose playing pattern it wrote */
+CCOLD static uint32_t c_clip_load(int id, int pat, int only_empty)
 {
-    const uint8_t *p = c_clip(id), *snd[NTRK];
+    const uint8_t *p = c_clip(id), *snd[NTRK]; uint32_t wrote = 0;
     if (pat < 0 && !only_empty) seq_set_bpm(&Q, (float)c_u16(p) * 0.1f);
     p += 2;
     for (int t = 0; t < NTRK; t++) { snd[t] = p; while (*p) p++; p += 3; }
@@ -117,9 +135,11 @@ CCOLD static void c_clip_load(int id, int pat, int only_empty)
                 ps_keep(t); for (int i = 0; i < SEQ_NPAT; i++) ps_copy(&PS, t, PS.cur[t], i);   /* (its 8 patterns: the same sound) */
             }
             seq_pat_put2(&Q, t, pt, 0, steps, p, n, 8);
+            if (pt == Q.t[t].cur) wrote |= 1u << t;
         }
         p += 8 * n;
     }
+    return wrote;
 }
 CCOLD static void c_add(int t, int note, int vel, int cond, uint32_t mask)   /* a note in each of these boxes that lacks it */
 {
@@ -130,20 +150,25 @@ CCOLD static void c_add(int t, int note, int vel, int cond, uint32_t mask)   /* 
         seq_pat_put2(&Q, t, Q.t[t].cur, p->n ? p->n : 0, p->steps, x, 1, 8);
     }
 }
+/* (SLOOP 3.4: each track's pattern keeps a saved copy, put back when the FM-1 leaves it (keep[], fw/main.c). What a
+ * setup writes into a pattern that is playing, notes or a sound, is made that track's saved copy at once, or the
+ * lesson's song would empty at the first change of pattern. A track it did not write keeps the learner's own, saved
+ * or not; a pattern that is not playing is its own saved copy already; a new project saves its own (new_project)) */
 CCOLD static void c_setup(const uint8_t *e, int n)
 {
+    uint32_t kept = 0;                              /* the tracks this setup wrote */
     for (const uint8_t *end = e + n; e < end; e += 1 + e[0]) {
         const uint8_t *a = e + 2; int t = a[0] < NTRK ? a[0] : 0;
         switch (e[1]) {
         case CS_NEW: case CS_SONG:
             if (Q.playing) transport(0);
             new_project(0); recording_armed = 0; oct = 0; select_track(0); page = 0; c_goto(PG_TRACKS);
-            if (e[1] == CS_SONG) { c_clip_load(a[0], -1, 0); C.clip = a[0]; }
+            if (e[1] == CS_SONG) { kept |= c_clip_load(a[0], -1, 0); C.clip = a[0]; }
             break;
-        case CS_PATTERN: c_clip_load(a[1], a[0], 0); break;
-        case CS_EMPTY: seq_pat_put2(&Q, t, Q.t[t].cur, 0, Q.t[t].pat[Q.t[t].cur].steps, a, 0, 8); break;
-        case CS_STEPS: Q.t[t].pat[Q.t[t].cur].steps = a[1]; break;
-        case CS_ADD: c_add(t, a[1], a[2], a[3], c_u16(a + 4)); break;
+        case CS_PATTERN: kept |= c_clip_load(a[1], a[0], 0); break;
+        case CS_EMPTY: seq_pat_put2(&Q, t, Q.t[t].cur, 0, Q.t[t].pat[Q.t[t].cur].steps, a, 0, 8); kept |= 1u << t; break;
+        case CS_STEPS: Q.t[t].pat[Q.t[t].cur].steps = a[1]; kept |= 1u << t; break;
+        case CS_ADD: c_add(t, a[1], a[2], a[3], c_u16(a + 4)); kept |= 1u << t; break;
         case CS_TRACK: select_track(t); break;
         case CS_TEMPO: seq_set_bpm(&Q, (float)c_u16(a) * 0.1f); break;
         case CS_SWING: Q.swing = a[0]; break;
@@ -153,11 +178,11 @@ CCOLD static void c_setup(const uint8_t *e, int n)
         case CS_MUTE: for (int i = 0; i < NTRK; i++) if ((a[0] >> i) & 1u) seq_mute(&Q, i, 1); break;
         case CS_SOLO: for (int i = 0; i < NTRK; i++) if ((a[0] >> i) & 1u) solo[i] = 1; break;
         case CS_UNMUTE: for (int i = 0; i < NTRK; i++) { seq_mute(&Q, i, 0); solo[i] = 0; } break;
-        case CS_SOUND: { int np = c_preset(a + 1, is_drum(t)); if (np >= 0) apply_preset(t, np); } break;
+        case CS_SOUND: { int np = c_preset(a + 1, is_drum(t)); if (np >= 0) apply_preset(t, np); } kept |= 1u << t; break;
         case CS_LEVEL: sm_set(&S.trk[t].level, (float)a[1] * (1.0f / 127.0f)); break;
         case CS_PICK: c_pick(a[0]); break;
         case CS_KEY: for (int i = 0; i < NTRK; i++) if (!is_drum(i)) { harm[i].root = a[0]; harm[i].scale = a[1]; } break;
-        case CS_FILLEMPTY: c_clip_load(C.clip, -1, 1); break;
+        case CS_FILLEMPTY: kept |= c_clip_load(C.clip, -1, 1); break;
         case CS_LINES:
             for (int i = 0; i < a[0] && i < SEQ_SONG; i++) { Q.song[i].bar = (uint16_t)(i * a[1]); Q.song[i].mute = 0; for (int k = 0; k < SEQ_NTRK; k++) Q.song[i].pat[k] = a[2 + i]; }
             Q.song_n = a[0]; Q.song_len = (uint16_t)(a[0] * a[1]); break;
@@ -168,6 +193,7 @@ CCOLD static void c_setup(const uint8_t *e, int n)
         default: break;
         }
     }
+    for (int t = 0; t < NTRK; t++) if ((kept >> t) & 1u) commit_trk(t);
 }
 /* ---- how the lesson knows */
 CCOLD static uint32_t c_miss(const uint8_t *c)       /* HAS: the boxes that still lack the note */
@@ -250,6 +276,7 @@ CCOLD static int c_true(const uint8_t *c, int i)     /* condition number i of th
     case CC_TURNED: return (C.turnedk >> c[1]) & 1u;
     case CC_LINEPAT: return c[1] < Q.song_n && Q.song[c[1]].pat[0] == c[2];
     case CC_LINEBARS: return c[1] < Q.song_n && seq_song_len_of(&Q, c[1]) == c[2];
+    case CC_PICKED: return (last_notes[C_DRUM] & 15) == c[1];   /* (the drum that boxes write: the grid's black keys and SOUND, a drum played on TRACKS) */
     default: return 1;
     }
 }
@@ -321,7 +348,7 @@ CCOLD static void c_step_begin(void)
         int i = 0; const uint8_t *e = c_field(CT_UNTIL, 0, &n);
         for (const uint8_t *end = e ? e + n : 0; e && e < end && i < 8; e += 1 + e[0], i++) C.latch[i] = e[1] == CC_NUM ? c_num(e + 1) : e[1] == CC_SOUNDCHG ? preset_of[e[2] < NTRK ? e[2] : 0] : 0;
     }
-    int ok = c_until(&any, &miss, &need); C.need = (uint8_t)need;
+    int ok = c_until(&any, &miss, &need); C.need = (uint8_t)need; C.wrong = 0;
     if (any && ok && !c_field(CT_LEFT, 0, &n) && !c_field(CT_RIGHT, 0, &n)) {   /* it is so already: the step is over... */
         if (!c_held()) { c_after(PH_DO); return; }
         C.held = 1;                                  /* ...unless a fill or an effect is still held from the step before: let go first */
@@ -481,10 +508,6 @@ CCOLD static void course_tick(void)                  /* each round of the interf
         else {
             if (C.held) C.held = (uint8_t)c_held();
             else if (any ? ok : 3 * C.at >= dn) { c_after(PH_DO); break; }
-            if (C.need != 255 && (last_notes[C_DRUM] & 15) != C.need && !(held_btn & (1u << BTN_SEQ))) {
-                /* a key played with SEQ not held: it sounded a drum, and boxes would now write that drum */
-                c_pick(C.need); c_msg("That played a drum.\nHold [SEQ] first.", kind, 2400u, PH_DO, 1); break;
-            }
             /* the lights: what to hold, what is still to press */
             for (int i = 0; 3 * i < dn; i++) {
                 const uint8_t *op = d + 3 * i; int key = op[0] == CD_TAP || op[0] == CD_LONG || op[0] == CD_KHOLD || (op[0] == CD_ANY && op[1] != 255);
@@ -493,6 +516,12 @@ CCOLD static void course_tick(void)                  /* each round of the interf
                 else if (i == C.at) { if (op[0] == CD_PRESS || op[0] == CD_HOLD) G.led[op[1]] = 5; else if (key) G.led[14 + op[1]] = 5; }
             }
             for (int b = 0; b < 16; b++) if ((miss >> b) & 1u) G.led[14 + white_key[b]] = 5;
+            if (C.need != 255 && (last_notes[C_DRUM] & 15) != C.need) {   /* (SLOOP 3.4) another drum picked than the boxes ask for: */
+                int key = 14 + drum_black_key(C.need), w = (last_notes[C_DRUM] & 15) + 1;
+                for (int k = 14; k < 41; k++) G.led[k] = 0;                /* its black key blinks, SLOOP's way to pick it on the grid, */
+                G.led[key] = 5;                                            /* not the boxes, until it is picked; said once for each wrong drum */
+                if (C.wrong != w) { C.wrong = (uint8_t)w; c_msg("Another drum is picked.\nTap the blinking key.", kind, 2400u, PH_DO, 1); G.led[key] = 5; break; }
+            } else C.wrong = 0;
             while (!any && 3 * C.at < dn && d[3 * C.at] == CD_HOLD && (held_btn >> d[3 * C.at + 1]) & 1u) C.at++;
         }
         if (f && fn) G.led[14 + f[Q.playing ? (uint32_t)(Q.pos / ((uint64_t)SEQ_BAR << 16)) % (uint32_t)fn : 0]] = 5;

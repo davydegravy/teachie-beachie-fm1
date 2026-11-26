@@ -319,6 +319,10 @@ def parse_until(text):
             key, want = ("mute" if "muted" in rest else "solo"), "not" not in rest
             k.fn = lambda s, t=t, key=key, want=want: s.st["tracks"][t][key] == want
         elif rest == "is empty": k.fn = lambda s, t=t: not s.pattern(t)[1]
+        elif t == TRACK["drums"] and rest.startswith("picked "):                    # the drum that boxes write, as the FM-1 says it
+            what = rest[7:].strip().upper()
+            if what not in PADS: raise Bad("no drum sound called %s" % what)
+            k.fn = lambda s, pad=PADS.index(what): (s.st, s.fm1.picked == pad)[1]
         elif re.match(r"has (\d+) notes? or more$", rest): n = int(rest.split()[1]); k.fn = lambda s, t=t, n=n: len(s.pattern(t)[1]) >= n
         elif re.match(r"has (\d+) notes? or fewer$", rest): n = int(rest.split()[1]); k.fn = lambda s, t=t, n=n: len(s.pattern(t)[1]) <= n
         elif rest.startswith("has no ") and " on box" in rest:
@@ -447,6 +451,10 @@ class Hands:
         else: self.fm1.turn(which, value)
 
 LAYERS = {BTN[b] for b in ("FX", "SEL", "EDIT", "GLO", "HOME", "SAVE", "ARP", "SEQ")}   # a key pressed with one of these held plays nothing
+# (SLOOP 3.4) the drum grid's black keys pick a drum, two of them in turns: the same key again, the other (fw/main.c, drum_black)
+DB_KEY, DB_A, DB_B = (1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25), (0, 2, 7, 3, 4, 5, 9, 11, 12, 13, 15), (1, 8, 7, 3, 6, 5, 10, 11, 12, 14, 15)
+def drum_black(k, cur): i = DB_KEY.index(k); return DB_B[i] if cur == DB_A[i] else DB_A[i]
+def drum_black_key(pad): return next((k for k, a, b in zip(DB_KEY, DB_A, DB_B) if pad in (a, b)), DB_KEY[0])
 
 class Player:
     """plays lessons through a Teacher (tp/teach.py). robot: a simulated FM-1's link, for a run with no person"""
@@ -469,14 +477,17 @@ class Player:
             elif kind == "button_up": self.held.discard(which)
             elif kind == "key":
                 self._last_b = None
-                if self.fm1.track == TRACK["drums"] and not self.held & LAYERS and not self.keys_taken:   # a drum played: boxes write that one now
-                    if which in WHITE: self.picked = WHITE.index(which)
-                    elif self.fm1.page == PAGES["STEPS"]: self.picked = None                              # (a black key there flips between two drums)
+                if self.fm1.track == TRACK["drums"] and not self.held & LAYERS and not self.keys_taken:   # a drum picked: boxes write that one now
+                    grid = self.fm1.page == PAGES["STEPS"]
+                    if which in WHITE:
+                        if not grid: self.picked = WHITE.index(which)                                     # (SLOOP 3.4: on the grid a white key is a box)
+                    elif grid: self.picked = drum_black(which, self.picked)                               # (a black key there picks, a pair in turns)
                     else: self.picked = WHITE.index(max(k for k in WHITE if k < which))
             elif kind in ("knob_right", "knob_left") and which == KNOB["KNOB1"] and self.fm1.track == TRACK["drums"] and self.picked is not None:
                 if BTN["SEQ"] in self.held or (not self.held & LAYERS and self.fm1.page in (PAGES["STEPS"], PAGES["DRUM SOUND"])):
                     self.picked = (self.picked + (1 if kind == "knob_right" else -1)) % 16
         self.events += ev
+        self.picked = self.fm1.picked                                               # (SLOOP 3.4.2's Teachie Beachie says which drum is picked: its word over the guess above)
         return ev
     def seen(self, base=None): return Seen(self.fm1, base, self.events, self.msgs)
     def lights(self, how, only=False):
@@ -528,8 +539,10 @@ class Player:
         n = f.write_pattern(tr["track"], tr["steps"], tr["notes"], pat)
         self.t.note("song", "%-9s %-10s %3d notes%s" % ("track %d" % tr["track"], tr["sound"], n, "" if pat == 255 else "  (pattern %d)" % (pat + 1)))
     def setup(self, text):
-        f = self.fm1
+        f = self.fm1; kept = set()                # the tracks whose playing pattern is written: made its saved copy (SLOOP 3.4; fw/course.inc, c_setup)
         for op in parse_setup(text):
+            if op[0] == "song": kept |= set(range(5))
+            elif op[0] in ("empty", "steps", "add", "sound"): kept.add(op[1])
             if op[0] == "new": self.new_project()
             elif op[0] == "song":
                 self.new_project(); song = load_spec(op[1], op[2])
@@ -543,6 +556,7 @@ class Player:
                 song = load_spec(self.song_name(), op[2])
                 if op[3] is not None: one_bar(song, op[3])
                 for tr in song["tracks"]: self.write(tr, op[1])
+                kept |= {t for t, x in enumerate(f.status()["tracks"]) if x["cur"] == op[1]}   # (a pattern not playing is its own saved copy already)
             elif op[0] == "empty": steps = f.pattern(op[1])[0]; f.write_pattern(op[1], steps, [])
             elif op[0] == "steps": steps, notes = f.pattern(op[1]); f.write_pattern(op[1], op[2], [(s, l, n, v, cd) for s, l, n, v, cd, _ in notes if s < op[2]])
             elif op[0] == "add":
@@ -551,7 +565,7 @@ class Player:
                 f.write_pattern(op[1], steps, [(s, l, n, v, cd) for s, l, n, v, cd, _ in notes] + [(b, ln, op[2], vel, cond) for b in op[3] if (b, op[2]) not in have])
             elif op[0] == "fill":                                                  # the tracks still empty: the song's own part
                 for tr in getattr(self, "song", {}).get("tracks", []):
-                    if not f.pattern(tr["track"])[1]: self.write(tr)
+                    if not f.pattern(tr["track"])[1]: self.write(tr); kept.add(tr["track"])
             elif op[0] == "lines": f.write_song([(pat, op[2]) for pat in op[1]])
             elif op[0] == "songmode":
                 if f.status()["song"] != op[1]:
@@ -578,14 +592,18 @@ class Player:
             elif op[0] == "rec off":
                 st = f.status()
                 if st["recording"] or st["armed"]: f.tap(BTN["REC"])
+        if kept: f.keep(kept)
         self.t.note("setup", text)
     def pick(self, pad):
         """the drum that boxes write, chosen from here: its key played with the drum track turned right down for a moment"""
         f = self.fm1; st = f.status(); was, lvl = st["track"], st["tracks"][TRACK["drums"]]["level"]; muted = st["tracks"][TRACK["drums"]]["mute"]
+        f.guide(4); grid = f.page == PAGES["STEPS"]                                 # (SLOOP 3.4: on the drum grid a white key writes a box)
+        if grid: self.goto("TRACKS")
         f.select(TRACK["drums"]); f.live(4, TRACK["drums"], 0, 0); time.sleep(0.08)
         f.play_key(WHITE[pad], True); time.sleep(0.06); f.play_key(WHITE[pad], False); time.sleep(0.25)
         f.live(4, TRACK["drums"], 0, round(lvl * 127 / 100)); f.select(was)
         if muted: f.live(4, TRACK["drums"], 6, 1)
+        if grid: self.goto("STEPS")
         self.picked = pad; self.t.note("picked", PADS[pad])
     def song_name(self):
         m = re.search(r"song (.+?),? section", " ".join(s.text for s in self.lesson.steps if s.kind.lower() == "setup").lower())
@@ -601,6 +619,7 @@ class Player:
         base = {c.needs_base: None for c in conds if c.needs_base}
         if base: s0 = self.seen(); base = {k: s0.value(k) for k in base}
         t0 = time.time(); at = 0; turned = 0; hint_at = t0 + self.hint_s; hint_i = 0; robot = None; robot_due = t0 + 0.5; off_page = None; self.events = []; self.msgs.clear()
+        said = None                                                                # the wrong drum last said
         if conds and all(c.ok(self.seen(base)) for c in conds) and not any(c.needs_base for c in conds):
             on = lambda: (lambda st: bool(st["fill"] or st["punch"] is not None))(self.seen().st)
             if not on(): self.t.note("already", step.sub("Until")); return
@@ -615,13 +634,6 @@ class Player:
                 miss = [b for c in conds if c.miss for b in c.miss(self.seen(base))]
                 if miss: robot_ops = [("tap", WHITE[miss[-1] % 16]), ("wait", 3.2)] + robot_ops
         while True:
-            if need is not None and self.picked != need and BTN["SEQ"] not in self.held:
-                # a key played with SEQ not held: it sounded a drum, and boxes would now write that drum
-                self.show(step, "That played a drum. / Hold [SEQ] first."); self.t.note("slip", "played %s" % (PADS[self.picked] if self.picked is not None else "a drum"))
-                self.pick(need); end = time.time() + (1.2 if self.fast else 2.4)
-                while time.time() < end: self.pump(); time.sleep(0.05)
-                if self.picked != need: continue                                    # (played again meanwhile: said again)
-                self.show(step); hint_at = time.time() + self.hint_s
             for ev in self.pump():
                 if os.environ.get("TP_DEBUG"): print("      event", ev, "%.2f" % (time.time() - t0), flush=True)
                 if conds or at >= len(ops): continue
@@ -647,6 +659,9 @@ class Player:
                     if op[0] in ("hold", "press"): how[op[1]] = BLINK
                     elif op[0] in ("tap", "long", "khold") and not any(c.miss for c in conds): how[light_of_key(op[1])] = BLINK
                 for b in miss: how[light_of_key(WHITE[b % 16])] = BLINK
+                if need is not None and self.picked != need:                       # (SLOOP 3.4) another drum picked than the boxes ask for:
+                    how = {l: v for l, v in how.items() if l < 14}                  # its black key blinks, not the boxes, until it is picked
+                    how[light_of_key(drum_black_key(need))] = BLINK
             else:
                 for op in ops[:at]:
                     if op[0] == "hold": how[op[1]] = BLINK
@@ -656,6 +671,13 @@ class Player:
                 elif op[0] in ("tap", "long", "khold") or (op[0] == "any" and op[1] is not None): how[light_of_key(op[1])] = BLINK
             how.update(self.follow(step, s))
             self.lights(how, only=step.kind.lower() in ("card", "big"))
+            if conds and need is not None and self.picked != need:                 # another drum picked: said once for each (fw/course.inc says the same)
+                if said != self.picked:
+                    said = self.picked; self.show(step, "Another drum is picked. / Tap the blinking key."); self.t.note("slip", "picked %s" % PADS[self.picked])
+                    end = time.time() + (1.2 if self.fast else 2.4)
+                    while time.time() < end: self.pump(); time.sleep(0.05)
+                    self.show(step); hint_at = time.time() + self.hint_s
+            else: said = None
             now = time.time()
             if page and not self.held:                                             # wandered to another page: brought back
                 s.st
@@ -698,9 +720,9 @@ class Player:
         ev = self.t.wait_for({("button", BTN["OCT_DOWN"]), ("button", BTN["OCT_UP"])}); f.take(); f.lights(); self.held.clear()
         if ev[1] == BTN["OCT_DOWN"]: return False
         self.show(step); hands = Hands(f); todo = self.left_to_do(ops, conds, self.seen(base)) if conds else ops
-        if need is not None:                                                        # first the drum's own key: boxes write the drum played last
+        if need is not None:                                                        # first the drum: boxes write the one picked (not on the grid: there a white key is a box)
             if f.track != TRACK["drums"]: f.select(TRACK["drums"])
-            todo = [("tap", WHITE[need])] + todo; self.picked = need
+            if self.picked != need: self.pick(need)
         for mv in moves(todo, tap=0.25, gap=0.45):
             if mv[0] != "none": self.lights({(mv[1] if mv[0] == "button" else light_of_key(mv[1])): 4} if mv[0] != "knob" else {})
             hands.move(*mv[:3]); time.sleep(mv[3])

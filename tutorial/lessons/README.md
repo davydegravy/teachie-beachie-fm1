@@ -226,7 +226,8 @@ Joined with `and`. Tracks are `bass`, `lead`, `chords`, `pad`, `drums`.
 
 - **The transport:** `playing` · `stopped` · `recording` · `not recording` · `rec ready` · `song playing` ·
   `song recording` · `fill on` · `punch on`
-- **Where the learner is:** `track is drums` · `page is STEPS`
+- **Where the learner is:** `track is drums` · `page is STEPS` · `drums picked SNARE` (the drum that boxes write: on the
+  grid a black key or [KNOB1] picks it, on the tracks page playing it does)
 - **What is written:** `drums has KICK on boxes 1 5 9 13` · `drums has no KICK on boxes 2 6 10` ·
   `bass has notes on boxes 1 4 7` · `lead has C5 on box 7` · `lead has nothing on box 13` ·
   `drums has 6 notes or more` · `lead is empty` · `lead longest note above 4.5` ·
