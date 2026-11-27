@@ -1886,6 +1886,10 @@ static struct {
     uint8_t fr[12], kf[7], kdir; uint16_t fb, hb; uint32_t fk, hk;
 } G;
 static uint8_t g_drawn;
+/* (Teachie Beachie: the lesson remembered, fw/course.inc) a record the course asks for: the byte tp_rec_b to be written at
+ * the flash offset tp_rec_at, in the blank part of the lessons' slot. The loop below starts the write, from RAM, when
+ * the flash is free; tp_rec_done: where it went, for the window's cache once the write is over */
+static uint32_t tp_rec_at, tp_rec_done; static uint8_t tp_rec_b;
 COLD static void guide_ev(int kind, int id)
 {
     G.ev[G.ev_w & 31][0] = (uint8_t)kind; G.ev[G.ev_w & 31][1] = (uint8_t)id; G.ev_w++;
@@ -5174,6 +5178,9 @@ int app_main(uint32_t arg)
             if (r == 3) { if (ed_wr.on && ed_wr.kind == 0) ed_proj_pump(); else proj_feed(); }   /* (the flash idle, the window on: its next part) */
             else if (r == 2 || r < 0) { flash_wait_idle(); saving = 0; save_said = r == 2 ? 1 : r == -2 ? -2 : -1; }
         }
+        /* (Teachie Beachie: the lesson remembered) one byte into blank flash, no erase: started here, in RAM, when no save
+         * and no job of the editor's has the flash; the window is then off until the write is done, as for any other */
+        if (tp_rec_at && !saving && flash_xip_on() && !sbuf_held()) { uint32_t a = tp_rec_at; tp_rec_at = 0; if (!flash_program_start(a, &tp_rec_b, 1)) tp_rec_done = a; }
         if (!flash_xip_on()) {                              /* the flash at work: the window is off, only RAM code */
             crumb_at(W_FLASH);
             panel_step();
@@ -5181,6 +5188,7 @@ int app_main(uint32_t arg)
             else led_dwell();
             continue;
         }
+        if (tp_rec_done) { flash_xip_forget(tp_rec_done, 1); tp_rec_done = 0; }   /* (Teachie Beachie: the record written; the window reads that byte again) */
         if (overload_say) { overload_say = 0; say_bad("CPU OVERLOAD: VOICES CUT"); }   /* (the window on: 3.4.1) */
         slice_scan_poll();                                  /* (SLICE: a user slot just written, scanned a part at a time) */
         if (save_said) {

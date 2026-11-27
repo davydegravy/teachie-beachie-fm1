@@ -297,6 +297,21 @@ Answer (2026-11-24): **A, in this upgrade, last** ("yes lets put that in"), once
 sending the lessons again starts over at 1. About 70 to 100 bytes, within the 700 left after decision 1. Tested on
 the simulated FM-1, a power cut during the write included.
 
+- **2026-11-26, built (step 8)** ("Yes, start step 8"). As answered, with what the review asked for and one thing more:
+  - **Written** when a lesson of the FM-1's own course begins: one byte into the next blank byte of the slot (6,375 of
+    them today, between the pack and the logo). **Read** at the first START after the pack is found: the course comes
+    up on that lesson's first card. No erase; the learner's song is not touched.
+  - **One new byte for each record, none written twice;** a lesson begun again writes nothing; the bytes used up,
+    nothing more is written and the last record stays. Sending the lessons again starts at lesson 1.
+  - **A record is a byte with exactly four bits set** (the lesson's number counted among the 70 such bytes). A write
+    cut by a power-off leaves more bits set or the byte blank; such a byte is no record, the one before it stands,
+    and the next record goes into the next blank byte. The simulated FM-1 writes a byte whole or not at all, so the
+    cut is tried by spoiling the byte in the flash file between two starts.
+  - **Cost, measured:** 488 bytes of the flash before the sample bank (2,720 left), 80 of RAM. The answer above said
+    70 to 100: the rules, the reading back and the place in the loop where a write may start took more.
+  - **Checked:** `tutorial/upgrade/remembercheck.py`. **Not checked here:** the real chip taking a byte written into
+    blank flash (decision 10).
+
 ## 10. Testing on your FM-1 during the work
 
 A project saved by 3.4.x cannot be opened by 3.3.x, so going back to today's Teachie Beachie loses the projects

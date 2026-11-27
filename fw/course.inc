@@ -58,6 +58,46 @@ CCOLD static int course_find(void)                   /* the pack, in whichever s
     tp_fonts = 0;
     return 0;
 }
+/* ---- the lesson remembered after the FM-1 is switched off (step 8 of the move to SLOOP 3.4.2; NOTES, item 118).
+ * Where: the blank bytes of the pack's slot, between the pack's end (its length, at 4) and the logo (its place, in the
+ * slot's header at 24). When a lesson begins, its number is written into the next blank byte; the first START after
+ * the pack is found reads the last one written. Blank flash takes a byte without an erase, and the learner's song is
+ * not touched. The rules:
+ *   one new byte for each record, and no byte written twice (the original FM-1's flash is known for not taking a
+ *   second write into a byte that holds something); a lesson begun again writes nothing; the bytes used up, nothing
+ *   more is written and the last record stays;
+ *   a record is a byte with exactly four bits set, the lesson's number counted among those (70 of them). A write cut
+ *   by a power-off leaves more bits set, or the byte blank: such a byte is no record, and the one before it stands.
+ * The write itself is started by the loop in fw/main.c, from RAM (tp_rec_at, tp_rec_b). */
+static uint16_t tp_rec_n;                           /* the blank bytes used so far (written, or asked for) */
+static uint8_t tp_rec_last, tp_rec_read;            /* the lesson last recorded + 1 (0: none); the records read since the pack was found */
+CCOLD static int c_rec_byte(int les)                 /* a lesson (from 0) as a record: the byte with four bits set that many on from the first */
+{
+    for (int b = 0; ; b++) { int n = 0; for (int x = b; x; x &= x - 1) n++; if (n == 4 && !les--) return b; }
+}
+CCOLD static const uint8_t *c_rec_area(uint32_t *len)   /* the blank bytes: where they begin, how many (none without a logo: an odd slot) */
+{
+    uint32_t a = c_u16(tpc + 4), e = c_u32(tpc - 512 + 24);
+    *len = tp_logo && e > a ? e - a : 0;
+    return tpc + a;
+}
+CCOLD static void c_rec_read(void)                   /* the first START: how many bytes are used, and the last lesson among them */
+{
+    uint32_t len, k = 0; const uint8_t *p = c_rec_area(&len);
+    while (k < len && p[k] != 0xFF) k++;
+    tp_rec_n = (uint16_t)k; tp_rec_last = 0; tp_rec_read = 1;
+    while (k-- && !tp_rec_last) for (int l = 0; l < tpc[6]; l++) if (c_rec_byte(l) == p[k]) tp_rec_last = (uint8_t)(l + 1);   /* (from the last byte back: the first that is a lesson's) */
+}
+CCOLD static void c_rec_ask(void)                    /* this lesson begins: remembered, unless it is the one remembered already */
+{
+    uint32_t len; const uint8_t *p = c_rec_area(&len);
+    if (!tp_rec_read || tp_rec_last == C.les + 1) return;
+    if (!tp_rec_at) {                                /* (one still waiting for the flash: its byte takes this lesson instead) */
+        if (tp_rec_n >= len) return;
+        tp_rec_at = (uint32_t)((uintptr_t)(p + tp_rec_n) - FLASH_WIN) + 0x4000u; tp_rec_n++;
+    }
+    tp_rec_b = (uint8_t)c_rec_byte(C.les); tp_rec_last = (uint8_t)(C.les + 1);
+}
 /* a slot is about to be erased or rewritten (the editor's sample messages): if it is the one the pack is in, the
  * course stops and the pack, its fonts and the logo are forgotten, for they are read from that slot: a card drawn in
  * the pack's font while its bytes were being replaced read past the flash (2026-11-25). The start's card, in SLOOP's
@@ -68,6 +108,7 @@ CCOLD static void course_forget(int k)
     if (!tpc || tpc != (const uint8_t *)(uintptr_t)(FLASH_WIN + SLOT_AT[k] - 0x4000u) + 512) return;
     int was = C.ph != PH_OFF || G.home;
     course_stop(); tpc = 0; tp_logo = 0; tp_fonts = 0;
+    tp_rec_at = 0; tp_rec_read = 0; C.les = 0;       /* (the lesson remembered: gone with the slot; lessons sent again start at lesson 1) */
     if (was) guide_home(); else { guide_wrap(); G.gen++; }
 }
 CCOLD static int course_found(void)                  /* a slot written: the pack looked for again; the start's card in its font */
@@ -332,6 +373,7 @@ CCOLD static void course_stop(void) { if (C.kplay) c_key(C.kplay - 1, 0); C.ph =
 CCOLD static void course_start(void)                 /* START, and no computer answered: the lesson the learner was at */
 {
     if (!course_find()) return;
+    if (!tp_rec_read) { c_rec_read(); if (tp_rec_last) C.les = (uint8_t)(tp_rec_last - 1); }   /* (the first START since the pack was found: the lesson remembered) */
     if (C.les >= tpc[6]) C.les = 0;
     C.ms = 0; C.last = time_ticks(); C.ev_r = G.ev_w; C.gen = (uint8_t)msg_gen; G.home = 0; G.ask = 0;
     c_lesson_card(0);                                /* (its lights and buttons: the course's card has the same two answers) */
@@ -399,7 +441,7 @@ CCOLD static void c_to_step(void)                    /* step number C.step under
     s++; for (int i = 0; i < C.step; i++) s += 2 + c_u16(s);
     C.st = s; C.ph = PH_STEP;
 }
-CCOLD static void c_lesson_begin(void) { C.nstep = c_lesson(C.les)[1]; C.step = 0; c_to_step(); }
+CCOLD static void c_lesson_begin(void) { c_rec_ask(); C.nstep = c_lesson(C.les)[1]; C.step = 0; c_to_step(); }
 CCOLD static void c_msg(const char *s, int kind, uint32_t ms, int ret, int reshow) { c_leds(); G.only = !c_strip(kind); c_say(kind, s, 0, 0); C.t_end = C.ms + ms; C.ret = (uint8_t)ret; C.reshow = (uint8_t)reshow; C.ph = PH_MSG; }
 CCOLD static void c_answered(int right)             /* an answer given: what it does */
 {

@@ -28,6 +28,7 @@ python3 tutorial/upgrade/drumcheck.py       # the drum picked: the lesson's chec
 python3 tutorial/upgrade/rollcheck.py       # the piano roll: the key to play blinks once STEP is on its step; SHOW ME (step 4, part 2)
 python3 tutorial/upgrade/framecheck.py      # the framed names answer the controls: held buttons and keys, a knob's turn (step 6)
 python3 tutorial/upgrade/lcdcheck.py        # the screen's start-up: the commands lcd_init() sends, with M-VAVE's table and without (step 7)
+python3 tutorial/upgrade/remembercheck.py   # the lesson remembered: off and on, a lesson begun again, cut writes, a full slot, lessons sent again (step 8)
 git checkout -- docs/index.html tutorial/lessons/screens   # after a build or a lesson run, until step 9: what they rewrote
 ```
 
@@ -96,8 +97,8 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
    (`ld_peak`) cannot be measured on the simulated FM-1: it is on step 10's list.
 7. **The screen colors** (decision 8): M-VAVE's table in `lcd_init`, behind a switch of our own (the section on
    newer FM-1s, below). **Done 2026-11-26** ("Step 7: the screen colors", below); the look at a real screen is step 10's.
-8. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time. Its rules, from
-   the review (finding 4):
+8. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time (**done
+   2026-11-26**: "Step 8: the lesson remembered", below). Its rules, from the review (finding 4):
    - It writes into the slot's blank bytes, between the pack's end (the pack's own length, at 4) and the logo (its
      place, in the slot's header at 24). `tools/mkcourse.py` keeps 1,024 of them at least (`RESERVE`).
    - **One new byte for each record, and no byte written twice.** The original FM-1's flash is Puya's (its code
@@ -115,8 +116,9 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
     review:
     - **Before it:** SLOOP's scenarios and the 30 lessons once on Linux, where the simulated FM-1's own check of the
       flash window works (a cloud session can: the branch is on GitHub).
-    - **On it:** the start screen (the logo there at once, no strips, the buttons quick); a byte written into the
-      slot's blank part and read back (step 8); lessons sent over other lessons with the start card up.
+    - **On it:** the start screen (the logo there at once, no strips, the buttons quick); the lesson remembered
+      (step 8: a lesson begun, off and on, START comes up on it; then two more, to see a second and a third byte
+      taken); lessons sent over other lessons with the start card up.
     - **The screen's colors** (step 7): on an FM-1 with the original panel nothing should change. On a newer one
       (one of those the course's author has ordered, late December 2026) the colors should look right: on the drum
       grid a soft and a hard hit plainly differ (lesson 28), and the peach of a card is not pale. Then the two
@@ -859,9 +861,56 @@ FM-1s, above, have the why.
 - **For SLOOP:** `tutorial/upgrade/sloop-issue-screen-colors.md`, the text of an issue with the change in it, for
   the course's author to post from their own account once the looks are known. Nothing is posted.
 
+## Step 8: the lesson remembered (2026-11-26)
+
+Said first, then built at the course's author's word ("Yes, start step 8"). Decision 9 and `tutorial/NOTES.md` item
+118 have the why. It is the last firmware change of the plan.
+
+**What a learner gets.** Switched off in the middle of the course and on again, START comes up on the first card of
+the lesson last begun (the course's card first, as always, then that lesson's). Nothing new is said on the screen.
+Sending the lessons again starts at lesson 1.
+
+**How it is built** (Teachie Beachie's own `fw/course.inc`, and three marked lines in the loop of `fw/main.c`):
+
+- **The place:** the blank bytes of the pack's slot, from the pack's end (its length, at 4 in the pack) to the logo
+  (its place, at 24 in the slot's header): 6,375 today. `c_rec_area`. A slot with no logo has none, and remembers
+  nothing.
+- **The record:** a byte with exactly four bits set; the lesson, from 0, is counted among the 70 such bytes
+  (`c_rec_byte`). A blank byte is `FF`, so the used bytes end at the first `FF`.
+- **Written** when a lesson begins (`c_lesson_begin`, `c_rec_ask`): if it is not the lesson remembered already, its
+  byte goes into the next blank byte. The course only asks (`tp_rec_at`, `tp_rec_b`); the loop in `fw/main.c` starts
+  the write, from RAM, when no save and no job of the editor's has the flash (`flash_program_start`, one byte), and
+  when it is done tells the window's cache to read that byte again (`flash_xip_forget`). A lesson begun while a
+  record still waits takes that record's byte over: no byte is skipped.
+- **Read** at the first START after the pack is found (`course_start`, `c_rec_read`): the used bytes counted, then
+  from the last one back to the first that is a lesson's. Later STARTs in the same sitting use what the FM-1 has in
+  mind, as before.
+- **Forgotten** with the slot (`course_forget`, when the editor's messages rewrite it): the waiting record dropped,
+  the records read again at the next START, and the lesson in mind back to the first.
+- **The rules kept** (the review's finding 4): one new byte for each record; no byte written twice; a lesson begun
+  again writes nothing; the bytes used up, nothing more is written and the last record stays. The slot header's CRC
+  no longer matches after the first record, as expected: nothing reads it after the install.
+- **A power cut during the write** leaves the byte blank or with more than four bits set: no record. The one before
+  it stands, and the next record goes into the next blank byte, never into the spoiled one.
+
+**The cost, measured.** 488 bytes of the flash before the sample bank (3,208 free before, 2,720 after) and 80 of RAM
+(1,960, 1,880). Decision 9 said 70 to 100, and step 8's own estimate 150 to 250.
+
+**Checked.** `python3 tutorial/upgrade/remembercheck.py`: the simulated FM-1 switched off and on by ending it and
+starting another from the flash it left; a cut write made by spoiling the last byte in that file between two starts
+(the simulated FM-1 writes a byte whole or not at all). Lessons 1 and 3 begun, off and on: lesson 3; exactly two
+bytes of the slot changed, in its blank part; lesson 3 begun again: no new byte; the last byte blank, then half
+written: lesson 1, and the next record after the spoiled byte; every blank byte used: nothing written, the course
+goes on; the lessons sent again while it is on: lesson 1. In each run the simulated FM-1's own report: no erase, no
+write over used bits, no stale read. Then everything again: SLOOP's tests, its scenarios, the build with its page
+tests, the five other upgrade checks, and the five runs of step 5, all 30 lessons each, none stopped.
+
+**Not checked, and cannot be here:** that the real chip takes a byte written into blank flash, and that the install's
+blank bytes (sent as `FF`) are blank to it. Step 10: a lesson begun, the FM-1 switched off and on, START.
+
 ## Not done
 
-Steps 8 to 10 of "The plan for the full move". Nothing from here has been on a real FM-1.
+Steps 9 and 10 of "The plan for the full move". Nothing from here has been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot
@@ -883,17 +932,18 @@ what is held between them.
 | After part 2 of the lessons (the piano roll's blinking key, SHOW ME's note): `app.bin` 278,368 | **4,992 to spare** |
 | After step 6 (the frames that answer the controls): `app.bin` 280,064 | **3,296 to spare** |
 | After step 7 (the screen's start-up table): `app.bin` 280,152 | **3,208 to spare** |
+| After step 8 (the lesson remembered): `app.bin` 280,640 | **2,720 to spare** |
 
 **The flash before the bank is one limit of five** (the review, finding 3; `tools/tp_room.py` prints them at the end
 of `fw/build.sh`). Free bytes:
 
-| Limit | After step 2 | After the review | After part 2 | After step 6 | After step 7 | SLOOP's own 3.4.2 |
-|---|---|---|---|---|---|---|
-| Flash before the sample bank | 6,452 | 5,196 | 4,992 | 3,296 | 3,208 | 1,912 |
-| RAM: code outside the window, variables (`slot`) | 2,152 | 2,136 | 2,136 | 2,088 | 1,960 | 1,584 |
-| RAM: the patterns, their saved copies, the stack (`low`) | 200 | 200 | 200 | 200 | 200 | 200 |
-| RAM: buffers (`boot`) | 184 | 184 | 184 | 184 | 184 | 184 |
-| The flash window's own region (`xip`) | 79,940 | 78,692 | 78,488 | 76,792 | 76,792 | 75,308 |
+| Limit | After step 2 | After the review | After part 2 | After step 6 | After step 7 | After step 8 | SLOOP's own 3.4.2 |
+|---|---|---|---|---|---|---|---|
+| Flash before the sample bank | 6,452 | 5,196 | 4,992 | 3,296 | 3,208 | 2,720 | 1,912 |
+| RAM: code outside the window, variables (`slot`) | 2,152 | 2,136 | 2,136 | 2,088 | 1,960 | 1,880 | 1,584 |
+| RAM: the patterns, their saved copies, the stack (`low`) | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
+| RAM: buffers (`boot`) | 184 | 184 | 184 | 184 | 184 | 184 | 184 |
+| The flash window's own region (`xip`) | 79,940 | 78,692 | 78,488 | 76,792 | 76,792 | 76,372 | 75,308 |
 
 Code in the window (the lesson player, the guide, the pages) costs its full size of the first; what runs from RAM
 is packed in the flash (to about 78 %) and costs its full size of the second, as every new variable does. Still to
