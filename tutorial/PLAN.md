@@ -377,7 +377,7 @@ Each is a short series of lessons inside SLOOP 3, covering what the thirty lesso
 | **The packer** | Turns the Markdown lessons into one small pack for the FM-1 (`tools/mkcourse.py`); `tutorial/device.py` puts it on the FM-1 and tests it. | Built |
 
 **The room left in the firmware is small** (on SLOOP 3.4.2, 2026-11-26; `tutorial/UPGRADE-3.4.2.md`, "The room"):
-- **2,720 bytes are free** before the sample bank, and 1,880 of RAM. To make that room, SLOOP's visualizer and what
+- **2,672 bytes are free** before the sample bank, and 1,880 of RAM. To make that room, SLOOP's visualizer and what
   SLOOP 3 brings over from SLOOP 2.8 at its first start are left out, and the logo moved out of the firmware.
 - **The lessons, their song, their fonts and the logo are in a sample slot.** The pack is about 57 KB and the logo
   17 KB, of a slot's 80 KB: room for two or three more lessons. The blank bytes between them hold the lesson the

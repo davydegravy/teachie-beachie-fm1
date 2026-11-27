@@ -4904,8 +4904,9 @@ COLD __attribute__((noinline)) static void boot_flash(void)
             int n = store_sounds_load(sbuf, sizeof sbuf);
 #ifdef TP_SLOOP28_DATA                               /* (Teachie Beachie: SLOOP 2.8's sounds, favourites and theme left out, for the room) */
             if (n != US_FILE && (n == US_LEN || n == US_FILE_FV || us_from_sloop(flash_read, sbuf + 4096, sbuf) >= 0)) {   /* (a bank without favourites or theme: SLOOP's, once) */
-#else
-            if (n != US_FILE && (n == US_LEN || n == US_FILE_FV)) {
+#else                                                /* (no bank yet: an empty one, which us_from_sloop() made before anything else; SLOOP's editor keeps a sound in that file) */
+            if (!US_LEN_OK(n)) for (int k = 0; k < US_N; k++) us_put(sbuf, k, 0);
+            if (n != US_FILE) {
 #endif
                 int had = n == US_FILE_FV;
                 us_from_bytes(sbuf, had ? n : US_LEN);        /* (the places used: the favourites check them) */

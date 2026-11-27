@@ -50,6 +50,7 @@ python3 tutorial/upgrade/rollcheck.py      # the piano roll: which key blinks
 python3 tutorial/upgrade/framecheck.py     # the framed names answer the controls
 python3 tutorial/upgrade/lcdcheck.py       # what the screen's start-up sends
 python3 tutorial/upgrade/remembercheck.py  # the lesson remembered after power-off
+python3 tutorial/upgrade/soundscheck.py    # a blank FM-1 gets its "your sounds" file
 ```
 
 SLOOP 3.3.7, unchanged and built this way, was byte-for-byte the firmware inside SLOOP's own published installer
@@ -79,10 +80,11 @@ switch of our own, which no build defines:
 - **`TP_VISUALIZER`:** SLOOP's visualizer. HOME on the main screen does nothing.
 - **`TP_SLOOP28_PROJECT`, `TP_SLOOP28_DATA`:** what SLOOP 3 brings over from SLOOP 2.8 at its first start: the
   project, the user sounds, favourites and colour theme, the SYN kits, the MIDI settings, the place of the FM6 bank.
-  Its samples, menu settings and calibration still come along.
+  Its samples, menu settings and calibration still come along, and an empty "your sounds" file is still written at a
+  first start, as SLOOP does: its web editor keeps a sound in that file.
 - **`TP_SPLASH_MOVES`:** SLOOP's start draws itself in; Teachie Beachie's is a still picture, drawn when it changes.
 
-The firmware's five rooms after all of it are in `tutorial/UPGRADE-3.4.2.md`, "The room": 2,720 bytes free before
+The firmware's five rooms after all of it are in `tutorial/UPGRADE-3.4.2.md`, "The room": 2,672 bytes free before
 the sample bank, where SLOOP's own 3.4.2 has 1,912.
 
 **The name:**

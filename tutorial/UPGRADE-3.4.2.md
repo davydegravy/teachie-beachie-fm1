@@ -29,6 +29,7 @@ python3 tutorial/upgrade/rollcheck.py       # the piano roll: the key to play bl
 python3 tutorial/upgrade/framecheck.py      # the framed names answer the controls: held buttons and keys, a knob's turn (step 6)
 python3 tutorial/upgrade/lcdcheck.py        # the screen's start-up: the commands lcd_init() sends, with M-VAVE's table and without (step 7)
 python3 tutorial/upgrade/remembercheck.py   # the lesson remembered: off and on, a lesson begun again, cut writes, a full slot, lessons sent again (step 8)
+python3 tutorial/upgrade/soundscheck.py     # a blank FM-1 gets its "your sounds" file at the first start (the run on Linux)
 git status --short docs tutorial/lessons/screens   # a build rewrites docs/index.html, a lesson run the screens: since step 9 both are
                                             # the trial's own, so look at what changed before keeping it or putting it back
 ```
@@ -116,8 +117,9 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
    `tutorial/NOTES.md`; the lesson screens (`tutorial/lessons/screens/`); the page rebuilt into `docs/`.
 10. **A real FM-1** (decision 10): a backup first (a project saved by 3.4.x can't be opened by 3.3.x). From the
     review:
-    - **Before it:** SLOOP's scenarios and the 30 lessons once on Linux, where the simulated FM-1's own check of the
-      flash window works (a cloud session can: the branch is on GitHub).
+    - **Before it** (**done 2026-11-27**: "The run on Linux", below): SLOOP's scenarios and the 30 lessons once on
+      Linux, where the simulated FM-1's own check of the flash window works (a cloud session can: the branch is on
+      GitHub).
     - **On it:** the start screen (the logo there at once, no strips, the buttons quick); the lesson remembered
       (step 8: a lesson begun, off and on, START comes up on it; then two more, to see a second and a third byte
       taken); lessons sent over other lessons with the start card up.
@@ -987,10 +989,72 @@ install.
 the built-in browser when nobody is there to click it, so the choice of a slot looks as if it did nothing. For the
 try the question was answered "yes" by script.
 
+## The run on Linux (2026-11-27)
+
+Step 10's "before it". A cloud session ran commit `dd22dd1` once on a Linux machine (Ubuntu 24.04, x86-64, gcc 13.3,
+Python 3.13, Node 22; the FM-1's compiler from its `linux-x64` release, its checksum matched) and reported; it
+committed and pushed nothing. What follows is its report, and what was then checked again on the Mac.
+
+| What | Result on Linux |
+|---|---|
+| `make test` | passed |
+| `make build/twin` | built SLOOP's way, with the check of the flash window's code |
+| `fw/build.sh` (browser tests off) | passed; the five rooms as on the Mac; `install_sim` and `lessons_sim` OK |
+| `host/twin.sh 60 "1 2"` | 99 ok at the second run; at the first, `punchsnd` failed once (the machine's own timing) |
+| The six upgrade checks | all OK |
+| `tutorial/check.py` | 30 read, nothing too wide |
+| The lessons five ways | 30 of 30 played through in each of the five runs |
+| `fw/build.sh` with the two browser tests | the installer's test passed; **the editor's failed** (the finding below) |
+
+`docs/index.html` came out byte for byte as committed: the page, with the firmware and the lessons inside it, is the
+same on Linux as on the Mac.
+
+**The flash window's check, the reason for the run.** It was compiled in (its section present, all 45 functions of
+`fw/course.inc` inside it; the loop, `flash_program_start` and `flash_xip_forget` outside, as on the FM-1). It was
+shown to fire with four faults put in on purpose in a throwaway copy, one of them a window function run during
+step 8's own one-byte write. In the real runs it reported nothing: the scenarios, `remembercheck.py`, and all 180
+plays of a lesson. Two limits, both SLOOP's own: 33 functions of the sequencer and 6 hardware names are window code
+on the FM-1 but not watched on the simulated one (step 8's path calls none of them); and a write over bits not
+erased is only reported where the scenarios and `remembercheck.py` read it.
+
+**The finding: on an FM-1 that never ran SLOOP 3, the web editor can't keep a sound** (the trial's own code, from
+step 1). SLOOP's test of the editor stops at its 30th check: `FAIL SOUND: kept among your sounds`, `FAIL LIBRARY:
+your sounds read`. SLOOP's own 3.4.2 passes all 63 on the same machine.
+
+- **The cause,** `boot_flash` in `fw/main.c`. At its first start SLOOP 3 always writes a "your sounds" file:
+  `us_from_sloop()` begins by making an empty bank with its `S3US` header, then adds SLOOP 2.8's sounds if there
+  are any, and never says no. Step 1 took `us_from_sloop()` out behind `TP_SLOOP28_DATA` for the room, and with it,
+  unnoticed, the empty bank: the trial writes the file only when an older one is there.
+- **What it means for someone:** an FM-1 coming straight from M-VAVE's firmware or SLOOP 2.8 has no such file until
+  a sound or a favourite is saved on the FM-1 itself (that makes one: `us_bank()`). Until then SLOOP's web editor
+  refuses to keep a sound and lists none of yours. An FM-1 that ran SLOOP 3 before has the file. The lessons do not
+  use it.
+- **Checked again on the Mac,** with no browser: a simulated FM-1 started from a blank flash and ended leaves no
+  `S3US` anywhere in its flash; SLOOP's own 3.4.2, started the same way, leaves one.
+- **Why nothing showed it before:** the editor's browser test never ran on the Mac (no Playwright); and
+  `fw/build.sh` ends well even when that test fails, because SLOOP's line shows only the test's last line.
+- **The repair** the cloud session tried in a scratch copy, 63 of 63 twice: where there is no bank, make the empty
+  one (`us_put()` for each place) and write the file, as SLOOP does.
+- **Made 2026-11-27** ("Yes, fix it"), in the `#else` of `TP_SLOOP28_DATA` in `boot_flash`: with no bank, the empty
+  one is made, and the file is written whenever it is not already whole. Measured: 48 bytes (2,720 free before the
+  sample bank, 2,672 after; the flash window's region 76,372, 76,324). Built: `make build/twin`, then `fw/build.sh`
+  with `install_sim` and `lessons_sim` OK. A simulated FM-1 started from a blank flash now leaves the file, at the
+  place SLOOP's own 3.4.2 leaves it.
+- **Everything run again after the repair,** on the Mac, by a helper on a cheaper model at the course's author's
+  word ("I don't want to run more tests on Fable"; "Yes, use a helper"), one command after another, its logs read
+  afterwards: `make test`; SLOOP's scenarios, 99 ok; the six upgrade checks; the new
+  `tutorial/upgrade/soundscheck.py` (a blank FM-1 started once has one "your sounds" file, whole and empty, its
+  favourites after it; started again, the file is where it was, byte for byte); `tutorial/check.py`; and the five
+  lesson runs, 30 of 30 played through in each.
+- **Still open:** SLOOP's browser test of the editor (63 checks) with this repair, which only Linux can run here.
+  The cloud session ran it on the same repair written another way. It matters only for an FM-1 that never ran
+  SLOOP 3; to run before this goes to anyone else.
+
 ## Not done
 
-Step 10 of "The plan for the full move": a real FM-1, after one run on Linux. Nothing from here has been on a real
-FM-1, and `README.md` says "tested on my FM-1": that sentence has to be true before any of this reaches `main`.
+Step 10 of "The plan for the full move": a real FM-1. The run on Linux is done (above), its finding repaired and
+every check on the Mac run again after it. One check is open, the editor's browser test on Linux with the repair. Nothing from here has been on a real FM-1, and `README.md` says "tested on my FM-1": that sentence
+has to be true before any of this reaches `main`.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot
@@ -1013,6 +1077,7 @@ what is held between them.
 | After step 6 (the frames that answer the controls): `app.bin` 280,064 | **3,296 to spare** |
 | After step 7 (the screen's start-up table): `app.bin` 280,152 | **3,208 to spare** |
 | After step 8 (the lesson remembered): `app.bin` 280,640 | **2,720 to spare** |
+| After the repair of the "your sounds" file (the run on Linux): `app.bin` 280,688 | **2,672 to spare** |
 
 **The flash before the bank is one limit of five** (the review, finding 3; `tools/tp_room.py` prints them at the end
 of `fw/build.sh`). Free bytes:
@@ -1024,6 +1089,9 @@ of `fw/build.sh`). Free bytes:
 | RAM: the patterns, their saved copies, the stack (`low`) | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
 | RAM: buffers (`boot`) | 184 | 184 | 184 | 184 | 184 | 184 | 184 |
 | The flash window's own region (`xip`) | 79,940 | 78,692 | 78,488 | 76,792 | 76,792 | 76,372 | 75,308 |
+
+Since the repair of the "your sounds" file (2026-11-27): 2,672 before the sample bank and 76,324 in the flash
+window's own region; the other three as after step 8.
 
 Code in the window (the lesson player, the guide, the pages) costs its full size of the first; what runs from RAM
 is packed in the flash (to about 78 %) and costs its full size of the second, as every new variable does. Still to
