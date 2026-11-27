@@ -27,6 +27,7 @@ python3 tutorial/upgrade/keepcheck.py       # a lesson's song kept over a change
 python3 tutorial/upgrade/drumcheck.py       # the drum picked: the lesson's check of it, its words for the wrong one (step 2)
 python3 tutorial/upgrade/rollcheck.py       # the piano roll: the key to play blinks once STEP is on its step; SHOW ME (step 4, part 2)
 python3 tutorial/upgrade/framecheck.py      # the framed names answer the controls: held buttons and keys, a knob's turn (step 6)
+python3 tutorial/upgrade/lcdcheck.py        # the screen's start-up: the commands lcd_init() sends, with M-VAVE's table and without (step 7)
 git checkout -- docs/index.html tutorial/lessons/screens   # after a build or a lesson run, until step 9: what they rewrote
 ```
 
@@ -94,7 +95,7 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
    left, screenshots of a frame held and one part filled, then step 5's runs again. The load with a knob spun fast
    (`ld_peak`) cannot be measured on the simulated FM-1: it is on step 10's list.
 7. **The screen colors** (decision 8): M-VAVE's table in `lcd_init`, behind a switch of our own (the section on
-   newer FM-1s, below).
+   newer FM-1s, below). **Done 2026-11-26** ("Step 7: the screen colors", below); the look at a real screen is step 10's.
 8. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time. Its rules, from
    the review (finding 4):
    - It writes into the slot's blank bytes, between the pack's end (the pack's own length, at 4) and the logo (its
@@ -116,6 +117,10 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
       flash window works (a cloud session can: the branch is on GitHub).
     - **On it:** the start screen (the logo there at once, no strips, the buttons quick); a byte written into the
       slot's blank part and read back (step 8); lessons sent over other lessons with the start card up.
+    - **The screen's colors** (step 7): on an FM-1 with the original panel nothing should change. On a newer one
+      (one of those the course's author has ordered, late December 2026) the colors should look right: on the drum
+      grid a soft and a hard hit plainly differ (lesson 28), and the peach of a card is not pale. Then the two
+      results go into `tutorial/upgrade/sloop-issue-screen-colors.md`, the issue for SLOOP.
     - **And the load** (step 6): a card or a strip with a knob's framed name up, a song playing, the knob spun fast
       and a framed button held and let go quickly: SLOOP's CPU figure before and during, and the sound listened to.
       The simulated FM-1 reports 0 % whatever it draws.
@@ -830,9 +835,33 @@ and a card's answers; the guide's message 8; the same lesson led by the computer
 tests, its scenarios, the build with its page tests, the three other upgrade checks, and the five runs of step 5,
 all 30 lessons each, none stopped.
 
+## Step 7: the screen colors (2026-11-26)
+
+Said first, then built at the course's author's word ("Yes, build it now"). Decision 8 and the section on newer
+FM-1s, above, have the why.
+
+- **The change:** M-VAVE's table of the panel's voltages, VCOM and gamma (11 registers, 42 values) is sent once in
+  `lcd_init()` (`hal/fm1/board.c`), between normal mode (`13`) and the clearing of the screen, so before display on
+  (`29`). A table, `LCD_SETUP`, and one loop. It is SLOOP's file: the change sits behind a switch of our own
+  (`-DTP_LCD_RESET` builds without it) and is written as SLOOP would write it, so that a merge of SLOOP's own
+  version later takes theirs.
+- **The cost, measured:** 88 bytes of the flash before the sample bank (3,208 left) and 128 of RAM (1,960 left):
+  the file runs from RAM, so the table is kept there.
+- **Checked:** `python3 tutorial/upgrade/lcdcheck.py`. The simulated FM-1 has a stand-in screen, so this file is not
+  in it; the check compiles `hal/fm1/board.c` for the computer as it stands, with the chip's registers replaced by a
+  recorder, and reads back what `lcd_init()` sends: SLOOP's own commands, then the eleven registers with the
+  report's values (written in the check apart from the firmware), then the screen cleared and display on; and with
+  the switch, SLOOP's commands only, as before. The firmware builds with its page tests; SLOOP's tests, its
+  scenarios and the four other upgrade checks pass. The 30 lessons were not run again: nothing they use changed.
+- **Not checked, and cannot be here:** how it looks. That is step 10: the original panel (nothing should change)
+  and a newer one. The course's author: "My friend will likely not test on his FM-1 I can test closer to Christmas
+  on one of the ones I ordered".
+- **For SLOOP:** `tutorial/upgrade/sloop-issue-screen-colors.md`, the text of an issue with the change in it, for
+  the course's author to post from their own account once the looks are known. Nothing is posted.
+
 ## Not done
 
-Steps 7 to 10 of "The plan for the full move". Nothing from here has been on a real FM-1.
+Steps 8 to 10 of "The plan for the full move". Nothing from here has been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot
@@ -853,17 +882,18 @@ what is held between them.
 | After the review (SLOOP 2.8's settings and calibration back, about 1 KB; the fixes): `app.bin` 278,164 | **5,196 to spare** |
 | After part 2 of the lessons (the piano roll's blinking key, SHOW ME's note): `app.bin` 278,368 | **4,992 to spare** |
 | After step 6 (the frames that answer the controls): `app.bin` 280,064 | **3,296 to spare** |
+| After step 7 (the screen's start-up table): `app.bin` 280,152 | **3,208 to spare** |
 
 **The flash before the bank is one limit of five** (the review, finding 3; `tools/tp_room.py` prints them at the end
 of `fw/build.sh`). Free bytes:
 
-| Limit | After step 2 | After the review | After part 2 | After step 6 | SLOOP's own 3.4.2 |
-|---|---|---|---|---|---|
-| Flash before the sample bank | 6,452 | 5,196 | 4,992 | 3,296 | 1,912 |
-| RAM: code outside the window, variables (`slot`) | 2,152 | 2,136 | 2,136 | 2,088 | 1,584 |
-| RAM: the patterns, their saved copies, the stack (`low`) | 200 | 200 | 200 | 200 | 200 |
-| RAM: buffers (`boot`) | 184 | 184 | 184 | 184 | 184 |
-| The flash window's own region (`xip`) | 79,940 | 78,692 | 78,488 | 76,792 | 75,308 |
+| Limit | After step 2 | After the review | After part 2 | After step 6 | After step 7 | SLOOP's own 3.4.2 |
+|---|---|---|---|---|---|---|
+| Flash before the sample bank | 6,452 | 5,196 | 4,992 | 3,296 | 3,208 | 1,912 |
+| RAM: code outside the window, variables (`slot`) | 2,152 | 2,136 | 2,136 | 2,088 | 1,960 | 1,584 |
+| RAM: the patterns, their saved copies, the stack (`low`) | 200 | 200 | 200 | 200 | 200 | 200 |
+| RAM: buffers (`boot`) | 184 | 184 | 184 | 184 | 184 | 184 |
+| The flash window's own region (`xip`) | 79,940 | 78,692 | 78,488 | 76,792 | 76,792 | 75,308 |
 
 Code in the window (the lesson player, the guide, the pages) costs its full size of the first; what runs from RAM
 is packed in the flash (to about 78 %) and costs its full size of the second, as every new variable does. Still to

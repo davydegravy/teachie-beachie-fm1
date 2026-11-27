@@ -277,6 +277,15 @@ release (3.4.2's notes list the issue numbers; our earlier sound report was fixe
 
 Teachie Beachie carries it until SLOOP has it; then the next merge takes SLOOP's and ours goes.
 
+- **2026-11-26, who looks at a newer screen, and when.** The course's author: "My friend will likely not test on his
+  FM-1 I can test closer to Christmas on one of the ones I ordered". So point 3 above changes: the newer screen is
+  looked at on one of the FM-1s the course's author has ordered, when it arrives (late December 2026), not on the
+  friend's. Until then the change can only be checked by the commands it sends, and on the original FM-1 (point 2).
+  The issue for SLOOP (point 4) waits for that look, or goes out with the one result and says so.
+- **2026-11-26, built (step 7)** ("Yes, build it now"): the table and one loop in `lcd_init()`, behind
+  `-DTP_LCD_RESET`; 88 bytes of flash and 128 of RAM. `tutorial/upgrade/lcdcheck.py` records what the start-up sends,
+  with the table and without. The issue's text is `tutorial/upgrade/sloop-issue-screen-colors.md`, not posted.
+
 ## 9. Remembering the lesson after power-off (NOTES, item 118)
 
 - **A (suggested): last, once all 30 lessons pass on 3.4.2,** if there is time left.

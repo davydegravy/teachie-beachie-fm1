@@ -82,6 +82,25 @@ int lcd_tile_busy(void)
     tile_on = 0;
     return 0;
 }
+/* (Teachie Beachie, until SLOOP has its own: sloop-fm1 issue 269) The panel's voltages, VCOM and gamma, as M-VAVE's own
+ * firmware (V15, V16) sets them at the start on every FM-1. Left at the controller's reset values, the newer panels
+ * show faded colours: greys turn white, and soft, normal and hard look alike. Each entry: the register, how many
+ * values, the values. -DTP_LCD_RESET builds without it. */
+#ifndef TP_LCD_RESET
+static const uint8_t LCD_SETUP[] = {
+    0xB2, 5, 0x0C, 0x0C, 0x0C, 0x00, 0x33,                                                           /* PORCTRL */
+    0xB7, 1, 0x56,                                                                                   /* GCTRL */
+    0xBB, 1, 0x18,                                                                                   /* VCOMS */
+    0xC0, 1, 0x2C,                                                                                   /* LCMCTRL */
+    0xC2, 1, 0x01,                                                                                   /* VDVVRHEN */
+    0xC3, 1, 0x1F,                                                                                   /* VRHS */
+    0xC4, 1, 0x20,                                                                                   /* VDVS */
+    0xC6, 1, 0x0F,                                                                                   /* FRCTRL2 */
+    0xD0, 2, 0xA6, 0xA1,                                                                             /* PWCTRL1 */
+    0xE0, 14, 0xD0, 0x0D, 0x14, 0x0B, 0x0B, 0x07, 0x3A, 0x44, 0x50, 0x08, 0x13, 0x13, 0x2D, 0x32,   /* PVGAMCTRL */
+    0xE1, 14, 0xD0, 0x0D, 0x14, 0x0B, 0x0B, 0x07, 0x3A, 0x44, 0x50, 0x08, 0x13, 0x13, 0x2D, 0x32,   /* NVGAMCTRL */
+};
+#endif
 void lcd_init(void)
 {
     pin_out(LCD_CS, 1); pin_out(LCD_DC, 0); pin_out(LCD_CLK, 0); pin_out(LCD_MOSI, 0);
@@ -93,6 +112,9 @@ void lcd_init(void)
     uint8_t v = 0x55; lcd_cmd(0x3A); lcd_data(&v, 1);
     v = 0x00; lcd_cmd(0x36); lcd_data(&v, 1);
     lcd_cmd(0x21); lcd_cmd(0x13);
+#ifndef TP_LCD_RESET
+    for (const uint8_t *p = LCD_SETUP; p < LCD_SETUP + sizeof LCD_SETUP; p += 2 + p[1]) { lcd_cmd(p[0]); lcd_data(p + 2, p[1]); }
+#endif
     lcd_fill(0, 0, 240, 240, 0x0000);
     lcd_cmd(0x29);
     pin_set(LCD_BL, 0);
