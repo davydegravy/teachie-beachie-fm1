@@ -48,7 +48,7 @@ RULES = [
     ('TEACHIE BEACHIE turns the M-VAVE FM-1 into a complete groovebox: drums, bass, chords, melodies and effects, with a '
      'sequencer that loops it all. This page installs it for you, step by step, right from your browser.',
      'Teachie Beachie teaches kids, and any beginner, to make music on the M&#8209;VAVE FM&#8209;1. You don\'t need to read '
-     'music or open a manual: every lesson shows you what to press, right on the FM&#8209;1\'s screen.'
+     'music or open a manual: every lesson shows you what to press, right on the FM&#8209;1\'s screen and buttons.'
      '<span class="tp-p">A lesson puts a short card on the screen, lights up the button or key to press, and waits while you try '
      'it. If you get stuck it offers a hint, and it can even do the step for you. Each lesson takes a few minutes and builds '
      'on the one before.</span>'

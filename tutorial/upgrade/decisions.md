@@ -463,3 +463,6 @@ Asked one at a time while step 9 was done; each answer in the course's author's 
   so three trims, one of them the course's author's own ("we can shorten it from I made this as a gift to my
   kids--instead of nieces and nephews"): the last paragraph, the end of the new one, the order of the words about
   free and no computer. A fourth, which would have brought the text level, was not taken ("Three edits").
+- **"right on the FM-1's screen and buttons"** at the end of the first paragraph, on the page and in the README, where
+  it said "screen" only (the course's author's own wording: "I think we should change this sentence"). No line
+  more: the text still ends one line past the six screens.

@@ -6,7 +6,7 @@
 [SLOOP 3](https://github.com/isod89/sloop3-fm1), the free groovebox firmware for the FM-1.
 
 Teachie Beachie teaches kids, and any beginner, to make music on the M-VAVE FM-1. You don't need to read music or
-open a manual: every lesson shows you what to press, right on the FM-1's screen.
+open a manual: every lesson shows you what to press, right on the FM-1's screen and buttons.
 
 A lesson puts a short card on the screen, lights up the button or key to press, and waits while you try it. If you
 get stuck it offers a hint, and it can even do the step for you. Each lesson takes a few minutes and builds on the
