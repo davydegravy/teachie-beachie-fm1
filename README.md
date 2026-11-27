@@ -1,6 +1,6 @@
 # Teachie Beachie
 
-<img src="assets/logo/teachie-beachie-page.png" alt="The Teachie Beachie logo: a peach with a beach at sunset inside" width="180">
+<img src="assets/logo/teachie-beachie-page.png" alt="The Teachie Beachie logo: the name over a sunset on the sea, in a round sticker" width="180">
 
 **Thirty lessons that teach the M-VAVE FM-1, on the FM-1 itself.** Built on
 [SLOOP 3](https://github.com/isod89/sloop3-fm1), the free groovebox firmware for the FM-1.
@@ -42,8 +42,8 @@ Thirty lessons in four parts. Each lesson teaches one part of SLOOP and takes a 
 |---|---|
 | **1. Your first beat** | 1 Hello · 2 Sixteen boxes · 3 Kick, snare, hat · 4 The drum kit · 5 Meet the tracks · 6 Faster, slower, oops · 7 Your own beat |
 | **2. Notes and chords** | 8 A bass line in boxes · 9 Pick your sound · 10 Record it live · 11 No wrong notes · 12 One-finger chords · 13 The piano roll · 14 Mix the tracks · 15 Your own loop |
-| **3. Effects and sound** | 16 Eight pages · 17 Fills and rolls · 18 Play the effects · 19 Echo and space · 20 Color a track · 21 Shape a sound · 22 Wobble and arps · 23 Your own piece, live |
-| **4. Make a song** | 24 Songs have parts · 25 Chain the pages · 26 Write it line by line · 27 Build-ups and drops · 28 Swing and feel · 29 Keep it and share it · 30 The final test |
+| **3. Effects and sound** | 16 Eight patterns · 17 Fills and rolls · 18 Play the effects · 19 Echo and space · 20 Color a track · 21 Shape a sound · 22 Wobble and arps · 23 Your own piece, live |
+| **4. Make a song** | 24 Songs have parts · 25 Chain the patterns · 26 Write it line by line · 27 Build-ups and drops · 28 Swing and feel · 29 Keep it and share it · 30 The final test |
 
 ## How a lesson works
 
@@ -52,12 +52,15 @@ Thirty lessons in four parts. Each lesson teaches one part of SLOOP and takes a 
 - **Cards and strips.** A peach card explains one idea. A strip across the top or bottom says what to do while
   SLOOP's own page stays live underneath. SLOOP's pages are dark, so you always know which is which.
 - **Lights.** The button or key to press blinks.
+- **The names answer.** A button's or a key's name on the card fills in while you hold it. A knob's name fills as
+  you turn it: full means you have turned far enough.
 - **It checks your work.** When you have done what the step asks, the lesson moves on by itself.
 - **Hints.** If a step takes a while, a hint appears. If you are still stuck, the lesson offers to do the step for
   you.
 - **One song.** Every lesson works on HOUSE ONE, a song written for the course, so each lesson adds to what you
   already know.
 - **Any lesson, any time.** The first card of the course opens the list of all thirty.
+- **It remembers.** Switch the FM-1 off, and the next START comes back to the lesson you were on.
 
 The lessons run on the FM-1 alone. No computer is needed after the install.
 
@@ -104,15 +107,14 @@ SLOOP 3 from [its own page](https://isod89.github.io/sloop3-fm1/).
 ## What is SLOOP's and what is Teachie Beachie's
 
 The instrument is SLOOP 3: the sound engines, the sequencer, the effects, every page and the web editor. Teachie
-Beachie is built on SLOOP 3.3.7 and adds:
+Beachie is built on SLOOP 3.4.2 and adds:
 
 - the lessons, their player inside the firmware and the start card;
 - the lights, cards and checks a lesson uses;
 - the lessons step of the installer page, and the page's own look;
 - the tools that write, measure, pack and test the lessons ([tutorial/](tutorial/)).
 
-One thing is left out to make room: SLOOP 3 opens the project SLOOP 2.8 left at its first start, and Teachie Beachie
-does not. Your SLOOP 2.8 presets, favorites, samples, kits and settings still come along.
+One thing is left out to make room: SLOOP 3's visualizer, the moving picture that HOME opens on the main screen.
 
 For everything about the instrument itself, see SLOOP 3's [guide](docs/GUIDE.md), its
 [repository](https://github.com/isod89/sloop3-fm1) and its
@@ -120,7 +122,6 @@ For everything about the instrument itself, see SLOOP 3's [guide](docs/GUIDE.md)
 
 ## Good to know
 
-- The FM-1 does not yet remember which lesson you reached when it is switched off. Pick your lesson from the list.
 - The lessons are in English.
 - Teachie Beachie is new and has been tried by few people. Please report what you find in the
   [issues](../../issues), with the lesson and the step. Problems with the instrument itself, with no lesson running,

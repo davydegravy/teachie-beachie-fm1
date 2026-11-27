@@ -29,7 +29,8 @@ python3 tutorial/upgrade/rollcheck.py       # the piano roll: the key to play bl
 python3 tutorial/upgrade/framecheck.py      # the framed names answer the controls: held buttons and keys, a knob's turn (step 6)
 python3 tutorial/upgrade/lcdcheck.py        # the screen's start-up: the commands lcd_init() sends, with M-VAVE's table and without (step 7)
 python3 tutorial/upgrade/remembercheck.py   # the lesson remembered: off and on, a lesson begun again, cut writes, a full slot, lessons sent again (step 8)
-git checkout -- docs/index.html tutorial/lessons/screens   # after a build or a lesson run, until step 9: what they rewrote
+git status --short docs tutorial/lessons/screens   # a build rewrites docs/index.html, a lesson run the screens: since step 9 both are
+                                            # the trial's own, so look at what changed before keeping it or putting it back
 ```
 
 After a change to the firmware, `make build/twin` before `fw/build.sh`: the build's `tests/lessons_sim.js` runs the
@@ -40,7 +41,8 @@ this Mac: Playwright is not installed, and `EDITOR_E2E=0 INSTALLER_E2E=0` leaves
 tested in the Claude app's built-in browser instead, as it was on 2026-11-21: a preview server
 (`installer-page-trial` in the main copy's `.claude/launch.json`, not in git) serves this folder's `build/fw` on port
 8792; a pretend FM-1 put into the page by script (`navigator.requestMIDIAccess`, answering ED_GUIDE and ED_SAMPLE as
-`tests/lessons_sim.js` does) takes the lessons; what it got is read back.
+`tests/lessons_sim.js` does) takes the lessons; what it got is read back. The script is
+`tutorial/upgrade/pretend-fm1.js`; how to use it is at its top.
 
 Three files go with this note: `tutorial/upgrade/decisions.md` (the questions for the course's author, to be
 answered before the work starts), `tutorial/upgrade/worksheet.md` (every step that touches a change, with today's
@@ -108,10 +110,10 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
      blank (0xFF); that should be the same to the chip as leaving them, and the simulated FM-1 cannot say.
    - The header's CRC covers the blank bytes and stops matching at the first record: nothing reads it after the
      install, and nothing should. When the blank bytes are used up, no more is written (the last record stays).
-9. **The words around it:** SLOOP's version in `README.md`, `TEACHIE-BEACHIE.md`, the installer page's words and
-   `tools/teachie_page.py`'s rules, `AGENTS.md` and `tutorial/AI.md` where they name buttons that changed (and
-   the frames that answer, and the icons), `tutorial/NOTES.md`; the lesson screens (`tutorial/lessons/screens/`);
-   the page rebuilt into `docs/`.
+9. **The words around it** (**done 2026-11-27**: "Step 9: the words around it", below): SLOOP's version in
+   `README.md`, `TEACHIE-BEACHIE.md`, the installer page's words and `tools/teachie_page.py`'s rules, `AGENTS.md`
+   and `tutorial/AI.md` where they name buttons that changed (and the frames that answer, and the icons),
+   `tutorial/NOTES.md`; the lesson screens (`tutorial/lessons/screens/`); the page rebuilt into `docs/`.
 10. **A real FM-1** (decision 10): a backup first (a project saved by 3.4.x can't be opened by 3.3.x). From the
     review:
     - **Before it:** SLOOP's scenarios and the 30 lessons once on Linux, where the simulated FM-1's own check of the
@@ -873,8 +875,8 @@ Sending the lessons again starts at lesson 1.
 **How it is built** (Teachie Beachie's own `fw/course.inc`, and three marked lines in the loop of `fw/main.c`):
 
 - **The place:** the blank bytes of the pack's slot, from the pack's end (its length, at 4 in the pack) to the logo
-  (its place, at 24 in the slot's header): 6,375 today. `c_rec_area`. A slot with no logo has none, and remembers
-  nothing.
+  (its place, at 24 in the slot's header): 6,375 when this was built, 7,308 since the round logo (step 9).
+  `c_rec_area`. A slot with no logo has none, and remembers nothing.
 - **The record:** a byte with exactly four bits set; the lesson, from 0, is counted among the 70 such bytes
   (`c_rec_byte`). A blank byte is `FF`, so the used bytes end at the first `FF`.
 - **Written** when a lesson begins (`c_lesson_begin`, `c_rec_ask`): if it is not the lesson remembered already, its
@@ -908,9 +910,82 @@ tests, the five other upgrade checks, and the five runs of step 5, all 30 lesson
 **Not checked, and cannot be here:** that the real chip takes a byte written into blank flash, and that the install's
 blank bytes (sent as `FF`) are blank to it. Step 10: a lesson begun, the FM-1 switched off and on, START.
 
+## Step 9: the words around it (2026-11-27)
+
+No firmware change: the rooms are as step 8 left them. The answers are decision 13.
+
+**The pictures, all remade** on the simulated FM-1:
+
+- **The thirty sheets of the lessons' screens** (`tutorial/lessons/screens/`), by `python3 tutorial/check.py --run`:
+  every step of every lesson as it begins.
+- **The twelve screens on the page and in the README** (`assets/shots/`, 240 x 240, and the sheet of them,
+  `docs/teachie-beachie-lessons.png`): the same twelve places in the course. Nine changed; the course's card, lesson
+  20's card and the Done card came out the same to the pixel. Three of them show a frame answering: lesson 3 with
+  key [11] held, lesson 13 with [KNOB3]'s frame two thirds full, lesson 25 with [SAVE] held.
+- **The start screen** (`tutorial/start-screen.png`): the new logo, as it is drawn from the lessons' slot.
+- **Five old pictures removed** from `tutorial/` ("yes remove them"): linked from nowhere, and of the course as it
+  was (lesson 1's first cards, twice; 3.3.7's effects screen, twice; the page with an earlier logo). The ten that a
+  dated note or a lesson's tester notes link to stay, as the record of a choice.
+
+**The new logo** ("I want you to change to this logo"): the round sticker decision 1 waited for, the name over a
+sunset on the sea. The peach was its stand-in.
+
+- **The picture** is kept as it came, `assets/logo/teachie-beachie.webp` (1254 x 1254); the peach's
+  `teachie-beachie.jpg` is removed.
+- **On the FM-1:** `tools/mklogo.py` with the new picture's own six colors (its paper, white, the outline, the sky,
+  the sun and the sand, the sea): 198 x 204, 17,284 bytes (the peach: 174 x 204, 18,217). The name is larger than it
+  was. No firmware change: the logo's size is read from its own file.
+- **The slot** (81,408 bytes): the lessons 56,816, blank 7,308 (6,375 before; 1,024 is the least), the logo 17,284.
+- **On the page and in the README:** `tools/mkpagelogo.py` makes the two pictures again (the logo above the title,
+  the small mark that is also the browser tab's icon).
+- **Checked:** the start screen in a picture of the simulated FM-1; `remembercheck.py` and `framecheck.py`; lessons
+  1 and 30 the way the FM-1 plays them alone; the build with its two page tests; the page in the built-in browser.
+
+**The words:**
+
+- **`README.md`:** built on SLOOP 3.4.2; lessons 16 and 25 by their new names; two lines in "How a lesson works"
+  (the names answer; it remembers); what is left out to make room is the visualizer; nothing about SLOOP 2.8 and no
+  paragraph for an earlier Teachie Beachie (decision 13).
+- **`TEACHIE-BEACHIE.md`:** written again for this base: how to build and check, what is changed in SLOOP's files,
+  the five switches of our own.
+- **The installer page** (`tools/teachie_page.py`): version `0.2 · SLOOP 3.4.2`; SLOOP's three notes about SLOOP
+  2.8 and two half-sentences taken out, and the build now names any mention of SLOOP 2.8 left in the page's words;
+  the closed note "Already use SLOOP 3?" kept; "steps 3 to 6" where SLOOP's page says 3 to 5; new words under six
+  of the twelve screens. `web/installer.tmpl.html` is still exactly SLOOP's.
+- **`AGENTS.md`, `tutorial/AI.md`:** the black key's name in a lesson (`[BLACK 2]`), `pick KICK` among Setup's
+  words, `f.knob_fill`, that sending the lessons starts the course at lesson 1 again, that a strip never covers
+  what it points at, and where the upgrade's own files are.
+- **`tutorial/PLAN.md`:** the framed name that fills and the black key's picture (section 6), the words Step,
+  Pattern and Song (7), the lessons that changed (10), the room left (12).
+- **`tutorial/NOTES.md`:** an entry for the whole move, pointing here.
+
+**The page, rebuilt and tried.** `fw/build.sh` to the end, with `tests/install_sim.js` and `tests/lessons_sim.js`
+passing; the page copied to `docs/index.html` on this branch (not live: GitHub Pages serves `main`). Then in the
+Claude app's built-in browser, with a pretend FM-1 put into the page by script (the one `tests/lessons_sim.js` has,
+kept for another time as `tutorial/upgrade/pretend-fm1.js`):
+
+| The pretend FM-1 | What the page did |
+|---|---|
+| Teachie Beachie, one slot with samples | 30 lessons, 81,408 bytes, mark `TPC4`, into USR4, the last empty slot; the other slot untouched; "Teachie Beachie is ready" |
+| All four slots with samples | offered the four, wrote nothing; asked again before replacing ("They are erased from the FM-1"); then the lessons into the slot chosen, the other three untouched |
+| SLOOP 3 without Teachie Beachie | "This FM-1 runs SLOOP 3 without Teachie Beachie." Nothing written |
+| An older Teachie Beachie | "The FM-1 took the lessons but does not find them: its Teachie Beachie is not this page's." |
+| None plugged in | "No FM-1 running Teachie Beachie was found." |
+| In the menu with MIDI MODE | "The FM-1 is still in MIDI MODE." |
+
+No errors in the browser's console in any of them. At a phone's width (375) the twelve screens stand two across and
+nothing is wider than the screen. The page's words hold no "SLOOP 2.8" and no "0.1". The version shows in two
+places only, both SLOOP's: the bar at the top, which Teachie Beachie's page hides, and the summary of step 5 after an
+install.
+
+**One thing found on the way:** the browser's own question ("Replace the samples in USR3 ...?") is answered "no" by
+the built-in browser when nobody is there to click it, so the choice of a slot looks as if it did nothing. For the
+try the question was answered "yes" by script.
+
 ## Not done
 
-Steps 9 and 10 of "The plan for the full move". Nothing from here has been on a real FM-1.
+Step 10 of "The plan for the full move": a real FM-1, after one run on Linux. Nothing from here has been on a real
+FM-1, and `README.md` says "tested on my FM-1": that sentence has to be true before any of this reaches `main`.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot

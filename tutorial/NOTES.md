@@ -1796,6 +1796,51 @@ and 6.4 KB; a font for the lessons alone could sit in the lesson pack, which has
   lesson replayed from its Done card showed all its steps again (scratch scripts `again.py`, `sweep.py`). Working on
   the FM-1 again afterwards; perhaps the other button. Left as it is ("lets not worry about it").
 
+## 2026-11-24 to 27: the move to SLOOP 3.4.2 (a trial, on its own branch)
+
+SLOOP went from 3.3.7 to 3.4.2 and changed pages the lessons stand on. The move is a trial on the branch
+`trial/sloop-3.4.2`: nothing of it is on `main`, on the published page or on a real FM-1. Its own record is
+`tutorial/UPGRADE-3.4.2.md`: every step, what it cost in the firmware's room, how it was checked, what is not
+checked. The course's author's answers, in their own words, are in `tutorial/upgrade/decisions.md` (1 to 13). This
+entry only says what changed for the course.
+
+- **What SLOOP changed under the lessons.** A pattern only changes when it is saved, with [SAVE] held and its key
+  held; a chain is several pattern keys in one hold of [SAVE]; the song is recorded ([SAVE] + [14]) and has a SONG
+  page of lines; the project is saved on PROJECT 3/3; the drum grid has four dials (SOUND, STEP, HIT, LEVEL); the
+  pages behind [FX], [EDIT], [LFO], [ARP] and [ENV] are other pages, each with its name in the bottom corner.
+- **The lessons: all thirty gone through again,** in the course's four parts, each lesson shown whole as Today /
+  Suggested after it had played both ways on the simulated FM-1 (`tutorial/UPGRADE-3.4.2.md`, "Step 4: the
+  lessons", part by part). First asked of each: what the learner needs it for now. Lessons 16 and 25 have new names
+  (Eight patterns, Chain the patterns). The learners' words from the three rounds above still stand where the step
+  still exists.
+- **New for a learner, in the firmware:**
+  - **The framed names answer** (decision 11): a button's or a key's name on a card fills in while it is held; a
+    knob's fills as far as the step's turn is done, from the side the turn comes from.
+  - **A black key has a picture** (decision 12): `[BLACK 2]` in a lesson file.
+  - **The lesson is remembered** over a power-off (item 118, decision 9).
+  - **The screen's colors on newer FM-1s** (decision 8): M-VAVE's own start-up table, sent again.
+  - **The logo** is drawn from the lessons' slot, in full color (decision 1), and since 2026-11-27 it is the new
+    round one, the name over a sunset on the sea ("I want you to change to this logo"): on the start screen, on
+    the page and in the README. The peach was its stand-in.
+- **Left out to make room** (decision 1): SLOOP's visualizer, and what SLOOP 3 brings over from SLOOP 2.8 at its
+  first start.
+- **2026-11-27, the words around the course** (decision 13):
+  - **All the pictures remade** ("I think we need to update all of the pictures"): the thirty sheets of the lessons'
+    screens, the twelve screens on the page and in the README ("Yes, use them"), the start screen. Five old
+    pictures in `tutorial/` that nothing linked to are removed ("yes remove them").
+  - **The README and the page say SLOOP 3.4.2, version 0.2** ("Yes, 0.2"), and what is new: the names answer, it
+    remembers.
+  - **No paragraph for someone with an earlier Teachie Beachie** ("don't say coming from an earlier teachie beachie
+    paragraph we don't need that").
+  - **Nothing about SLOOP 2.8** on the page or in the README ("Lets remove anything about Sloop 2.8 those people
+    are unlikely to use this. they need to flash, I don't think they are going to expect to bring anything over").
+    The closed note for someone who has SLOOP 3 stays ("Keep it").
+  - **The guides for an AI assistant** (`AGENTS.md`, `tutorial/AI.md`) name what changed ("Yes, all of it").
+  - **The page tried in a browser with a pretend FM-1:** the lessons sent to an empty slot, to a full FM-1 after its
+    question, and each thing that can be wrong said in its own words.
+- **Still to do:** a real FM-1 (decision 10), after one run on Linux. A newer FM-1, for the screen's colors, is with
+  the course's author around late December 2026.
+
 ## To do next
 
 The order of work is in `PLAN.md`, section 13.

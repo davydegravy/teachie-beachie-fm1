@@ -18,13 +18,14 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-src = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "assets", "logo", "teachie-beachie.jpg")
+src = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "assets", "logo", "teachie-beachie.webp")
 out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "assets", "logo", "teachie-beachie-fm1.bin")
 H = int(sys.argv[3]) if len(sys.argv) > 3 else 204
 UP = 8                                                        # the flat picture's size, times the screen's
 PAPER = (0xFF, 0xCB, 0xA4)                                    # TP_PAPER (app/vis.h): the start screen's peach
-PAL = [None, (255, 255, 255), (0, 0, 0), (248, 114, 61), (157, 201, 62), (192, 27, 31), (252, 204, 120), (4, 116, 136)]
-# the background (from the picture's corner), white, the outline, the peach, the leaf, the stem, the sun and the sand, the sea
+PAL = [None, (255, 255, 255), (0, 0, 0), (254, 117, 47), (254, 214, 111), (2, 97, 123)]
+# the background (from the picture's corner), white, the outline, the sky, the sun and the sand, the sea
+# (the round logo, 2026-11-27; the peach before it had a leaf and a stem too)
 
 im = Image.open(src).convert("RGB")
 px = im.load(); w0, h0 = im.size

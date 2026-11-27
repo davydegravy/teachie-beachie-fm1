@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 # Teachie Beachie: the logo for the installer page, cut out of its paper so it sits on the page's own peach.
-#   python3 tools/mkpagelogo.py assets/logo/teachie-beachie.jpg assets/logo
+#   python3 tools/mkpagelogo.py assets/logo/teachie-beachie.webp assets/logo
 # writes teachie-beachie-page.png (the logo at the top of the page, 220 px there: sharp on a fine screen) and teachie-beachie-mark.png (the small mark by the
 # name, and the browser tab's icon). Run by hand when the logo changes (it needs PIL); tools/teachie_page.py only reads
 # the two files, so the build needs nothing new.

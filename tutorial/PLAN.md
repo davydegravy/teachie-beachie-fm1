@@ -160,6 +160,8 @@ These are the only things a learner has to learn about the tutorial itself.
 | **The card** | A full screen of words, for an idea, a question or a reply. | Yes |
 | **The strip** | One or two lines over SLOOP's own screen, which stays live. | Yes |
 | **The strip at the top** | One line, when SLOOP's four knob dials at the bottom have to stay in view. | Yes |
+| **A framed name that fills** | The button or key named is held. For a knob: how far the turn the step asks for is done; full means done. | Yes (SLOOP 3.4.2) |
+| **The black key's picture** | A black key, counted from the left: on the drum grid it picks the drum. | Yes (SLOOP 3.4.2) |
 | **The half page** | Words on top, SLOOP's four knob dials live below. | No (the strip at the top does the job so far) |
 | **OCT− and OCT+, both blinking** | A question with two answers, one by each button. While it is up, they don't change the octave. | Yes |
 | **White keys lit with numbers** | A choice with three answers or more. | No |
@@ -210,12 +212,12 @@ brings the learner back to it after a moment.)
 |---|---|---|
 | **Groovebox** | Five tracks, each with its own instrument, and a sequencer that remembers what each one plays. | Mute the five tracks one by one while a song plays. |
 | **Track** | One instrument. There are five: four instruments and the drums. | Each has its own color on the screen. |
-| **Step** | A box. A bar has 16 boxes. | The 16 white keys are the 16 boxes. |
+| **Step** | A box. A bar has 16 boxes. | On the drum grid the 16 white keys are the 16 boxes; on the piano roll a knob walks along them. |
 | **Sequencer** | A light walks along the boxes, and a full box plays. | The walking light on the keys. |
 | **Tempo** | How fast the light walks. | Turn SELECT and watch it speed up. |
 | **Loop** | When the light reaches the end, it starts again. | It simply never stops. |
-| **Pattern** | A page. Each track has eight. | Hold SAVE: eight keys light, one per page. |
-| **Song** | The order the pages are played in. | The SONG screen, line by line. |
+| **Pattern** | One version of the music, all five tracks. There are eight, and each keeps what was saved into it. | Hold SAVE: eight tiles, one for each pattern. |
+| **Song** | The order the patterns are played in. | The SONG page, line by line. |
 | **Sound** | Which instrument a track plays. | Turn PRESETS while a part plays. |
 | **Effect** | A room or a costume for the sound: an echo, a fuzz, a big hall. | Hold FX and press a key. |
 | **Mix** | How loud each track is. | Hold GLO and turn the four knobs. |
@@ -289,23 +291,23 @@ drafted in `lessons/`.
 | # | Lesson | The one idea | What the learner does |
 |---|---|---|---|
 | 1 | Hello | A blinking light means "press me". SLOOP has five tracks. | Starts and stops a song with PLAY, plays the melody game, meets the run nobody can play by hand. |
-| 2 | Sixteen boxes | A sequencer is a row of boxes and a walking light. | Picks the drum track, opens the drum grid with SEQ, puts a kick in boxes 1, 5, 9 and 13: a house beat. |
-| 3 | Kick, snare, hat | A beat is three simple layers. | Adds the snare on 5 and 13 and the hats, picking each drum by playing its key first. |
-| 4 | The drum kit | The drums' 16 sounds are on the white keys. | Plays along on the keys, tries other kits with PRESETS. |
+| 2 | Sixteen boxes | A sequencer is a row of boxes and a walking light. | Picks the drum track, plays the kick, opens the drum grid with SEQ, taps a kick into boxes 1, 5, 9 and 13: a house beat. |
+| 3 | Kick, snare, hat | A beat is three simple layers. | Adds the snare on 5 and 13 and the hats, picking each drum with its black key. |
+| 4 | The drum kit | A kit has 16 drums, and a new kit swaps all 16 at once. | Adds a clap and two toms to the beat, tries other drums with KNOB 1, tries other kits with PRESETS. |
 | 5 | Meet the tracks | Each track plays its own instrument. | Holds GLO and taps keys 1 to 5 to silence each track, then solos one. |
-| 6 | Faster, slower, oops | Tempo is how fast the light walks. Undo takes a mistake back. | Changes the tempo with SELECT, makes a mess on purpose, undoes it (EDIT + OCT−), saves (SAVE twice). |
+| 6 | Faster, slower, oops | Tempo is how fast the light walks. Undo takes a mistake back. | Changes the tempo with SELECT, makes a mess on purpose, undoes it (EDIT + OCT−), saves (SAVE twice, then KNOB 1). |
 | 7 | **Your own beat** | | Makes a beat on an empty drum track. The band joins in. |
 
 ### Part 2: notes and chords
 
 | # | Lesson | The one idea | What the learner does |
 |---|---|---|---|
-| 8 | A bass line in boxes | The other tracks put notes in boxes, and low notes are the bass. | On track 1, plays a key, then holds SEQ and taps a box to drop the note in. |
+| 8 | A bass line in boxes | The other tracks put notes in boxes, and low notes are the bass. | On track 1, opens the piano roll with SEQ, turns KNOB 1 to a step and plays a key: its note is written there. |
 | 9 | Pick your sound | Each track can play any instrument. | Turns PRESETS, opens SOUNDS, picks by category, keeps a favorite. |
 | 10 | Record it live | REC writes down what you play. | Presses REC and plays over the loop. Undoes a bad take and tries again. |
-| 11 | No wrong notes | A key is a family of notes that sound good together. | Sets the key (SEL + a key), then plays a tune on the white keys by following the lights. |
-| 12 | One-finger chords | A chord is several notes at once. | Turns chords on (SEL, then KNOB 3) and records four chords. |
-| 13 | The piano roll | Notes can be moved, stretched and removed. | Opens NOTES (SEQ twice), fixes a wrong note, makes one longer. |
+| 11 | No wrong notes | A key is a family of notes that sound good together. | Sets the scale and SNAP on the SEL page (KNOB 2, KNOB 3), then plays a tune on the white keys by following the lights. |
+| 12 | One-finger chords | A chord is several notes at once. | Turns chords on (SEL, then KNOB 4) and records four chords. |
+| 13 | The piano roll | Notes can be moved, stretched and removed. | Opens the piano roll (SEQ), fixes a wrong note, makes one longer, deletes one. |
 | 14 | Mix the tracks | If everyone shouts, nobody is heard. | Sets the level of each track (KNOB 2 on the TRACKS page), first with a target and then by ear. |
 | 15 | **Your own loop** | | Drums, bass, chords and a melody. The learner makes at least two of the parts and may ask for the rest. |
 
@@ -314,13 +316,13 @@ drafted in `lessons/`.
 | # | Lesson | The one idea | What the learner does |
 |---|---|---|---|
 | 16 | Eight patterns | A song is made of patterns, and there are eight. | Changes the beat, holds SAVE and saves it into pattern 2, switches between the two: a verse beat and a chorus beat. |
-| 17 | Fills and rolls | A fill says "something new is coming". | Plays a fill by hand (GLO + a key), writes one that only plays as a fill, makes a hat roll (ARP + a key). |
+| 17 | Fills and rolls | A fill says "something new is coming". | Plays a fill by hand (GLO + a key), marks a note on its sheet so it only plays in a fill (OCT+ held), makes a hat roll (ARP + a key). |
 | 18 | Play the effects | Some effects are played like notes. | Holds FX and presses keys for the punch-in effects, then locks them on (FX + HOME). |
 | 19 | Echo and space | Delay repeats a sound. Reverb puts it in a room. | Sends the melody to the echo and the reverb, finds what too much sounds like, changes the echo itself. |
 | 20 | Color a track | An insert changes one track. A filter makes it dark or bright. | Puts FUZZ or CRUSH on the bass, sweeps the filter on the whole mix (FX + KNOB 1). |
 | 21 | Shape a sound | A sound has a beginning and an end. | On the ENV and EDIT pages, makes one sound start slowly, ring longer, get brighter. |
 | 22 | Wobble and arps | The FM-1 can move a sound, or play a chord's notes by itself. | Adds a wobble with the LFO page, then holds a chord and lets the arpeggiator play it. **The payoff:** the arpeggiator plays lesson 1's impossible run. |
-| 23 | **Your own piece, live** | | Two pages, a fill and effects, played live. |
+| 23 | **Your own piece, live** | | Two patterns, a fill and effects, played live. |
 
 ### Part 4: make a song
 
@@ -330,8 +332,8 @@ drafted in `lessons/`.
 | 25 | Chain the patterns | Patterns played in a row make a song. | Holds SAVE and taps patterns in order, then records a song live (SONG REC). |
 | 26 | Write it line by line | A song can be written down and edited. | Opens SONG 2/3 and sets each line: which pattern, how many bars. |
 | 27 | Build-ups and drops | Taking tracks away is as strong as adding them. | Arranges with mutes, fills and filter sweeps: a quiet intro, a build, a drop. |
-| 28 | Swing and feel | The same beat can march or dance. | Adds swing, makes some hats louder than others, plays soft and hard hits (OCT− and OCT+ while drumming). |
-| 29 | Keep it and share it | A finished song deserves to be kept. | Saves the project, wrecks it on purpose and opens the saved one again. Recording the song as a sound file is only described so far. |
+| 28 | Swing and feel | The same beat can march or dance. | Adds swing, makes some hats louder than others (KNOB 2 and KNOB 4 on the drum grid), plays soft and hard hits (OCT− and OCT+ while drumming). |
+| 29 | Keep it and share it | A finished song deserves to be kept. | Saves the project on the PROJECT page, wrecks it on purpose and loads the saved one again. Recording the song as a sound file is only described so far. |
 | 30 | **The final test** | | An empty project and no lights. A whole song: three parts or more, four tracks or more, effects, saved. Help comes only when asked. |
 
 ### After the course: deeper series, in any order
@@ -374,13 +376,12 @@ Each is a short series of lessons inside SLOOP 3, covering what the thirty lesso
 | **The lesson player in the firmware** | Plays the packed lessons with no computer (`fw/course.inc`): the same cards, lights, checks, hints and SHOW ME. START with no computer answering begins it. | Built; tested on the simulated FM-1 only |
 | **The packer** | Turns the Markdown lessons into one small pack for the FM-1 (`tools/mkcourse.py`); `tutorial/device.py` puts it on the FM-1 and tests it. | Built |
 
-**The room left in the firmware is small:**
-- **The lesson player takes about 8.3 KB of code.** To make room, SLOOP's import of an old SLOOP 2.8 project at
-  the first start is left out. After that about 500 bytes are free.
-- **If more room is needed:** the sample bank can move up by 2 KB into space that is free behind it, and the
-  visualizers take about 5.5 KB.
-- **The lessons and songs are in a sample slot.** All thirty lessons with their songs are about 35 KB, and a slot
-  holds 80 KB. Installing new firmware doesn't erase them.
+**The room left in the firmware is small** (on SLOOP 3.4.2, 2026-11-26; `tutorial/UPGRADE-3.4.2.md`, "The room"):
+- **2,720 bytes are free** before the sample bank, and 1,880 of RAM. To make that room, SLOOP's visualizer and what
+  SLOOP 3 brings over from SLOOP 2.8 at its first start are left out, and the logo moved out of the firmware.
+- **The lessons, their song, their fonts and the logo are in a sample slot.** The pack is about 57 KB and the logo
+  17 KB, of a slot's 80 KB: room for two or three more lessons. The blank bytes between them hold the lesson the
+  learner was on. Installing new firmware doesn't erase the slot, but a firmware only takes the lessons made for it.
 
 ## 13. The order of work
 
@@ -403,8 +404,8 @@ the begin card, and first drafts of all thirty lessons, each played through on t
 6. **(Set aside on 2026-11-22:** an assistant cutting in during a lesson. Section 9.)
 7. **The course on the FM-1 alone, on a real FM-1.** It is built and passes on the simulated FM-1 (2026-11-19);
    it has to be installed and played by a person.
-8. **What the FM-1 alone still lacks:** remembering the next lesson after it is switched off, and room to spare
-   in the firmware.
+8. **What the FM-1 alone still lacks:** room to spare in the firmware. Remembering the lesson after it is switched
+   off is built (the move to SLOOP 3.4.2, step 8).
 9. **The first young learner** plays the course from lesson 1, on the FM-1.
 10. **Going public:** the public repository, the installer page and the lessons. Then showing it to SLOOP's
     developer, and offering the guide to SLOOP itself.

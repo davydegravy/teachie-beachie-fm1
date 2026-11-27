@@ -56,6 +56,9 @@ Until it is chosen and in `assets/logo/`, today's goes in as a stand-in: do not 
 - With no lessons on the FM-1 the start shows the name only.
 - Best with the screen's setup table (decision 8): on newer FM-1s the soft shades wash out without it.
 
+**2026-11-27: the round logo is in** ("I want you to change to this logo"), in step 9. As built: 198 x 204, 17,284
+bytes, from the picture's own six colours; the slot keeps 7,308 blank bytes. No firmware change.
+
 ## 2. The drum grid: tap a box, or hold [SEQ] and tap
 
 On 3.4.2's drum grid a white key sets or clears a box by itself, with or without [SEQ], and makes no sound. A drum
@@ -430,3 +433,25 @@ Shown beside the key alone (a bar) and beside itself with the white keys in a li
 keys but its easier to see that they are keys"; "I think I like the first one better at the beginning we can just
 tell the user that this is supposed to be a black key". So the first card that uses it says what it is. In a lesson
 file it is `[BLACK 2]` (the second black key from the left), and `black 2` in Do.
+
+## 13. The words around the course (step 9, asked 2026-11-27)
+
+Asked one at a time while step 9 was done; each answer in the course's author's words.
+
+- **Which pictures to remake:** all of them ("I think we need to update all of the pictures"). The thirty sheets of
+  the lessons' screens, the twelve screens on the page and in the README, the start screen.
+- **The twelve screens on the page:** the same twelve places in the course as before, taken again where SLOOP's page
+  or the card changed ("Yes, use them"). Nine changed; the course's card, lesson 20's card and the Done card came
+  out the same to the pixel.
+- **No paragraph for someone who has an earlier Teachie Beachie** ("don't say coming from an earlier teachie
+  beachie paragraph we don't need that"). The page already says how to update: install again, send the lessons.
+- **Nothing about SLOOP 2.8** on the page or in the README ("Lets remove anything about Sloop 2.8 those people are
+  unlikely to use this. they need to flash, I don't think they are going to expect to bring anything over"). The
+  page's three notes and two half-sentences about it are taken out; the license's credit to SLOOP stays as it is.
+- **The closed note "Already use SLOOP 3?" stays** ("Keep it"): what someone with SLOOP 3 on their FM-1 keeps.
+- **The version is 0.2** ("Yes, 0.2"): the page shows `v0.2 · SLOOP 3.4.2`.
+- **`AGENTS.md` and `tutorial/AI.md`:** the changes shown first, then all taken ("Yes, all of it").
+- **The new logo** ("Sorry I want you to change to this logo"): the round sticker, on the FM-1's start screen, at the
+  top of the page, as the browser tab's icon and in the README (decision 1).
+- **Five old pictures in `tutorial/` that nothing links to: removed** ("yes remove them"). The ten linked from a
+  dated note stay.

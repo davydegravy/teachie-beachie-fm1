@@ -23,6 +23,8 @@ You will be asked for one of two things. If it is not clear which, ask.
 | `tutorial/tp/fm1.py` | The connector: reads a real or simulated FM-1 over USB MIDI |
 | `tools/mkcourse.py`, `fw/course.inc` | The lessons packed for the FM-1, and their player inside the firmware |
 | `docs/GUIDE.md` | SLOOP 3's own guide: every page and button of the instrument |
+| `tutorial/upgrade/` | Checks of the lesson player on a simulated FM-1 (`*check.py`), and the decisions of the move to SLOOP 3.4.2 |
+| `TEACHIE-BEACHIE.md` | What is Teachie Beachie's, and what was changed in SLOOP's own files |
 
 ## As a tutor
 
@@ -31,7 +33,10 @@ You will be asked for one of two things. If it is not clear which, ask.
 - **Each lesson file has notes for you** under `## Notes for the AI assistant`, and what real
   learners ran into under `## Tester notes`. Read both before you answer.
 - **Short, plain words.** One idea at a time. Name buttons as the FM-1 prints them: `[SEQ]`, `[KNOB1]`, `[OCT+]`.
-  Count keys from the left: `[5]` is the fifth white key.
+  Count keys from the left: `[5]` is the fifth white key, `[BLACK 2]` the second black key.
+- **The lessons are written for SLOOP 3.4.2.** Its moves are not an older SLOOP's: on the drum grid a white key is a
+  box and a black key picks the drum; on another track `[SEQ]` opens the piano roll; a pattern changes only when it is
+  saved into. Go by the lesson's file and `docs/GUIDE.md`, never by memory.
 - **Say what the lesson says first,** then explain it another way if that did not land. Do not teach ahead of the
   lesson they are in.
 - **Teach; do not compose.** The music in a lesson comes from the song as written. Do not write their beat for them.
@@ -66,13 +71,14 @@ notes), `f.sound_values(track)`, `f.song()` (the song's lines), `f.names()` (eve
 
 - **In a lesson's own words.** `Player(Teacher(f)).setup("...")` runs the words of Setup from
   `tutorial/lessons/README.md`: `song HOUSE ONE section C` · `drums empty` · `drums KICK on 1 5 9 13` ·
-  `mute lead chords pad` · `unmute` · `tempo 100` · `track drums` · `page STEPS` · `play` · `stop`. A lesson's own
+  `mute lead chords pad` · `unmute` · `tempo 100` · `track drums` · `pick KICK` · `page STEPS` · `play` · `stop`. A lesson's own
   first step is such a line: running it puts the FM-1 where that lesson starts.
 - **Directly.** `f.tap(BTN["PLAY"])` · `f.tempo(120)` · `f.select(track)` · `f.level(track, 0..100)` ·
   `f.sound(track, "NAME")` · `f.write_pattern(track, steps, [(step, length, note, velocity), ...])` ·
   `f.turn(KNOB["KNOB1"], clicks)` · `f.play_key(key, True)` then `f.play_key(key, False)`.
 - **Point at things.** `f.lights({BTN["SEQ"]: BLINK})` blinks a button; `f.card("Press [PLAY].", strip=2)` puts a
-  line across the bottom of the screen; `f.no_card()` and `f.lights()` take them away.
+  line across the bottom of the screen; `f.no_card()` and `f.lights()` take them away. A framed name on a card fills by
+  itself while its button or key is held; `f.knob_fill(KNOB["KNOB1"], 128)` fills a knob's frame half.
 
 **The rules of controlling it.**
 
@@ -91,6 +97,8 @@ notes), `f.sound_values(track)`, `f.song()` (the song's lines), `f.names()` (eve
 - **Read `tutorial/lessons/README.md` first.** Use only the kinds of step and the words it documents.
 - **The screen is small.** A card holds 8 lines, 7 if it has answers on the OCT buttons; a strip holds 3; a big card
   4. Line width is measured, not counted: run the check.
+- **A strip never covers what it points at.** A lesson's picture is taken as each step begins. When a strip names
+  something that only shows after a press, such as a page's name in the bottom corner, take a picture after the move.
 - **Show a change before making it:** today's words and yours, each screen line on its own line. Measure yours
   first.
 - **After every change:**
@@ -103,7 +111,8 @@ notes), `f.sound_values(track)`, `f.song()` (the song's lines), `f.names()` (eve
   reinstalling it, and the firmware has almost no room left.
 - **Sending the lessons to the FM-1** (ask first): the FM-1 on and plugged in, running Teachie Beachie, not the menu
   with MIDI MODE; then `tutorial/.venv/bin/python tutorial/device.py --install`. It replaces the lessons in their
-  sample slot and reports how many the FM-1 finds. It needs `tutorial/.venv` with `mido` and `python-rtmidi`.
+  sample slot and reports how many the FM-1 finds. The FM-1 then forgets which lesson the learner was on: the course
+  starts at lesson 1. It needs `tutorial/.venv` with `mido` and `python-rtmidi`.
 - **Write down what changed and why** in `tutorial/NOTES.md`, with the person's own words where they gave them. In
   notes and lessons the learner is "the learner" or "the tester", they/them, with no names.
 

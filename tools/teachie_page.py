@@ -15,7 +15,7 @@
 import base64, os, re, sys
 import mkcourse                                          # (tools/mkcourse.py: the lessons' pack)
 
-TP_VERSION = "0.1"
+TP_VERSION = "0.2"
 HOME = "https://github.com/davydegravy/teachie-beachie-fm1"
 
 path = sys.argv[1]
@@ -68,7 +68,7 @@ RULES = [
      "up your FM-1 before it changes anything, so you can always go back. "),
     ('The FM-1 running TEACHIE BEACHIE (3D render)', 'The M-VAVE FM-1, with SLOOP 3 on its screen (3D render)'),
     ('The M-VAVE FM-1 running TEACHIE BEACHIE', 'The M-VAVE FM-1'),
-    # after the install: the peach and the start card, not SLOOP's sailboat; and where the lessons come from
+    # after the install: the logo and the start card, not SLOOP's sailboat; and where the lessons come from
     ('The FM-1 restarts on TEACHIE BEACHIE and the sailboat logo draws itself in. Turn <b>MASTER</b> up gently, and have fun.',
      '<span class="tp-pend">The firmware is installed. Now send the thirty lessons: it takes a few seconds.</span>'
      '<span class="tp-ok">The thirty lessons are on your FM&#8209;1. Turn <b>MASTER</b> up gently, and have fun.</span>'),
@@ -79,12 +79,13 @@ RULES = [
     ('<section class="pane hide" id="p6"', '<section class="pane hide tp-pending" id="p6"'),
     # the sixth step in the list at the left: the lessons (SLOOP's: a first minute of play)
     ('data-t="r6">Play<small>Your first minute</small>', 'data-t="r6">Lessons<small>A few seconds</small>'),
-    # the first start: TEACHIE BEACHIE leaves out SLOOP 3's opening of a SLOOP 2.8 project (TP_SLOOP28_PROJECT in fw/main.c)
-    ("At its first start, TEACHIE BEACHIE opens what SLOOP 2.8 left: your sections become patterns, and your presets, "
-     "favourites, samples, SYN kits, FM6 bank and settings come along. SLOOP 2.8's data is only read, never written.",
-     "TEACHIE BEACHIE does not open the project SLOOP 2.8 left (SLOOP 3 does; TEACHIE BEACHIE leaves that out to make room "
-     "for its lessons). Your presets, favorites, samples, SYN kits, FM6 bank and settings come along. SLOOP 2.8's data is "
-     "only read, never written."),
+    # nothing about SLOOP 2.8 on this page (2026-11-27: its users "are unlikely to use this. they need to flash, I don't
+    # think they are going to expect to bring anything over"): the way into download mode with SLOOP 2.8 running, and
+    # Help's title; the three notes about it are taken out whole, below
+    (" (or, with SLOOP 2.8 running, hold <kbd>OCT-</kbd> and <kbd>OCT+</kbd> for 5 seconds)", ""),
+    ("Going back to SLOOP 2.8 or M-VAVE's firmware", "Going back to M-VAVE's firmware"),
+    # updating later: Teachie Beachie's page has six steps, the lessons being the sixth
+    ("Open this page again: steps 3 to 5, about a minute.", "Open this page again: steps 3 to 6, a minute or two."),
     ('data-t="betaT">TEACHIE BEACHIE is a public beta', 'data-t="betaT">TEACHIE BEACHIE runs SLOOP 3, a public beta'),
     ('<p data-t="foot1"><b>TEACHIE BEACHIE</b> is free software (GPL-3.0) by the SLOOP project: '
      '<a href="https://github.com/isod89/sloop3-fm1">github.com/isod89/sloop3-fm1</a>.',
@@ -304,8 +305,7 @@ if "<script" in LESSONS + ONLY + js or "</script" in LESSONS + ONLY + js: sys.ex
 #      lessons with an AI assistant, whichever it is: what it can do today with the project's files (tutorial/AI.md);
 #    - the browser's three checks (and what it says when a browser cannot install) moved from the top into step 1,
 #      so the top ends on the author's words;
-#    - step 1's two notes for people who use SLOOP already (the tried and tested version, updating from 3.0 to 3.3.4)
-#      folded into one closed section;
+#    - step 1's note for people who use SLOOP 3 already (updating from 3.0 to 3.3.4) folded into a closed section;
 #    - the steps counted to 6, the lessons being the sixth (SLOOP's page counts 5 and a last screen).
 # (twelve screens in the lessons' order: the card of the whole course first, then strips and tags of a lesson's words over
 #  SLOOP's own page, lesson 16's cheat sheet (a lesson's last card), lesson 20's card about the filter, and the last card,
@@ -313,15 +313,15 @@ if "<script" in LESSONS + ONLY + js or "</script" in LESSONS + ONLY + js: sys.ex
 #  six beside the introduction, the next six under it)
 SIDE = [("course.png", "The course", "The card of the whole course: 30 lessons in 4 parts"),
         ("lesson-01.png", "Lesson 1: play", "Lesson 1: SLOOP's five tracks, with a strip of words across the bottom: SLOOP! Press PLAY."),
-        ("lesson-03.png", "Lesson 3: drums", "Lesson 3: the drum grid, with the words: Hold SEQ. Hats on 3, 7, 11, 15: between the kicks."),
-        ("lesson-08.png", "Lesson 8: a bass line", "Lesson 8: the bass line's sixteen boxes, some holding the note A1, with the words: Hold SEQ. Put it on 16."),
-        ("lesson-12.png", "Lesson 12: chords", "Lesson 12: sixteen chord names on the keys, with the words: One key, one chord. Play the blinking keys."),
-        ("lesson-13.png", "Lesson 13: piano roll", "Lesson 13: the piano roll, with the words across the top: KNOB1 to step 7.")]
-SHOTS = [("lesson-16.png", "Lesson 16: cheat sheet", "Lesson 16's last card, a cheat sheet: A page is also called a pattern. Go to a page: SAVE + a key. Copy this page: SAVE + hold a key."),
+        ("lesson-03.png", "Lesson 3: drums", "Lesson 3: the drum grid, with the words: Hats on 3, 7, 11, 15: between the kicks."),
+        ("lesson-08.png", "Lesson 8: a bass line", "Lesson 8: the bass line on the piano roll, five notes in a row, with the words across the top: KNOB1 to step 16: 10."),
+        ("lesson-12.png", "Lesson 12: chords", "Lesson 12: the page where chords are switched on, with the words across the top: KNOB4: one click right. CHORD says TRIAD."),
+        ("lesson-13.png", "Lesson 13: piano roll", "Lesson 13: the piano roll, one note being made longer, with the words across the top: KNOB3 until LEN says 5.")]
+SHOTS = [("lesson-16.png", "Lesson 16: cheat sheet", "Lesson 16's last card, a cheat sheet: Patterns. Go to one: SAVE + its key. Save into one: SAVE + hold its key. A change not saved is gone when you switch."),
          ("lesson-20.png", "Lesson 20: a filter", "Lesson 20, a card: A filter is a DJ's favorite trick. Close it: the song sinks underwater. Open it: it bursts back to life."),
          ("lesson-21.png", "Lesson 21: a sound", "Lesson 21: a sound's envelope drawn as a curve, with the words: KNOB1, ATK: up."),
          ("lesson-22.png", "Lesson 22: wobble", "Lesson 22: a slow wave drawn across the screen, with the words: KNOB1, RATE: try it."),
-         ("lesson-25.png", "Lesson 25: a song", "Lesson 25: the song page with its eight pages, with the words: The chain plays: 1, 2, 3, round and round."),
+         ("lesson-25.png", "Lesson 25: a song", "Lesson 25: the eight patterns on the screen while SAVE is held, a chain of 1, 2 and 3, with the words: Hold SAVE: 1, 2, 3. Then let go."),
          ("lesson-30.png", "Lesson 30: done", "The last card: Lesson 30, Done")]
 def shot(name): return base64.b64encode(open(os.path.join("assets", "shots", name), "rb").read()).decode()
 def figures(shots): return "".join(
@@ -367,17 +367,25 @@ a = '<div class="checks" id="checks"></div>\n<div class="blocker hide" id="block
 m = re.search(r'<p class="sub" data-t="s1">.*?</p>\n', t, flags=re.S)
 if a in t and m: t = t.replace(a, "", 1); m = re.search(r'<p class="sub" data-t="s1">.*?</p>\n', t, flags=re.S); t = t[:m.end()] + a + t[m.end():]; new += 1
 else: missed.append("the browser's checks, or step 1's first words, where they go")
-notes = [re.search(r'<div class="note[^"]*"><b data-t="%s">.*?</div>\n' % k, t, flags=re.S) for k in ("stableT", "upT")]
+# (nothing about SLOOP 2.8: step 1's note on the tried and tested version, the last step's "Coming from SLOOP 2.8?" and
+#  the footer's line on the stable version are taken out; step 1's other note, for SLOOP 3's own early users, is folded
+#  into a closed section)
+gone = [re.search(p, t, flags=re.S) for p in (r'<div class="note[^"]*"><b data-t="stableT">.*?</div>\n', r'<div class="note[^"]*"><b data-t="from28T">.*?</div>\n', r'<p data-t="foot2">.*?</p>')]
+for g, what in zip(gone, ("step 1's note on SLOOP 2.8", "the last step's note for SLOOP 2.8's users", "the footer's line on SLOOP 2.8")):
+    if g: t = t.replace(g.group(0), "", 1)
+    else: missed.append(what)
+notes = [re.search(r'<div class="note[^"]*"><b data-t="%s">.*?</div>\n' % k, t, flags=re.S) for k in ("upT",)]
 a = ONLY
 if all(notes) and a in t:
     for g in notes: t = t.replace(g.group(0), "", 1)
-    t = t.replace(a, '<details class="more tp-sloop"><summary>Already use SLOOP?</summary><div>\n' + "".join(g.group(0) for g in notes) + "</div></details>\n" + a, 1); new += 1
-else: missed.append("step 1's notes for SLOOP's users")
+    t = t.replace(a, '<details class="more tp-sloop"><summary>Already use SLOOP 3?</summary><div>\n' + "".join(g.group(0) for g in notes) + "</div></details>\n" + a, 1); new += 1
+else: missed.append("step 1's note for SLOOP 3's users")
 t, n = re.subn(r'(data-t="e[1-5]">Step [1-5]) of 5<', r"\1 of 6<", t)
 if n == 5: new += 1
 else: missed.append("the steps' count (%d of 5)" % n)
 if new != 6: print("teachie_page: the page for a newcomer is not whole (%d of 6)" % new, file=sys.stderr)
 
+if re.search(r"SLOOP 2\.8", re.sub(r"<script.*?</script>|<style.*?</style>|<!--.*?-->", "", t, flags=re.S)): missed.append("a mention of SLOOP 2.8 in the page's words (none should be left)")
 open(path, "w", encoding="utf-8").write(t)
 for s in missed: print("teachie_page: not found (SLOOP reworded it?):", s, file=sys.stderr)
 credited = "built on <b>SLOOP 3</b>" in t

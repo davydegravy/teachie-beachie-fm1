@@ -34,7 +34,7 @@ hints, what the step checks, and notes on what usually goes wrong.
 - "In lesson 13, step 7, what am I supposed to do?"
 - "Lesson 20 talks about a filter. What is a filter, in words a ten-year-old gets?"
 - "Why does lesson 3 put the snare on boxes 5 and 13?"
-- "We are stuck on lesson 16. Explain copying a page another way."
+- "We are stuck on lesson 16. Explain saving into a pattern another way."
 
 The assistant cannot see the FM-1's screen or hear it. Tell it which lesson you are in and what the card says.
 
@@ -54,7 +54,7 @@ sends the lessons to your FM-1.
 - "Make an easier version of lesson 21."
 
 A new lesson is one more text file. It is checked and tested the same way, and goes to the FM-1 with the others.
-The lessons share one song, HOUSE ONE, and there is room on the FM-1 for about half as many lessons again.
+The lessons share one song, HOUSE ONE, and there is room on the FM-1 for two or three more lessons.
 
 ### To look at the FM-1, and to control it
 
@@ -101,5 +101,7 @@ are not touched. Changing lessons never changes the firmware.
 - **It runs commands on your computer, and it can change what is on the FM-1.** A good assistant asks before it
   installs something, sends lessons or touches the FM-1; `AGENTS.md` tells it to.
 - **Keep the backup** the installer made. Sending lessons does not need it, but it is what brings an FM-1 back.
+- **Sending lessons starts the course over.** The FM-1 remembers which lesson the learner was on, and forgets it
+  when new lessons arrive. Pick the lesson from the list.
 - **What works goes back into the lessons.** When an explanation lands, ask the assistant to make it a hint in the
   lesson. The next learner gets it with no assistant at all.
