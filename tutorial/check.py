@@ -8,7 +8,7 @@
                                            by a robot learner that does what each step asks (several lessons at once).
                                            A picture of each lesson's screens goes to tutorial/lessons/screens/
     python3 tutorial/check.py --run 3 4    only lessons 3 and 4
-    python3 tutorial/check.py --run --clumsy   the robot learner first taps a blinking box with SEQ not held, as a
+    python3 tutorial/check.py --run --clumsy   the robot learner first picks another drum with a black key, as a
                                            beginner does: the lesson has to say so and still get there
 
 Run it from the repository's top folder; --run needs build/twin (make build/twin)."""

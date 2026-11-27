@@ -6,7 +6,8 @@
                                             there by the FM-1's own course (fw/course.inc). A robot only presses: it
                                             reads the lesson's file to know what a learner would do at each step
     python3 tutorial/device.py 3 4          only lessons 3 and 4
-    python3 tutorial/device.py --clumsy     the robot first taps a blinking box with SEQ not held, as a beginner does
+    python3 tutorial/device.py --clumsy     the robot first picks another drum with a black key, as a beginner does, and
+                                            puts it right when the lesson says so
     python3 tutorial/device.py --sticky     the robot is slow to let go: what it holds for a step stays down a second into
                                             the next one (a step must not go by on a fill or an effect held from before)
     tutorial/.venv/bin/python tutorial/device.py --install [--slot 4] [1-7]
@@ -94,7 +95,16 @@ def play(lesson, index, seed):
                 seen = L.Seen(f, {}, [], set()); miss = {L.WHITE[b % 16] for c in conds if c.miss for b in c.miss(seen)}
                 ops = [o for o in ops if o[0] not in ("tap", "long", "khold") or o[1] in miss]
                 if clumsy and tries == 1 and miss and any(c.drum is not None for c in conds):
-                    tap(link, "key", sorted(miss)[-1]); log.append("step %d: a box tapped with SEQ not held" % (step + 1)); time.sleep(3.2)
+                    # (SLOOP 3.4) a black key picks the drum: the beginner's slip is another drum picked before the boxes.
+                    # The key of the drum wanted, tapped once more, gives its other drum if it holds two; else the key beside it
+                    need = next(c.drum for c in conds if c.drum is not None); f.guide(4)
+                    own = L.drum_black_key(need); i = L.DB_KEY.index(own)
+                    slip = own if L.drum_black(own, f.picked) != need else L.DB_KEY[(i + 1) % len(L.DB_KEY)]
+                    tap(link, "key", slip); time.sleep(3.2); f.guide(4); wrong = f.picked   # (the lesson says so, and that drum's black key blinks)
+                    for _ in range(3):
+                        if f.picked == need: break
+                        tap(link, "key", own); time.sleep(0.5); f.guide(4)
+                    log.append("step %d: %s picked first, %s" % (step + 1, L.PADS[wrong] if wrong is not None and wrong < 16 else "?", "put right" if f.picked == need else "NOT put right"))
             down = hands(link, ops, keep=sticky and ph == PH["DO"] and (s.sub("Until") or "").lower() in ("fill on", "punch on"))
             if ph == PH["ANSWER"]: time.sleep(0.2); tap(link, "button", BTN["OCT_DOWN"] if answer == "left" and s.sub("OCT-") else BTN["OCT_UP"])
     finally:

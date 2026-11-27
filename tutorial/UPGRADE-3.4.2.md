@@ -87,8 +87,7 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
    lesson: `python3 tutorial/check.py N`, `--run N`, `tutorial/device.py N`. Their notes for the AI assistant too.
    The first card that shows the black key's picture (`[BLACK 1]`) says what it is.
 5. **The whole course:** `python3 tutorial/device.py` (about 7 min) and `python3 tutorial/check.py --run` (about
-   4.5 min): all 30 through. (**Done 2026-11-26** with part 4's checks. Still open: the `--clumsy` robot needs a new
-   slip for the new grid, a black key tapped twice, and neither it nor `--sticky` has been run on the new lessons.)
+   4.5 min): all 30 through. (**Done 2026-11-26**: "Step 5: the whole course", below, with the two other robots.)
 6. **The frames that answer the controls** (decision 11; the guide in `fw/main.c`, a firmware change, so said
    first). Measured after it: the room left, the load with a knob spun fast (`ld_peak`), screenshots of a frame
    held and one half filled; then step 5's runs again.
@@ -752,10 +751,30 @@ the pages"); the lesson pictures in `tutorial/lessons/screens/` are the old ones
 - **A cheat-sheet card of moves that share a hold says the hold once, at the top** (lesson 30: `Hold [SAVE], then
   tap:`), and the lines under it name only the key.
 
+## Step 5: the whole course (2026-11-26)
+
+All 30 lessons in one run, five ways, on the simulated FM-1. None stopped.
+
+| Run | Command | Result |
+|---|---|---|
+| The FM-1 leading itself | `python3 tutorial/device.py` | 30 played through |
+| The computer leading | `python3 tutorial/check.py --run` | 30 played through |
+| The FM-1 leading, a robot slow to let go | `python3 tutorial/device.py --sticky` | 30 played through |
+| The FM-1 leading, a clumsy robot | `python3 tutorial/device.py --clumsy` | 30 played through; 10 slips in lessons 2, 3, 4, 6, 16 and 17, each put right |
+| The computer leading, a clumsy robot | `python3 tutorial/check.py --run --clumsy` | 30 played through; the same 10 slips, each said by the lesson |
+
+**The clumsy robot's new slip** (`tutorial/device.py`, `tutorial/tp/lesson.py`). Its old one, a blinking box tapped
+before [SEQ] was held, is the right move on 3.4.2's grid and tested nothing. Now, at a step that asks for a drum in
+boxes, it first picks another drum, as a beginner does with a black key: the key of the drum wanted, tapped once
+more, gives its other drum where the key holds two (KICK2, SNR 2, PEDAL, TOM L for TOM H); a drum alone on its key
+gets the key beside it. The lesson then has to say `Another drum is picked. / Tap the blinking key.` and blink that
+drum's black key, not the boxes (step 2). After the words the robot taps the right key and goes on with the boxes.
+With the FM-1 leading, the run's report lists each slip (`step 8: KICK2 picked first, put right`); with the computer
+leading, each lesson's log has it (`slip  picked SNR 2`).
+
 ## Not done
 
-Steps 6 to 10 of "The plan for the full move", and the two other robots of step 5 (`--clumsy`, `--sticky`). Nothing
-from here has been on a real FM-1.
+Steps 6 to 10 of "The plan for the full move". Nothing from here has been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot

@@ -630,6 +630,7 @@ class Player:
         base = {c.needs_base: None for c in conds if c.needs_base}
         if base: s0 = self.seen(); base = {k: s0.value(k) for k in base}
         t0 = time.time(); at = 0; turned = 0; hint_at = t0 + self.hint_s; hint_i = 0; robot = None; robot_due = t0 + 0.5; off_page = None; self.events = []; self.msgs.clear()
+        slip = []                                                                   # (a clumsy robot's wrong move, made once before the Do)
         said = None                                                                # the wrong drum last said
         if conds and all(c.ok(self.seen(base)) for c in conds) and not any(c.needs_base for c in conds):
             on = lambda: (lambda st: bool(st["fill"] or st["punch"] is not None))(self.seen().st)
@@ -641,9 +642,11 @@ class Player:
             self.pump()
             if self.fm1.track != TRACK["drums"]: self.fm1.select(TRACK["drums"]); self.t.note("back", "to the drum track")
             if self.picked != need: self.pick(need)                                 # (whatever was played before: the right drum now)
-            if self.robot and self.clumsy and not idle:                             # a learner who taps a blinking box before holding SEQ
+            if self.robot and self.clumsy and not idle:                             # a learner who picks another drum first (SLOOP 3.4: a black key picks)
                 miss = [b for c in conds if c.miss for b in c.miss(self.seen(base))]
-                if miss: robot_ops = [("tap", WHITE[miss[-1] % 16]), ("wait", 3.2)] + robot_ops
+                if miss:                                                            # the wanted drum's key once more gives its other drum, if it holds two; else the key beside it
+                    own = drum_black_key(need); i = DB_KEY.index(own); wrong = own if DB_A[i] != DB_B[i] else DB_KEY[(i + 1) % len(DB_KEY)]
+                    slip = [("any", wrong), ("wait", 3.2), ("any", own), ("wait", 0.6)]   # ("any": a key that is no box, so left_to_do keeps it); once, then the Do
         while True:
             for ev in self.pump():
                 if os.environ.get("TP_DEBUG"): print("      event", ev, "%.2f" % (time.time() - t0), flush=True)
@@ -698,7 +701,7 @@ class Player:
                     off_page = off_page or now
                     if now - off_page > 2.5: self.goto(page.upper()); self.t.note("back", "to %s" % page); off_page = None
                 else: off_page = None
-            if self.robot and robot is None and now >= robot_due: robot = moves(robot_ops if not conds else self.left_to_do(robot_ops, conds, s)); robot_due = now
+            if self.robot and robot is None and now >= robot_due: robot = moves(slip + (robot_ops if not conds else self.left_to_do(robot_ops, conds, s))); slip = []; robot_due = now
             if self.robot and robot is not None and now >= robot_due:
                 mv = next(robot, None)
                 if mv is None: robot = None; robot_due = now + (0.3 if any(o[0] == "turn" for o in robot_ops) else 2.0)

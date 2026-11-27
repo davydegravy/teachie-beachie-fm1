@@ -76,7 +76,7 @@ def lesson(fm1, link, i):
         open(os.path.join(HERE, "backups", "project-%s.s3p" % stamp), "wb").write(there)
     teacher.note("kept", "a copy of the project that was there, %d bytes" % len(there))
     player = Player(teacher, robot_link=link if twin else None, fast=fast, path="advanced" if "--advanced" in sys.argv else "beginner")
-    player.clumsy = "--clumsy" in sys.argv                    # (the tests: a robot that taps a blinking box before holding SEQ)
+    player.clumsy = "--clumsy" in sys.argv                    # (the tests: a robot that first picks another drum with a black key)
     try:
         while player.play(l) == "replay": teacher.note("again", l.name)
         teacher.note("finished", l.name)
