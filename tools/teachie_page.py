@@ -43,7 +43,7 @@ RULES = [
      'content="Install TEACHIE BEACHIE, free firmware that teaches the M-VAVE FM-1 in thirty lessons, made for kids and beginners, built on SLOOP 3,'),
     # what Teachie Beachie is, in a few words: made for kids, and why, in the author's own voice (no names, no ages;
     # the page's words for SLOOP described a groovebox only; &#8209;, a hyphen
-    # that does not break the line, keeps M-VAVE and FM-1 whole on a phone; five short paragraphs, the later ones in spans that
+    # that does not break the line, keeps M-VAVE and FM-1 whole on a phone; six short paragraphs, the later ones in spans that
     # the look, below, starts on lines of their own)
     ('TEACHIE BEACHIE turns the M-VAVE FM-1 into a complete groovebox: drums, bass, chords, melodies and effects, with a '
      'sequencer that loops it all. This page installs it for you, step by step, right from your browser.',
@@ -52,12 +52,15 @@ RULES = [
      '<span class="tp-p">A lesson puts a short card on the screen, lights up the button or key to press, and waits while you try '
      'it. If you get stuck it offers a hint, and it can even do the step for you. Each lesson takes a few minutes and builds '
      'on the one before.</span>'
+     '<span class="tp-p">Because the lessons run inside the FM&#8209;1, they can do what a video or a manual can\'t. They know '
+     'which page you are on, which notes you put in and which button you are holding, so a lesson moves on when you have '
+     'done the step.</span>'
      '<span class="tp-p">There are thirty lessons in four parts: Your first beat, Notes and chords, Effects and sound, Make a '
      'song. By lesson 7 you have made a beat of your own. By lesson 30, a whole song.</span>'
-     '<span class="tp-p">Teachie Beachie is free, and once it is installed no computer is needed. It is built on SLOOP 3, a '
+     '<span class="tp-p">Teachie Beachie is free, and needs no computer once it is installed. It is built on SLOOP 3, a '
      'complete groovebox, which stays when the lessons are done.</span>'
-     '<span class="tp-p">I made Teachie Beachie for my kids, nieces and nephews, as part of a Christmas present. If you have kids '
-     'who would like to learn how to use a groovebox and the FM&#8209;1, I\'d encourage you to give Teachie Beachie a try.</span>'),
+     '<span class="tp-p">I made Teachie Beachie as a gift to my kids. If you have kids who would like to learn how to use a '
+     'groovebox and the FM&#8209;1, I\'d encourage you to give it a try.</span>'),
     # the title: FM-1 kept whole on a phone (it broke as "FM-" and "1"), and "on your FM-1" kept together, as the
     # name is, so the title breaks only between its three parts; under it, a line saying what it is
     ('on your FM-1</h1>', '<span>on your FM&#8209;1</span></h1><p class="tp-tag">Thirty lessons that teach the FM&#8209;1, on the FM&#8209;1 itself.</p>'),

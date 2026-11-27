@@ -1836,6 +1836,13 @@ entry only says what changed for the course.
     are unlikely to use this. they need to flash, I don't think they are going to expect to bring anything over").
     The closed note for someone who has SLOOP 3 stays ("Keep it").
   - **The guides for an AI assistant** (`AGENTS.md`, `tutorial/AI.md`) name what changed ("Yes, all of it").
+  - **The page's top says why the lessons are inside the FM-1** ("can we add some of this without making it too
+    long?", of a draft from another AI assistant): `Because the lessons run inside the FM-1, they can do what a
+    video or a manual can't. They know which page you are on, which notes you put in and which button you are
+    holding, so a lesson moves on when you have done the step.` Three trims keep the text beside the six screens
+    ("right now the pictures and text are perfect"; "Three edits"); the last paragraph is now `I made Teachie
+    Beachie as a gift to my kids. If you have kids who would like to learn how to use a groovebox and the FM-1,
+    I'd encourage you to give it a try.` ("we can shorten it from I made this as a gift to my kids").
   - **The page tried in a browser with a pretend FM-1:** the lessons sent to an empty slot, to a full FM-1 after its
     question, and each thing that can be wrong said in its own words.
 - **Still to do:** a real FM-1 (decision 10), after one run on Linux. A newer FM-1, for the screen's colors, is with

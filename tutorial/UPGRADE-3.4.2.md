@@ -952,6 +952,11 @@ sunset on the sea. The peach was its stand-in.
   2.8 and two half-sentences taken out, and the build now names any mention of SLOOP 2.8 left in the page's words;
   the closed note "Already use SLOOP 3?" kept; "steps 3 to 6" where SLOOP's page says 3 to 5; new words under six
   of the twelve screens. `web/installer.tmpl.html` is still exactly SLOOP's.
+- **The page's top words, after the commit of step 9:** one new paragraph, why the lessons are inside the FM-1
+  ("Because the lessons run inside the FM-1, they can do what a video or a manual can't ..."), and three trims so
+  the text still ends beside the six screens at a desktop's width: one line past them, where the new paragraph
+  alone ran four past. Measured in the browser at 1440 wide, each wording tried in the page before it was built.
+  `README.md` keeps its own longer words.
 - **`AGENTS.md`, `tutorial/AI.md`:** the black key's name in a lesson (`[BLACK 2]`), `pick KICK` among Setup's
   words, `f.knob_fill`, that sending the lessons starts the course at lesson 1 again, that a strip never covers
   what it points at, and where the upgrade's own files are.

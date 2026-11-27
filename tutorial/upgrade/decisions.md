@@ -455,3 +455,11 @@ Asked one at a time while step 9 was done; each answer in the course's author's 
   top of the page, as the browser tab's icon and in the README (decision 1).
 - **Five old pictures in `tutorial/` that nothing links to: removed** ("yes remove them"). The ten linked from a
   dated note stay.
+- **The page's top says why the lessons are inside the FM-1** (after a draft from another AI assistant: "can we add
+  some of this without making it too long?"). One idea of the draft was new to the page, that a lesson knows what
+  the learner did; the rest was there already in plainer words. Added as one paragraph ("yes lets add it and see
+  how the page changes (right now the pictures and text are perfect)"). It ran four lines past the six screens
+  ("There is now a short gap between the images. can we make a few edits to shorten the page by roughly 3 lines"),
+  so three trims, one of them the course's author's own ("we can shorten it from I made this as a gift to my
+  kids--instead of nieces and nephews"): the last paragraph, the end of the new one, the order of the words about
+  free and no computer. A fourth, which would have brought the text level, was not taken ("Three edits").
