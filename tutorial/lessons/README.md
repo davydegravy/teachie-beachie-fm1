@@ -238,6 +238,22 @@ Keys: a note's name from `F3` to `G5`, `box 1` to `box 16` for the white keys fr
   brought STEP to 4: a blinking key always means "press this". A knob has no light. Off the piano roll the Do's keys
   blink at once.
 
+**The framed names answer the controls.** Nothing to write for it: the FM-1 does it for every card, strip and hint.
+
+- **A button or a key** (`[SAVE]`, `[5]`, `[KEY 5]`, `[BLACK 2]`): its frame is filled, the letters in the paper's
+  colour, while it is held, and outlined again when it is let go. The `[OCT-]` and `[OCT+]` answers of a card stay as
+  they are, and so does a name that is no control the FM-1 can see (`[MASTER]`).
+- **A knob** (`[KNOB1]` to `[KNOB4]`, `[SELECT]`, `[ALGORITHM]`, `[PRESETS]`): its frame fills as far as the turn the
+  step asks for is done, from the left for a turn to the right and from the right for a turn to the left. Full means
+  done. Which turn that is comes from the step's own lines:
+  - **the Do's clicks:** `Do: turn KNOB 2 right 3` fills a third with each click. With two knobs in the Do, each
+    frame fills for its own. One click fills nothing: the step is over at once.
+  - **a value to reach,** when the Do turns one knob and the Until waits for a number that a knob sets (the tempo,
+    the swing, a filter, a track's level or sends, a sound's value): `Until: lead delay above 50` fills as DLY goes
+    from where it stood when the step began to 50. The Do's number is then only what the robot turns.
+  So a turn of a set number of clicks needs its true count in the Do, and a strip that names a knob should name the
+  knob the Do turns.
+
 ### The words of Until
 
 Joined with `and`. Tracks are `bass`, `lead`, `chords`, `pad`, `drums`.

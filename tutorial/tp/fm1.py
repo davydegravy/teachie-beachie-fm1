@@ -146,6 +146,10 @@ class FM1:
         if getattr(self, "_has", None) is None: self._has = self.course()[3] > 0
         return self._has
     def no_card(self): return self.guide(1, bytes([0, 0, 0, 0]))
+    def knob_fill(self, knob, fill, from_right=False):
+        """a knob's framed name on the card: how much of its frame is filled, 0..255 (how far the turn a step asks for is
+        done), from the left, or from the right for a turn to the left. A new card starts every frame empty"""
+        return self.guide(8, bytes([knob, max(0, min(255, int(fill))), 1 if from_right else 0]))
     def keep(self, tracks):
         """(SLOOP 3.4) these tracks' patterns and sounds, as they play now, made their saved copy, so a change of pattern
         does not put an older one back (ED_GUIDE 7; a firmware before it answers and does nothing)"""

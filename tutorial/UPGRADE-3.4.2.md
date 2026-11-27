@@ -26,6 +26,7 @@ EDITOR_E2E=0 INSTALLER_E2E=0 sh fw/build.sh "$(git rev-parse --git-common-dir)/.
 python3 tutorial/upgrade/keepcheck.py       # a lesson's song kept over a change of pattern (step 2)
 python3 tutorial/upgrade/drumcheck.py       # the drum picked: the lesson's check of it, its words for the wrong one (step 2)
 python3 tutorial/upgrade/rollcheck.py       # the piano roll: the key to play blinks once STEP is on its step; SHOW ME (step 4, part 2)
+python3 tutorial/upgrade/framecheck.py      # the framed names answer the controls: held buttons and keys, a knob's turn (step 6)
 git checkout -- docs/index.html tutorial/lessons/screens   # after a build or a lesson run, until step 9: what they rewrote
 ```
 
@@ -89,8 +90,9 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
 5. **The whole course:** `python3 tutorial/device.py` (about 7 min) and `python3 tutorial/check.py --run` (about
    4.5 min): all 30 through. (**Done 2026-11-26**: "Step 5: the whole course", below, with the two other robots.)
 6. **The frames that answer the controls** (decision 11; the guide in `fw/main.c`, a firmware change, so said
-   first). Measured after it: the room left, the load with a knob spun fast (`ld_peak`), screenshots of a frame
-   held and one half filled; then step 5's runs again.
+   first; **done 2026-11-26**: "Step 6: the frames that answer the controls", below). Measured after it: the room
+   left, screenshots of a frame held and one part filled, then step 5's runs again. The load with a knob spun fast
+   (`ld_peak`) cannot be measured on the simulated FM-1: it is on step 10's list.
 7. **The screen colors** (decision 8): M-VAVE's table in `lcd_init`, behind a switch of our own (the section on
    newer FM-1s, below).
 8. **Remembering the lesson** (decision 9; `tutorial/NOTES.md` item 118), if there is room and time. Its rules, from
@@ -114,6 +116,9 @@ Nothing goes to `main`, is pushed or is installed without the user's say.
       flash window works (a cloud session can: the branch is on GitHub).
     - **On it:** the start screen (the logo there at once, no strips, the buttons quick); a byte written into the
       slot's blank part and read back (step 8); lessons sent over other lessons with the start card up.
+    - **And the load** (step 6): a card or a strip with a knob's framed name up, a song playing, the knob spun fast
+      and a framed button held and let go quickly: SLOOP's CPU figure before and during, and the sound listened to.
+      The simulated FM-1 reports 0 % whatever it draws.
 
 ## Done so far
 
@@ -772,9 +777,62 @@ drum's black key, not the boxes (step 2). After the words the robot taps the rig
 With the FM-1 leading, the run's report lists each slip (`step 8: KICK2 picked first, put right`); with the computer
 leading, each lesson's log has it (`slip  picked SNR 2`).
 
+## Step 6: the frames that answer the controls (2026-11-26)
+
+Said first, then gone over with the course's author ("Lets go over it") with a mock-up drawn over real screens, and
+changed before it was built: decision 11 has the words. Built and checked on the simulated FM-1.
+
+**What a learner sees.** The framed names on every card, strip and hint answer the real controls:
+
+- **A button or a key** (`[SAVE]`, `[5]`, `[KEY 5]`, the black key's picture): its frame is filled and its letters are
+  in the paper's colour while it is held; outlined again when let go. Each frame answers its own control.
+- **A knob:** its frame is empty when the step begins and full exactly when the turn the step asks for is done. A
+  turn of a set number of clicks fills by clicks (two needed: half, then full; turning back takes it back); a turn to
+  a value fills as the value goes from where it stood to where the step waits for it. A turn to the left fills from
+  the right. One click: nothing.
+- **Left as they are:** the `[OCT-]` and `[OCT+]` answers of a card (a press there moves on at once), and a name that
+  is no control the firmware can see (`[MASTER]`).
+
+**How it is built** (Teachie Beachie's own parts only; SLOOP's drawing code is untouched):
+
+- **The guide, `fw/main.c`.** `guide_wrap` matches each framed name once to its control (`guide_ctl`: SLOOP's own
+  names for the 14 buttons and 7 knobs, "KNOB1" for its "KNOB 1"; `[5]` and `[KEY 5]` through `white_key[]`; the
+  picture's `@` and a number, that black key) and keeps it in `G.fr`, with the buttons and keys that have a frame
+  (`G.fb`, `G.fk`). Where the held buttons are read each round, a change among those bumps `G.gen`, and the card is
+  drawn again. `guide_seg` draws a name's frame and letters as before, then `guide_fill` swaps paper and ink inside
+  the frame, all of it or the part its knob has reached (`G.kf`, `G.kdir`), on `tilebuf`, and draws the frame again.
+  The answers of a card are drawn from other text and are skipped.
+- **The lesson player, `fw/course.inc`.** `c_fills`, each round: for each knob the Do turns, its clicks since the step
+  began (`C.clk`) out of the Do's count; with one knob and a condition on a value a knob sets (the tempo, the swing,
+  a filter, a track's level or sends, a sound's value: `CN_TEMPO` to `CN_VALUE`), that value from where it stood
+  (`C.latch`) to the number the step waits for.
+- **From the computer:** `tutorial/tp/lesson.py` works out the same (`Player.fills`) and tells the FM-1 with a new
+  message of the guide, 8 (knob, fill 0..255, side): `FM1.knob_fill` in `tutorial/tp/fm1.py`. A new card empties
+  every frame.
+- **For lesson writers:** `tutorial/lessons/README.md`, "The framed names answer the controls". A turn of a set
+  number of clicks needs its true count in the Do.
+
+**What the lessons ask for** (counted from the 30 files): 65 steps ask for a knob turn. 23 are one click (no fill),
+20 a set number of clicks from 2 to 6, 19 a turn to a value, 3 open ("more dirt or less": the Do's clicks).
+
+**The cost, measured.** 1,696 bytes of the flash before the sample bank (4,992 free before, 3,296 after) and 48 of
+RAM (2,136, 2,088). The estimate, for the simpler version in which the guide knew nothing of the step, was 400 to
+600. The pack is unchanged.
+
+**The load could not be measured.** The simulated FM-1 reports 0 % whatever it draws: its sound costs it no time.
+From the code: a pass still stops after 0.25 ms and 8 tiles, the sound still comes first, and a fill is one loop over
+the part of a frame in the tile. To measure on a real FM-1 (step 10).
+
+**Checked.** `python3 tutorial/upgrade/framecheck.py`, with its test lesson in `tutorial/upgrade/framecheck/`: it
+looks at the simulated FM-1's screen after each press and turn (27 checks): a button, then a key, held and let go;
+two knobs by clicks, one click back; the tempo turned down, part of the way; the black key's picture, `[MASTER]`
+and a card's answers; the guide's message 8; the same lesson led by the computer. Then everything again: SLOOP's
+tests, its scenarios, the build with its page tests, the three other upgrade checks, and the five runs of step 5,
+all 30 lessons each, none stopped.
+
 ## Not done
 
-Steps 6 to 10 of "The plan for the full move". Nothing from here has been on a real FM-1.
+Steps 7 to 10 of "The plan for the full move". Nothing from here has been on a real FM-1.
 
 **How the replay was done,** to repeat it on another step: `tutorial/upgrade/replay.py LESSON STEP OUTDIR`, run
 from a copy's top folder. It plays the lesson as `device.py` does up to the step, then makes that step's robot
@@ -794,17 +852,18 @@ what is held between them.
 | After step 2: `app.bin` 276,908 | 6,452 to spare |
 | After the review (SLOOP 2.8's settings and calibration back, about 1 KB; the fixes): `app.bin` 278,164 | **5,196 to spare** |
 | After part 2 of the lessons (the piano roll's blinking key, SHOW ME's note): `app.bin` 278,368 | **4,992 to spare** |
+| After step 6 (the frames that answer the controls): `app.bin` 280,064 | **3,296 to spare** |
 
 **The flash before the bank is one limit of five** (the review, finding 3; `tools/tp_room.py` prints them at the end
 of `fw/build.sh`). Free bytes:
 
-| Limit | After step 2 | After the review | SLOOP's own 3.4.2 |
-|---|---|---|---|
-| Flash before the sample bank | 6,452 | 5,196 | 1,912 |
-| RAM: code outside the window, variables (`slot`) | 2,152 | 2,136 | 1,584 |
-| RAM: the patterns, their saved copies, the stack (`low`) | 200 | 200 | 200 |
-| RAM: buffers (`boot`) | 184 | 184 | 184 |
-| The flash window's own region (`xip`) | 79,940 | 78,692 | 75,308 |
+| Limit | After step 2 | After the review | After part 2 | After step 6 | SLOOP's own 3.4.2 |
+|---|---|---|---|---|---|
+| Flash before the sample bank | 6,452 | 5,196 | 4,992 | 3,296 | 1,912 |
+| RAM: code outside the window, variables (`slot`) | 2,152 | 2,136 | 2,136 | 2,088 | 1,584 |
+| RAM: the patterns, their saved copies, the stack (`low`) | 200 | 200 | 200 | 200 | 200 |
+| RAM: buffers (`boot`) | 184 | 184 | 184 | 184 | 184 |
+| The flash window's own region (`xip`) | 79,940 | 78,692 | 78,488 | 76,792 | 75,308 |
 
 Code in the window (the lesson player, the guide, the pages) costs its full size of the first; what runs from RAM
 is packed in the flash (to about 78 %) and costs its full size of the second, as every new variable does. Still to

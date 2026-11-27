@@ -1866,6 +1866,8 @@ COLD static void vis_pass(void)
  *     5                    the start's card again, START and JUST PLAY
  *     7 tracks             (SLOOP 3.4) these tracks' patterns and sounds, as they play now, made their saved copy
  *                          (keep[]): a lesson's setup, written by the editor's messages, kept on a change of pattern
+ *     8 knob fill side     a knob's framed name: how much of the frame is filled (0..255), from the left (side 0) or
+ *                          the right (1): how far the turn a step asks for is done. A new card starts them empty
  *   kinds: 1 a key down, 2 up, 3 a button down, 4 up, 5 a knob a click right, 6 left */
 /* (its look: peach paper, dark red ink, nothing else; SLOOP's pages are dark, so a card is plainly not SLOOP's) */
 #define G_PAPER TP_PAPER                          /* (app/vis.h: the start screen's too) */
@@ -1878,6 +1880,10 @@ static struct {
     uint8_t led[41];
     uint32_t cap_keys, cap_btn, took_keys, took_btn; uint8_t cap_enc;
     uint8_t ev[32][2], ev_r, ev_w;
+    /* (the frames answer the controls) fr: each framed name of the words, in order: 1.. a button, 16.. a knob, 32.. a key, 0 none;
+     * fb, fk: the buttons and keys that have a frame; hb, hk: those of them held now; kf: each knob's frame, how much of
+     * it is filled (0..255: how far the turn the step asks for is done; the lesson says); kdir: bit e, from the right */
+    uint8_t fr[12], kf[7], kdir; uint16_t fb, hb; uint32_t fk, hk;
 } G;
 static uint8_t g_drawn;
 COLD static void guide_ev(int kind, int id)
@@ -1900,6 +1906,24 @@ static gfx_font tp_font[2]; static uint8_t tp_fonts;      /* tp_fonts: the pack'
 #define GF_S (tp_fonts ? &tp_font[0] : &font_s)
 #define GF_L (tp_fonts ? &tp_font[1] : &font_l)
 COLD static int guide_w(const gfx_font *f, const char *s, int n) { char b[44]; if (n > 43) n = 43; for (int i = 0; i < n; i++) b[i] = s[i]; b[n] = 0; return gfx_text_w(f, b); }
+/* (the frames answer the controls) a framed name's control: 1.. a button (SLOOP's names for them, CAL_BTN), 16.. a knob
+ * (CAL_ENC; "KNOB1" is its "KNOB 1"), 32.. a key ([5] or [KEY 5]: the fifth white key; the black key's picture, '@', and
+ * its number: that black key). 0: no control the firmware can see ([MASTER]) */
+COLD static int g_same(const char *a, const char *b) { for (;; a++) { if (*a == ' ') continue; if (*a != *b) return 0; if (!*a) return 1; b++; } }
+COLD static int guide_ctl(const char *s, int n)
+{
+    char b[12]; int k = 0, v = 0;
+    for (int i = 0; i < n && k < 11; i++) if (s[i] != ' ') b[k++] = s[i];
+    b[k] = 0;
+    for (int i = 0; i < 14; i++) if (g_same(CAL_BTN[i], b)) return 1 + i;
+    for (int i = 0; i < 7; i++) if (g_same(CAL_ENC[i], b)) return 16 + i;
+    const char *c = b; int black = *c == '@';
+    if (black) c++; else if (c[0] == 'K' && c[1] == 'E' && c[2] == 'Y') c += 3;
+    if (!*c) return 0;
+    for (; *c; c++) { if (*c < '0' || *c > '9') return 0; v = v * 10 + (*c - '0'); }
+    if (black) return v >= 1 && v <= 11 ? 32 + DB_KEY[v - 1] : 0;
+    return v >= 1 && v <= 16 ? 32 + white_key[v - 1] : 0;
+}
 COLD static void guide_wrap(void)                   /* the words cut into lines: at '\n', and at a space before the edge */
 {
     const char *t = G.text; int i = 0; G.nl = 0;
@@ -1916,6 +1940,39 @@ COLD static void guide_wrap(void)                   /* the words cut into lines:
         G.ls[G.nl] = (uint8_t)s; G.ll[G.nl] = (uint8_t)(e - s); G.nl++;
         i = e; if (t[i] == ' ' || t[i] == '\n') i++;
     }
+    {   /* (the frames answer the controls) each framed name matched once to its button, knob or key */
+        int k = 0; G.fb = 0; G.fk = 0;
+        for (const char *p = G.text; *p; p++) if (*p == '[') {
+            const char *e = p + 1; while (*e && *e != ']') e++;
+            int c = guide_ctl(p + 1, (int)(e - p - 1));
+            if (k < 12) G.fr[k++] = (uint8_t)c;
+            if (c >= 32) G.fk |= 1u << (c - 32); else if (c && c < 16) G.fb |= (uint16_t)(1u << (c - 1));
+        }
+        while (k < 12) G.fr[k++] = 0;
+    }
+}
+/* (the frames answer the controls) the frame at x, y of the name at `at` in the words: filled while its button or key is
+ * held, or as far as its knob's turn is done (from the left, or from the right for a turn to the left). Paper and ink
+ * are swapped pixel by pixel inside it, so the letters keep their soft edges; then the frame is drawn again */
+COLD static void guide_fill(const char *at, int x, int y, int w, int h)
+{
+    int k = 0, a = 1, b = 1;
+    for (const char *p = G.text; p < at; p++) k += *p == '[';
+    int c = k < 12 ? G.fr[k] : 0;
+    if (c >= 32) { if ((G.hk >> (c - 32)) & 1u) b = w - 1; }
+    else if (c >= 16) { int e = c - 16, n = G.kf[e] * (w - 2) / 255; if ((G.kdir >> e) & 1u) { a = w - 1 - n; b = w - 1; } else b = 1 + n; }
+    else if (c && (G.hb >> (c - 1)) & 1u) b = w - 1;
+    if (b <= a) return;
+    int tx, ty, tw, th; gfx_tile(&tx, &ty, &tw, &th);
+    int x0 = x + a - tx, x1 = x + b - tx, y0 = y + 1 - ty, y1 = y + h - 1 - ty;      /* the part of it in this tile */
+    if (x0 < 0) x0 = 0;
+    if (x1 > tw) x1 = tw;
+    if (y0 < 0) y0 = 0;
+    if (y1 > th) y1 = th;
+    /* (paper + ink - the pixel, the three colours at once: every pixel in a frame is between ink and paper in each of
+     * them, and so is the answer, so nothing carries from one colour into the next) */
+    for (int py = y0; py < y1; py++) for (int px = x0; px < x1; px++) { uint16_t *q = &tilebuf[py * tw + px]; *q = (uint16_t)(G_PAPER + G_INK - *q); }
+    gfx_rframe(x, y, w, h, 3, 1, G_INK);
 }
 /* a line's words from x: a name in [ ] is drawn in a thin frame (a button's name). Where the line ends; draw 0: measured only */
 COLD static int guide_seg(const gfx_font *f, int x, int y, const char *s, int n, int draw)
@@ -1927,7 +1984,10 @@ COLD static int guide_seg(const gfx_font *f, int x, int y, const char *s, int n,
         b[k] = 0;
         int w = gfx_text_w(f, b);
         if (key) {
-            if (draw) { gfx_rframe(x, y - 4, w + 8, f->cap + 8, 3, 1, G_INK); gfx_text(f, x + 4, y, b, G_INK); }
+            if (draw) {
+                gfx_rframe(x, y - 4, w + 8, f->cap + 8, 3, 1, G_INK); gfx_text(f, x + 4, y, b, G_INK);
+                if (s >= G.text && s < G.text + sizeof G.text) guide_fill(s + i, x, y - 4, w + 8, f->cap + 8);   /* (the words' own names; not the [OCT-] and [OCT+] answers) */
+            }
             x += w + 8; i = j < n ? j + 1 : j;
         } else { if (draw) gfx_text(f, x, y, b, G_INK); x += w; i = j; }
     }
@@ -3282,7 +3342,11 @@ COLD static void ed_request(void)
             char *dst[3] = { G.text, G.left, G.right }; const uint32_t cap[3] = { sizeof G.text, sizeof G.left, sizeof G.right };
             uint32_t i = 2;
             for (int k = 0; k < 3; k++) { uint32_t j = 0; while (i < n && r[i]) { if (j + 1 < cap[k]) dst[k][j++] = (char)r[i]; i++; } dst[k][j] = 0; i++; }
-            guide_wrap(); G.gen++;
+            for (int e = 0; e < 7; e++) G.kf[e] = 0;
+            G.kdir = 0; guide_wrap(); G.gen++;
+        }
+        else if (op == 8 && n >= 4 && r[1] < 7) {            /* a knob's frame: how much of it is filled, and from which side */
+            G.kf[r[1]] = r[2]; G.kdir = (uint8_t)(r[3] ? G.kdir | 1u << r[1] : G.kdir & ~(1u << r[1])); G.gen++;
         }
         else if (op == 2) {
             for (int i = 0; i < 41; i++) G.led[i] = 0;
@@ -3820,6 +3884,10 @@ COLD static void buttons(void)
     if (!m_rmch) rm_held = 0;
     if (pr | rel) t_input = time_ticks();
     held_btn = (panel_buttons() & ~G.took_btn) | rm_held | eb_held;
+    {   /* (the frames answer the controls) a framed button or key went down or up: the card is drawn again */
+        uint16_t hb = (uint16_t)((panel_buttons() | rm_held | eb_held) & G.fb); uint32_t hk = (panel_keys() | ek_held) & G.fk;
+        if (hb != G.hb || hk != G.hk) { G.hb = hb; G.hk = hk; G.gen++; }
+    }
     if (t_octup) {                                                   /* NOTES: OCT+ held, the sheet; let go soon, an octave */
         int g = grid_on();                                           /* (3.3.8) the DRUMS grid: the hit's sheet; let go soon, the next page */
         if (!notes_on() && !g) t_octup = 0;

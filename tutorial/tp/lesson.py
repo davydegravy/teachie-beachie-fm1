@@ -266,6 +266,7 @@ class Seen:
 class Cond:
     def __init__(self, text): self.text, self.fn, self.miss, self.needs_base, self.drum = text, None, None, None, None   # drum: the pad its boxes ask for
     roll = None                                                                    # the steps another track's notes still lack (miss: the drums' boxes)
+    num = None                                                                     # (what, how, the number) of a condition on a value a knob sets
     def ok(self, seen): return self.fn(seen)
 
 def boxes(text): return [int(x) - 1 for x in re.findall(r"\d+", text)]
@@ -281,6 +282,7 @@ def parse_until(text):
             m = re.match(r"(above|below|is not|is|at least|at most)\s+(-?[\d.]+)$", rest)
             if m:
                 op, n = m.group(1), float(m.group(2))
+                if what[0] in ("tempo", "global", "track", "value") and op != "is not": k.num = (what, op, n)   # (a value a knob sets: the frame's fill follows it)
                 k.fn = {"above": lambda s: s.value(what) > n, "below": lambda s: s.value(what) < n, "is": lambda s: s.value(what) == n, "is not": lambda s: s.value(what) != n,
                         "at least": lambda s: s.value(what) >= n, "at most": lambda s: s.value(what) <= n}[op]; return True
             if rest in ("changed", "has changed"): k.needs_base = what; k.fn = lambda s: s.value(what) != s.base[what]; return True
@@ -474,6 +476,7 @@ class Player:
         self.robot = Hands(self.fm1, robot_link) if robot_link is not None else None
         self.held, self.events, self.msgs, self.shown = set(), [], set(), 0
         self.picked, self.keys_taken, self.clumsy = None, False, False       # the drum that boxes write, as far as the lesson can tell (None: it can't)
+        self.sent = {}                                                       # each knob's fill as last told to the FM-1 (the frames answer the controls)
         self.hint_s, self.stuck_s = [float(x) for x in os.environ.get("TP_PATIENCE", "25,45").split(",")]   # a hint after this long; then, after the last hint, the offer to show the move
     # ---- small things
     def nap(self, s): time.sleep(min(s, 0.35) if self.fast else s)
@@ -506,6 +509,7 @@ class Player:
         if key != getattr(self, "_lit", None): self.fm1.lights(how, only=only); self._lit = key
     def show(self, step, text=None):
         kind, w = step.kind.lower(), words(text if text is not None else step.text)
+        self.sent = {}                                                              # (a new card: the FM-1 empties every knob's frame)
         left, right = self.answers(step)
         if kind == "card": self.t.say(w, left[0] if left else "", right[0] if right else "")
         elif kind == "big": self.t.say(w, left[0] if left else "", right[0] if right else "", big=True)
@@ -631,6 +635,8 @@ class Player:
         if base: s0 = self.seen(); base = {k: s0.value(k) for k in base}
         t0 = time.time(); at = 0; turned = 0; hint_at = t0 + self.hint_s; hint_i = 0; robot = None; robot_due = t0 + 0.5; off_page = None; self.events = []; self.msgs.clear()
         slip = []                                                                   # (a clumsy robot's wrong move, made once before the Do)
+        clicks = {}                                                                 # (the frames answer the controls: each knob's clicks since the step began)
+        was = {c: self.seen().value(c.num[0]) for c in conds if c.num}
         said = None                                                                # the wrong drum last said
         if conds and all(c.ok(self.seen(base)) for c in conds) and not any(c.needs_base for c in conds):
             on = lambda: (lambda st: bool(st["fill"] or st["punch"] is not None))(self.seen().st)
@@ -650,6 +656,7 @@ class Player:
         while True:
             for ev in self.pump():
                 if os.environ.get("TP_DEBUG"): print("      event", ev, "%.2f" % (time.time() - t0), flush=True)
+                if ev[0] in ("knob_right", "knob_left"): clicks[ev[1]] = clicks.get(ev[1], 0) + (1 if ev[0] == "knob_right" else -1)
                 if conds or at >= len(ops): continue
                 op = ops[at]                                                        # (no Until: the Do itself, in order)
                 hit = (op[0] == "press" and ev == ("button", op[1])) or (op[0] == "hold" and ev == ("button", op[1])) or \
@@ -687,6 +694,8 @@ class Player:
                 elif op[0] in ("tap", "long", "khold") or (op[0] == "any" and op[1] is not None): how[light_of_key(op[1])] = BLINK
             how.update(self.follow(step, s))
             self.lights(how, only=step.kind.lower() in ("card", "big"))
+            for e, fl in self.fills(ops, conds, clicks, was, s).items():           # the knobs' frames: how far each turn is done
+                if self.sent.get(e, (0, False)) != fl: self.fm1.knob_fill(e, *fl); self.sent[e] = fl
             if conds and need is not None and self.picked != need:                 # another drum picked: said once for each (fw/course.inc says the same)
                 if said != self.picked:
                     said = self.picked; self.show(step, "Another drum is picked. / Tap the blinking key."); self.t.note("slip", "picked %s" % PADS[self.picked])
@@ -723,6 +732,26 @@ class Player:
         if not step.sub("Follow"): return {}
         keys = keys_of(step.sub("Follow"), self.lesson.phrases)
         return {light_of_key(keys[s.st["bar"] % len(keys)]): BLINK} if s.st["playing"] else {light_of_key(keys[0]): BLINK}
+    def fills(self, ops, conds, clicks, was, s):
+        """each knob's framed name: how far the turn this step asks for is done, 0..255 of its frame, and whether it fills
+        from the right (a turn to the left). As fw/course.inc c_fills: a set number of clicks, each its share (one click:
+        nothing); with one knob and a value to reach, as the value goes from where it stood (was) to where the step waits"""
+        want, right = {}, {}
+        for o in ops:
+            if o[0] == "turn": right.setdefault(o[1], o[2] > 0); want[o[1]] = want.get(o[1], 0) + abs(o[2])
+        out = {}
+        for e, n in want.items():
+            c = clicks.get(e, 0) if right[e] else -clicks.get(e, 0)
+            out[e] = (0 if n < 2 or c <= 0 else 255 if c >= n else c * 255 // n, not right[e])
+        if len(want) == 1:
+            e = next(iter(want))
+            for c in conds:
+                if not c.num: continue
+                what, op, n = c.num; v0 = was[c]; k = n + (1 if op == "above" else -1 if op == "below" else 0); q = 255
+                if not c.ok(s): q = 0 if k == v0 else max(0, min(255, int((s.value(what) - v0) * 255 / (k - v0))))
+                out[e] = (q, k < v0)
+                if q < 255: break
+        return out
     def left_to_do(self, ops, conds, s):
         """the Do without the boxes that are already right (a tap there would take the note out again)"""
         miss = {WHITE[b % 16] for c in conds if c.miss for b in c.miss(s)}

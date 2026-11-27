@@ -16,6 +16,7 @@ static struct {
     const uint8_t *st;                              /* the step under way (its length, then its kind) */
     uint32_t ms, last, t0, t_hint, t_end, t_off, t_lastb, t_out;   /* ms: our own clock (the firmware's wraps every 72 s) */
     int32_t latch[8];                               /* what each condition's number was when the step began ("changed") */
+    int8_t clk[7];                                  /* each knob's clicks since the step began, right less left (the frames' fill) */
 } C;
 
 CCOLD static uint32_t c_u16(const uint8_t *p) { return (uint32_t)p[0] | (uint32_t)p[1] << 8; }
@@ -345,6 +346,7 @@ CCOLD static void c_step_begin(void)
     int n, any, need; uint32_t miss; int kind = C.st[2];
     C.hint = C.at = C.turned = C.said = C.turnedk = C.held = 0; C.pressed = C.twice = C.played = 0; C.lastb = 255; C.go = 255; C.t_off = 0;
     C.t0 = C.ms; C.t_hint = C.ms + 25000u; G.cap_keys = G.cap_btn = 0; G.cap_enc = 0; c_leds();
+    for (int e = 0; e < 7; e++) C.clk[e] = 0;
     if (kind == CK_SETUP) { const uint8_t *e = c_field(CT_SETUP, 0, &n); if (e) c_setup(e, n); c_after(PH_WAIT); return; }
     if (c_field(CT_SILENT, 0, &n)) G.cap_keys = 0x7FFFFFFu;
     if (kind >= CK_CARD && kind <= CK_REPLY) { c_words(); if (!c_strip(kind)) G.only = 1; }
@@ -428,6 +430,7 @@ CCOLD static void c_event(int kind, int id)          /* a press or a turn, as th
     if (kind == 3) { C.pressed |= (uint16_t)(1u << id); if (id == C.lastb && C.ms - C.t_lastb < 700u) C.twice |= (uint16_t)(1u << id); C.lastb = (uint8_t)id; C.t_lastb = C.ms; }
     if (kind == 1) C.lastb = 255;
     if (kind >= 5) C.turnedk |= (uint8_t)(1u << id);
+    if (kind >= 5 && id < 7) C.clk[id] = (int8_t)(C.clk[id] + (kind == 5 ? 1 : -1));
     switch (C.ph) {
     case PH_BEGIN: case PH_LIST: case PH_END: case PH_STUCK: case PH_ANSWER: case PH_TOC:
         if (C.ph == PH_LIST && kind >= 5 && id == ENC_SELECT) { int k = C.les + (kind == 5 ? 1 : -1); if (k >= 0 && k < tpc[6]) { C.les = (uint8_t)k; c_lesson_card(1); } }
@@ -461,6 +464,35 @@ CCOLD static void c_event(int kind, int id)          /* a press or a turn, as th
     default: break;
     }
 }
+/* (the frames answer the controls) each knob's framed name: how far the turn this step asks for is done, 0..255 of its
+ * frame, and from which side it fills (a turn to the left: from the right). Empty when the step begins, full exactly
+ * when the turn is done:
+ *   a turn of a set number of clicks (the Do's): each click its share; one click: nothing to show;
+ *   a turn to a value the knob sets (the tempo, the swing, a filter, a level or a send, a sound's value: CN_TEMPO to
+ *   CN_VALUE): as the value goes from where it stood when the step began (C.latch) to where the step waits for it */
+CCOLD static void c_fills(void)
+{
+    uint8_t f[7], dir = 0; int8_t want[7]; int n = 0, un, knobs = 0, one = 0, i = 0;
+    const uint8_t *d = C.ph == PH_DO ? c_field(CT_DO, 0, &n) : 0, *u = c_field(CT_UNTIL, 0, &un);
+    for (int e = 0; e < 7; e++) f[e] = 0, want[e] = 0;
+    for (int k = 0; d && 3 * k < n; k++) {
+        const uint8_t *op = d + 3 * k; int w = (int8_t)op[2];
+        if (op[0] != CD_TURN || op[1] >= 7) continue;
+        if (!want[op[1]]) { knobs++; one = op[1]; if (w < 0) dir |= (uint8_t)(1u << one); }
+        want[op[1]] = (int8_t)(want[op[1]] + (w < 0 ? -w : w));
+    }
+    for (int e = 0; e < 7; e++) if (want[e] > 1) { int c = (dir >> e) & 1u ? -C.clk[e] : C.clk[e]; f[e] = (uint8_t)(c <= 0 ? 0 : c >= want[e] ? 255 : c * 255 / want[e]); }
+    if (knobs == 1)
+        for (const uint8_t *end = u ? u + un : 0; u && u < end && i < 8; u += 1 + u[0], i++) {
+            if (u[1] != CC_NUM || u[2] > CN_VALUE || u[5] == CM_IS_NOT || u[5] == CM_CHANGED) continue;
+            int32_t v0 = C.latch[i], k = (int16_t)c_u16(u + 6) + (u[5] == CM_ABOVE) - (u[5] == CM_BELOW), q = 255;
+            if (!c_true(u + 1, i)) { q = k == v0 ? 0 : (c_num(u + 1) - v0) * 255 / (k - v0); q = q < 0 ? 0 : q > 255 ? 255 : q; }
+            f[one] = (uint8_t)q; dir = (uint8_t)(k < v0 ? dir | 1u << one : dir & ~(1u << one));
+            if (q < 255) break;                       /* (several: the first not yet reached says how far) */
+        }
+    for (int e = 0; e < 7; e++) if (G.kf[e] != f[e]) { G.kf[e] = f[e]; G.gen++; }
+    if (G.kdir != dir) { G.kdir = dir; G.gen++; }
+}
 CCOLD static void course_tick(void)                  /* each round of the interface */
 {
     if (C.ph == PH_OFF) {                            /* SLOOP by itself: both OCT buttons held two seconds bring back the start's card */
@@ -473,6 +505,7 @@ CCOLD static void course_tick(void)                  /* each round of the interf
     {   uint32_t now = time_ticks(), d = (uint32_t)(now - C.last) / (1000u * lsb); C.ms += d; C.last += d * 1000u * lsb; }
     if ((uint8_t)(G.ev_w - C.ev_r) > 32) C.ev_r = (uint8_t)(G.ev_w - 32);
     while (C.ev_r != G.ev_w && C.ph != PH_OFF) { int kind = G.ev[C.ev_r & 31][0], id = G.ev[C.ev_r & 31][1]; C.ev_r++; c_event(kind, id); }
+    if (C.ph != PH_OFF && C.st) c_fills();
     if (C.ph >= PH_STEP && C.ph <= PH_STUCK && C.st && (msg_live || info_live) && C.gen != (uint8_t)msg_gen) {   /* what SLOOP just said */
         int n, i = 0; const uint8_t *e = c_field(CT_UNTIL, 0, &n); const char *m = msg_live ? msg : info;
         for (const uint8_t *end = e ? e + n : 0; e && e < end; e += 1 + e[0], i++)

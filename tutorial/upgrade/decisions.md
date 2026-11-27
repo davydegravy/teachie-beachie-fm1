@@ -339,6 +339,35 @@ looked into on 2026-11-25:
 
 When: after the whole course passes, so a shortage of room never holds up the lessons.
 
+**2026-11-26, changed before it was built, then built (step 6).** Gone over with the course's author first ("Lets go over
+it"), with a mock-up drawn over real screens. What changed from the answer above:
+
+- **A button or a key, as answered:** "I would like an outlined button to fill, meaning the text inside would need to
+  invert." Its frame is filled, the letters in the paper's colour, while it is held; outlined again when let go.
+- **A knob's frame is full exactly when the turn the step asks for is done, not after "about ten clicks":** "10 clicks
+  to fill it ... is not useful for the user, the amount of clicks should equal the turn, so two clicks are needed then
+  two clicks would fill it, if they are in the sequencer and need to move from 4 steps to the right 4 clicks would
+  fill it. there is no step in the entire tutorial that has anything like 10 clicks." (The longest counted turn in the
+  course is six.) And "its directional if a knob wants them to turn it left the fill should move left": a turn to the
+  left fills from the right. Turning back takes the fill back.
+- **What needs no fill has none:** "If something like the Oct+ only flashes we don't need to make it this kind of
+  button. if there is a knob that uses only one click and it advances we don't need to use it." The [OCT-] and [OCT+]
+  answers of a card stay as they are; a turn of one click shows nothing.
+- **A turn to a value fills as the value nears it** ("Yes, follow the value"). Of the 65 steps that ask for a knob
+  turn, 23 are one click, 20 a set number of clicks (2 to 6), 19 a turn to a value (the tempo above 135, DLY above
+  50, FILTER until OFF: no set number of clicks), 3 open ("more dirt or less"). For the 19 the frame is empty at the
+  value the step begins with and full where the step waits for it.
+- **So the lesson says how far, not the guide alone.** The fill depends on what the step asks for: on the FM-1 the
+  lesson player works it out (`fw/course.inc`, `c_fills`: the Do's clicks for each knob, or with one knob and a
+  condition on a value a knob sets, that value from where it stood to where it must get); from the computer
+  `tutorial/tp/lesson.py` does the same and tells the FM-1 (the guide's message 8, `FM1.knob_fill`). The guide
+  (`fw/main.c`) matches each framed name once to its control, reads what is held, and draws the fill by swapping paper
+  and ink inside the frame.
+- **Cost, measured:** 1,696 bytes of the flash before the sample bank (3,296 left) and 48 of RAM; the estimate was 400
+  to 600 for the simpler version. **The load could not be measured:** the simulated FM-1 reports 0 % whatever it
+  draws (its sound costs it no time). It is on the list for the real FM-1 (decision 10).
+- **Checked:** `tutorial/upgrade/framecheck.py`, which looks at the simulated FM-1's screen after each press and turn.
+
 ## 12. Icons (asked 2026-11-25)
 
 Small pictures in the cards' words, where a picture says it better than a word.
