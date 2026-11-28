@@ -1954,3 +1954,6 @@ before continuing"), each lesson shown as Today / Suggested after it had played 
 ## To do next
 
 The order of work is in `PLAN.md`, section 13.
+
+- **2026-11-28:** update this FM-1 to the latest m-bootloader (it has 2.4) and M-Flasher.
+- **2026-11-28:** count installs from the install page.
