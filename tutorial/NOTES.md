@@ -1848,6 +1848,109 @@ entry only says what changed for the course.
 - **Still to do:** a real FM-1 (decision 10), after one run on Linux. A newer FM-1, for the screen's colors, is with
   the course's author around late December 2026.
 
+## 2026-11-27: the trial on the real FM-1 (commit `719e837`)
+
+The course's author installed the trial from its page (served on their computer) on their own FM-1, the original
+screen and chip, and is going through the lessons. Notes as they come, nothing changed yet:
+
+1. **Lesson 3, boxes and beats** ("in lesson 3 it tells you to put snare on 5 and 13, but then it tells you the
+   snare is on beats 2 and 4. I think the 5 and 13 are incorrect right?"). They are the same places: box 5 begins
+   beat 2 and box 13 begins beat 4. Step 9's card says `Every 4 boxes is a beat.` but never which boxes those beats
+   are, and the two numbers read as a contradiction even to the author. To reword: name the boxes with the beats.
+2. **Lesson 3 sounds different from the same lesson on 3.3.7** ("It sounds pretty different from before maybe its
+   just the default kick"). SLOOP's own notes give the likely cause: 3.4.1 evened out the kits' snares, claps and
+   hats and brought every sound to the same loudness, and 3.4.2 made the whole mix 6 dB louder. Not yet checked
+   on the FM-1 whether a kick was tapped away as well. Heard on a child's headphones ("kid headphones not high quality"), which
+   carry little bass: to hear again on the usual ones before calling it a change. On headphones SPEAKER LOWCUT
+   (HOME held, AUDIO) belongs OFF: ON, it cuts the lows on the jack too.
+
+3. **Lesson 5, the mutes: name [GLO] each time** ("when we are muting the tracks it just tells you the number like
+   2, 3, 4. These should be [Glo]+ 2, [Glo]+ 3, [Glo]+ 4"). Steps 6, 7 and 8 say `[2] is the lead`, `[3]: the
+   chords`, `[4]: the pad`; the hold is only named in steps 4 and 5. As item 117 said of lesson 27. Measured, two
+   lines each:
+   - step 6: `[GLO] + [2] is the lead: / the tune. Mute it.`
+   - step 7: `[GLO] + [3]: the chords, / a piano. Mute them too.`
+   - step 8: `[GLO] + [4]: the pad. / Soft, long notes. Mute it.`
+   And the solo's way back, step 13 ("for the solos when the you are turning the solo off it says [10] it needs to
+   be [Glo]+ [10]"): `[10] again: / everyone back.` to `[GLO] + [10] again: / everyone back.`, measured, two lines.
+4. **The song's mix on SLOOP 3.4.2** ("wow I do not like how this sounds, the drum dominates and I can barely hear the
+   bass"), in lesson 5, where the whole band plays, on the same child's headphones. HOUSE ONE's track levels
+   (`tutorial/songs/house-one.json`: bass 100, lead 92, chords 78, drums 52, pad 104) were set by ear on 3.3.7; since
+   then SLOOP evened every sound's loudness and the kits' snares, claps and hats (3.4.1) and made the mix 6 dB
+   louder with its peaks limited (3.4.2). To measure on the simulated FM-1, each track alone, old against new, and
+   to hear on other headphones; then the song's levels set again if it is the mix. The levels are the song's, in
+   the lesson pack: no firmware.
+
+5. **The drums drown the band: measured, and it is the new SLOOP** ("yeah the next step it says to play along with
+   the keys but the drum is so powerful I can't hear the keys at all"). Each track of HOUSE ONE alone, as lesson 5
+   sets it up, played by the simulated FM-1 of each version and its sound measured (RMS, dB below full scale):
+
+   | | 3.3.7 | 3.4.2 | change |
+   |---|---|---|---|
+   | drums | -38.9 | -26.4 | +12.5 |
+   | bass | -48.4 | -46.8 | +1.6 |
+   | lead | -49.6 | -46.0 | +3.6 |
+   | chords | -46.2 | -45.6 | +0.6 |
+   | pad | -49.6 | -49.7 | -0.1 |
+   | the whole band | -37.2 | -26.2 | +11.0 |
+
+   The bass was 9.5 dB under the drums and is now 20.4 under. Nothing of ours changed: the song's levels are the
+   same numbers. SLOOP's kits are that much louder against its synth sounds since 3.4.1 and 3.4.2. A track's level
+   is plain (half the number, 6 dB less); the drums alone come out at -37.2 dB at level 30, so about 31 in place of
+   the song's 104 gives the old balance back. Lesson 14 sets every track to 100 by its own Setup and would need its
+   drums lower in the same way.
+
+6. **A scratchy sound on the drum grid, on the real FM-1** ("oh yeah I can hear the scratchy sound in the drum
+   grid--it is bad"). Two causes are possible and not yet told apart: SLOOP 3.4.2's own drum grid, which reads the
+   whole pattern 256 times a frame so that the sound comes late (what SLOOP 3.4.4 repairs; our strips on that page
+   may add to it), or the drums of item 5 driven into the mix's limit. To ask: with the same beat playing, is it
+   gone on the main screen? Gone there: the page. Still there: the loudness.
+   **Answered: "its the page".** So it is SLOOP 3.4.2's drum grid, the page lessons 2 to 7 are taught on, and the
+   Teachie Beachie on 3.3.7 did not have it. The trial should not go out on 3.4.2: it needs the SLOOP release that
+   has 3.4.4's repair without 3.4.4's crashes (`tutorial/UPGRADE-3.4.2.md`, "News looked up on 2026-11-27").
+
+7. **Lesson 8 on the real FM-1: "did not go well"** ("I don't liek same on 7,11 and 14, I think we should do each
+   step with the user so it should say use knob1 to step 7 [3], etc etc.the hint says use knob1 to go to the step
+   but it doesn't tell you the step & the directional knob fill seems incorrect. This is a bad experience for me it
+   would be really bad for a kid"). Three things:
+   - **Step 11 asks for three notes at once** (`The same on 7, 11 and 14.`). To be one step for each note, each
+     naming its step, as step 10 does (`[KNOB1] to step 4: [3].`).
+   - **Its hint names no step** (`[KNOB1] to the step, / then play [KEY 3].`). Each hint to name its own.
+   - **The knob's frame fills wrongly here, and the cause is in how it is built.** On these steps the lesson cannot
+     read the STEP dial (the FM-1 does not tell the lesson its cursor: `tutorial/lessons/README.md`), so the frame
+     counts clicks of the knob against the clicks the step expects: all three turns of step 11 added up (7), and
+     right less left. On a real knob that is not the way to the step: turned quickly it moves more than a step a
+     click, a learner who overshoots and comes back empties the frame while getting nearer, and one who starts from
+     another step needs other clicks, perhaps the other way. The robot on the simulated FM-1 always turned exactly
+     the clicks written, so no check showed it. Two repairs: with words only, leave the turn out of these steps'
+     Do (the frame then stays plain, the key still blinks when STEP is on its step, the robot's turn goes in
+     `Robot:`); or, in the firmware, let the lesson read the STEP dial, so the frame fills as STEP nears its step
+     from either side. The same holds wherever a step counts clicks (lessons 11, 12, 13, 22, 26).
+   - **And step 14** ("for knob1 to step 16 the directional button isn't working"): its Do is one click, and by the
+     rule of step 6 one click fills nothing, so the frame stays empty however far the knob is turned. The rule was
+     meant for a step that is over at the click; this one goes on until the key is played, and from another step
+     it takes more than one click. The same root: clicks counted in place of the dial read.
+8. **The sound of SLOOP 3.4.2 as a whole** ("and the sound is just bad. I really hope he fixes the sound, this is so
+   much worse than the last Sloop version"). So far two causes are known, items 5 and 6: the kits about 12 dB
+   louder against everything else, and the drum grid's crackle. The first is ours to balance in the song; the
+   second is SLOOP's, repaired in 3.4.4. Whether more is wrong is to be heard again once both are out of the way.
+
+**Made the same day, before the play-through went on** ("I think I want to make those changes and get them on my FM-1
+before continuing"), each lesson shown as Today / Suggested after it had played both ways on the simulated FM-1:
+
+- **The song's drums: level 104 to 31** (item 5; heard first as three sound files from the simulated FM-1: "yeah it
+  sounds better with the drums lowered").
+- **Lesson 8** (item 7), "Yes, all of it"; **lesson 3** (item 1), "Yes, both"; **lesson 5** (item 3), "Yes, all of
+  it"; **lesson 14**, its own drums from 100 to 30 and one strip, "Yes, use it". What each says now is in its file,
+  under Tester notes.
+- **Checked afterwards** on the simulated FM-1, by a helper on a cheaper model, its logs read: all thirty lessons
+  read and measured; the six upgrade checks that play lessons or start the FM-1; and the five lesson runs, 30 of 30
+  played through in each. The firmware is unchanged: only the lessons were sent again. The thirty sheets of the
+  lessons' screens are the ones this run made.
+- **Not made:** the knob's frame following the STEP dial (firmware); the drum grid's crackle (SLOOP's, item 6).
+- **Still to redo:** the page's picture of lesson 1 (`assets/shots/lesson-01.png`), where the drums' level bar is now
+  shorter.
+
 ## To do next
 
 The order of work is in `PLAN.md`, section 13.

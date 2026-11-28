@@ -31,37 +31,39 @@
    - **Until:** drums has SNARE on boxes 5 13
    - **Hint:** Tap each blinking key.
 8. **Reply:** Good.
-9. **Card:** Every 4 boxes is a beat. / Kick on every beat. / Snare on beats 2 and 4: / the backbeat. / Most songs you know / have a backbeat. *(beginners only)*
+9. **Card:** Every 4 boxes is a beat. / The beats start on / boxes 1, 5, 9 and 13. / Kick on every beat. *(beginners only)*
    - **OCT+:** Next
-10. **Strip:** Pick the hat: tap [BLACK 5].
+10. **Card:** Your snare is on / boxes 5 and 13. / Those are beats 2 and 4: / the backbeat. // Most songs you know / have a backbeat. *(beginners only)*
+    - **OCT+:** Next
+11. **Strip:** Pick the hat: tap [BLACK 5].
     - **Do:** tap black 5
     - **Until:** drums picked HAT
     - **Hint:** Tap [BLACK 5] until / the top says HAT.
     - **Page:** STEPS
-11. **Strip:** Hats on [3], [7], [11], [15]: / between the kicks.
+12. **Strip:** Hats on [3], [7], [11], [15]: / between the kicks.
     - **Do:** tap box 3 7 11 15
     - **Until:** drums has HAT on boxes 3 7 11 15
     - **Hint:** Tap each blinking key.
-12. **Reply:** Nice.
-13. **Card:** The grid has a row / for each drum. // The keys for the selected / drum will light up. // [KNOB1] picks one too.
+13. **Reply:** Nice.
+14. **Card:** The grid has a row / for each drum. // The keys for the selected / drum will light up. // [KNOB1] picks one too.
     - **OCT+:** Next
-14. **Card:** More hats? / One in every odd box / makes it rush along. // Write them, or / have them written.
+15. **Card:** More hats? / One in every odd box / makes it rush along. // Write them, or / have them written.
     - **OCT-:** I will
     - **OCT+:** Finish it → drums HAT on 1 5 9 13
-15. **Strip:** Hats on [1], [5], / [9] and [13] too.
+16. **Strip:** Hats on [1], [5], / [9] and [13] too.
     - **Do:** tap box 1 5 9 13
     - **Until:** drums has HAT on boxes 1 3 5 7 9 11 13 15
     - **Hint:** Tap each blinking key.
     - **Robot:** tap box 1 5 9 13
-16. **Setup:** unmute; play
-17. **Strip:** Kick, snare, hat. / And the band.
+17. **Setup:** unmute; play
+18. **Strip:** Kick, snare, hat. / And the band.
     - **Wait:** 4 bars
-18. **Strip:** Wrong box? Tap it again. / [OCT+] when done.
+19. **Strip:** Wrong box? Tap it again. / [OCT+] when done.
     - **OCT+:** Done
-19. **Strip:** Press [PLAY] to stop.
+20. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-20. **Card:** Kick, snare, hat. / Three layers, / one drum beat. // And you made it.
+21. **Card:** Kick, snare, hat. / Three layers, / one drum beat. // And you made it.
     - **OCT+:** Done
 
 ## Screens
@@ -81,10 +83,10 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 - Five black keys hold two drums in turns: `[BLACK 1]` KICK and KICK2, `[BLACK 2]` SNARE and SNR 2, `[BLACK 5]` HAT and
   PEDAL, `[BLACK 7]` TOM L and TOM H, `[BLACK 10]` SHAKE and CONGA. Tapped again, the key gives the other; step 5's
   card says so, and the pick steps wait until the top names the right one.
-- [KNOB1] on the grid (SOUND) goes through all 16 drums by name. Step 13's card names it once; the lessons use the
+- [KNOB1] on the grid (SOUND) goes through all 16 drums by name. Step 14's card names it once; the lessons use the
   black keys.
 - "Backbeat" is the only new music word. Use it again in later lessons.
-- If they choose I WILL in step 13 and then struggle, FINISH IT is still there next time round.
+- If they choose I WILL in step 15 and then struggle, FINISH IT is still there next time round.
 
 ## Tester notes
 
@@ -125,3 +127,12 @@ computer led it. The whole lesson was shown at once ("can you show me all of the
 - **Step 13, the card about the grid,** one line more: `[KNOB1] picks one too.` (decision 2: [KNOB1] shown once as the
   other way).
 - The setup picks the kick, so the lesson starts with KICK at the top. 20 steps: from old step 5 on, add one.
+
+2026-11-27, on the real FM-1 (the trial on SLOOP 3.4.2).
+
+- **Boxes and beats** ("in lesson 3 it tells you to put snare on 5 and 13, but then it tells you the snare is on beats
+  2 and 4. I think the 5 and 13 are incorrect right?"). They are the same places, but the card never said so. One card
+  became two ("Yes, both"): `Every 4 boxes is a beat. / The beats start on / boxes 1, 5, 9 and 13. / Kick on every
+  beat.` and `Your snare is on / boxes 5 and 13. / Those are beats 2 and 4: / the backbeat. // Most songs you know /
+  have a backbeat.` 21 steps: from old step 10 on, add one.
+- If they ask why 5 and 13: count the boxes in fours. Box 5 begins beat 2, box 13 begins beat 4.

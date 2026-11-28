@@ -253,6 +253,10 @@ Keys: a note's name from `F3` to `G5`, `box 1` to `box 16` for the white keys fr
     from where it stood when the step began to 50. The Do's number is then only what the robot turns.
   So a turn of a set number of clicks needs its true count in the Do, and a strip that names a knob should name the
   knob the Do turns.
+  - **not on the piano roll's STEP dial.** The lesson cannot read where STEP stands, and on a real knob clicks are
+    not the way to a step (turned quickly it moves more than one, and a learner may come from either side). A step
+    that sends the learner to a step leaves the turn out of its Do, so the frame stays plain, and gives the robot
+    its turn in `Robot:`. The key still blinks only when STEP is on the step. Lesson 8 does it this way.
 
 ### The words of Until
 

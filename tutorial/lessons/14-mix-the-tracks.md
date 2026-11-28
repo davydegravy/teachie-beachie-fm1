@@ -9,10 +9,10 @@
 
 ## Steps
 
-1. **Setup:** song HOUSE ONE section C; bass level 100; lead level 100; chords level 100; pad level 100; drums level 100; track bass; page TRACKS
+1. **Setup:** song HOUSE ONE section C; bass level 100; lead level 100; chords level 100; pad level 100; drums level 30; track bass; page TRACKS
 2. **Card:** If everyone shouts, / nobody is heard. // A mix gives each track / its own volume level.
    - **OCT+:** Go
-3. **Strip:** Press [PLAY]. / Every track's level: 100.
+3. **Strip:** Press [PLAY]. / Everyone is loud.
    - **Do:** press PLAY
    - **Until:** playing
    - **Wait:** 2 bars
@@ -68,3 +68,9 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 - Nothing in this lesson touches what SLOOP 3.4.2 changed: it plays through both ways as it is. On the tracks page
   [KNOB2] is still the track's level (LEVEL), and the strips at the top leave the four dials in view.
+
+2026-11-27, with the notes from the real FM-1 (the trial on SLOOP 3.4.2).
+
+- This lesson sets every track's level itself, so the song's lower drums do not reach it. On SLOOP 3.4.2 drums at
+  100 bury the other four. The setup now starts the drums at 30 (the other four at 100, as before), and step 3 says
+  `Press [PLAY]. / Everyone is loud.` where it said `Every track's level: 100.` ("Yes, use it").

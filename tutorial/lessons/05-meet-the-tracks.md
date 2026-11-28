@@ -20,21 +20,21 @@
    - **Do:** hold GLO, tap box 1
    - **Until:** bass is muted
    - **Hint:** Keep holding [GLO]. / Tap the blinking key.
-5. **Strip:** The bass is muted. / [GLO] and [1] again.
+5. **Strip:** The bass is muted. / [GLO] + [1] again.
    - **Do:** hold GLO, tap box 1
    - **Until:** bass is not muted
-6. **Strip:** [2] is the lead: the tune. / Mute it.
+6. **Strip:** [GLO] + [2] is the lead: / the tune. Mute it.
    - **Do:** hold GLO, tap box 2
    - **Until:** lead is muted
-7. **Strip:** [3]: the chords, on a piano. / Mute them too.
+7. **Strip:** [GLO] + [3]: the chords, / a piano. Mute them too.
    - **Do:** hold GLO, tap box 3
    - **Until:** chords is muted
-8. **Strip:** [4]: the pad. / Soft, long notes. Mute it.
+8. **Strip:** [GLO] + [4]: the pad. / Soft, long notes. Mute it.
    - **Do:** hold GLO, tap box 4
    - **Until:** pad is muted
 9. **Card:** You can now hear only / the bass and drums. / They are the rhythm / section. They keep the / beat for the others.
    - **OCT+:** Next
-10. **Strip:** Bring them back: / [GLO] and [4], [3], [2].
+10. **Strip:** Bring them back: / [GLO] + [4], [3], [2].
     - **Do:** hold GLO, tap box 4 3 2
     - **Until:** nothing muted
 11. **Card:** Solo is the opposite / of mute. / Only that track plays. // [6] to [10] are / the five solos.
@@ -43,7 +43,7 @@
 12. **Strip:** Hold [GLO], tap [10]: / only the drums.
     - **Do:** hold GLO, tap box 10
     - **Until:** drums is solo
-13. **Strip:** [10] again: / everyone back.
+13. **Strip:** [GLO] + [10] again: / everyone back.
     - **Do:** hold GLO, tap box 10
     - **Until:** nothing solo
 14. **Strip:** Mute/solo as you like. / [OCT+] when done.
@@ -83,3 +83,13 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
 
 2026-11-26, the move to SLOOP 3.4.2: nothing changed. [GLO] held still shows SLOOP's MIX page (`1-5 MUTE`, `6-10 SOLO`),
 and the mutes and solos work as before; the lesson plays through both ways as it was.
+
+2026-11-27, on the real FM-1 (the trial on SLOOP 3.4.2).
+
+- **Every strip that needs the hold names [GLO]** ("when we are muting the tracks it just tells you the number like 2,
+  3, 4. These should be [Glo]+ 2, [Glo]+ 3, [Glo]+ 4"; "for the solos when the you are turning the solo off it says
+  [10] it needs to be [Glo]+ [10]"). Steps 6, 7, 8 and 13 now begin `[GLO] + [2]`, `[GLO] + [3]`, `[GLO] + [4]`,
+  `[GLO] + [10] again`; steps 5 and 10 said `[GLO] and` and say `[GLO] +` too ("Yes, all of it").
+- **The drums drowned the band here** ("the drum dominates and I can barely hear the bass"; "I can't hear the keys at
+  all"): SLOOP 3.4.2's kits are about 12 dB louder against its other sounds. The song's drums went from level 104 to
+  31 (`tutorial/songs/house-one.json`; `tutorial/NOTES.md`, 2026-11-27, item 5).

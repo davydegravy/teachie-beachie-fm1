@@ -39,41 +39,56 @@
    - **Until:** playing
    - **Keys:** silent
 10. **Strip top:** [KNOB1] to step 4: [3].
-    - **Do:** turn KNOB 1 right 2, tap A3
+    - **Do:** tap A3
+    - **Robot:** turn KNOB 1 right 2, tap A3
     - **Until:** bass has notes on boxes 1 4
     - **Hint:** Turn [KNOB1] until STEP / says 4. Then play [KEY 3].
     - **Page:** NOTES
-11. **Strip top:** The same on 7, 11 and 14.
-    - **Do:** turn KNOB 1 right 2, tap A3, turn KNOB 1 right 3, tap A3, turn KNOB 1 right 2, tap A3
-    - **Until:** bass has notes on boxes 1 4 7 11 14
-    - **Hint:** [KNOB1] to the step, / then play [KEY 3].
+11. **Strip top:** [KNOB1] to step 7: [3].
+    - **Do:** tap A3
+    - **Robot:** turn KNOB 1 right 2, tap A3
+    - **Until:** bass has notes on boxes 1 4 7
+    - **Hint:** Turn [KNOB1] until STEP / says 7. Then play [KEY 3].
     - **Page:** NOTES
-12. **Reply:** Good.
-13. **Card:** One note on five steps is / already a bass line. // Now a second note: / a higher A, on [KEY 10].
+12. **Strip top:** [KNOB1] to step 11: [3].
+    - **Do:** tap A3
+    - **Robot:** turn KNOB 1 right 3, tap A3
+    - **Until:** bass has notes on boxes 1 4 7 11
+    - **Hint:** Turn [KNOB1] until STEP / says 11. Then play [KEY 3].
+    - **Page:** NOTES
+13. **Strip top:** [KNOB1] to step 14: [3].
+    - **Do:** tap A3
+    - **Robot:** turn KNOB 1 right 2, tap A3
+    - **Until:** bass has notes on boxes 1 4 7 11 14
+    - **Hint:** Turn [KNOB1] until STEP / says 14. Then play [KEY 3].
+    - **Page:** NOTES
+14. **Reply:** Good.
+15. **Card:** One note on five steps is / already a bass line. // Now a second note: / a higher A, on [KEY 10].
     - **OCT+:** Next
     - **Keys:** silent
-14. **Strip top:** [KNOB1] to step 16: [10].
-    - **Do:** turn KNOB 1 right 1, tap A4
+16. **Strip top:** [KNOB1] to step 16: [10].
+    - **Do:** tap A4
+    - **Robot:** turn KNOB 1 right 1, tap A4
     - **Until:** bass has notes on box 16
     - **Hint:** Turn [KNOB1] until STEP / says 16. Then [KEY 10].
     - **Page:** NOTES
-15. **Card:** _Bass and kick / The kick is on / 1, 5, 9 and 13. / Your bass is on 1 too, / then lands in between. // That is what makes / it groove.
+17. **Card:** _Bass and kick / The kick is on / 1, 5, 9 and 13. / Your bass is on 1 too, / then lands in between. // That is what makes / it groove.
     - **OCT+:** Next
     - **Keys:** silent
-16. **Card:** Make it your own. / [KNOB1]: go to a step. / Play a key: its note / is written there. / [EDIT]: the note there / is deleted.
+18. **Card:** Make it your own. / [KNOB1]: go to a step. / Play a key: its note / is written there. / [EDIT]: the note there / is deleted.
     - **OCT+:** Start
     - **Keys:** silent
-17. **Strip top:** [OCT+] when done.
+19. **Strip top:** [OCT+] when done.
     - **OCT+:** Done
     - **Page:** NOTES
     - **Robot:** turn KNOB 1 right 8, tap C4
-18. **Setup:** page TRACKS; unmute; play
-19. **Strip:** Your bass line, in the song.
+20. **Setup:** page TRACKS; unmute; play
+21. **Strip:** Your bass line, in the song.
     - **Wait:** 4 bars
-20. **Strip:** Press [PLAY] to stop.
+22. **Strip:** Press [PLAY] to stop.
     - **Do:** press PLAY
     - **Until:** stopped
-21. **Card:** _The piano roll / Open it: [SEQ]. / Go to a step: [KNOB1]. / Write a note: play a key. / Delete a note: [EDIT].
+23. **Card:** _The piano roll / Open it: [SEQ]. / Go to a step: [KNOB1]. / Write a note: play a key. / Delete a note: [EDIT].
     - **OCT+:** Done
 
 ## Screens
@@ -152,3 +167,19 @@ The lesson's cards and strips in order, from the robot's run on the simulated FM
   the step names, and on the piano roll only while STEP is on a step that still needs its note. SHOW ME on the FM-1
   writes the note (`fw/course.inc`, `tutorial/tp/lesson.py`; the test is `tutorial/upgrade/rollcheck.py`).
 - 21 steps (were 19).
+
+2026-11-27, on the real FM-1 (the trial on SLOOP 3.4.2): "lesson 8 did not go well".
+
+- **One step for each note** ("I don't liek same on 7,11 and 14, I think we should do each step with the user so it
+  should say use knob1 to step 7 [3], etc"). `The same on 7, 11 and 14.` became `[KNOB1] to step 7: [3].`, `[KNOB1] to
+  step 11: [3].` and `[KNOB1] to step 14: [3].`, each with its own hint naming its step ("the hint says use knob1 to
+  go to the step but it doesn't tell you the step"): `Turn [KNOB1] until STEP / says 7. Then play [KEY 3].`
+- **The knob's frame stays plain on the five note steps** ("the directional knob fill seems incorrect"; "for knob1 to
+  step 16 the directional button isn't working"). The lesson cannot read the STEP dial, so the frame counted the
+  knob's clicks, and on a real knob clicks are not the way to a step. The turn is left out of these steps' Do (it is in
+  `Robot:` for the tests), so nothing fills. The key still lights only once STEP is on the step that lacks its note.
+  To come, in the firmware: the lesson reads the STEP dial and the frame fills as STEP nears its step ("Yes, all of
+  it", knowing that).
+- **The bass could not be heard** ("I can't hear the bass at all"): the drums, as lesson 5's note says; lowered in
+  the song.
+- 23 steps (were 21): from old step 12 on, add two.

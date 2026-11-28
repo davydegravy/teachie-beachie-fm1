@@ -736,7 +736,7 @@ move and shown with the lesson. No firmware change in this part.
 
 **Part 4 (lessons 24 to 30) is done, and with it step 4 and step 5:** all 30 lessons play through both ways in one
 run (`python3 tutorial/device.py`, `python3 tutorial/check.py --run`), and the build's page tests pass with them. The
-pack is 56,816 bytes (56,460 before part 4); the slot keeps 6,375 blank bytes (1,024 is the least). The firmware is as
+pack is 56,816 bytes (56,460 before part 4; 57,108 since the lessons changed on 2026-11-27, with 7,016 blank bytes beside the round logo); the slot keeps 6,375 blank bytes (1,024 is the least). The firmware is as
 it was after part 2.
 
 **Every save step waits for exactly PROJECT SAVED** (`Until: says only PROJECT SAVED`: lessons 6, 7, 15, 23, 29, 30).
@@ -1049,6 +1049,61 @@ your sounds read`. SLOOP's own 3.4.2 passes all 63 on the same machine.
 - **Still open:** SLOOP's browser test of the editor (63 checks) with this repair, which only Linux can run here.
   The cloud session ran it on the same repair written another way. It matters only for an FM-1 that never ran
   SLOOP 3; to run before this goes to anyone else.
+
+## News looked up on 2026-11-27: SLOOP 3.4.4, and the newer FM-1s
+
+Looked up at the course's author's word while they played the lessons on their FM-1. Nothing was changed for it.
+
+**SLOOP is at 3.4.4** (one commit, `c49c4b9`, 2026-11-26, tag `v3.4.4-beta`; it holds 3.4.3 too). The trial is on
+3.4.2.
+
+- **3.4.3: no crackle when saving.** The sound is served from inside the long jobs (writing and reading the project,
+  the screen's round); OPEN and NEW fade out; a save that would have to erase the flash while playing waits for the
+  stop and says `SAVED WHEN YOU STOP` (rare).
+- **3.4.4: no crackle on the drums' grid with a full pattern.** The screen's steps are read in one pass, 10 to 20
+  times less work on every page. A restart's report stays on GLO > SYSTEM until power-off.
+- **No page, button or knob moved.** For the lessons: the six steps that wait for `says only PROJECT SAVED` (lessons
+  6, 7, 15, 23, 29, 30) would need trying against `SAVED WHEN YOU STOP`. For the firmware: 578 lines in 18 files,
+  276 of them in `fw/main.c`, the stack and `fw/ram.ld` among them, so the five rooms and step 8's write (it uses
+  the same flash window) have to be gone through again. `hal/` is untouched: nothing for the newer screens or chip.
+- **Not yet:** two reports on SLOOP's tracker, 2026-11-27, say 3.4.4 crashes after a few minutes of playing
+  ([sloop3-fm1#40](https://github.com/isod89/sloop3-fm1/issues/40)), one of them on a new project with two kicks.
+  No answer from SLOOP yet. Wait for the release after it.
+- **Heard on the real FM-1 the same day:** on the trial (3.4.2) the drum grid crackles with a beat playing, and the
+  crackle is gone on the main screen ("its the page"; "it is bad"). That is the fault 3.4.4 repairs. The drum grid
+  is where lessons 2 to 7 happen, and 3.3.7 did not have it: the trial is not to go out on 3.4.2.
+
+**SLOOP 3 on an FM-1 with the new flash chip.** Two bug reports on SLOOP 3's tracker (2026-11-22,
+[#24](https://github.com/isod89/sloop3-fm1/issues/24), [#25](https://github.com/isod89/sloop3-fm1/issues/25)) come
+from "a device with the new chip" running 3.4.1: about the song's first step and a drum's LEVEL, nothing about
+installing, starting or saving. So SLOOP 3 runs on at least one such FM-1. No report there says it does not, and
+none is about the chip itself. M-Flasher's open report ([m-flasher#64](https://github.com/jvitkauskas/m-flasher/issues/64))
+has no news; m-bootloader is at 3.0 (2026-11-22).
+
+**The faded colors on newer screens** ([sloop-fm1#269](https://github.com/isod89/sloop-fm1/issues/269)): a second
+owner confirmed it on 2026-11-25 on their own unit ("red looks pale yellow") and that the same table repairs it,
+built by themselves. Theirs sends two registers more than ours, `E7` and `51`, taken from another firmware's table;
+step 7 sends the eleven of the first report. To remember when a newer FM-1 is here: if the colors are still off with
+ours, those two are the first thing to try. Still open, not merged by SLOOP.
+
+## The first day on the real FM-1 (2026-11-27)
+
+The trial went onto the course's author's FM-1 from its page (commit `719e837`; the original screen and chip). What
+they found, in their words, and what was changed the same day is in `tutorial/NOTES.md`, "2026-11-27: the trial on
+the real FM-1". In short:
+
+- **SLOOP 3.4.2's drum kits are about 12 dB louder** against its other sounds than 3.3.7's (measured on the
+  simulated FM-1 of each version, each track alone). The song's drums went from level 104 to 31, and lesson 14's
+  own from 100 to 30. No firmware.
+- **The drum grid crackles on 3.4.2,** and not on the main screen: SLOOP's own, repaired in 3.4.4 (the section
+  above). The trial is not to go out on 3.4.2.
+- **A knob's frame that counts clicks is wrong on a real knob** where the knob moves a cursor (lesson 8's STEP
+  dial): the frames there are plain for now. To build: the lesson reads the STEP dial (`fw/course.inc`, where the
+  blinking key already knows it), and the frame fills as STEP nears its step from either side.
+- **Lessons 3, 5 and 8 reworded** from the author's notes; lessons 9 to 30 not yet played on the real FM-1.
+- **A small fault of a check's own:** `tutorial/upgrade/framecheck.py` can end with a `BrokenPipeError` printed from
+  its hands' thread, which is still turning a knob when the simulated FM-1 is closed. All 27 of its checks pass
+  and it says OK; to tidy.
 
 ## Not done
 
